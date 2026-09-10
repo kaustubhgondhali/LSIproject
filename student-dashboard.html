@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Student Learning Dashboard | Lord Sai Investment & Share Market Academy</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Student Dashboard Lord Sai Academy, Learning Portal, Trade Journal, Class Handouts" name="keywords">
+    <meta content="Student learning dashboard for active learners at Lord Sai Investment & Share Market Academy in Uran, Navi Mumbai." name="description">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet"> 
+
+    <!-- Icon Font Stylesheet -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link rel="stylesheet" href="lib/animate/animate.min.css"/>
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Security Check First -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        if (!LSI_Auth.requireAuth('student')) {
+            // will redirect
+        }
+    </script>
+
+    <!-- Topbar Start -->
+    <div class="container-fluid topbar px-4 d-none d-lg-block text-white">
+        <div class="row gx-0 align-items-center py-2">
+            <div class="col-lg-7 text-start">
+                <div class="d-flex flex-wrap align-items-center">
+                    <small class="me-3 text-light"><i class="fas fa-map-marker-alt text-info me-1"></i> Shreeraj Nagar Apt., Kamtha Road, Near Dr. Gade Hospital, Uran</small>
+                    <a href="tel:9920254354" class="text-light small me-3"><i class="fas fa-phone-alt text-info me-1"></i> 9920 254 354</a>
+                    <a href="mailto:lordsai.academy@gmail.com" class="text-light small me-3"><i class="fas fa-envelope text-info me-1"></i> lordsai.academy@gmail.com</a>
+                </div>
+            </div>
+            <div class="col-lg-5 text-end">
+                <div class="d-inline-flex align-items-center">
+                    <a href="https://wa.me/919920254354?text=Hi%20Lord%20Sai%20Academy,%20I%20need%20student%20assistance" target="_blank" class="btn btn-sm btn-outline-light rounded-pill py-1 px-3 me-3">
+                        <i class="fab fa-whatsapp text-success me-1"></i> Mentor Doubt Desk
+                    </a>
+                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill py-1 px-3" onclick="LSI_Auth.logout()">
+                        <i class="fas fa-sign-out-alt me-1"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Topbar End -->
+
+    <!-- Navbar Start -->
+    <div class="container-fluid position-relative p-0">
+        <nav class="navbar navbar-expand-lg navbar-light px-3 px-lg-4 py-2">
+            <a href="home.html" class="navbar-brand-wrapper">
+                <img src="img/lord-sai-logo.png" alt="LORD SAI Logo" class="brand-logo-img">
+                <div class="brand-text-block">
+                    <span class="brand-name">LORD&nbsp;SAI</span>
+                    <span class="brand-sub">Student Learning Portal</span>
+                </div>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                <span class="fa fa-bars"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav ms-auto py-0 align-items-lg-center">
+                    <a href="index.html" class="nav-item nav-link">Main Site</a>
+                    <a href="#overview" class="nav-item nav-link active">Overview</a>
+                    <a href="#modules" class="nav-item nav-link">Module Handouts</a>
+                    <a href="#recordings" class="nav-item nav-link">Class Recordings</a>
+                    <a href="#journal" class="nav-item nav-link">Trade Journal</a>
+                    <a href="#doubt-desk" class="nav-item nav-link">Doubt Desk</a>
+                </div>
+                <div class="ms-lg-3 my-2 my-lg-0 d-flex align-items-center gap-2">
+                    <div class="d-none d-lg-block text-end">
+                        <small class="text-muted d-block" style="font-size: 11px;">LOGGED IN AS</small>
+                        <strong class="text-dark" id="navStudentName">Rahul Sharma</strong>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-danger rounded-pill px-3" onclick="LSI_Auth.logout()">
+                        <i class="fas fa-power-off me-1"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <!-- Navbar End -->
+
+    <!-- Language Selector Bar Start -->
+    <div class="site-lang-bar" id="siteLangBar">
+        <div class="container d-flex justify-content-end align-items-center">
+            <div class="lang-selector-wrap" role="group" aria-label="Language Selector">
+                <button type="button" class="lang-btn active" data-lang="en" aria-label="Switch language to English">English</button>
+                <span class="lang-divider">|</span>
+                <button type="button" class="lang-btn" data-lang="mr" aria-label="Switch language to Marathi">मराठी</button>
+                <span class="lang-divider">|</span>
+                <button type="button" class="lang-btn" data-lang="hi" aria-label="Switch language to Hindi">हिंदी</button>
+            </div>
+        </div>
+    </div>
+    <!-- Language Selector Bar End -->
+
+    <!-- Header Breadcrumb Start -->
+    <div class="container-fluid bg-breadcrumb py-5" id="overview">
+        <div class="hero-candlestick-bg" aria-hidden="true">
+            <canvas class="hero-live-canvas"></canvas>
+        </div>
+        <div class="container py-4">
+            <div class="row align-items-center">
+                <div class="col-lg-8 text-center text-lg-start">
+                    <span class="badge bg-success text-uppercase px-3 py-1 mb-2">Verified Enrollment</span>
+                    <h1 class="text-white display-5 fw-bold mb-2">Welcome Back, <span id="headerStudentName">Rahul Sharma</span>!</h1>
+                    <p class="text-light fs-5 mb-3 opacity-90">
+                        Course: <strong class="text-white" id="headerCourseName">Stock Market Basics & Technical Analysis</strong>
+                    </p>
+                    <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-lg-start">
+                        <span class="badge bg-white bg-opacity-20 text-white px-3 py-2 border border-white border-opacity-25">
+                            <i class="fas fa-calendar-check me-1 text-warning"></i> Next Session: <strong>Sat 10:00 AM (Classroom)</strong>
+                        </span>
+                        <span class="badge bg-white bg-opacity-20 text-white px-3 py-2 border border-white border-opacity-25">
+                            <i class="fas fa-user-tie me-1 text-info"></i> Mentor: <strong>Vaibhav S. Pawar (ARN-280789)</strong>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-lg-4 mt-4 mt-lg-0 text-center text-lg-end">
+                    <div class="p-3 rounded-3 bg-white bg-opacity-10 border border-white border-opacity-25 d-inline-block text-start text-white shadow-sm" style="backdrop-filter: blur(8px);">
+                        <div class="small text-uppercase opacity-75 fw-bold mb-1">Batch Progress</div>
+                        <div class="h4 fw-bold mb-2 text-warning" id="headerProgress">Module 4 of 6 (75%)</div>
+                        <div class="progress mb-2" style="height: 8px; background: rgba(255,255,255,0.2);">
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <small class="opacity-90"><i class="fas fa-check-circle text-success me-1"></i> Attendance: <strong id="headerAttendance">92% Verified</strong></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Header Breadcrumb End -->
+
+    <!-- =========================================================================
+         SECTION 1: QUICK STATS & METRICS
+         ========================================================================= -->
+    <section class="py-4 bg-white border-bottom">
+        <div class="container">
+            <div class="row g-3">
+                <div class="col-md-3 col-sm-6">
+                    <div class="p-3 rounded-3 bg-light border d-flex align-items-center gap-3">
+                        <div class="trust-icon" style="width: 46px; height: 46px; font-size: 18px;"><i class="fas fa-book-reader"></i></div>
+                        <div>
+                            <small class="text-muted d-block">Active Track</small>
+                            <strong class="text-dark">Technical Analysis</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="p-3 rounded-3 bg-light border d-flex align-items-center gap-3">
+                        <div class="trust-icon icon-green" style="width: 46px; height: 46px; font-size: 18px;"><i class="fas fa-calendar-check"></i></div>
+                        <div>
+                            <small class="text-muted d-block">Attendance</small>
+                            <strong class="text-dark">18 of 20 Lectures</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="p-3 rounded-3 bg-light border d-flex align-items-center gap-3">
+                        <div class="trust-icon icon-navy" style="width: 46px; height: 46px; font-size: 18px;"><i class="fas fa-chart-line"></i></div>
+                        <div>
+                            <small class="text-muted d-block">Trade Logged</small>
+                            <strong class="text-dark" id="statsTradesCount">14 Trade Reviews</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="p-3 rounded-3 bg-light border d-flex align-items-center gap-3">
+                        <div class="trust-icon" style="width: 46px; height: 46px; font-size: 18px; background: rgba(245, 158, 11, 0.15); color: var(--lsi-gold);"><i class="fas fa-award"></i></div>
+                        <div>
+                            <small class="text-muted d-block">Certification</small>
+                            <strong class="text-dark">On-Track (85%+ req.)</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION 2: MODULE HANDOUTS & PDF STUDY MATERIALS
+         ========================================================================= -->
+    <section class="section-py bg-light" id="modules">
+        <div class="container">
+            <div class="d-flex flex-wrap align-items-center justify-content-between mb-4 gap-2">
+                <div>
+                    <span class="badge-brand-blue mb-1 text-uppercase">Module Handouts</span>
+                    <h3 class="fw-bold text-dark mb-0">Classroom Notes & Reference PDFs</h3>
+                </div>
+                <span class="badge bg-primary px-3 py-2 rounded-pill"><i class="fas fa-shield-alt me-1"></i> Verified Student Access</span>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-6">
+                    <div class="card p-4 h-100 shadow-sm border bg-white" style="border-radius: 12px;">
+                        <span class="badge bg-primary align-self-start mb-2">Module 01</span>
+                        <h6 class="fw-bold text-dark mb-1">Stock Market Basics Manual</h6>
+                        <small class="text-muted mb-3">NSE/BSE, Demat mechanics, order types, and auction rules.</small>
+                        <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                            <small class="text-muted"><i class="fas fa-file-pdf text-danger me-1"></i> PDF (2.4 MB)</small>
+                            <button class="btn btn-sm btn-outline-primary rounded-pill" onclick="alert('Downloading Module 01 Handbook: Stock Market Basics (LSI Uran Batch)')">
+                                <i class="fas fa-download me-1"></i> Download
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="card p-4 h-100 shadow-sm border bg-white" style="border-radius: 12px;">
+                        <span class="badge bg-success align-self-start mb-2">Module 02</span>
+                        <h6 class="fw-bold text-dark mb-1">Price Action & Candlestick Cheatsheet</h6>
+                        <small class="text-muted mb-3">Hammer, Engulfing, Morning Star, and key support levels.</small>
+                        <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                            <small class="text-muted"><i class="fas fa-file-pdf text-danger me-1"></i> PDF (4.1 MB)</small>
+                            <button class="btn btn-sm btn-outline-success rounded-pill" onclick="alert('Downloading Module 02: Price Action Cheatsheet')">
+                                <i class="fas fa-download me-1"></i> Download
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="card p-4 h-100 shadow-sm border bg-white" style="border-radius: 12px;">
+                        <span class="badge bg-warning text-dark align-self-start mb-2">Module 03</span>
+                        <h6 class="fw-bold text-dark mb-1">Risk Management 2% Formula Matrix</h6>
+                        <small class="text-muted mb-3">Position sizing calculation sheets and drawdown safety rules.</small>
+                        <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                            <small class="text-muted"><i class="fas fa-file-excel text-success me-1"></i> XLSX (1.2 MB)</small>
+                            <button class="btn btn-sm btn-outline-warning text-dark rounded-pill" onclick="alert('Downloading Module 03: Risk Management Formula Sheet')">
+                                <i class="fas fa-download me-1"></i> Download
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="card p-4 h-100 shadow-sm border bg-white" style="border-radius: 12px;">
+                        <span class="badge bg-info text-dark align-self-start mb-2">Module 04</span>
+                        <h6 class="fw-bold text-dark mb-1">Option Greeks & Chain Analysis</h6>
+                        <small class="text-muted mb-3">Delta, Theta decay, Open Interest buildup, and strike selection.</small>
+                        <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                            <small class="text-muted"><i class="fas fa-file-pdf text-danger me-1"></i> PDF (3.6 MB)</small>
+                            <button class="btn btn-sm btn-outline-info text-dark rounded-pill" onclick="alert('Downloading Module 04: Option Greeks Manual')">
+                                <i class="fas fa-download me-1"></i> Download
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION 3: RECORDED SESSIONS ARCHIVE
+         ========================================================================= -->
+    <section class="section-py bg-white" id="recordings">
+        <div class="container">
+            <div class="d-flex flex-wrap align-items-center justify-content-between mb-4 gap-2">
+                <div>
+                    <span class="badge-brand-green mb-1 text-uppercase">Classroom Revisions</span>
+                    <h3 class="fw-bold text-dark mb-0">Recorded Classroom Sessions</h3>
+                </div>
+                <small class="text-muted">High-definition whiteboard & terminal session recordings</small>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card p-4 h-100 shadow-sm border bg-light" style="border-radius: 12px;">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="trust-icon" style="width: 48px; height: 48px;"><i class="fas fa-play"></i></div>
+                            <div>
+                                <span class="badge bg-primary mb-1">Classroom Session 08</span>
+                                <h5 class="fw-bold mb-0 text-dark">Multi-Timeframe Candlestick Formations</h5>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-3">
+                            Whiteboard breakdown of daily timeframe trend confirmation combined with 15-minute execution triggers and pre-defined stop loss placement.
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center mt-auto pt-2 border-top">
+                            <small class="text-muted"><i class="far fa-clock me-1"></i> 1 hr 45 min</small>
+                            <button class="btn btn-sm btn-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#sessionVideoModal" data-session-title="Multi-Timeframe Candlestick Formations">
+                                <i class="fas fa-play-circle me-1"></i> Watch Video
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card p-4 h-100 shadow-sm border bg-light" style="border-radius: 12px;">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="trust-icon icon-green" style="width: 48px; height: 48px;"><i class="fas fa-play"></i></div>
+                            <div>
+                                <span class="badge bg-success mb-1">Classroom Session 09</span>
+                                <h5 class="fw-bold mb-0 text-dark">Live Market Support/Resistance Execution</h5>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-3">
+                            Live market terminal observation analyzing high volume breakout confirmation, fakeouts, and dynamic supply/demand order absorption.
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center mt-auto pt-2 border-top">
+                            <small class="text-muted"><i class="far fa-clock me-1"></i> 2 hr 10 min</small>
+                            <button class="btn btn-sm btn-success rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#sessionVideoModal" data-session-title="Live Market Support/Resistance Execution">
+                                <i class="fas fa-play-circle me-1"></i> Watch Video
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION 4: DIGITAL TRADE JOURNAL
+         ========================================================================= -->
+    <section class="section-py bg-light border-top border-bottom" id="journal">
+        <div class="container">
+            <div class="d-flex flex-wrap align-items-center justify-content-between mb-4 gap-2">
+                <div>
+                    <span class="badge-brand-blue mb-1 text-uppercase">Discipline Tracker</span>
+                    <h3 class="fw-bold text-dark mb-0">Practical Student Trade Journal</h3>
+                </div>
+                <button type="button" class="btn btn-sm btn-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#addTradeModal">
+                    <i class="fas fa-plus me-1"></i> Log New Trade Entry
+                </button>
+            </div>
+
+            <div class="card shadow-sm border-0 overflow-hidden" style="border-radius: 12px;">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="tradeJournalTable">
+                        <thead class="table-dark text-uppercase small" style="background: var(--lsi-navy);">
+                            <tr>
+                                <th>Date</th>
+                                <th>Script / Symbol</th>
+                                <th>Trade Type</th>
+                                <th>Entry (₹)</th>
+                                <th>Stop-Loss (₹)</th>
+                                <th>Target (₹)</th>
+                                <th>R : R</th>
+                                <th>Outcome</th>
+                                <th>Mentor Review</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>22 Aug 2024</strong></td>
+                                <td><span class="badge bg-light text-dark border">RELIANCE</span></td>
+                                <td><span class="badge bg-success bg-opacity-10 text-success fw-bold">SWING BUY</span></td>
+                                <td>₹2,980.00</td>
+                                <td>₹2,940.00</td>
+                                <td>₹3,060.00</td>
+                                <td>1 : 2.0</td>
+                                <td><span class="badge bg-success">Target Hit (+₹80)</span></td>
+                                <td><small class="text-success"><i class="fas fa-check-circle me-1"></i> Good level patience</small></td>
+                            </tr>
+                            <tr>
+                                <td><strong>19 Aug 2024</strong></td>
+                                <td><span class="badge bg-light text-dark border">TATASTEEL</span></td>
+                                <td><span class="badge bg-success bg-opacity-10 text-success fw-bold">INTRADAY BUY</span></td>
+                                <td>₹148.50</td>
+                                <td>₹146.80</td>
+                                <td>₹152.00</td>
+                                <td>1 : 2.05</td>
+                                <td><span class="badge bg-success">Target Hit (+₹3.5)</span></td>
+                                <td><small class="text-success"><i class="fas fa-check-circle me-1"></i> Volume confirmed</small></td>
+                            </tr>
+                            <tr>
+                                <td><strong>14 Aug 2024</strong></td>
+                                <td><span class="badge bg-light text-dark border">HDFCBANK</span></td>
+                                <td><span class="badge bg-success bg-opacity-10 text-success fw-bold">SWING BUY</span></td>
+                                <td>₹1,620.00</td>
+                                <td>₹1,598.00</td>
+                                <td>₹1,665.00</td>
+                                <td>1 : 2.04</td>
+                                <td><span class="badge bg-danger">SL Hit (-₹22)</span></td>
+                                <td><small class="text-muted"><i class="fas fa-shield-alt me-1"></i> Strict SL honored</small></td>
+                            </tr>
+                            <tr>
+                                <td><strong>10 Aug 2024</strong></td>
+                                <td><span class="badge bg-light text-dark border">INFY</span></td>
+                                <td><span class="badge bg-success bg-opacity-10 text-success fw-bold">SWING BUY</span></td>
+                                <td>₹1,780.00</td>
+                                <td>₹1,750.00</td>
+                                <td>₹1,840.00</td>
+                                <td>1 : 2.0</td>
+                                <td><span class="badge bg-info text-dark">Open Active</span></td>
+                                <td><small class="text-info"><i class="fas fa-clock me-1"></i> Trailing SL to Entry</small></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION 5: MENTOR DOUBT DESK
+         ========================================================================= -->
+    <section class="section-py bg-white" id="doubt-desk">
+        <div class="container">
+            <div class="row g-4 align-items-center">
+                <div class="col-lg-6">
+                    <span class="badge-brand-blue mb-2 text-uppercase">Direct Mentorship</span>
+                    <h3 class="display-6 fw-bold text-dark mb-3">Have a Doubt on Today's Chart Setup?</h3>
+                    <p class="text-muted mb-4" style="line-height: 1.8;">
+                        Lord Sai Academy students receive personalized doubt-clearing support. Submit your trade screenshot or chart level question directly to Vaibhav Sir.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="https://wa.me/919920254354?text=Hi%20Vaibhav%20Sir,%20I%20am%20Rahul%20Sharma%20(LSI%20Student).%20I%20have%20a%20doubt%20on%20a%20chart%20setup." target="_blank" class="btn btn-success rounded-pill px-4 py-2">
+                            <i class="fab fa-whatsapp me-2"></i> WhatsApp Mentor Desk
+                        </a>
+                        <a href="tel:9920254354" class="btn btn-outline-primary rounded-pill px-4 py-2">
+                            <i class="fas fa-phone-alt me-2"></i> Call Academy Coordinator
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="p-4 bg-light rounded-3 border shadow-sm">
+                        <h5 class="fw-bold text-dark mb-3"><i class="fas fa-info-circle text-primary me-2"></i> Next Classroom Batch Schedule</h5>
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-3 d-flex align-items-start gap-2">
+                                <i class="fas fa-calendar-alt text-primary mt-1"></i>
+                                <div>
+                                    <strong>Saturday 10:00 AM – 12:30 PM</strong>
+                                    <small class="text-muted d-block">Module 5: Options Hedging & Spread Strategies</small>
+                                </div>
+                            </li>
+                            <li class="mb-3 d-flex align-items-start gap-2">
+                                <i class="fas fa-map-marker-alt text-danger mt-1"></i>
+                                <div>
+                                    <strong>Uran Classroom Center</strong>
+                                    <small class="text-muted d-block">Shreeraj Nagar Apt., Kamtha Road, Near Dr. Gade Hospital, Uran</small>
+                                </div>
+                            </li>
+                            <li class="d-flex align-items-start gap-2">
+                                <i class="fas fa-laptop text-success mt-1"></i>
+                                <div>
+                                    <strong>Required Materials</strong>
+                                    <small class="text-muted d-block">Laptop / Tablet with TradingView loaded & physical Trade Journal.</small>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Add Trade Modal -->
+    <div class="modal fade" id="addTradeModal" tabindex="-1" aria-labelledby="addTradeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, var(--lsi-navy), var(--lsi-blue)); border-radius: 16px 16px 0 0;">
+                    <h5 class="modal-title fw-bold text-white" id="addTradeModalLabel">Log New Trade Journal Entry</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="newTradeForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Script / Stock Symbol *</label>
+                            <input type="text" class="form-control" id="tradeSymbol" placeholder="e.g. INFY, RELIANCE, NIFTY" required>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label fw-bold small text-muted">Trade Type</label>
+                                <select class="form-select" id="tradeType">
+                                    <option>SWING BUY</option>
+                                    <option>INTRADAY BUY</option>
+                                    <option>OPTIONS BUY</option>
+                                    <option>OPTIONS SPREAD</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-bold small text-muted">Entry Price (₹)</label>
+                                <input type="number" step="0.05" class="form-control" id="tradeEntry" placeholder="500.00" required>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label fw-bold small text-muted">Stop-Loss (₹)</label>
+                                <input type="number" step="0.05" class="form-control" id="tradeSL" placeholder="485.00" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-bold small text-muted">Target (₹)</label>
+                                <input type="number" step="0.05" class="form-control" id="tradeTarget" placeholder="530.00" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Strategy / Reason for Trade</label>
+                            <input type="text" class="form-control" id="tradeReason" placeholder="e.g. Daily Hammer breakout with 20 EMA support">
+                        </div>
+                        <button type="submit" class="btn btn-primary rounded-pill w-100 py-2">
+                            <i class="fas fa-check-circle me-1"></i> Save to Journal
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Session Video Modal Player -->
+    <div class="modal fade" id="sessionVideoModal" tabindex="-1" aria-labelledby="sessionVideoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; background: #0A1128; color: #FFFFFF;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-white mb-0" id="sessionVideoModalLabel">Classroom Session Archive</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-3 p-lg-4">
+                    <div class="ratio ratio-16x9 rounded-3 overflow-hidden shadow-sm" style="background: #000;">
+                        <iframe id="sessionVideoIframe" src="" title="Classroom Video Archive" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border: none;"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="container-fluid copyright py-3 bg-dark text-white text-center">
+        <div class="container">
+            <span>&copy; Lord Sai Investment & Share Market Academy — Student Portal</span>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/wow/wow.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="js/live-chart.js"></script>
+    <!-- Multilingual Engine -->
+    <script src="js/translations.js"></script>
+    <script src="js/lang.js"></script>
+    <script src="js/mode.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var user = LSI_Auth.getCurrentUser();
+            if (user) {
+                if (document.getElementById('topbarStudentId')) document.getElementById('topbarStudentId').innerText = user.id || "LSI-2024-884";
+                if (document.getElementById('topbarBatch')) document.getElementById('topbarBatch').innerText = user.batch || "Uran Batch 2024";
+                if (document.getElementById('navStudentName')) document.getElementById('navStudentName').innerText = user.name || "Rahul Sharma";
+                if (document.getElementById('headerStudentName')) document.getElementById('headerStudentName').innerText = user.name || "Rahul Sharma";
+                if (document.getElementById('headerCourseName')) document.getElementById('headerCourseName').innerText = user.course || "Stock Market Basics & Technical Analysis";
+                if (document.getElementById('headerProgress') && user.moduleProgress) document.getElementById('headerProgress').innerText = user.moduleProgress;
+                if (document.getElementById('headerAttendance') && user.attendance) document.getElementById('headerAttendance').innerText = user.attendance + " Verified";
+            }
+
+            // Video player listener
+            $('#sessionVideoModal').on('show.bs.modal', function(e) {
+                var btn = $(e.relatedTarget);
+                var title = btn.data('session-title') || "Classroom Session Archive";
+                $(this).find('#sessionVideoModalLabel').text(title);
+                $(this).find('#sessionVideoIframe').attr('src', 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0');
+            });
+            $('#sessionVideoModal').on('hidden.bs.modal', function() {
+                $(this).find('#sessionVideoIframe').attr('src', '');
+            });
+
+            // New trade journal entry submission
+            var newTradeForm = document.getElementById('newTradeForm');
+            if (newTradeForm) {
+                newTradeForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    var symbol = document.getElementById('tradeSymbol').value.toUpperCase();
+                    var type = document.getElementById('tradeType').value;
+                    var entry = parseFloat(document.getElementById('tradeEntry').value).toFixed(2);
+                    var sl = parseFloat(document.getElementById('tradeSL').value).toFixed(2);
+                    var target = parseFloat(document.getElementById('tradeTarget').value).toFixed(2);
+                    
+                    var slDist = Math.abs(entry - sl);
+                    var tgtDist = Math.abs(target - entry);
+                    var rr = slDist > 0 ? (tgtDist / slDist).toFixed(2) : "1.5";
+
+                    var today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                    
+                    var tableBody = document.querySelector('#tradeJournalTable tbody');
+                    var newRow = document.createElement('tr');
+                    newRow.innerHTML = '<td><strong>' + today + '</strong></td>' +
+                        '<td><span class="badge bg-light text-dark border">' + symbol + '</span></td>' +
+                        '<td><span class="badge bg-success bg-opacity-10 text-success fw-bold">' + type + '</span></td>' +
+                        '<td>₹' + entry + '</td>' +
+                        '<td>₹' + sl + '</td>' +
+                        '<td>₹' + target + '</td>' +
+                        '<td>1 : ' + rr + '</td>' +
+                        '<td><span class="badge bg-info text-dark">Open Active</span></td>' +
+                        '<td><small class="text-primary"><i class="fas fa-hourglass-half me-1"></i> Awaiting Mentor Review</small></td>';
+                    
+                    tableBody.insertBefore(newRow, tableBody.firstChild);
+
+                    var modal = bootstrap.Modal.getInstance(document.getElementById('addTradeModal'));
+                    if (modal) modal.hide();
+                    newTradeForm.reset();
+                    alert('Trade entry logged successfully to your journal!');
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

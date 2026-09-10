@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Stock Market & Investment Blog | Lord Sai Investment & Share Market Academy</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Stock Market Blog, Share Market Articles Uran, SIP vs Lump Sum, Risk Management in Trading, SWP Guide, Vaibhav Pawar" name="keywords">
+    <meta content="Educational articles on stock market basics, technical analysis, SIP investing, SWP, risk management, and trading psychology from Lord Sai Academy." name="description">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet"> 
+
+    <!-- Icon Font Stylesheet -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link rel="stylesheet" href="lib/animate/animate.min.css"/>
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Spinner Start -->
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <!-- Spinner End -->
+
+    <!-- Topbar Start -->
+    <div class="container-fluid topbar px-4 d-none d-lg-block text-white">
+        <div class="row gx-0 align-items-center py-2">
+            <div class="col-lg-7 text-start">
+                <div class="d-flex flex-wrap align-items-center">
+                    <span class="badge bg-primary me-3 mode-academy-only" data-i18n="topbar.academyBadge"><i class="fas fa-graduation-cap me-1"></i> Admissions Open — Share Market Academy</span>
+                    <span class="badge bg-success me-3 mode-mf-only" data-i18n="topbar.mfBadge"><i class="fas fa-certificate text-warning me-1"></i> AMFI Registered MFD • ARN: 280789</span>
+                    <small class="me-3 text-light" data-i18n="topbar.address"><i class="fas fa-map-marker-alt text-info me-1"></i> Shreeraj Nagar Apt., Kamtha Road, Near Dr. Gade Hospital, Uran</small>
+                    <a href="tel:9920254354" class="text-light small me-3"><i class="fas fa-phone-alt text-info me-1"></i> 9920 254 354</a>
+                    <a href="mailto:lordsai.academy@gmail.com" class="text-light small me-3"><i class="fas fa-envelope text-info me-1"></i> lordsai.academy@gmail.com</a>
+                </div>
+            </div>
+            <div class="col-lg-5 text-end">
+                <div class="d-inline-flex align-items-center">
+                    <a href="index.html" class="btn btn-sm btn-outline-warning rounded-pill py-1 px-3 me-3 topbar-switch-btn" title="Return to Service Selection Gateway" data-i18n="topbar.switch">
+                        <i class="fas fa-th-large me-1"></i> Switch Business
+                    </a>
+                    <a href="https://wa.me/919920254354" target="_blank" class="btn btn-sm btn-outline-light rounded-pill py-1 px-3 me-3" data-i18n="topbar.whatsapp"><i class="fab fa-whatsapp text-success me-1"></i> WhatsApp Support</a>
+                    <a href="student-login.html" class="text-light small" data-i18n="topbar.studentLogin"><i class="fas fa-user-lock text-info me-1"></i> Student Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Topbar End -->
+
+    <!-- Navbar Start -->
+    <div class="container-fluid position-relative p-0">
+        <nav class="navbar navbar-expand-lg navbar-light px-3 px-lg-4 py-2">
+            <a href="home.html" class="navbar-brand-wrapper">
+                <img src="img/lord-sai-logo.png" alt="LORD SAI Logo" class="brand-logo-img">
+                <div class="brand-text-block">
+                    <span class="brand-name">LORD&nbsp;SAI</span>
+                    <span class="brand-sub mode-academy-only">Share Market Academy</span>
+                    <span class="brand-sub mode-mf-only">Mutual Fund Distribution Services</span>
+                </div>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                <span class="fa fa-bars"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav ms-auto py-0 align-items-lg-center">
+                    <a href="home.html" class="nav-item nav-link" data-i18n="nav.home">Home</a>
+                    
+                    <!-- About Dropdown -->
+                    <div class="nav-item dropdown">
+                        <a href="about.html" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" data-i18n="nav.about">About</a>
+                        <div class="dropdown-menu">
+                            <a href="about.html" class="dropdown-item" data-i18n="nav.aboutUs">About LSI</a>
+                            <a href="founder.html" class="dropdown-item" data-i18n="nav.founder">Founder</a>
+                        </div>
+                    </div>
+
+                    <!-- Course Dropdown -->
+                    <div class="nav-item dropdown">
+                        <a href="courses.html" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" data-i18n="nav.course">Course</a>
+                        <div class="dropdown-menu dropdown-menu-scrollable">
+                            <a href="courses.html#basics" class="dropdown-item">Stock Market Basics</a>
+                            <a href="courses.html#technical-analysis" class="dropdown-item">Technical Analysis</a>
+                            <a href="courses.html#intraday" class="dropdown-item">Intraday Trading</a>
+                            <a href="courses.html#swing-trading" class="dropdown-item">Swing Trading</a>
+                            <a href="courses.html#options" class="dropdown-item">Options Trading</a>
+                            <a href="courses.html#investment" class="dropdown-item">Investment</a>
+                            <a href="courses.html#risk-management" class="dropdown-item">Risk Management</a>
+                            <a href="courses.html#psychology" class="dropdown-item">Trading Psychology</a>
+                            <a href="courses.html#live-sessions" class="dropdown-item">Live Market Sessions</a>
+                        </div>
+                    </div>
+
+                    <!-- Independent SIP & SWP Navigation Tabs (Mutual Fund Mode Only) -->
+                    <a href="sip.html" class="nav-item nav-link mode-mf-only" data-i18n="nav.sipTab">SIP</a>
+                    <a href="swp.html" class="nav-item nav-link mode-mf-only" data-i18n="nav.swpTab">SWP</a>
+
+                    <!-- Financial Services Dropdown -->
+                    <div class="nav-item dropdown">
+                        <a href="insurance.html" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" data-i18n="nav.financialServices">Financial Services</a>
+                        <div class="dropdown-menu">
+                            <a href="insurance.html" class="dropdown-item" data-i18n="nav.insurancePlan">Insurance</a>
+                            <a href="financial-planning.html" class="dropdown-item" data-i18n="nav.holisticPlan">Financial Planning</a>
+                        </div>
+                    </div>
+
+                    <!-- Stories Dropdown -->
+                    <div class="nav-item dropdown">
+                        <a href="testimonials.html" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" data-i18n="nav.stories">Stories</a>
+                        <div class="dropdown-menu">
+                            <a href="testimonials.html" class="dropdown-item" data-i18n="nav.testimonials">Testimonials</a>
+                            <a href="stories.html" class="dropdown-item" data-i18n="nav.studentJourneys">LSI Stories</a>
+                        </div>
+                    </div>
+
+                    <a href="blog.html" class="nav-item nav-link active" data-i18n="nav.blog">Blog</a>
+                    <a href="store.html" class="nav-item nav-link" data-i18n="nav.store">Store</a>
+                    <a href="contact.html" class="nav-item nav-link" data-i18n="nav.contact">Contact</a>
+                    <a href="student-login.html" class="nav-item nav-link d-lg-none" data-i18n="nav.studentLogin">Student Login</a>
+                </div>
+                <div class="ms-lg-3 my-2 my-lg-0">
+                    <button type="button" class="btn btn-enquire" data-bs-toggle="modal" data-bs-target="#demoModal" data-i18n="nav.enquireNow">
+                        <i class="fas fa-bolt me-1"></i> Enquire Now
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <!-- Navbar End -->
+
+    <!-- Language Selector Bar Start -->
+    <div class="site-lang-bar" id="siteLangBar">
+        <div class="container d-flex justify-content-end align-items-center">
+            <div class="lang-selector-wrap" role="group" aria-label="Language Selector">
+                <button type="button" class="lang-btn active" data-lang="en" aria-label="Switch language to English">English</button>
+                <span class="lang-divider">|</span>
+                <button type="button" class="lang-btn" data-lang="mr" aria-label="Switch language to Marathi">मराठी</button>
+                <span class="lang-divider">|</span>
+                <button type="button" class="lang-btn" data-lang="hi" aria-label="Switch language to Hindi">हिंदी</button>
+            </div>
+        </div>
+    </div>
+    <!-- Language Selector Bar End -->
+
+    <!-- Header Breadcrumb Start -->
+    <div class="container-fluid bg-breadcrumb py-5">
+        <div class="hero-candlestick-bg mode-academy-only" aria-hidden="true">
+            <canvas class="hero-live-canvas"></canvas>
+        </div>
+        <div class="mf-hero-growth-bg mode-mf-only" aria-hidden="true">
+            <canvas class="mf-growth-tree-canvas"></canvas>
+        </div>
+        <div class="container text-center py-4">
+            <!-- Academy Breadcrumb -->
+            <div class="mode-academy-only">
+                <span class="badge bg-primary text-uppercase px-3 py-1 mb-2">Knowledge Hub</span>
+    <h1 class="text-white display-4 fw-bold mb-2">Share Market Education & Trading Articles</h1>
+    <p class="text-info fs-4 fw-bold mb-3">Technical Analysis, Price Action & Trading Psychology</p>
+    <p class="text-light fs-6 mb-0 mx-auto" style="max-width: 750px;">
+        Practical guides and educational articles written by Lord Sai Academy mentors to help you build disciplined chart reading habits.
+    </p>
+            </div>
+            <!-- Mutual Fund Breadcrumb -->
+            <div class="mode-mf-only">
+                <span class="badge bg-warning text-dark text-uppercase px-3 py-1 mb-2 font-monospace fw-bold">Wealth Insights</span>
+    <h1 class="text-white display-4 fw-bold mb-2">Mutual Fund & Investment Guides</h1>
+    <p class="text-warning fs-4 fw-bold mb-3">SIP Compounding, SWP Pension & Asset Allocation</p>
+    <p class="text-light fs-6 mb-0 mx-auto" style="max-width: 750px;">
+        Educational guides on mutual fund portfolio selection, rupee cost averaging, and long-term financial security by Vaibhav Pawar (AMFI MFD ARN-280789).
+    </p>
+            </div>
+        </div>
+    </div>
+    <!-- Header Breadcrumb End -->
+
+    <!-- =========================================================================
+         BLOG SECTION: SEARCH, FILTER & ARTICLES
+         ========================================================================= -->
+    <section class="section-py mf-bg-visual mf-bg-visual--insights bg-light">
+        <div class="container">
+            
+            <!-- Category & Search Bar -->
+            <div class="row g-3 justify-content-between align-items-center mb-5">
+                <div class="col-lg-8">
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-sm btn-primary rounded-pill px-3">All Articles</button>
+                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3">Stock Market Basics</button>
+                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3">Technical Analysis</button>
+                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3">SIP & Compounding</button>
+                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3">Risk Management</button>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="input-group">
+                        <input type="text" class="form-control rounded-start-pill ps-3" placeholder="Search educational articles...">
+                        <button class="btn btn-primary rounded-end-pill px-3" type="button"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mutual Fund Mode Lead Article / Research Banner -->
+            <div class="mode-mf-only mb-5">
+                <div class="mf-feature-visual-card p-4 p-lg-5">
+                    <div class="row align-items-center g-4">
+                        <div class="col-lg-5 text-center">
+                            <img src="img/mf-visual-magnifier-analysis.png" alt="Mutual Fund In-Depth Market Analysis and Research" class="img-fluid rounded-3 border bg-white p-2 shadow-sm" style="max-height: 220px; object-fit: contain;">
+                        </div>
+                        <div class="col-lg-7">
+                            <span class="mf-visual-badge-pill"><i class="fas fa-search-dollar me-1"></i> Market Research & Diagnostics</span>
+                            <h3 class="fw-bold text-dark mb-2">In-Depth Mutual Fund & Market Analysis</h3>
+                            <p class="text-muted small mb-3">
+                                Explore mathematical breakdowns of rolling returns, category risk profiles, expense ratio impacts, and index-beating compounding strategies.
+                            </p>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a href="investments.html#calculator" class="btn btn-sm btn-primary rounded-pill px-3">
+                                    <i class="fas fa-calculator me-1"></i> Try Compounding Calculator
+                                </a>
+                                <a href="financial-planning.html" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                    <i class="fas fa-file-invoice me-1"></i> Financial Planning Guide
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FEATURED ARTICLE: 1. STOCK MARKET: WHERE SHOULD A BEGINNER START? -->
+            <div class="card p-4 p-lg-5 mb-5 shadow-sm border-0 bg-white" style="border-radius: 16px;">
+                <div class="row g-4 align-items-center">
+                    <div class="col-lg-6">
+                        <img src="img/service-1.jpg" alt="Stock Market Basics Beginner" class="img-fluid rounded-3" style="width: 100%; max-height: 320px; object-fit: cover;">
+                    </div>
+                    <div class="col-lg-6">
+                        <span class="badge bg-primary text-uppercase mb-2">Featured Guide</span>
+                        <h2 class="fw-bold text-dark mb-3">1. Stock Market: Where Should a Beginner Start?</h2>
+                        <p class="text-muted mb-3" style="line-height: 1.8;">
+                            Entering the capital market without understanding structure and terminology is the fastest way to lose capital. This foundational guide covers Demat account setup, exchange functions (NSE/BSE), order types, and the essential shift from speculative tips to structured learning.
+                        </p>
+                        <div class="d-flex align-items-center gap-3 mb-4 text-muted small">
+                            <span><i class="fas fa-user-edit text-primary me-1"></i> Mentor Vaibhav Pawar</span>
+                            <span><i class="far fa-clock text-info me-1"></i> 6 Min Read</span>
+                            <span><i class="fas fa-tag text-success me-1"></i> Basics</span>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#demoModal">
+                            Inquire for Beginner Course
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5 OTHER CORE ARTICLES IN GRID -->
+            <div class="row g-4">
+                
+                <!-- Article 2: SIP vs Lump Sum -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 shadow-sm border-0 bg-white overflow-hidden" style="border-radius: 12px;">
+                        <img src="img/service-2.jpg" alt="SIP vs Lump Sum" class="img-fluid" style="height: 200px; object-fit: cover;">
+                        <div class="p-4 d-flex flex-column flex-grow-1">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="badge bg-info text-dark">Investments</span>
+                                <small class="text-muted"><i class="far fa-clock me-1"></i> 5 Min</small>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-2">2. SIP vs Lump Sum: What's the Difference?</h5>
+                            <p class="text-muted small mb-4" style="line-height: 1.6;">
+                                Understand how Rupee Cost Averaging protects monthly investors during corrections, compared to the timing requirements of lump-sum allocations.
+                            </p>
+                            <a href="investments.html#sip" class="btn btn-sm btn-outline-primary rounded-pill mt-auto">Read Full Guide</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Article 3: What Is Risk Management in Trading? -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 shadow-sm border-0 bg-white overflow-hidden" style="border-radius: 12px;">
+                        <img src="img/service-3.jpg" alt="Risk Management in Trading" class="img-fluid" style="height: 200px; object-fit: cover;">
+                        <div class="p-4 d-flex flex-column flex-grow-1">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="badge bg-danger">Risk Discipline</span>
+                                <small class="text-muted"><i class="far fa-clock me-1"></i> 7 Min</small>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-2">3. What Is Risk Management in Trading?</h5>
+                            <p class="text-muted small mb-4" style="line-height: 1.6;">
+                                "First protect your capital. Then think about returns." Learn position sizing mathematics, stop-loss execution, and maximum drawdown control.
+                            </p>
+                            <a href="courses.html#risk-management" class="btn btn-sm btn-outline-primary rounded-pill mt-auto">Read Full Guide</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Article 4: 5 Common Mistakes New Traders Make -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 shadow-sm border-0 bg-white overflow-hidden" style="border-radius: 12px;">
+                        <img src="img/service-4.jpg" alt="Common Trading Mistakes" class="img-fluid" style="height: 200px; object-fit: cover;">
+                        <div class="p-4 d-flex flex-column flex-grow-1">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="badge bg-warning text-dark">Psychology</span>
+                                <small class="text-muted"><i class="far fa-clock me-1"></i> 6 Min</small>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-2">4. 5 Common Mistakes New Traders Make</h5>
+                            <p class="text-muted small mb-4" style="line-height: 1.6;">
+                                Why revenge trading, skipping stop-losses, and following unsolicited social media tips destroy retail trading accounts and how to avoid them.
+                            </p>
+                            <a href="courses.html#psychology" class="btn btn-sm btn-outline-primary rounded-pill mt-auto">Read Full Guide</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Article 5: How Does SWP Work? -->
+                <div class="col-lg-6 col-md-6">
+                    <div class="card h-100 shadow-sm border-0 bg-white overflow-hidden" style="border-radius: 12px;">
+                        <div class="p-4 d-flex flex-column flex-grow-1">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="badge bg-success">Retirement Cash Flow</span>
+                                <small class="text-muted"><i class="far fa-clock me-1"></i> 5 Min</small>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-2">5. How Does Systematic Withdrawal Plan (SWP) Work?</h5>
+                            <p class="text-muted small mb-4" style="line-height: 1.6;">
+                                A detailed breakdown of tax-efficient monthly income generation for retirees. Discover how keeping capital invested while withdrawing fixed sums extends corpus longevity.
+                            </p>
+                            <a href="investments.html#swp" class="btn btn-sm btn-outline-primary rounded-pill mt-auto align-self-start">Explore SWP Guide</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Article 6: What Is Mutual Fund Diversification? -->
+                <div class="col-lg-6 col-md-6">
+                    <div class="card h-100 shadow-sm border-0 bg-white overflow-hidden" style="border-radius: 12px;">
+                        <div class="p-4 d-flex flex-column flex-grow-1">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="badge bg-primary">Portfolio Design</span>
+                                <small class="text-muted"><i class="far fa-clock me-1"></i> 5 Min</small>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-2">6. What Is Mutual Fund Diversification?</h5>
+                            <p class="text-muted small mb-4" style="line-height: 1.6;">
+                                Why holding 15 similar large-cap funds is not true diversification. Learn how to blend equity, debt, and hybrid assets across different market capitalizations.
+                            </p>
+                            <a href="investments.html#mutual-funds" class="btn btn-sm btn-outline-primary rounded-pill mt-auto align-self-start">Explore Asset Allocation</a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================================================
+         FINAL CTA SECTION
+         ========================================================================= -->
+    <section class="section-py text-white position-relative" style="background: linear-gradient(135deg, var(--lsi-dark-deep) 0%, var(--lsi-navy) 60%, #03045E 100%);">
+        <div class="hero-candlestick-bg mode-academy-only" aria-hidden="true">
+            <canvas class="hero-live-canvas"></canvas>
+        </div>
+        <div class="mf-hero-wave-bg mode-mf-only" aria-hidden="true">
+            <canvas class="mf-live-wave-canvas"></canvas>
+        </div>
+        <div class="container text-center py-4">
+            <div class="mx-auto" style="max-width: 800px;">
+                <span class="badge bg-primary text-uppercase mb-3 px-3 py-1">Continuous Education</span>
+                <h2 class="display-5 fw-bold text-white mb-3">Want Structured Guidance Beyond Articles?</h2>
+                <p class="text-light fs-5 mb-4" style="line-height: 1.8; opacity: 0.9;">
+                    Join our classroom mentoring programs in Uran or schedule a one-on-one portfolio review.
+                </p>
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <button type="button" class="btn btn-enquire btn-lg px-5" data-bs-toggle="modal" data-bs-target="#demoModal">
+                        <i class="fas fa-bolt me-2"></i> Enquire Now
+                    </button>
+                    <a href="https://wa.me/919920254354?text=Hi%20Lord%20Sai%20Academy,%20I%20read%20your%20blog%20and%20want%20to%20know%20more" target="_blank" class="btn btn-outline-light btn-lg rounded-pill px-4">
+                        <i class="fab fa-whatsapp text-success me-2"></i> Chat on WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================================================
+         HIGHLIGHTED LIVE MOVING STOCK MARKET DISCLAIMER TICKER (Academy Mode Only)
+         ========================================================================= -->
+    <div class="academy-ticker-section-wrapper mode-academy-only">
+        <div class="container-fluid px-3 px-lg-4 pb-1">
+            <span class="academy-disclaimer-red-label">
+                <span class="academy-disclaimer-red-dot"></span>
+                DISCLAIMER
+            </span>
+        </div>
+        <div class="academy-live-ticker-bar">
+            <div class="container-fluid px-2">
+                <div class="academy-ticker-track-container">
+                    <div class="academy-ticker-content">
+                        <div class="academy-ticker-item">
+                            <span class="academy-ticker-highlight">
+                                <strong>Disclaimer:</strong> This website and its content are intended solely for educational and training purposes related to the stock market. We do not provide investment advice, stock tips, or any recommendation to buy or sell securities. Any examples, strategies, charts, market analysis, or information presented are for learning purposes only and should not be considered financial advice. Stock market investments are subject to market risks. Students and visitors are advised to conduct their own research and consult a qualified financial professional before making any investment decisions. We do not guarantee profits or returns from any trading or investment activity.
+                            </span>
+                            <span class="academy-ticker-bullet">&bull;</span>
+                            <span class="academy-ticker-highlight">
+                                <strong>Disclaimer:</strong> This website and its content are intended solely for educational and training purposes related to the stock market. We do not provide investment advice, stock tips, or any recommendation to buy or sell securities. Any examples, strategies, charts, market analysis, or information presented are for learning purposes only and should not be considered financial advice. Stock market investments are subject to market risks. Students and visitors are advised to conduct their own research and consult a qualified financial professional before making any investment decisions. We do not guarantee profits or returns from any trading or investment activity.
+                            </span>
+                            <span class="academy-ticker-bullet">&bull;</span>
+                        </div>
+                        <div class="academy-ticker-item" aria-hidden="true">
+                            <span class="academy-ticker-highlight">
+                                <strong>Disclaimer:</strong> This website and its content are intended solely for educational and training purposes related to the stock market. We do not provide investment advice, stock tips, or any recommendation to buy or sell securities. Any examples, strategies, charts, market analysis, or information presented are for learning purposes only and should not be considered financial advice. Stock market investments are subject to market risks. Students and visitors are advised to conduct their own research and consult a qualified financial professional before making any investment decisions. We do not guarantee profits or returns from any trading or investment activity.
+                            </span>
+                            <span class="academy-ticker-bullet">&bull;</span>
+                            <span class="academy-ticker-highlight">
+                                <strong>Disclaimer:</strong> This website and its content are intended solely for educational and training purposes related to the stock market. We do not provide investment advice, stock tips, or any recommendation to buy or sell securities. Any examples, strategies, charts, market analysis, or information presented are for learning purposes only and should not be considered financial advice. Stock market investments are subject to market risks. Students and visitors are advised to conduct their own research and consult a qualified financial professional before making any investment decisions. We do not guarantee profits or returns from any trading or investment activity.
+                            </span>
+                            <span class="academy-ticker-bullet">&bull;</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================================
+         HIGHLIGHTED LIVE MOVING MUTUAL FUND DISCLAIMER TICKER (Mutual Fund Mode Only)
+         ========================================================================= -->
+    <div class="mf-ticker-section-wrapper mode-mf-only">
+        <div class="container-fluid px-3 px-lg-4 pb-1">
+            <span class="mf-disclaimer-red-label">
+                <span class="mf-disclaimer-red-dot"></span>
+                DISCLAIMER
+            </span>
+        </div>
+        <div class="mf-live-ticker-bar">
+            <div class="container-fluid px-2">
+                <div class="mf-ticker-track-container">
+                    <div class="mf-ticker-content">
+                        <div class="mf-ticker-item">
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully before investing. SIP returns are not guaranteed or fixed. Past performance does not indicate or guarantee future returns. Investors should make investment decisions based on their financial goals, risk appetite, and financial situation. If required, consult a SEBI-registered Investment Adviser before investing.
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully before investing. SIP returns are not guaranteed or fixed. Past performance does not indicate or guarantee future returns. Investors should make investment decisions based on their financial goals, risk appetite, and financial situation. If required, consult a SEBI-registered Investment Adviser before investing.
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                        </div>
+                        <div class="mf-ticker-item" aria-hidden="true">
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully before investing. SIP returns are not guaranteed or fixed. Past performance does not indicate or guarantee future returns. Investors should make investment decisions based on their financial goals, risk appetite, and financial situation. If required, consult a SEBI-registered Investment Adviser before investing.
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully before investing. SIP returns are not guaranteed or fixed. Past performance does not indicate or guarantee future returns. Investors should make investment decisions based on their financial goals, risk appetite, and financial situation. If required, consult a SEBI-registered Investment Adviser before investing.
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================================
+         FOOTER
+         ========================================================================= -->
+    <div class="container-fluid footer py-5">
+        <div class="container py-4">
+            <div class="row g-4">
+                <!-- Brand Info -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <img src="img/lord-sai-logo.png" alt="LORD SAI Logo" style="height: 48px; background: #fff; padding: 2px 6px; border-radius: 6px;">
+                        <div>
+                            <div class="footer-brand-title">Lord&nbsp;Sai Share Market Academy</div>
+                        </div>
+                    </div>
+                    <div class="footer-brand-sub mb-3">
+                        Stock Market Education | Trading | Investment | Financial Planning | Insurance
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="col-lg-5 col-md-6">
+                    <h5>Quick Links</h5>
+                    <div class="footer-quicklinks-grid">
+                        <a href="home.html"><i class="fas fa-angle-right me-1"></i> Home</a>
+                        <a href="about.html"><i class="fas fa-angle-right me-1"></i> About</a>
+                        <a href="founder.html"><i class="fas fa-angle-right me-1"></i> Founder</a>
+                        <a href="courses.html"><i class="fas fa-angle-right me-1"></i> Course</a>
+                        <a href="store.html"><i class="fas fa-angle-right me-1"></i> Store</a>
+                        <a href="testimonials.html"><i class="fas fa-angle-right me-1"></i> Testimonials</a>
+                        <a href="stories.html"><i class="fas fa-angle-right me-1"></i> Stories</a>
+                        <a href="blog.html"><i class="fas fa-angle-right me-1"></i> Blog</a>
+                        <a href="sip.html" class="mode-mf-only" data-i18n="nav.sipTab"><i class="fas fa-angle-right me-1"></i> SIP</a>
+                        <a href="swp.html" class="mode-mf-only" data-i18n="nav.swpTab"><i class="fas fa-angle-right me-1"></i> SWP</a>
+                        <a href="investments.html"><i class="fas fa-angle-right me-1"></i> Investments</a>
+                        <a href="insurance.html"><i class="fas fa-angle-right me-1"></i> Insurance</a>
+                        <a href="financial-planning.html"><i class="fas fa-angle-right me-1"></i> Financial Planning</a>
+                        <a href="contact.html"><i class="fas fa-angle-right me-1"></i> Contact</a>
+                    </div>
+                </div>
+
+                <!-- Contact Details -->
+                <div class="col-lg-3 col-md-6">
+                    <h5>Contact</h5>
+                    <div class="footer-contact-item">
+                        <i class="fas fa-phone-alt"></i>
+                        <div>
+                            <strong>9920 254 354</strong>
+                        </div>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            Shreeraj Nagar Apt., Kamtha Road, Near Dr. Gade Hospital, Uran
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Regulatory Risk Disclaimer -->
+            <div class="sebi-disclaimer-box">
+                <p class="mb-0"><strong>Disclaimer:</strong> Stock market investments and trading involve market risks. Past performance does not guarantee future results. Financial products are subject to applicable terms and conditions. Please evaluate your financial objectives and risk profile before investing.</p>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
+
+    <!-- Copyright Start -->
+    <div class="container-fluid copyright py-3">
+        <div class="container text-center">
+            <span>&copy; Lord Sai Investment & Share Market Academy (Class). All Rights Reserved.</span>
+        </div>
+    </div>
+    <!-- Copyright End -->
+
+    <!-- Floating WhatsApp Support Button -->
+    <a href="https://wa.me/919920254354?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20enquire%20about%20your%20stock%20market%20and%20investment%20classes" target="_blank" class="floating-whatsapp" title="Chat on WhatsApp">
+        <span class="whatsapp-pulse"></span>
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- Back to Top -->
+    <a href="#" class="back-to-top"><i class="fa fa-arrow-up"></i></a>
+
+    <!-- Demo / Registration Modal -->
+    <div class="modal fade" id="demoModal" tabindex="-1" aria-labelledby="demoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, var(--lsi-navy), var(--lsi-blue)); border-radius: 16px 16px 0 0;">
+                    <div>
+                        <h5 class="modal-title fw-bold text-white" id="demoModalLabel">Enquire at Lord Sai Academy</h5>
+                        <small class="text-light opacity-75">Connect with mentors in Uran, Navi Mumbai</small>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="demoRegistrationForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Full Name *</label>
+                            <input type="text" class="form-control" placeholder="Enter your full name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">WhatsApp Phone Number *</label>
+                            <input type="tel" class="form-control" placeholder="9920 254 354" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Email Address</label>
+                            <input type="email" class="form-control" placeholder="lordsai.academy@gmail.com">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Topic Of Interest</label>
+                            <select class="form-select">
+                                <option selected>Stock Market Basics (Beginner)</option>
+                                <option>Technical Analysis</option>
+                                <option>Intraday Trading</option>
+                                <option>Swing Trading</option>
+                                <option>Options Trading</option>
+                                <option>Investment & Wealth Compounding</option>
+                                <option>Financial Planning & Insurance</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary rounded-pill w-100 py-2">
+                            <i class="fas fa-paper-plane me-2"></i> Submit Inquiry
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/wow/wow.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/waypoints/waypoints.min.js"></script>
+    <script src="lib/counterup/counterup.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+
+    <!-- Live Stock Market Candlestick Chart Engine -->
+    <script src="js/live-chart.js"></script>
+
+    <!-- Authentication Engine -->
+    <script src="js/auth.js"></script>
+
+    <!-- Multilingual Engine -->
+    <script src="js/translations.js"></script>
+    <script src="js/lang.js"></script>
+    <script src="js/mode.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>

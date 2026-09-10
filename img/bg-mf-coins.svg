@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <ellipse cx="150" cy="300" rx="90" ry="26" fill="#F59E0B"/>
+  <ellipse cx="150" cy="282" rx="90" ry="26" fill="#0F9F90"/>
+  <ellipse cx="150" cy="264" rx="90" ry="26" fill="#F59E0B"/>
+  <ellipse cx="150" cy="246" rx="90" ry="26" fill="#0F9F90"/>
+  <ellipse cx="150" cy="228" rx="90" ry="26" fill="#F59E0B"/>
+  <text x="150" y="238" font-family="Arial, sans-serif" font-size="34" font-weight="bold" fill="#064E3B" text-anchor="middle">Rs</text>
+  <ellipse cx="300" cy="330" rx="60" ry="18" fill="#0F9F90"/>
+  <ellipse cx="300" cy="318" rx="60" ry="18" fill="#F59E0B"/>
+  <ellipse cx="300" cy="306" rx="60" ry="18" fill="#0F9F90"/>
+</svg>

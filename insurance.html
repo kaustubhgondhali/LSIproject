@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Insurance Guidance & Family Protection | Lord Sai Investment & Share Market Academy</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Insurance Uran, Life Insurance Navi Mumbai, Health Insurance Planning, Motor Insurance, General Insurance, Family Risk Protection" name="keywords">
+    <meta content="Educational guidance on Life Insurance, Health Insurance, Motor Insurance, and holistic Family Risk Protection at Lord Sai Academy, Uran, Maharashtra." name="description">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet"> 
+
+    <!-- Icon Font Stylesheet -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link rel="stylesheet" href="lib/animate/animate.min.css"/>
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Spinner Start -->
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <!-- Spinner End -->
+
+    <!-- Topbar Start -->
+    <div class="container-fluid topbar px-4 d-none d-lg-block text-white">
+        <div class="row gx-0 align-items-center py-2">
+            <div class="col-lg-7 text-start">
+                <div class="d-flex flex-wrap align-items-center">
+                    <span class="badge bg-primary me-3 mode-academy-only" data-i18n="topbar.academyBadge"><i class="fas fa-graduation-cap me-1"></i> Admissions Open — Share Market Academy</span>
+                    <span class="badge bg-success me-3 mode-mf-only" data-i18n="topbar.mfBadge"><i class="fas fa-certificate text-warning me-1"></i> AMFI Registered MFD • ARN: 280789</span>
+                    <small class="me-3 text-light" data-i18n="topbar.address"><i class="fas fa-map-marker-alt text-info me-1"></i> Shreeraj Nagar Apt., Kamtha Road, Near Dr. Gade Hospital, Uran</small>
+                    <a href="tel:9920254354" class="text-light small me-3"><i class="fas fa-phone-alt text-info me-1"></i> 9920 254 354</a>
+                    <a href="mailto:lordsai.academy@gmail.com" class="text-light small me-3"><i class="fas fa-envelope text-info me-1"></i> lordsai.academy@gmail.com</a>
+                </div>
+            </div>
+            <div class="col-lg-5 text-end">
+                <div class="d-inline-flex align-items-center">
+                    <a href="index.html" class="btn btn-sm btn-outline-warning rounded-pill py-1 px-3 me-3 topbar-switch-btn" title="Return to Service Selection Gateway" data-i18n="topbar.switch">
+                        <i class="fas fa-th-large me-1"></i> Switch Business
+                    </a>
+                    <a href="https://wa.me/919920254354" target="_blank" class="btn btn-sm btn-outline-light rounded-pill py-1 px-3 me-3" data-i18n="topbar.whatsapp"><i class="fab fa-whatsapp text-success me-1"></i> WhatsApp Support</a>
+                    <a href="student-login.html" class="text-light small" data-i18n="topbar.studentLogin"><i class="fas fa-user-lock text-info me-1"></i> Student Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Topbar End -->
+
+    <!-- Navbar Start -->
+    <div class="container-fluid position-relative p-0">
+        <nav class="navbar navbar-expand-lg navbar-light px-3 px-lg-4 py-2">
+            <a href="home.html" class="navbar-brand-wrapper">
+                <img src="img/lord-sai-logo.png" alt="LORD SAI Logo" class="brand-logo-img">
+                <div class="brand-text-block">
+                    <span class="brand-name">LORD&nbsp;SAI</span>
+                    <span class="brand-sub mode-academy-only">Share Market Academy</span>
+                    <span class="brand-sub mode-mf-only">Mutual Fund Distribution Services</span>
+                </div>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                <span class="fa fa-bars"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav ms-auto py-0 align-items-lg-center">
+                    <a href="home.html" class="nav-item nav-link" data-i18n="nav.home">Home</a>
+                    
+                    <!-- About Dropdown -->
+                    <div class="nav-item dropdown">
+                        <a href="about.html" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" data-i18n="nav.about">About</a>
+                        <div class="dropdown-menu">
+                            <a href="about.html" class="dropdown-item" data-i18n="nav.aboutUs">About Us</a>
+                            <a href="founder.html" class="dropdown-item" data-i18n="nav.founder">Founder & Lead</a>
+                        </div>
+                    </div>
+
+                    <!-- Course Dropdown (Academy Mode Only) -->
+                    <div class="nav-item dropdown nav-mode-course mode-academy-only">
+                        <a href="courses.html" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" data-i18n="nav.course">Course</a>
+                        <div class="dropdown-menu dropdown-menu-scrollable">
+                            <a href="courses.html" class="dropdown-item fw-bold text-primary"><i class="fas fa-graduation-cap me-1"></i> Share Market Master Course</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="courses.html#basics" class="dropdown-item">Stock Market Basics</a>
+                            <a href="courses.html#technical-analysis" class="dropdown-item">Technical Analysis</a>
+                            <a href="courses.html#intraday" class="dropdown-item">Intraday Trading</a>
+                            <a href="courses.html#swing-trading" class="dropdown-item">Swing Trading</a>
+                            <a href="courses.html#options" class="dropdown-item">Options Trading</a>
+                            <a href="courses.html#investment" class="dropdown-item">Investment & Compounding</a>
+                            <a href="courses.html#risk-management" class="dropdown-item">Risk Management</a>
+                            <a href="courses.html#psychology" class="dropdown-item">Trading Psychology</a>
+                            <a href="courses.html#live-sessions" class="dropdown-item">Live Market Sessions</a>
+                        </div>
+                    </div>
+
+                    <!-- Independent SIP & SWP Navigation Tabs (Mutual Fund Mode Only) -->
+                    <a href="sip.html" class="nav-item nav-link mode-mf-only" data-i18n="nav.sipTab">SIP</a>
+                    <a href="swp.html" class="nav-item nav-link mode-mf-only" data-i18n="nav.swpTab">SWP</a>
+
+                    <!-- Financial Services Dropdown (Mutual Fund Mode Only) -->
+                    <div class="nav-item dropdown mode-mf-only">
+                        <a href="insurance.html" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown" data-i18n="nav.financialServices">Financial Services</a>
+                        <div class="dropdown-menu">
+                            <a href="insurance.html" class="dropdown-item active" data-i18n="nav.insurancePlan">Insurance Planning</a>
+                            <a href="financial-planning.html" class="dropdown-item" data-i18n="nav.holisticPlan">Holistic Financial Planning</a>
+                        </div>
+                    </div>
+
+                    <!-- Stories Dropdown -->
+                    <div class="nav-item dropdown">
+                        <a href="stories.html" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" data-i18n="nav.stories">Stories</a>
+                        <div class="dropdown-menu">
+                            <a href="stories.html" class="dropdown-item mode-academy-only">Student Learning Journeys</a>
+                            <a href="stories.html" class="dropdown-item mode-mf-only">Investor Wealth Journeys</a>
+                            <a href="testimonials.html" class="dropdown-item" data-i18n="nav.testimonials">Testimonials</a>
+                        </div>
+                    </div>
+
+                    <a href="blog.html" class="nav-item nav-link" data-i18n="nav.blog">Blog</a>
+                    <a href="store.html" class="nav-item nav-link" data-i18n="nav.store">Store</a>
+                    <a href="contact.html" class="nav-item nav-link" data-i18n="nav.contact">Contact</a>
+                    <a href="student-login.html" class="nav-item nav-link d-lg-none" data-i18n="nav.studentLogin">Student Login</a>
+                    <a href="index.html" class="nav-item nav-link text-warning fw-bold d-lg-none"><i class="fas fa-th-large me-1"></i> Switch Business</a>
+                </div>
+                <div class="ms-lg-3 my-2 my-lg-0">
+                    <button type="button" class="btn btn-enquire mode-academy-only" data-bs-toggle="modal" data-bs-target="#demoModal">
+                        <i class="fas fa-bolt me-1"></i> Enquire Course
+                    </button>
+                    <a href="http://p.njw.bz/33377" target="_blank" class="btn btn-success mode-mf-only rounded-pill px-3 py-2 fw-bold text-dark" style="background: #2EC4B6; border-color: #2EC4B6;">
+                        <i class="fas fa-user-plus me-1"></i> Open Account
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <!-- Navbar End -->
+
+    <!-- Language Selector Bar Start -->
+    <div class="site-lang-bar" id="siteLangBar">
+        <div class="container d-flex justify-content-end align-items-center">
+            <div class="lang-selector-wrap" role="group" aria-label="Language Selector">
+                <button type="button" class="lang-btn active" data-lang="en" aria-label="Switch language to English">English</button>
+                <span class="lang-divider">|</span>
+                <button type="button" class="lang-btn" data-lang="mr" aria-label="Switch language to Marathi">मराठी</button>
+                <span class="lang-divider">|</span>
+                <button type="button" class="lang-btn" data-lang="hi" aria-label="Switch language to Hindi">हिंदी</button>
+            </div>
+        </div>
+    </div>
+    <!-- Language Selector Bar End -->
+
+    <!-- Header Breadcrumb Start -->
+    <div class="container-fluid bg-breadcrumb py-5">
+        <div class="mf-plant-video-bg" aria-hidden="true">
+            <video
+                class="mf-plant-video-el"
+                autoplay
+                muted
+                loop
+                playsinline
+                preload="metadata"
+                poster="img/mf-plant-video/mf-plant-growing-money-poster.jpg">
+                <source src="img/mf-plant-video/mf-plant-growing-money.webm" type="video/webm">
+                <source src="img/mf-plant-video/mf-plant-growing-money.mp4" type="video/mp4">
+            </video>
+            <div class="mf-plant-video-overlay"></div>
+        </div>
+        <div class="container text-center py-4">
+            <span class="badge bg-primary text-uppercase px-3 py-1 mb-2">Risk Protection & Security</span>
+            <h1 class="text-white display-4 fw-bold mb-2">Insurance Planning & Protection</h1>
+            <p class="text-light fs-5 mb-0 mx-auto" style="max-width: 750px;">
+                Structured, educational guidance on safeguarding your family's future, health emergencies, and valuable physical assets.
+            </p>
+        </div>
+    </div>
+    <!-- Header Breadcrumb End -->
+
+    <!-- Quick Jump Bar -->
+    <div class="bg-light border-bottom py-3">
+        <div class="container">
+            <div class="d-flex flex-wrap justify-content-center gap-2">
+                <a href="#life" class="btn btn-sm btn-outline-primary rounded-pill">1. Life Insurance</a>
+                <a href="#health" class="btn btn-sm btn-outline-primary rounded-pill">2. Health Insurance</a>
+                <a href="#motor" class="btn btn-sm btn-outline-primary rounded-pill">3. Motor Insurance</a>
+                <a href="#general" class="btn btn-sm btn-outline-primary rounded-pill">4. General Insurance</a>
+                <a href="#family" class="btn btn-sm btn-outline-primary rounded-pill">5. Family Protection</a>
+                <a href="#planning" class="btn btn-sm btn-outline-primary rounded-pill">6. Insurance Planning Process</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================================
+         SECTION 1: LIFE INSURANCE
+         ========================================================================= -->
+    <section class="section-py mf-bg-visual mf-bg-visual--protection bg-white" id="life">
+        <div class="container">
+            <div class="row g-5 align-items-center">
+                <div class="col-lg-6">
+                    <span class="badge-brand-blue mb-2 text-uppercase">Income Replacement</span>
+                    <h2 class="display-6 fw-bold mb-3">1. Life Insurance & Term Protection</h2>
+                    <p class="lead text-dark fw-bold mb-3" style="line-height: 1.6;">
+                        Protect your family's financial independence against life's unpredictable uncertainties.
+                    </p>
+                    <p class="text-muted mb-3" style="line-height: 1.8;">
+                        The primary function of life insurance is not investment returns—it is pure financial risk replacement. If the primary earning member is absent, adequate term insurance ensures that liabilities (loans, mortgages) are cleared, and the family's living standard and children's education remain undisturbed.
+                    </p>
+                    <ul class="course-features-list mb-4">
+                        <li><i class="fas fa-check-circle text-primary me-2"></i> <strong>Pure Term Plans:</strong> Maximum financial cover at cost-effective premiums.</li>
+                        <li><i class="fas fa-check-circle text-primary me-2"></i> <strong>Human Life Value (HLV):</strong> Calculating coverage based on 10x to 15x your annual income.</li>
+                        <li><i class="fas fa-check-circle text-primary me-2"></i> <strong>Debt & Mortgage Coverage:</strong> Ensuring family assets are never lost to lender claims.</li>
+                    </ul>
+                    <a href="https://wa.me/919920254354?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20understand%20Term%20Insurance%20calculation" target="_blank" class="btn btn-primary rounded-pill px-4">
+                        <i class="fab fa-whatsapp me-2"></i> Inquire on Term Insurance
+                    </a>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card p-4 p-lg-5 shadow-sm border bg-light">
+                        <div class="trust-icon mb-3"><i class="fas fa-user-shield"></i></div>
+                        <h4 class="fw-bold text-dark mb-3">The Term Insurance Rule of Thumb</h4>
+                        <p class="text-muted small mb-3">
+                            Always keep insurance and investment separate. Pure term insurance provides substantial protection, allowing you to invest the difference into compounding mutual fund SIPs.
+                        </p>
+                        <div class="p-3 bg-white rounded border mb-2">
+                            <span class="badge bg-primary mb-1">Coverage Formula</span>
+                            <strong class="d-block text-dark">Required Cover = (Annual Income × 15) + Outstanding Debts - Existing Assets</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Life Insurance Companies Showcase -->
+            <div class="mt-5 pt-4 border-top">
+                <div class="text-center mx-auto pb-4" style="max-width: 750px;">
+                    <span class="badge text-uppercase px-3 py-1 font-monospace mb-2" style="background: rgba(0, 119, 182, 0.15); color: var(--lsi-blue);">
+                        <i class="fas fa-landmark me-1"></i> Life Protection Ecosystem
+                    </span>
+                    <h3 class="fw-bold text-dark mb-2">Leading Life Insurance Companies in India</h3>
+                    <p class="text-muted small mb-0">
+                        Explore major Life Insurance corporations offering Term Protection, Savings, and Endowment solutions.
+                    </p>
+                </div>
+
+                <div class="insurance-logo-grid">
+                    <div class="insurance-logo-card" title="LIC (Life Insurance Corporation of India)">
+                        <img src="img/insurance-logos/lic-insurance.png" alt="LIC (Life Insurance Corporation of India)" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="SBI Life Insurance">
+                        <img src="img/insurance-logos/sbi-life-insurance.png" alt="SBI Life Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="HDFC Life Insurance">
+                        <img src="img/insurance-logos/hdfc-life-insurance.png" alt="HDFC Life Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="ICICI Prudential Life Insurance">
+                        <img src="img/insurance-logos/icici-prudential-life-insurance.png" alt="ICICI Prudential Life Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Max Life Insurance">
+                        <img src="img/insurance-logos/max-life-insurance.png" alt="Max Life Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Kotak Life Insurance">
+                        <img src="img/insurance-logos/kotak-life-insurance.png" alt="Kotak Life Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Aditya Birla Capital Life Insurance">
+                        <img src="img/insurance-logos/aditya-birla-capital-life-insurance.png" alt="Aditya Birla Capital Life Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Bajaj Allianz Life Insurance">
+                        <img src="img/insurance-logos/bajaj-allianz-life-insurance.png" alt="Bajaj Allianz Life Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Tata AIA Life Insurance">
+                        <img src="img/insurance-logos/tata-aia-life-insurance.png" alt="Tata AIA Life Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="PNB MetLife Insurance">
+                        <img src="img/insurance-logos/pnb-metlife-insurance.png" alt="PNB MetLife Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Canara HSBC Life Insurance">
+                        <img src="img/insurance-logos/canara-hsbc-life-insurance.png" alt="Canara HSBC Life Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Edelweiss Life Insurance">
+                        <img src="img/insurance-logos/edelweiss-life-insurance.png" alt="Edelweiss Life Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="HDFC ERGO Life Insurance">
+                        <img src="img/insurance-logos/hdfc-ergo-life-insurance.png" alt="HDFC ERGO Life Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Reliance Nippon Life Insurance">
+                        <img src="img/insurance-logos/reliance-nippon-life-insurance.png" alt="Reliance Nippon Life Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="IndiaFirst Life Insurance">
+                        <img src="img/insurance-logos/indiafirst-life-insurance.png" alt="IndiaFirst Life Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Shriram Life Insurance">
+                        <img src="img/insurance-logos/shriram-life-insurance.png" alt="Shriram Life Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Ageas Federal Life Insurance">
+                        <img src="img/insurance-logos/ageas-federal-life-insurance.png" alt="Ageas Federal Life Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Tata Life Insurance">
+                        <img src="img/insurance-logos/tata-life-insurance.png" alt="Tata Life Insurance" loading="lazy">
+                    </div>
+                </div>
+
+                <div class="text-center mt-3">
+                    <small class="text-muted fst-italic" style="font-size: 0.78rem;">
+                        * Displayed names and logos are for educational and informational purposes only and do not imply endorsement, partnership, or recommendation.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION 2: HEALTH INSURANCE
+         ========================================================================= -->
+    <section class="section-py bg-light border-top border-bottom" id="health">
+        <div class="container">
+            <div class="row g-5 align-items-center">
+                <div class="col-lg-6 order-lg-2">
+                    <span class="badge-brand-green mb-2 text-uppercase">Healthcare Security</span>
+                    <h2 class="display-6 fw-bold mb-3">2. Health & Critical Illness Insurance</h2>
+                    <p class="lead text-dark fw-bold mb-3" style="line-height: 1.6;">
+                        Shield your hard-earned wealth and investments from unexpected hospitalization bills.
+                    </p>
+                    <p class="text-muted mb-3" style="line-height: 1.8;">
+                        Medical inflation in India currently exceeds 12-14% annually. A single major medical emergency can severely deplete years of family savings. Adequate individual and family floater health policies protect your balance sheet while giving your family access to quality medical care.
+                    </p>
+                    <ul class="course-features-list mb-4">
+                        <li><i class="fas fa-check-circle text-success me-2"></i> <strong>Family Floater Policies:</strong> Comprehensive coverage for self, spouse, and dependent children.</li>
+                        <li><i class="fas fa-check-circle text-success me-2"></i> <strong>Super Top-Up Plans:</strong> High sum insured protection at minimal additional expense.</li>
+                        <li><i class="fas fa-check-circle text-success me-2"></i> <strong>Pre & Post Hospitalization:</strong> Coverage for diagnostics, medication, and recovery expenses.</li>
+                    </ul>
+                    <a href="https://wa.me/919920254354?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20evaluate%20my%20Family%20Health%20Insurance%20coverage" target="_blank" class="btn btn-outline-success rounded-pill px-4">
+                        <i class="fab fa-whatsapp me-2"></i> Evaluate Health Cover
+                    </a>
+                </div>
+
+                <div class="col-lg-6 order-lg-1">
+                    <div class="p-4 bg-white rounded-3 border shadow-sm">
+                        <div class="trust-icon icon-green mb-3"><i class="fas fa-heartbeat"></i></div>
+                        <h4 class="fw-bold text-dark mb-3">Why Health Insurance Comes First</h4>
+                        <div class="p-3 bg-light rounded border mb-3">
+                            <h6 class="fw-bold mb-1 text-dark">Defends Your Investment Portfolio</h6>
+                            <small class="text-muted">Prevents premature liquidation of long-term mutual fund SIPs and equity investments during illness.</small>
+                        </div>
+                        <div class="p-3 bg-light rounded border mb-3">
+                            <h6 class="fw-bold mb-1 text-dark">Cashless Hospitalization Network</h6>
+                            <small class="text-muted">Direct settlement with network hospitals without out-of-pocket cash strain.</small>
+                        </div>
+                        <div class="p-3 bg-light rounded border">
+                            <h6 class="fw-bold mb-1 text-dark">No Claim Bonus (NCB) Accumulation</h6>
+                            <small class="text-muted">Increases your total coverage every claim-free year at no extra cost.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Health Insurance Providers Showcase -->
+            <div class="mt-5 pt-4 border-top">
+                <div class="text-center mx-auto pb-4" style="max-width: 750px;">
+                    <span class="badge text-uppercase px-3 py-1 font-monospace mb-2" style="background: rgba(46, 196, 182, 0.2); color: #0F9F90;">
+                        <i class="fas fa-heartbeat me-1"></i> Health Coverage Ecosystem
+                    </span>
+                    <h3 class="fw-bold text-dark mb-2">Explore Leading Health Insurance Providers</h3>
+                    <p class="text-muted small mb-0">
+                        Major standalone and general insurers providing comprehensive cashless hospitalization and critical illness covers.
+                    </p>
+                </div>
+
+                <div class="insurance-logo-grid">
+                    <div class="insurance-logo-card" title="Star Health Insurance">
+                        <img src="img/insurance-logos/star-health-insurance.png" alt="Star Health Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Niva Bupa Health Insurance">
+                        <img src="img/insurance-logos/niva-bupa-health-insurance.png" alt="Niva Bupa Health Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="ManipalCigna Health Insurance">
+                        <img src="img/insurance-logos/manipal-cigna-health-insurance.png" alt="ManipalCigna Health Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="ICICI Lombard General Insurance">
+                        <img src="img/insurance-logos/icici-lombard-general-insurance.png" alt="ICICI Lombard General Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="HDFC ERGO General Insurance">
+                        <img src="img/insurance-logos/hdfc-ergo-general-insurance.png" alt="HDFC ERGO General Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Bajaj Allianz General Insurance">
+                        <img src="img/insurance-logos/bajaj-allianz-general-insurance.png" alt="Bajaj Allianz General Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Tata AIG Insurance">
+                        <img src="img/insurance-logos/tata-aig-insurance.png" alt="Tata AIG Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="SBI General Insurance">
+                        <img src="img/insurance-logos/sbi-general-insurance.png" alt="SBI General Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Aditya Birla Capital">
+                        <img src="img/insurance-logos/aditya-birla-capital-life-insurance.png" alt="Aditya Birla Capital" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Digit General Insurance">
+                        <img src="img/insurance-logos/digit-general-insurance.png" alt="Digit General Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="ACKO General Insurance">
+                        <img src="img/insurance-logos/acko-general-insurance.png" alt="ACKO General Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Oriental Insurance">
+                        <img src="img/insurance-logos/oriental-insurance.png" alt="Oriental Insurance" loading="lazy">
+                    </div>
+                </div>
+
+                <div class="text-center mt-3">
+                    <small class="text-muted fst-italic" style="font-size: 0.78rem;">
+                        * Displayed names and logos are for educational and informational purposes only and do not imply endorsement, partnership, or recommendation.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION 3 & 4: MOTOR & GENERAL INSURANCE
+         ========================================================================= -->
+    <section class="section-py bg-white" id="motor">
+        <div class="container">
+            <div class="text-center mx-auto pb-5" style="max-width: 750px;">
+                <span class="badge-brand-blue mb-2 text-uppercase">Asset Protection</span>
+                <h2 class="display-6 fw-bold mb-3">3. Motor & General Insurance</h2>
+                <p class="text-muted">Protect vehicles, property, business establishments, and transit against accidents and damages.</p>
+            </div>
+
+            <div class="row g-4">
+                <!-- Motor Insurance -->
+                <div class="col-lg-6">
+                    <div class="card p-4 p-lg-5 h-100 border-top border-4 border-primary shadow-sm bg-light">
+                        <div class="trust-icon mb-3"><i class="fas fa-car-side"></i></div>
+                        <h4 class="fw-bold text-dark mb-2">Motor Insurance Solutions</h4>
+                        <p class="text-muted mb-3">
+                            Comprehensive and third-party protection for two-wheelers, private four-wheelers, and commercial fleet operations.
+                        </p>
+                        <ul class="course-features-list mb-4">
+                            <li><i class="fas fa-check text-primary me-2"></i> <strong>Third-Party Liability:</strong> Statutory compliance protecting against damages to third parties.</li>
+                            <li><i class="fas fa-check text-primary me-2"></i> <strong>Comprehensive Own-Damage:</strong> Covers theft, fire, floods, and collision damages.</li>
+                            <li><i class="fas fa-check text-primary me-2"></i> <strong>Add-on Covers:</strong> Zero Depreciation, Engine Protect, Roadside Assistance, and Consumables.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- General & Business Insurance -->
+                <div class="col-lg-6" id="general">
+                    <div class="card p-4 p-lg-5 h-100 border-top border-4 border-info shadow-sm bg-light">
+                        <div class="trust-icon icon-navy mb-3"><i class="fas fa-building"></i></div>
+                        <h4 class="fw-bold text-dark mb-2">General & Property Insurance</h4>
+                        <p class="text-muted mb-3">
+                            Safeguard physical business establishments, shop inventories, residential homes, and commercial cargo from operational perils.
+                        </p>
+                        <ul class="course-features-list mb-4">
+                            <li><i class="fas fa-check text-info me-2"></i> <strong>Shopkeeper & Business Insurance:</strong> Protects inventory, machinery, and structure against fire and theft.</li>
+                            <li><i class="fas fa-check text-info me-2"></i> <strong>Home Insurance:</strong> Covers residential building structure and valuable household contents.</li>
+                            <li><i class="fas fa-check text-info me-2"></i> <strong>Marine & Transit Cover:</strong> Protection for goods transported via road, rail, air, or sea.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- General & Motor Insurance Providers Showcase -->
+            <div class="mt-5 pt-4 border-top">
+                <div class="text-center mx-auto pb-4" style="max-width: 750px;">
+                    <span class="badge text-uppercase px-3 py-1 font-monospace mb-2" style="background: rgba(0, 119, 182, 0.15); color: var(--lsi-blue);">
+                        <i class="fas fa-car-side me-1"></i> General & Motor Insurers
+                    </span>
+                    <h3 class="fw-bold text-dark mb-2">Leading General & Motor Insurance Companies</h3>
+                    <p class="text-muted small mb-0">
+                        Established insurers providing comprehensive auto, commercial, property, and transit insurance protection.
+                    </p>
+                </div>
+
+                <div class="insurance-logo-grid">
+                    <div class="insurance-logo-card" title="ICICI Lombard General Insurance">
+                        <img src="img/insurance-logos/icici-lombard-general-insurance.png" alt="ICICI Lombard General Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="HDFC ERGO General Insurance">
+                        <img src="img/insurance-logos/hdfc-ergo-general-insurance.png" alt="HDFC ERGO General Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="SBI General Insurance">
+                        <img src="img/insurance-logos/sbi-general-insurance.png" alt="SBI General Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Bajaj Allianz General Insurance">
+                        <img src="img/insurance-logos/bajaj-allianz-general-insurance.png" alt="Bajaj Allianz General Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Tata AIG Insurance">
+                        <img src="img/insurance-logos/tata-aig-insurance.png" alt="Tata AIG Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Oriental Insurance">
+                        <img src="img/insurance-logos/oriental-insurance.png" alt="Oriental Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="United India Insurance">
+                        <img src="img/insurance-logos/united-india-insurance.png" alt="United India Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Shriram General Insurance">
+                        <img src="img/insurance-logos/shriram-general-insurance.png" alt="Shriram General Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Reliance General Insurance">
+                        <img src="img/insurance-logos/reliance-general-insurance.png" alt="Reliance General Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Digit General Insurance">
+                        <img src="img/insurance-logos/digit-general-insurance.png" alt="Digit General Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="ACKO General Insurance">
+                        <img src="img/insurance-logos/acko-general-insurance.png" alt="ACKO General Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Magma HDI General Insurance">
+                        <img src="img/insurance-logos/magma-hdi-general-insurance.png" alt="Magma HDI General Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Chola MS General Insurance">
+                        <img src="img/insurance-logos/chola-ms-general-insurance.png" alt="Chola MS General Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Liberty General Insurance">
+                        <img src="img/insurance-logos/liberty-general-insurance.png" alt="Liberty General Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Raheja QBE General Insurance">
+                        <img src="img/insurance-logos/raheja-qbe-general-insurance.png" alt="Raheja QBE General Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Universal Sompo General Insurance">
+                        <img src="img/insurance-logos/universal-sompo-general-insurance.png" alt="Universal Sompo General Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Kotak General Insurance">
+                        <img src="img/insurance-logos/kotak-general-insurance.png" alt="Kotak General Insurance" loading="lazy">
+                    </div>
+                    <div class="insurance-logo-card" title="Niva Bupa Health Insurance">
+                        <img src="img/insurance-logos/niva-bupa-health-insurance.png" alt="Niva Bupa Health Insurance" loading="lazy">
+                    </div>
+                </div>
+
+                <div class="text-center mt-3">
+                    <small class="text-muted fst-italic" style="font-size: 0.78rem;">
+                        * Displayed names and logos are for educational and informational purposes only and do not imply endorsement, partnership, or recommendation.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION 5: FAMILY PROTECTION ARCHITECTURE
+         ========================================================================= -->
+    <section class="section-py bg-light border-top border-bottom" id="family">
+        <div class="container">
+            <div class="row g-5 align-items-center">
+                <div class="col-lg-7">
+                    <span class="badge-brand-green mb-2 text-uppercase">Holistic Shield</span>
+                    <h2 class="display-6 fw-bold mb-3">5. The 3-Tier Family Protection Architecture</h2>
+                    <p class="lead text-dark fw-bold mb-3">
+                        Wealth creation cannot survive without a solid protective foundation.
+                    </p>
+                    <p class="text-muted mb-4" style="line-height: 1.8;">
+                        Before aggressive market investing, every household must build a three-layer defensive fortress. If a crisis occurs, the fortress absorbs the impact so your long-term wealth compounding remains untouched.
+                    </p>
+
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="p-3 bg-white rounded border-start border-4 border-primary shadow-sm">
+                                <h6 class="fw-bold text-dark mb-1">Tier 1: Emergency Fund Shield</h6>
+                                <small class="text-muted">6 months of essential household expenses stored in liquid funds or bank deposits.</small>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="p-3 bg-white rounded border-start border-4 border-success shadow-sm">
+                                <h6 class="fw-bold text-dark mb-1">Tier 2: Comprehensive Health Floater</h6>
+                                <small class="text-muted">Adequate hospital coverage for all family members to prevent medical debt.</small>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="p-3 bg-white rounded border-start border-4 border-info shadow-sm">
+                                <h6 class="fw-bold text-dark mb-1">Tier 3: Pure Term Life Insurance</h6>
+                                <small class="text-muted">Adequate HLV replacement ensuring financial freedom for your dependents.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5 text-center">
+                    <div class="p-4 bg-white rounded-3 border shadow-sm">
+                        <div class="trust-icon mx-auto mb-3" style="background: rgba(46, 196, 182, 0.15); color: var(--lsi-green);"><i class="fas fa-shield-alt"></i></div>
+                        <h5 class="fw-bold text-dark mb-2">Complete Risk Audit</h5>
+                        <p class="text-muted small mb-4">
+                            Review your existing insurance policies with mentor Vaibhav Pawar to eliminate duplicate covers and fill critical protection gaps.
+                        </p>
+                        <button type="button" class="btn btn-primary rounded-pill w-100" data-bs-toggle="modal" data-bs-target="#demoModal">
+                            <i class="fas fa-clipboard-check me-2"></i> Request Policy Audit
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION 6: INSURANCE PLANNING PROCESS
+         ========================================================================= -->
+    <section class="section-py mf-bg-visual mf-bg-visual--protection bg-white" id="planning">
+        <div class="container">
+            <div class="text-center mx-auto pb-5" style="max-width: 750px;">
+                <span class="badge-brand-blue mb-2 text-uppercase">Consultation Workflow</span>
+                <h2 class="display-6 fw-bold mb-3">6. Our 4-Step Insurance Planning Process</h2>
+                <p class="text-muted">Transparent, analytical evaluation tailored strictly to your real life responsibilities.</p>
+            </div>
+
+            <div class="row g-4 text-center">
+                <div class="col-lg-3 col-md-6">
+                    <div class="step-card h-100">
+                        <div class="step-number mx-auto">1</div>
+                        <h5 class="fw-bold mb-2">Liability Assessment</h5>
+                        <p class="text-muted small mb-0">List all outstanding loans, living expenses, and dependent obligations.</p>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="step-card h-100">
+                        <div class="step-number mx-auto" style="background: var(--lsi-navy);">2</div>
+                        <h5 class="fw-bold mb-2">Coverage Gap Check</h5>
+                        <p class="text-muted small mb-0">Evaluate existing policies to identify underinsurance and overlapping costs.</p>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="step-card h-100">
+                        <div class="step-number mx-auto" style="background: var(--lsi-green);">3</div>
+                        <h5 class="fw-bold mb-2">Product Selection</h5>
+                        <p class="text-muted small mb-0">Select transparent, cost-effective pure protection plans matching your needs.</p>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="step-card h-100">
+                        <div class="step-number mx-auto" style="background: var(--lsi-gold);">4</div>
+                        <h5 class="fw-bold mb-2">Annual Review</h5>
+                        <p class="text-muted small mb-0">Update coverage milestones as your career advances and family grows.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Regulatory Notice Banner -->
+    <div class="container pb-5">
+        <div class="p-4 bg-light rounded-3 border text-center">
+            <small class="text-muted">
+                <i class="fas fa-info-circle text-primary me-1"></i>
+                <strong>Disclaimer:</strong> Investment and insurance products are subject to applicable terms, conditions and market risks. Returns are not guaranteed. Insurance is the subject matter of solicitation. Please read policy wordings carefully before concluding a purchase.
+            </small>
+        </div>
+    </div>
+
+    <!-- =========================================================================
+         FINAL CTA SECTION
+         ========================================================================= -->
+    <section class="section-py text-white position-relative" style="background: linear-gradient(135deg, var(--lsi-dark-deep) 0%, var(--lsi-navy) 60%, #03045E 100%);">
+        <div class="container text-center py-4">
+            <div class="mx-auto" style="max-width: 800px;">
+                <span class="badge bg-primary text-uppercase mb-3 px-3 py-1">Protect What Matters</span>
+                <h2 class="display-5 fw-bold text-white mb-3">Schedule Your Confidential Insurance Audit</h2>
+                <p class="text-light fs-5 mb-4" style="line-height: 1.8; opacity: 0.9;">
+                    Get unbiased guidance on life, health, and general insurance solutions in Uran, Navi Mumbai.
+                </p>
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <button type="button" class="btn btn-enquire btn-lg px-5" data-bs-toggle="modal" data-bs-target="#demoModal">
+                        <i class="fas fa-bolt me-2"></i> Enquire Now
+                    </button>
+                    <a href="https://wa.me/919920254354?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20discuss%20Insurance%20Planning" target="_blank" class="btn btn-outline-light btn-lg rounded-pill px-4">
+                        <i class="fab fa-whatsapp text-success me-2"></i> WhatsApp Consultation
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================================================
+         HIGHLIGHTED LIVE MOVING STOCK MARKET DISCLAIMER TICKER (Academy Mode Only)
+         ========================================================================= -->
+    <div class="academy-ticker-section-wrapper mode-academy-only">
+        <div class="container-fluid px-3 px-lg-4 pb-1">
+            <span class="academy-disclaimer-red-label">
+                <span class="academy-disclaimer-red-dot"></span>
+                DISCLAIMER
+            </span>
+        </div>
+        <div class="academy-live-ticker-bar">
+            <div class="container-fluid px-2">
+                <div class="academy-ticker-track-container">
+                    <div class="academy-ticker-content">
+                        <div class="academy-ticker-item">
+                            <span class="academy-ticker-highlight">
+                                Disclaimer: For educational purposes only. We are not providing buy/sell recommendations. Stock Market, Mutual Fund & SIP investments are subject to market risks. Please invest at your own discretion.
+                            </span>
+                            <span class="academy-ticker-bullet">&bull;</span>
+                            <span class="academy-ticker-highlight">
+                                Disclaimer: For educational purposes only. We are not providing buy/sell recommendations. Stock Market, Mutual Fund & SIP investments are subject to market risks. Please invest at your own discretion.
+                            </span>
+                            <span class="academy-ticker-bullet">&bull;</span>
+                        </div>
+                        <div class="academy-ticker-item" aria-hidden="true">
+                            <span class="academy-ticker-highlight">
+                                Disclaimer: For educational purposes only. We are not providing buy/sell recommendations. Stock Market, Mutual Fund & SIP investments are subject to market risks. Please invest at your own discretion.
+                            </span>
+                            <span class="academy-ticker-bullet">&bull;</span>
+                            <span class="academy-ticker-highlight">
+                                Disclaimer: For educational purposes only. We are not providing buy/sell recommendations. Stock Market, Mutual Fund & SIP investments are subject to market risks. Please invest at your own discretion.
+                            </span>
+                            <span class="academy-ticker-bullet">&bull;</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================================
+         HIGHLIGHTED LIVE MOVING MUTUAL FUND DISCLAIMER TICKER (Mutual Fund Mode Only)
+         ========================================================================= -->
+    <div class="mf-ticker-section-wrapper mode-mf-only">
+        <div class="container-fluid px-3 px-lg-4 pb-1">
+            <span class="mf-disclaimer-red-label">
+                <span class="mf-disclaimer-red-dot"></span>
+                DISCLAIMER
+            </span>
+        </div>
+        <div class="mf-live-ticker-bar">
+            <div class="container-fluid px-2">
+                <div class="mf-ticker-track-container">
+                    <div class="mf-ticker-content">
+                        <div class="mf-ticker-item">
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully before investing. SIP returns are not guaranteed or fixed. Past performance does not indicate or guarantee future returns. Investors should make investment decisions based on their financial goals, risk appetite, and financial situation. If required, consult a SEBI-registered Investment Adviser before investing.
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully before investing. SIP returns are not guaranteed or fixed. Past performance does not indicate or guarantee future returns. Investors should make investment decisions based on their financial goals, risk appetite, and financial situation. If required, consult a SEBI-registered Investment Adviser before investing.
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                        </div>
+                        <div class="mf-ticker-item" aria-hidden="true">
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully before investing. SIP returns are not guaranteed or fixed. Past performance does not indicate or guarantee future returns. Investors should make investment decisions based on their financial goals, risk appetite, and financial situation. If required, consult a SEBI-registered Investment Adviser before investing.
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully before investing. SIP returns are not guaranteed or fixed. Past performance does not indicate or guarantee future returns. Investors should make investment decisions based on their financial goals, risk appetite, and financial situation. If required, consult a SEBI-registered Investment Adviser before investing.
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================================
+         FOOTER
+         ========================================================================= -->
+    <div class="container-fluid footer py-5">
+        <div class="container py-4">
+            <div class="row g-4">
+                <!-- Brand Info -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <img src="img/lord-sai-logo.png" alt="LORD SAI Logo" style="height: 48px; background: #fff; padding: 2px 6px; border-radius: 6px;">
+                        <div>
+                            <div class="footer-brand-title mode-academy-only">Lord&nbsp;Sai Investment & Share Market Academy</div>
+                            <div class="footer-brand-title mode-mf-only">Mutual Fund Distribution Services — Vaibhav Pawar</div>
+                        </div>
+                    </div>
+                    <div class="footer-brand-sub mb-3 mode-academy-only">
+                        Stock Market Education | Technical Analysis | Intraday | Swing Trading | Options
+                    </div>
+                    <div class="footer-brand-sub mb-3 mode-mf-only">
+                        AMFI Registered MFD (ARN-280789) | Systematic Investment Plans | SWP | Wealth Planning
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="col-lg-5 col-md-6">
+                    <h5>Quick Links</h5>
+                    <div class="footer-quicklinks-grid">
+                        <a href="home.html"><i class="fas fa-angle-right me-1"></i> Home</a>
+                        <a href="about.html"><i class="fas fa-angle-right me-1"></i> About</a>
+                        <a href="founder.html"><i class="fas fa-angle-right me-1"></i> Founder & Lead</a>
+                        <a href="courses.html" class="footer-mode-course mode-academy-only"><i class="fas fa-angle-right me-1"></i> Course</a>
+                        <a href="sip.html" class="mode-mf-only" data-i18n="nav.sipTab"><i class="fas fa-angle-right me-1"></i> SIP</a>
+                        <a href="swp.html" class="mode-mf-only" data-i18n="nav.swpTab"><i class="fas fa-angle-right me-1"></i> SWP</a>
+                        <a href="investments.html" class="footer-mode-investments mode-mf-only"><i class="fas fa-angle-right me-1"></i> Investments</a>
+                        <a href="stories.html"><i class="fas fa-angle-right me-1"></i> Stories</a>
+                        <a href="blog.html"><i class="fas fa-angle-right me-1"></i> Blog</a>
+                        <a href="store.html"><i class="fas fa-angle-right me-1"></i> Store</a>
+                        <a href="contact.html"><i class="fas fa-angle-right me-1"></i> Contact</a>
+                        <a href="index.html" class="text-warning fw-bold"><i class="fas fa-th-large me-1"></i> Switch Business</a>
+                    </div>
+                </div>
+
+                <!-- Contact Details -->
+                <div class="col-lg-3 col-md-6">
+                    <h5>Contact</h5>
+                    <div class="footer-contact-item">
+                        <i class="fas fa-phone-alt"></i>
+                        <div>
+                            <strong>9920 254 354</strong>
+                        </div>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            Shreeraj Nagar Apt., Kamtha Road, Near Dr. Gade Hospital, Uran
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Regulatory Risk Disclaimer -->
+            <div class="sebi-disclaimer-box">
+                <p class="mb-0"><strong>Disclaimer:</strong> Stock market investments and trading involve market risks. Past performance does not guarantee future results. Financial products are subject to applicable terms and conditions. Please evaluate your financial objectives and risk profile before investing.</p>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
+
+    <!-- Copyright Start -->
+    <div class="container-fluid copyright py-3">
+        <div class="container text-center">
+            <span>&copy; Lord Sai Investment & Share Market Academy (Class). All Rights Reserved.</span>
+        </div>
+    </div>
+    <!-- Copyright End -->
+
+    <!-- Floating WhatsApp Support Button -->
+    <a href="https://wa.me/919920254354?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20enquire%20about%20your%20stock%20market%20and%20investment%20classes" target="_blank" class="floating-whatsapp" title="Chat on WhatsApp">
+        <span class="whatsapp-pulse"></span>
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- Back to Top -->
+    <a href="#" class="back-to-top"><i class="fa fa-arrow-up"></i></a>
+
+    <!-- Demo / Registration Modal -->
+    <div class="modal fade" id="demoModal" tabindex="-1" aria-labelledby="demoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, var(--lsi-navy), var(--lsi-blue)); border-radius: 16px 16px 0 0;">
+                    <div>
+                        <h5 class="modal-title fw-bold text-white" id="demoModalLabel">Enquire at Lord Sai Academy</h5>
+                        <small class="text-light opacity-75">Connect with mentors in Uran, Navi Mumbai</small>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="demoRegistrationForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Full Name *</label>
+                            <input type="text" class="form-control" placeholder="Enter your full name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">WhatsApp Phone Number *</label>
+                            <input type="tel" class="form-control" placeholder="9920 254 354" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Email Address</label>
+                            <input type="email" class="form-control" placeholder="lordsai.academy@gmail.com">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Service Of Interest</label>
+                            <select class="form-select">
+                                <option selected>Term Life Insurance Assessment</option>
+                                <option>Family Health Floater Planning</option>
+                                <option>Motor / Vehicle Insurance</option>
+                                <option>Business & Property Protection</option>
+                                <option>Comprehensive Policy Audit</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary rounded-pill w-100 py-2">
+                            <i class="fas fa-paper-plane me-2"></i> Submit Inquiry
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/wow/wow.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/waypoints/waypoints.min.js"></script>
+    <script src="lib/counterup/counterup.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+
+    <!-- Live Stock Market Candlestick Chart Engine -->
+    <script src="js/live-chart.js"></script>
+
+    <!-- Authentication Engine -->
+    <script src="js/auth.js"></script>
+
+    <!-- Multilingual Engine -->
+    <script src="js/translations.js"></script>
+    <script src="js/lang.js"></script>
+    <script src="js/mode.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/mf-plant-video.js"></script>
+</body>
+
+</html>
+

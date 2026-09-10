@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Admin Dashboard | Lord Sai Investment & Share Market Academy</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+</head>
+<body class="bg-light">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="js/auth.js"></script>
+    <script>LSI_Auth.requireAuth('admin');</script>
+    
+    <div class="container py-5">
+        <div class="card p-5 border-0 shadow-lg bg-white" style="border-radius: 16px;">
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+                <div>
+                    <span class="badge bg-danger mb-1">ADMINISTRATOR PORTAL</span>
+                    <h3 class="fw-bold mb-0">System Management Console</h3>
+                    <small class="text-muted">Lord Sai Investment & Share Market Academy</small>
+                </div>
+                <div>
+                    <a href="index.html" class="btn btn-sm btn-outline-primary rounded-pill me-2">Main Site</a>
+                    <button class="btn btn-sm btn-danger rounded-pill px-3" onclick="LSI_Auth.logout()"><i class="fas fa-sign-out-alt me-1"></i> Logout</button>
+                </div>
+            </div>
+            <div class="alert alert-info">
+                <i class="fas fa-shield-alt me-1"></i> Administrator session authenticated.
+            </div>
+            <div class="row g-3">
+                <div class="col-md-4"><div class="p-3 bg-light rounded border"><strong>User Roles:</strong> Student, Teacher, Admin</div></div>
+                <div class="col-md-4"><div class="p-3 bg-light rounded border"><strong>Registrations:</strong> Active Batch 2024</div></div>
+                <div class="col-md-4"><div class="p-3 bg-light rounded border"><strong>Security:</strong> Session & Token Guard Active</div></div>
+            </div>
+        </div>
+    </div>
+    <!-- Multilingual Engine -->
+    <script src="js/translations.js"></script>
+    <script src="js/lang.js"></script>
+    <script src="js/mode.js"></script>
+</body>
+</html>
