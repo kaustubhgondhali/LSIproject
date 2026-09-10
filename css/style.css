@@ -377,6 +377,26 @@ section,
     flex-shrink: 0;
 }
 
+.navbar-brand-divider {
+    width: 1px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.25);
+    margin: 0 4px;
+    flex-shrink: 0;
+}
+
+.navbar-nj-logo {
+    height: 38px;
+    width: auto;
+    object-fit: contain;
+    border-radius: var(--lsi-radius-sm);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    background: #FFFFFF;
+    padding: 2px 6px;
+    transition: var(--lsi-transition);
+    flex-shrink: 0;
+}
+
 .brand-text-block {
     display: flex;
     flex-direction: column;
@@ -1644,6 +1664,32 @@ body.mode-mutual-fund .calc-brand-name {
         height: 40px;
         flex-shrink: 0;
     }
+    .navbar-nj-logo {
+        height: 32px;
+        padding: 2px 4px;
+    }
+    .navbar-brand-divider {
+        height: 22px;
+        margin: 0 2px;
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    .navbar-light .navbar-nav .nav-link {
+        padding: 8px 6px;
+        font-size: 13px;
+    }
+    .navbar-nj-logo {
+        height: 32px;
+        padding: 2px 4px;
+    }
+    .brand-logo-img {
+        height: 40px;
+    }
+    .navbar-brand-divider {
+        height: 22px;
+        margin: 0 2px;
+    }
 }
 
 @media (max-width: 575.98px) {
@@ -1677,6 +1723,14 @@ body.mode-mutual-fund .calc-brand-name {
         height: 36px;
         padding: 2px 4px;
         flex-shrink: 0;
+    }
+    .navbar-nj-logo {
+        height: 26px;
+        padding: 1px 3px;
+    }
+    .navbar-brand-divider {
+        height: 18px;
+        margin: 0 1px;
     }
     .floating-whatsapp {
         bottom: 20px;
@@ -1728,6 +1782,14 @@ body.mode-mutual-fund .calc-brand-name {
         height: 32px;
         padding: 1px 3px;
         flex-shrink: 0;
+    }
+    .navbar-nj-logo {
+        height: 22px;
+        padding: 1px 2px;
+    }
+    .navbar-brand-divider {
+        height: 16px;
+        margin: 0 1px;
     }
     .investment-emblem-badge {
         width: 105px;
@@ -3879,6 +3941,9 @@ body.mode-academy .trading-bg-district {
 }
 .sipart-strip-head { text-align: center; max-width: 720px; margin: 0 auto; }
 .sipart-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
     background: #fff;
     border: 1px solid var(--lsi-gray-200, #E2E8F0);
     border-radius: 16px;
@@ -3888,6 +3953,8 @@ body.mode-academy .trading-bg-district {
     transition: transform .25s ease, box-shadow .25s ease;
 }
 .sipart-card:hover {
+    text-decoration: none;
+    color: inherit;
     transform: translateY(-4px);
     box-shadow: 0 16px 34px rgba(10, 17, 40, .10);
 }
@@ -4499,34 +4566,46 @@ body.mode-academy div.mf-hero-growth-bg.mode-mf-only {
 .mf-product-card-img-wrap {
     position: relative;
     overflow: hidden;
-    aspect-ratio: 16 / 9;
-    background: #F1F5F9;
+    height: 250px;
+    background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
+    border-bottom: 1px solid rgba(0, 31, 84, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 38px 14px 12px 14px;
+    box-sizing: border-box;
 }
 
 .mf-product-card-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    object-position: center;
     display: block;
-    transition: transform 0.45s ease;
+    border-radius: 6px;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.06));
+    transition: transform 0.4s ease;
 }
 
 .mf-product-card-badge {
     position: absolute;
-    top: 12px;
+    top: 10px;
     left: 14px;
-    font-size: 0.72rem;
+    font-size: 0.70rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    padding: 4px 10px;
+    padding: 3px 10px;
     border-radius: 20px;
-    background: rgba(255, 255, 255, 0.94);
+    background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(4px);
     color: #0F9F90;
     border: 1px solid rgba(46, 196, 182, 0.35);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
     z-index: 2;
+    pointer-events: none;
 }
 
 .mf-product-card-body {
@@ -4594,7 +4673,7 @@ body.mode-academy div.mf-hero-growth-bg.mode-mf-only {
     }
 
     .mf-product-card:hover .mf-product-card-img {
-        transform: scale(1.035);
+        transform: scale(1.025);
     }
 
     .mf-product-card:hover .mf-product-card-title {
@@ -4632,6 +4711,10 @@ body.mode-academy div.mf-hero-growth-bg.mode-mf-only {
 
 /* Responsive Grid Tweaks */
 @media (max-width: 767.98px) {
+    .mf-product-card-img-wrap {
+        height: 235px;
+        padding: 34px 10px 10px 10px;
+    }
     .mf-product-card-body {
         padding: 18px 20px;
     }
