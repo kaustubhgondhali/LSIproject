@@ -30,6 +30,53 @@
 
     <!-- Template Stylesheet -->
     <link href="css/style.css" rel="stylesheet">
+
+    <!-- Mutual Fund Home Page: Enhanced NJ Wealth Navbar Logo -->
+    <style>
+        body.mode-mutual-fund .navbar-nj-logo,
+        html.mode-mutual-fund .navbar-nj-logo,
+        .navbar-nj-logo {
+            height: 48px;
+            width: auto;
+            aspect-ratio: 1004 / 252;
+            object-fit: cover;
+            object-position: center;
+            padding: 2px 6px;
+            box-sizing: border-box;
+            border-radius: var(--lsi-radius-sm);
+            background: #FFFFFF;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            vertical-align: middle;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 1199.98px) {
+            body.mode-mutual-fund .navbar-nj-logo,
+            html.mode-mutual-fund .navbar-nj-logo,
+            .navbar-nj-logo {
+                height: 40px;
+                padding: 2px 5px;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            body.mode-mutual-fund .navbar-nj-logo,
+            html.mode-mutual-fund .navbar-nj-logo,
+            .navbar-nj-logo {
+                height: 36px;
+                padding: 2px 4px;
+            }
+        }
+
+        @media (max-width: 375px) {
+            body.mode-mutual-fund .navbar-nj-logo,
+            html.mode-mutual-fund .navbar-nj-logo,
+            .navbar-nj-logo {
+                height: 32px;
+                padding: 1px 3px;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -148,9 +195,7 @@
                     <button type="button" class="btn btn-enquire mode-academy-only" data-bs-toggle="modal" data-bs-target="#demoModal" data-i18n="nav.enquireCourse">
                         <i class="fas fa-bolt me-1"></i> Enquire Course
                     </button>
-                    <a href="http://p.njw.bz/33377" target="_blank" class="btn btn-success mode-mf-only rounded-pill px-3 py-2 fw-bold text-dark" style="background: #2EC4B6; border-color: #2EC4B6;" data-i18n="nav.openAccount">
-                        <i class="fas fa-user-plus me-1"></i> Open Account
-                    </a>
+                    
                 </div>
             </div>
         </nav>
@@ -508,7 +553,7 @@ Uran</div>
                     </div>
                     <div class="d-flex gap-3">
                         <a href="investments.html" class="btn btn-primary rounded-pill px-4">Explore Investment Solutions</a>
-                        <a href="http://p.njw.bz/33377" target="_blank" class="btn btn-outline-success rounded-pill px-4 fw-bold">Open NJ Account</a>
+                        <a href="http://p.njw.bz/33377" target="_blank" class="btn btn-outline-success rounded-pill px-4 fw-bold">Open SIP Account For Free</a>
                     </div>
                 </div>
 
@@ -1013,7 +1058,7 @@ Uran</div>
                         </p>
                         <div class="d-flex flex-wrap justify-content-center gap-3">
                             <a href="http://p.njw.bz/33377" target="_blank" rel="noopener noreferrer" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm" data-i18n="partner.ctaNj">
-                                <i class="fas fa-user-plus me-2"></i>Open NJ E-Wealth Account
+                                <i class="fas fa-user-plus me-2"></i>Open SIP Account For Free
                             </a>
                             <a href="investments.html" class="btn btn-outline-success rounded-pill px-4 py-2 fw-bold" data-i18n="partner.ctaSip">
                                 <i class="fas fa-chart-pie me-2"></i>Explore SIP Portfolios
@@ -1575,7 +1620,7 @@ Uran</div>
                         </p>
                         <div class="d-flex gap-3">
                             <a href="http://p.njw.bz/33377" target="_blank" class="btn btn-success rounded-pill px-4 fw-bold text-dark" style="background: #2EC4B6; border-color: #2EC4B6;">
-                                <i class="fas fa-user-plus me-2"></i> Open Account Online
+                                <i class="fas fa-user-plus me-2"></i> Open SIP Account For Free
                             </a>
                             <a href="https://wa.me/919920254354?text=Hello%20Vaibhav%20Sir,%20I%20want%20to%20consult%20about%20Mutual%20Fund%20SIP%20investments" target="_blank" class="btn btn-outline-success rounded-pill px-4">
                                 <i class="fab fa-whatsapp me-2"></i> Consult on WhatsApp
@@ -1964,7 +2009,7 @@ Uran</div>
 
                 <div class="text-center mt-4">
                     <a href="http://p.njw.bz/33377" target="_blank" class="btn btn-warning btn-lg rounded-pill px-5 fw-bold text-dark shadow me-3">
-                        <i class="fas fa-user-plus me-2"></i> Open NJ E-Wealth Account Now
+                        <i class="fas fa-user-plus me-2"></i> Open SIP Account For Free
                     </a>
                     <a href="investments.html" class="btn btn-outline-primary rounded-pill px-4">
                         <i class="fas fa-chart-line me-1"></i> Explore Full Investments Page
@@ -2167,7 +2212,7 @@ Uran</div>
                 </p>
                 <div class="d-flex flex-wrap justify-content-center gap-3">
                     <a href="http://p.njw.bz/33377" target="_blank" class="btn btn-warning btn-lg rounded-pill px-5 fw-bold text-dark shadow">
-                        <i class="fas fa-user-plus me-2"></i> Open Account Online
+                        <i class="fas fa-user-plus me-2"></i> Open SIP Account For Free
                     </a>
                     <a href="https://wa.me/919920254354?text=Hello%20Vaibhav%20Sir,%20I%20want%20to%20start%20a%20Mutual%20Fund%20SIP" target="_blank" class="btn btn-outline-light btn-lg rounded-pill px-4">
                         <i class="fab fa-whatsapp text-success me-2"></i> Consult on WhatsApp
