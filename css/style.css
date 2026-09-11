@@ -4548,13 +4548,13 @@ body.mode-academy div.mf-hero-growth-bg.mode-mf-only {
 
 .mf-product-card {
     background: #FFFFFF;
-    border: 1px solid rgba(46, 196, 182, 0.25);
+    border: 1px solid rgba(46, 196, 182, 0.2);
     border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 4px 18px rgba(0, 31, 84, 0.05);
-    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-                box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-                border-color 0.35s ease;
+    box-shadow: 0 2px 12px rgba(0, 31, 84, 0.05);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.3s ease;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -4563,16 +4563,19 @@ body.mode-academy div.mf-hero-growth-bg.mode-mf-only {
     color: inherit;
 }
 
+/* Image box sized to the actual (near-square) product image aspect ratio
+   rather than a fixed px height, so it scales with card width and shows
+   the full image with no forced empty space and no cropping. */
 .mf-product-card-img-wrap {
     position: relative;
     overflow: hidden;
-    height: 250px;
+    aspect-ratio: 1 / 1;
     background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
     border-bottom: 1px solid rgba(0, 31, 84, 0.06);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 38px 14px 12px 14px;
+    padding: 16px;
     box-sizing: border-box;
 }
 
@@ -4591,53 +4594,56 @@ body.mode-academy div.mf-hero-growth-bg.mode-mf-only {
 
 .mf-product-card-badge {
     position: absolute;
-    top: 10px;
-    left: 14px;
-    font-size: 0.70rem;
+    top: 8px;
+    left: 10px;
+    font-size: 0.62rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 3px 10px;
+    letter-spacing: 0.4px;
+    padding: 2px 8px;
     border-radius: 20px;
-    background: rgba(255, 255, 255, 0.96);
+    background: rgba(255, 255, 255, 0.94);
     backdrop-filter: blur(4px);
     color: #0F9F90;
-    border: 1px solid rgba(46, 196, 182, 0.35);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(46, 196, 182, 0.3);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
     z-index: 2;
     pointer-events: none;
 }
 
 .mf-product-card-body {
-    padding: 22px 24px;
+    padding: 20px 22px 20px 22px;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
 }
 
 .mf-product-card-title {
-    font-size: 1.18rem;
+    font-size: 1.15rem;
     font-weight: 700;
     color: #0A1128;
     margin-bottom: 8px;
-    line-height: 1.35;
+    line-height: 1.32;
+    letter-spacing: -0.01em;
     transition: color 0.25s ease;
 }
 
 .mf-product-card-desc {
-    font-size: 0.90rem;
+    font-size: 0.89rem;
     line-height: 1.6;
     color: #64748B;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
     flex-grow: 1;
 }
 
 .mf-product-card-footer {
     padding-top: 14px;
-    border-top: 1px solid rgba(0, 31, 84, 0.06);
+    border-top: 1px solid rgba(0, 31, 84, 0.08);
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
+    gap: 8px 12px;
     margin-top: auto;
 }
 
@@ -4649,17 +4655,20 @@ body.mode-academy div.mf-hero-growth-bg.mode-mf-only {
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    white-space: nowrap;
     transition: color 0.25s ease, transform 0.25s ease;
 }
 
 .mf-product-card-action-btn {
     font-size: 0.82rem;
-    padding: 6px 14px;
+    padding: 8px 18px;
     font-weight: 600;
     border-radius: 20px;
     color: #0F9F90;
     background: rgba(46, 196, 182, 0.12);
     border: 1px solid rgba(46, 196, 182, 0.3);
+    white-space: nowrap;
+    flex-shrink: 0;
     transition: all 0.25s ease;
     text-decoration: none;
 }
@@ -4667,13 +4676,13 @@ body.mode-academy div.mf-hero-growth-bg.mode-mf-only {
 /* Hover Interaction on Desktop */
 @media (hover: hover) and (min-width: 992px) {
     .mf-product-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 16px 36px rgba(15, 159, 144, 0.18);
-        border-color: rgba(46, 196, 182, 0.65);
+        transform: translateY(-4px);
+        box-shadow: 0 10px 24px rgba(15, 159, 144, 0.14);
+        border-color: rgba(46, 196, 182, 0.55);
     }
 
     .mf-product-card:hover .mf-product-card-img {
-        transform: scale(1.025);
+        transform: scale(1.02);
     }
 
     .mf-product-card:hover .mf-product-card-title {
@@ -4682,13 +4691,14 @@ body.mode-academy div.mf-hero-growth-bg.mode-mf-only {
 
     .mf-product-card:hover .mf-product-card-link {
         color: #08413B;
-        transform: translateX(4px);
+        transform: translateX(3px);
     }
 
     .mf-product-card:hover .mf-product-card-action-btn {
         background: #0F9F90;
         color: #FFFFFF;
         border-color: #0F9F90;
+        box-shadow: 0 4px 10px rgba(15, 159, 144, 0.25);
     }
 }
 
@@ -4712,17 +4722,20 @@ body.mode-academy div.mf-hero-growth-bg.mode-mf-only {
 /* Responsive Grid Tweaks */
 @media (max-width: 767.98px) {
     .mf-product-card-img-wrap {
-        height: 235px;
-        padding: 34px 10px 10px 10px;
+        padding: 12px;
     }
     .mf-product-card-body {
-        padding: 18px 20px;
+        padding: 16px 18px 16px 18px;
     }
     .mf-product-card-title {
-        font-size: 1.1rem;
+        font-size: 1.05rem;
     }
     .mf-product-card-desc {
-        font-size: 0.88rem;
+        font-size: 0.85rem;
+        margin-bottom: 12px;
+    }
+    .mf-product-card-footer {
+        padding-top: 12px;
     }
 }
 
