@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+<div th:replace="~{email/layout :: wrapper('Your account has been created', ~{::content})}">
+    <div th:fragment="content">
+        <p style="margin:0 0 14px;font-size:15px;line-height:1.6;">Dear <strong th:text="${name}">User</strong>,</p>
+        <p style="margin:0 0 18px;font-size:15px;line-height:1.6;">
+            A <strong th:text="${role}">Student</strong> account has been created for you at Lord Sai Academy
+            with the login email <strong th:text="${email}">email</strong>.
+        </p>
+        <p style="margin:0 0 14px;font-size:15px;line-height:1.6;">
+            Create your password using the secure link below. The link is valid for <strong>48 hours</strong>.
+        </p>
+        <p style="margin:0 0 22px;text-align:center;">
+            <a th:href="${setupLink}" style="display:inline-block;background:#0f9f90;color:#ffffff;text-decoration:none;font-weight:700;padding:13px 28px;border-radius:30px;font-size:15px;">Set my password</a>
+        </p>
+        <p style="margin:0;font-size:12px;color:#64748b;line-height:1.6;">
+            If the button does not work, copy this address into your browser:<br>
+            <span th:text="${setupLink}" style="word-break:break-all;color:#0f9f90;">link</span>
+        </p>
+    </div>
+</div>
+</body>
+</html>

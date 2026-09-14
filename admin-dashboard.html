@@ -2,43 +2,683 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Admin Dashboard | Lord Sai Investment & Share Market Academy</title>
+    <title>Master Admin Dashboard | Lord Sai Investment & Share Market Academy</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+    <style>
+        body { background: #f1f5f9; font-family: 'Inter', sans-serif; }
+        .adm-layout { display: flex; min-height: 100vh; }
+        .adm-sidebar { width: 250px; background: var(--lsi-navy, #0A1128); color: #fff; position: fixed; top: 0; bottom: 0; left: 0; overflow-y: auto; z-index: 1030; transition: transform .25s; }
+        .adm-sidebar .brand { padding: 20px 20px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .adm-sidebar .brand img { height: 40px; }
+        .adm-nav a { display: flex; align-items: center; gap: 12px; padding: 11px 20px; color: rgba(255,255,255,0.75); text-decoration: none; font-size: 14px; font-weight: 500; border-left: 3px solid transparent; }
+        .adm-nav a:hover { color: #fff; background: rgba(255,255,255,0.05); }
+        .adm-nav a.active { color: #fff; background: rgba(46,196,182,0.15); border-left-color: #2EC4B6; }
+        .adm-nav a i { width: 18px; text-align: center; }
+        .adm-nav .section-label { padding: 14px 20px 4px; font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+        .adm-main { margin-left: 250px; flex: 1; min-width: 0; }
+        .adm-topbar { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 12px 24px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 1020; }
+        .adm-content { padding: 24px; }
+        .adm-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,31,84,0.04); }
+        .stat-card { padding: 18px 20px; display: flex; align-items: center; gap: 14px; }
+        .stat-card .ico { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .stat-card .val { font-size: 22px; font-weight: 800; color: #0A1128; line-height: 1.1; }
+        .stat-card .lbl { font-size: 12px; color: #64748b; }
+        .view { display: none; } .view.active { display: block; }
+        .table thead th { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: #64748b; font-weight: 700; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
+        .table td { font-size: 13.5px; vertical-align: middle; }
+        .btn-xs { padding: 3px 10px; font-size: 12px; }
+        .search-results { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); max-height: 400px; overflow-y: auto; z-index: 1040; display: none; }
+        .search-results a { display: block; padding: 8px 14px; font-size: 13px; color: #0A1128; text-decoration: none; border-bottom: 1px solid #f1f5f9; }
+        .search-results a:hover { background: #f8fafc; }
+        .curr-module { border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+        .curr-module .head { background: #f8fafc; padding: 12px 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .curr-lesson { display: flex; align-items: center; gap: 10px; padding: 10px 16px 10px 40px; border-top: 1px solid #f1f5f9; flex-wrap: wrap; }
+        .curr-lesson .title { flex: 1; min-width: 200px; font-size: 13.5px; }
+        .badge-soft { background: rgba(46,196,182,0.12); color: #0F9F90; }
+        #toast-area { position: fixed; bottom: 20px; right: 20px; z-index: 2000; }
+        @media (max-width: 991.98px) {
+            .adm-sidebar { transform: translateX(-100%); }
+            .adm-sidebar.open { transform: translateX(0); }
+            .adm-main { margin-left: 0; }
+        }
+    </style>
 </head>
-<body class="bg-light">
+<body>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="js/api-config.js"></script>
     <script src="js/auth.js"></script>
     <script>LSI_Auth.requireAuth('admin');</script>
-    
-    <div class="container py-5">
-        <div class="card p-5 border-0 shadow-lg bg-white" style="border-radius: 16px;">
-            <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+
+    <div class="adm-layout">
+        <aside class="adm-sidebar" id="sidebar">
+            <div class="brand d-flex align-items-center gap-2">
+                <img src="img/lord-sai-logo.png" alt="Lord Sai">
                 <div>
-                    <span class="badge bg-danger mb-1">ADMINISTRATOR PORTAL</span>
-                    <h3 class="fw-bold mb-0">System Management Console</h3>
-                    <small class="text-muted">Lord Sai Investment & Share Market Academy</small>
-                </div>
-                <div>
-                    <a href="index.html" class="btn btn-sm btn-outline-primary rounded-pill me-2">Main Site</a>
-                    <button class="btn btn-sm btn-danger rounded-pill px-3" onclick="LSI_Auth.logout()"><i class="fas fa-sign-out-alt me-1"></i> Logout</button>
+                    <div class="fw-bold" style="font-size:15px;letter-spacing:.5px;">LORD SAI</div>
+                    <div style="font-size:10px;color:#2EC4B6;text-transform:uppercase;letter-spacing:1px;">Master Admin</div>
                 </div>
             </div>
-            <div class="alert alert-info">
-                <i class="fas fa-shield-alt me-1"></i> Administrator session authenticated.
+            <nav class="adm-nav py-2">
+                <a href="#dashboard" data-view="dashboard" class="active"><i class="fas fa-th-large"></i> Dashboard</a>
+                <div class="section-label">Academy</div>
+                <a href="#students" data-view="students"><i class="fas fa-user-graduate"></i> Students</a>
+                <a href="#courses" data-view="courses"><i class="fas fa-book"></i> Courses</a>
+                <a href="#curriculum" data-view="curriculum"><i class="fas fa-layer-group"></i> Modules &amp; Lessons</a>
+                <a href="#enrollments" data-view="enrollments"><i class="fas fa-id-card"></i> Enrollments</a>
+                <a href="#mentoring" data-view="mentoring"><i class="fas fa-comments"></i> Doubt Desk</a>
+                <div class="section-label">Business</div>
+                <a href="#payments" data-view="payments"><i class="fas fa-rupee-sign"></i> Payments</a>
+                <a href="#gateway" data-view="gateway"><i class="fas fa-credit-card"></i> Payment Gateway</a>
+                <a href="#reviews" data-view="reviews"><i class="fas fa-star"></i> Testimonials <span class="badge bg-warning text-dark ms-1 d-none" id="navPendingReviews">0</span></a>
+                <a href="#stories" data-view="stories"><i class="fas fa-video"></i> Success Stories</a>
+                <a href="#content" data-view="content"><i class="fas fa-globe"></i> Website Content</a>
+                <a href="#mf-slider" data-view="mf-slider"><i class="fas fa-images"></i> MF Homepage Slider</a>
+                <div class="section-label">Blog</div>
+                <a href="#blogs" data-view="blogs"><i class="fas fa-newspaper"></i> All Blogs</a>
+                <a href="#blog-form" data-view="blog-form" onclick="Admin.openBlogForm(); return false;"><i class="fas fa-plus-circle"></i> Add Blog</a>
+                <a href="#blog-categories" data-view="blog-categories"><i class="fas fa-tags"></i> Categories</a>
+                <div class="section-label">System</div>
+                <a href="#audit" data-view="audit"><i class="fas fa-history"></i> Audit Logs</a>
+                <a href="#settings" data-view="settings"><i class="fas fa-cog"></i> Settings</a>
+                <a href="#" onclick="LSI_Auth.logout(); return false;" class="text-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </nav>
+        </aside>
+
+        <div class="adm-main">
+            <div class="adm-topbar">
+                <button class="btn btn-light d-lg-none" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+                <div class="position-relative flex-grow-1" style="max-width: 520px;">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                        <input type="search" class="form-control border-start-0" id="globalSearch" placeholder="Search student name, ID, email, course or payment ID...">
+                    </div>
+                    <div class="search-results" id="searchResults"></div>
+                </div>
+                <div class="ms-auto d-flex align-items-center gap-3">
+                    <a href="index.html" class="btn btn-sm btn-outline-primary rounded-pill d-none d-md-inline-block"><i class="fas fa-external-link-alt me-1"></i> View Site</a>
+                    <div class="text-end d-none d-md-block">
+                        <small class="text-muted d-block" style="font-size:11px;">ADMINISTRATOR</small>
+                        <strong id="adminName" style="font-size:14px;">Admin</strong>
+                    </div>
+                </div>
             </div>
-            <div class="row g-3">
-                <div class="col-md-4"><div class="p-3 bg-light rounded border"><strong>User Roles:</strong> Student, Teacher, Admin</div></div>
-                <div class="col-md-4"><div class="p-3 bg-light rounded border"><strong>Registrations:</strong> Active Batch 2024</div></div>
-                <div class="col-md-4"><div class="p-3 bg-light rounded border"><strong>Security:</strong> Session & Token Guard Active</div></div>
+
+            <div class="adm-content">
+                <section class="view active" id="view-dashboard">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="fw-bold mb-0">Dashboard</h4>
+                        <button class="btn btn-sm btn-light" onclick="Admin.loadDashboard()"><i class="fas fa-sync-alt me-1"></i> Refresh</button>
+                    </div>
+                    <div class="adm-card p-3 mb-3" id="paymentStatusCard"></div>
+                    <div class="alert alert-warning d-none align-items-center gap-2 mb-3" id="pendingReviewsAlert"></div>
+                    <div class="row g-3 mb-4" id="statCards"></div>
+                    <div class="row g-3">
+                        <div class="col-lg-6"><div class="adm-card p-3"><h6 class="fw-bold mb-3">Recent Enrollments</h6>
+                            <div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Student</th><th>Course</th><th>Source</th><th>Date</th></tr></thead><tbody id="recentEnrollments"></tbody></table></div></div></div>
+                        <div class="col-lg-6"><div class="adm-card p-3"><h6 class="fw-bold mb-3">Recent Payments</h6>
+                            <div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Order</th><th>Customer</th><th>Amount</th><th>Status</th></tr></thead><tbody id="recentPayments"></tbody></table></div></div></div>
+                    </div>
+                </section>
+
+                <section class="view" id="view-students">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <h4 class="fw-bold mb-0">Students</h4>
+                        <div class="d-flex gap-2">
+                            <select class="form-select form-select-sm" id="studentStatusFilter" style="width:auto;">
+                                <option value="">All statuses</option><option value="ACTIVE">Active</option><option value="PENDING_SETUP">Pending setup</option><option value="DISABLED">Disabled</option>
+                            </select>
+                            <input type="search" class="form-control form-control-sm" id="studentSearch" placeholder="Search name / email / mobile" style="width:240px;">
+                            <button class="btn btn-sm btn-primary" onclick="Admin.openStudentForm()"><i class="fas fa-plus me-1"></i> Add Student</button>
+                        </div>
+                    </div>
+                    <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0">
+                        <thead><tr><th>Student ID</th><th>Name</th><th>Email</th><th>Mobile</th><th>Courses</th><th>Status</th><th>Last Login</th><th></th></tr></thead>
+                        <tbody id="studentsBody"></tbody></table></div>
+                        <div class="p-2 border-top d-flex justify-content-between align-items-center"><small class="text-muted" id="studentsCount"></small><div id="studentsPager"></div></div>
+                    </div>
+                </section>
+
+                <section class="view" id="view-student-detail">
+                    <button class="btn btn-sm btn-light mb-3" onclick="Admin.show('students')"><i class="fas fa-arrow-left me-1"></i> Back to Students</button>
+                    <div id="studentDetail"></div>
+                </section>
+
+                <section class="view" id="view-courses">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="fw-bold mb-0">Courses</h4>
+                        <button class="btn btn-sm btn-primary" onclick="Admin.openCourseForm()"><i class="fas fa-plus me-1"></i> Add Course</button>
+                    </div>
+                    <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0">
+                        <thead><tr><th>Course</th><th>Code</th><th>Price</th><th>Modules / Lessons</th><th>Students</th><th>Status</th><th>Actions</th></tr></thead>
+                        <tbody id="coursesBody"></tbody></table></div></div>
+                </section>
+
+                <section class="view" id="view-curriculum">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <h4 class="fw-bold mb-0">Modules &amp; Lessons</h4>
+                        <div class="d-flex gap-2 align-items-center">
+                            <select class="form-select form-select-sm" id="curriculumCourse" style="min-width:260px;"></select>
+                            <button class="btn btn-sm btn-primary" id="addModuleBtn"><i class="fas fa-plus me-1"></i> Add Module</button>
+                        </div>
+                    </div>
+                    <div id="curriculumBody"><div class="text-muted">Select a course.</div></div>
+                </section>
+
+                <section class="view" id="view-enrollments">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <h4 class="fw-bold mb-0">Enrollments</h4>
+                        <div class="d-flex gap-2">
+                            <select class="form-select form-select-sm" id="enrollCourseFilter" style="width:auto;"><option value="">All courses</option></select>
+                            <button class="btn btn-sm btn-primary" onclick="Admin.openManualEnroll()"><i class="fas fa-user-plus me-1"></i> Enroll Student Manually</button>
+                        </div>
+                    </div>
+                    <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0">
+                        <thead><tr><th>Student</th><th>Course</th><th>Status</th><th>Source</th><th>Progress</th><th>Enrolled</th><th>Expiry</th><th></th></tr></thead>
+                        <tbody id="enrollmentsBody"></tbody></table></div>
+                        <div class="p-2 border-top d-flex justify-content-between align-items-center"><small class="text-muted" id="enrollmentsCount"></small><div id="enrollmentsPager"></div></div>
+                    </div>
+                </section>
+
+                <section class="view" id="view-payments">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <h4 class="fw-bold mb-0">Payments</h4>
+                        <div class="btn-group btn-group-sm" id="paymentFilters">
+                            <button class="btn btn-outline-secondary active" data-status="">All</button>
+                            <button class="btn btn-outline-success" data-status="SUCCESS">Success</button>
+                            <button class="btn btn-outline-warning" data-status="CREATED">Pending</button>
+                            <button class="btn btn-outline-danger" data-status="FAILED">Failed</button>
+                            <button class="btn btn-outline-dark" data-status="REFUNDED">Refunded</button>
+                        </div>
+                    </div>
+                    <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0">
+                        <thead><tr><th>Order Ref</th><th>Customer</th><th>Email</th><th>Course</th><th>Amount</th><th>Mode</th><th>Method</th><th>Razorpay Order</th><th>Razorpay Payment</th><th>Status</th><th>Date</th></tr></thead>
+                        <tbody id="paymentsBody"></tbody></table></div>
+                        <div class="p-2 border-top d-flex justify-content-between align-items-center"><small class="text-muted" id="paymentsCount"></small><div id="paymentsPager"></div></div>
+                    </div>
+                </section>
+
+                <section class="view" id="view-gateway">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <h4 class="fw-bold mb-0">Payment Gateway — Razorpay</h4>
+                        <button class="btn btn-sm btn-light" onclick="Admin.loadGateway()"><i class="fas fa-sync-alt me-1"></i> Refresh</button>
+                    </div>
+
+                    <div class="adm-card p-4 mb-3" id="gatewayStatusCard"><div class="text-muted">Loading…</div></div>
+
+                    <div class="row g-3">
+                        <div class="col-lg-6">
+                            <div class="adm-card p-4">
+                                <h6 class="fw-bold mb-1" id="gatewayFormTitle">Configure Razorpay</h6>
+                                <p class="text-muted small mb-3">Keys are in Razorpay Dashboard → Settings → API Keys. Use <code>rzp_test_</code> keys first; switch to <code>rzp_live_</code> keys only when you intend to charge real money.</p>
+                                <form id="gatewayForm">
+                                    <div class="mb-2"><label class="form-label small fw-bold">Razorpay Key ID</label><input type="text" class="form-control" id="gwKeyId" placeholder="rzp_test_XXXXXXXXXXXXXX" required autocomplete="off"></div>
+                                    <div class="mb-2"><label class="form-label small fw-bold">Razorpay Key Secret</label><input type="password" class="form-control" id="gwKeySecret" placeholder="Enter key secret" autocomplete="new-password"><div class="form-text" id="gwKeySecretHelp">Required the first time. Leave blank later to keep the saved secret.</div></div>
+                                    <div class="mb-2"><label class="form-label small fw-bold">Webhook Secret <span class="text-muted fw-normal">(optional)</span></label><input type="password" class="form-control" id="gwWebhookSecret" placeholder="Razorpay Dashboard → Webhooks" autocomplete="new-password"><div class="form-text">Confirms payments server-to-server if a student closes the browser early. Leave blank to keep the saved value.</div></div>
+                                    <div class="mb-3"><label class="form-label small fw-bold">Currency</label><input type="text" class="form-control" id="gwCurrency" value="INR" maxlength="3" style="max-width:120px"></div>
+                                    <div class="alert alert-warning small py-2"><i class="fas fa-exclamation-triangle me-1"></i> Real payments will be enabled after saving valid Razorpay credentials. Students will be charged actual money through Razorpay.</div>
+                                    <div class="alert alert-danger small py-2 d-none" id="gwError"></div>
+                                    <button type="submit" class="btn btn-primary" id="gwSaveBtn"><i class="fas fa-save me-1"></i> <span id="gwSaveLabel">Save &amp; Enable Real Payments</span></button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="adm-card p-4 mb-3">
+                                <h6 class="fw-bold mb-2">Actions</h6>
+                                <div class="d-flex flex-wrap gap-2" id="gatewayActions"></div>
+                                <p class="text-muted small mt-3 mb-0">Disabling or removing Razorpay switches the website back to <strong>Demo Payment Mode</strong> immediately. Existing enrollments and payment history are never affected.</p>
+                            </div>
+                            <div class="adm-card p-4">
+                                <h6 class="fw-bold mb-2">How the mode is decided</h6>
+                                <ul class="small text-muted mb-0 ps-3">
+                                    <li>Razorpay configured, validated and enabled → <strong>REAL PAYMENT</strong>: students pay through Razorpay Checkout; demo payments are refused by the server.</li>
+                                    <li>No valid configuration → <strong>DEMO PAYMENT</strong>: students enroll without being charged; each transaction is recorded with mode <code>DEMO</code>.</li>
+                                    <li>Credentials are verified against Razorpay before real payments turn on. Secrets are encrypted in the database and never shown again.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
+                        <h6 class="fw-bold mb-0">Recent Transactions</h6>
+                        <a href="#payments" data-view="payments" class="small">All payments</a>
+                    </div>
+                    <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0">
+                        <thead><tr><th>Date &amp; Time</th><th>Student</th><th>Course</th><th>Amount</th><th>Mode</th><th>Status</th><th>Transaction</th><th>Razorpay Payment ID</th></tr></thead>
+                        <tbody id="gatewayTxBody"></tbody></table></div></div>
+                </section>
+
+                <section class="view" id="view-reviews">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <div>
+                            <h4 class="fw-bold mb-0">Reviews &amp; Testimonials</h4>
+                            <small class="text-muted">Visitor reviews submitted on the <a href="testimonials.html?mode=academy" target="_blank" rel="noopener">Share Market Academy</a> and <a href="testimonials.html?mode=mutual-fund" target="_blank" rel="noopener">Mutual Fund</a> testimonials pages, plus testimonials you add here. Only <strong>Approved</strong> entries are shown publicly, and only on their own website.</small>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <select class="form-select form-select-sm" id="reviewSiteFilter" style="width:auto;">
+                                <option value="">All Websites</option><option value="SHARE_MARKET">Share Market</option><option value="MUTUAL_FUND">Mutual Fund</option>
+                            </select>
+                            <select class="form-select form-select-sm" id="reviewStatusFilter" style="width:auto;">
+                                <option value="">All Statuses</option><option value="PENDING">Pending</option><option value="APPROVED">Approved</option><option value="DECLINED">Declined</option>
+                            </select>
+                            <button class="btn btn-sm btn-light" onclick="Admin.loadReviews(0)"><i class="fas fa-sync-alt me-1"></i> Refresh</button>
+                            <button class="btn btn-sm btn-primary" onclick="Admin.openReviewForm()"><i class="fas fa-plus me-1"></i> Add Testimonial</button>
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-3" id="reviewCountCards"></div>
+                    <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0 align-middle">
+                        <thead><tr><th>Name</th><th>Website</th><th>Rating</th><th>Course</th><th>Review</th><th>Status</th><th>Submitted</th><th>Actions</th></tr></thead>
+                        <tbody id="reviewsBody"></tbody></table></div>
+                        <div class="d-flex justify-content-between align-items-center p-3 border-top"><small class="text-muted" id="reviewsCount"></small><div id="reviewsPager"></div></div></div>
+                </section>
+
+                <section class="view" id="view-stories">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <div>
+                            <h4 class="fw-bold mb-0">Success Stories</h4>
+                            <small class="text-muted">Video stories shown on the public <a href="stories.html" target="_blank" rel="noopener">Success Stories</a> page. Categories are content labels only.</small>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <select class="form-select form-select-sm" id="storyCategoryFilter" style="width:auto;">
+                                <option value="">All categories</option><option value="STUDENTS">Students</option><option value="TEACHERS">Teachers</option><option value="PARENTS">Parents</option>
+                            </select>
+                            <button class="btn btn-sm btn-primary" onclick="Admin.openStoryForm()"><i class="fas fa-plus me-1"></i> Add Story</button>
+                        </div>
+                    </div>
+                    <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0 align-middle">
+                        <thead><tr><th style="width:56px">#</th><th>Story</th><th>Category</th><th>Video</th><th>Status</th><th>Updated</th><th>Actions</th></tr></thead>
+                        <tbody id="storiesBody"></tbody></table></div></div>
+                </section>
+
+                <section class="view" id="view-mentoring">
+                    <h4 class="fw-bold mb-3">Doubt Desk</h4>
+                    <div id="mentorDoubts">
+                        <div class="d-flex gap-2 mb-2">
+                            <select class="form-select form-select-sm" id="doubtStatusFilter" style="width:auto;"><option value="OPEN">Open</option><option value="IN_PROGRESS">In progress</option><option value="">All</option><option value="RESOLVED">Resolved</option></select>
+                        </div>
+                        <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0">
+                            <thead><tr><th>Date</th><th>Student</th><th>Course</th><th>Title</th><th>Replies</th><th>Status</th><th></th></tr></thead>
+                            <tbody id="doubtsBody"></tbody></table></div></div>
+                    </div>
+                </section>
+
+                <section class="view" id="view-content">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <h4 class="fw-bold mb-0">Website Content</h4>
+                        <div class="d-flex gap-2">
+                            <div class="btn-group btn-group-sm" id="siteSwitch">
+                                <button class="btn btn-outline-primary active" data-site="ACADEMY">Academy</button>
+                                <button class="btn btn-outline-primary" data-site="MUTUAL_FUND">Mutual Fund</button>
+                            </div>
+                            <button class="btn btn-sm btn-primary" onclick="Admin.openContentForm()"><i class="fas fa-plus me-1"></i> Add Content Item</button>
+                        </div>
+                    </div>
+                    <p class="text-muted small">Each item is a piece of text or an image the public website can display. Pages read these by key, e.g. <code>home.hero.title</code>.</p>
+                    <div class="adm-card"><div class="table-responsive"><table class="table mb-0">
+                        <thead><tr><th style="width:24%">Label / Key</th><th>Value</th><th style="width:90px">Type</th><th style="width:150px">Updated</th><th style="width:130px"></th></tr></thead>
+                        <tbody id="contentBody"></tbody></table></div></div>
+                </section>
+
+                <section class="view" id="view-mf-slider">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <div>
+                            <h4 class="fw-bold mb-0">Mutual Fund Homepage Slider</h4>
+                            <small class="text-muted">Controls the image slider on the <a href="home.html?mode=mutual-fund" target="_blank" rel="noopener">Mutual Fund homepage</a>. The Share Market homepage has its own slider and is not affected by this section.</small>
+                        </div>
+                        <button class="btn btn-sm btn-primary" onclick="Admin.openSliderForm()"><i class="fas fa-plus me-1"></i> Add Slider Image</button>
+                    </div>
+                    <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0 align-middle">
+                        <thead><tr><th style="width:56px">#</th><th>Preview</th><th>Title / Alt Text</th><th>Order</th><th>Status</th><th>Updated</th><th>Actions</th></tr></thead>
+                        <tbody id="sliderBody"></tbody></table></div>
+                        <div class="p-3 text-muted small border-top">Only <strong>Active</strong> images appear on the homepage, in the order shown above. Deactivating an image hides it without deleting it.</div>
+                    </div>
+                </section>
+
+                <section class="view" id="view-blogs">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <div>
+                            <h4 class="fw-bold mb-0">Blog Management</h4>
+                            <small class="text-muted">Manage articles for Share Market Academy and Mutual Fund websites.</small>
+                        </div>
+                        <button class="btn btn-sm btn-primary" onclick="Admin.openBlogForm()"><i class="fas fa-plus me-1"></i> Add Blog</button>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="adm-card p-3 mb-3">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-md-3">
+                                <label class="form-label small text-muted mb-1">Website</label>
+                                <select class="form-select form-select-sm" id="blogSiteFilter">
+                                    <option value="">All Websites</option>
+                                    <option value="ACADEMY">Share Market</option>
+                                    <option value="MUTUAL_FUND">Mutual Fund</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small text-muted mb-1">Category</label>
+                                <select class="form-select form-select-sm" id="blogCategoryFilter">
+                                    <option value="">All Categories</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small text-muted mb-1">Status</label>
+                                <select class="form-select form-select-sm" id="blogStatusFilter">
+                                    <option value="">All Statuses</option>
+                                    <option value="PUBLISHED">Published</option>
+                                    <option value="DRAFT">Draft</option>
+                                    <option value="UNPUBLISHED">Unpublished</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted mb-1">Search</label>
+                                <div class="input-group input-group-sm">
+                                    <input type="search" class="form-control" id="blogSearchInput" placeholder="Search title, author, tags...">
+                                    <button class="btn btn-outline-secondary" type="button" id="blogSearchBtn"><i class="fas fa-search"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Blogs Table -->
+                    <div class="adm-card">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0 align-middle">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 70px;">Image</th>
+                                        <th>Blog Title</th>
+                                        <th>Website</th>
+                                        <th>Category</th>
+                                        <th>Status</th>
+                                        <th>Author</th>
+                                        <th>Published</th>
+                                        <th>Updated</th>
+                                        <th class="text-end" style="width: 170px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="blogsBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="p-2 border-top d-flex justify-content-between align-items-center">
+                            <small class="text-muted" id="blogsCount"></small>
+                            <div id="blogsPager"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="view" id="view-blog-form">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <button class="btn btn-sm btn-light" onclick="Admin.show('blogs')"><i class="fas fa-arrow-left me-1"></i> Back to Blogs</button>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="blogSaveDraftBtn"><i class="fas fa-save me-1"></i> Save Draft</button>
+                            <button type="button" class="btn btn-sm btn-success" id="blogPublishBtn"><i class="fas fa-paper-plane me-1"></i> Publish</button>
+                        </div>
+                    </div>
+
+                    <div class="adm-card p-4">
+                        <h5 class="fw-bold mb-3" id="blogFormTitle">Create New Blog</h5>
+                        <form id="blogDetailForm">
+                            <input type="hidden" id="blogFormId">
+                            <div class="row g-3">
+                                <!-- Left Column: Main Article Body -->
+                                <div class="col-lg-8">
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold">Blog Title <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="blogFormTitleInput" placeholder="Enter article title..." required maxlength="255">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold">Slug / URL Identifier <span class="text-danger">*</span></label>
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text bg-light text-muted">/blog/</span>
+                                            <input type="text" class="form-control font-monospace" id="blogFormSlugInput" placeholder="auto-generated-from-title" required maxlength="280">
+                                        </div>
+                                        <div class="form-text">Used for public article links. Lowercase, numbers and hyphens only.</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold">Short Description / Excerpt <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" id="blogFormExcerptInput" rows="3" placeholder="A concise 1-2 sentence summary displayed on cards..." required maxlength="1000"></textarea>
+                                    </div>
+
+                                    <!-- Content Editor with formatting toolbar -->
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <label class="form-label small fw-bold mb-0">Article Content <span class="text-danger">*</span></label>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <button type="button" class="btn btn-outline-secondary active" id="blogEditorModeWrite">Write</button>
+                                                <button type="button" class="btn btn-outline-secondary" id="blogEditorModePreview">Preview</button>
+                                            </div>
+                                        </div>
+                                        <!-- Editor Toolbar -->
+                                        <div class="btn-toolbar p-1 bg-light border border-bottom-0 rounded-top" id="blogEditorToolbar">
+                                            <div class="btn-group btn-group-sm me-2 mb-1">
+                                                <button type="button" class="btn btn-white border" data-cmd="h2" title="Heading 2"><strong>H2</strong></button>
+                                                <button type="button" class="btn btn-white border" data-cmd="h3" title="Heading 3"><strong>H3</strong></button>
+                                                <button type="button" class="btn btn-white border" data-cmd="p" title="Paragraph"><strong>P</strong></button>
+                                            </div>
+                                            <div class="btn-group btn-group-sm me-2 mb-1">
+                                                <button type="button" class="btn btn-white border" data-cmd="bold" title="Bold"><i class="fas fa-bold"></i></button>
+                                                <button type="button" class="btn btn-white border" data-cmd="italic" title="Italic"><i class="fas fa-italic"></i></button>
+                                                <button type="button" class="btn btn-white border" data-cmd="underline" title="Underline"><i class="fas fa-underline"></i></button>
+                                            </div>
+                                            <div class="btn-group btn-group-sm me-2 mb-1">
+                                                <button type="button" class="btn btn-white border" data-cmd="ul" title="Bullet List"><i class="fas fa-list-ul"></i></button>
+                                                <button type="button" class="btn btn-white border" data-cmd="ol" title="Numbered List"><i class="fas fa-list-ol"></i></button>
+                                                <button type="button" class="btn btn-white border" data-cmd="quote" title="Blockquote"><i class="fas fa-quote-left"></i></button>
+                                            </div>
+                                            <div class="btn-group btn-group-sm mb-1">
+                                                <button type="button" class="btn btn-white border" data-cmd="link" title="Insert Link"><i class="fas fa-link"></i></button>
+                                                <button type="button" class="btn btn-white border" data-cmd="img" title="Insert Image Tag"><i class="fas fa-image"></i></button>
+                                            </div>
+                                        </div>
+                                        <textarea class="form-control rounded-0 rounded-bottom font-monospace" id="blogFormContentInput" rows="14" placeholder="Write HTML/rich content here..." style="font-size: 13px;" required></textarea>
+                                        <div class="p-3 border rounded-bottom bg-white d-none" id="blogFormContentPreview" style="min-height: 280px; max-height: 500px; overflow-y: auto;"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Right Column: Meta, Category, Image, SEO -->
+                                <div class="col-lg-4">
+                                    <div class="p-3 bg-light rounded-3 mb-3 border">
+                                        <h6 class="fw-bold mb-3">Publishing Target</h6>
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-bold">Website / Experience <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="blogFormSiteInput" required>
+                                                <option value="ACADEMY">Share Market Academy</option>
+                                                <option value="MUTUAL_FUND">Mutual Fund Distribution</option>
+                                            </select>
+                                            <div class="form-text">This blog will appear strictly on this website.</div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-bold">Category <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="blogFormCategoryInput" required></select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-bold">Status</label>
+                                            <select class="form-select" id="blogFormStatusInput">
+                                                <option value="DRAFT">Draft</option>
+                                                <option value="PUBLISHED">Published</option>
+                                                <option value="UNPUBLISHED">Unpublished</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-bold">Author</label>
+                                            <input type="text" class="form-control" id="blogFormAuthorInput" placeholder="Mentor Vaibhav Pawar" value="Lord Sai Team" maxlength="150">
+                                        </div>
+                                        <div class="mb-0">
+                                            <label class="form-label small fw-bold">Tags</label>
+                                            <input type="text" class="form-control" id="blogFormTagsInput" placeholder="e.g. Technical Analysis, Basics" maxlength="500">
+                                            <div class="form-text">Comma-separated tags.</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Featured Image Box -->
+                                    <div class="p-3 bg-light rounded-3 mb-3 border">
+                                        <h6 class="fw-bold mb-2">Featured Image</h6>
+                                        <input type="hidden" id="blogFormImagePath">
+                                        <div class="mb-2 text-center p-2 bg-white rounded border" id="blogImagePreviewBox" style="min-height: 120px; display: flex; align-items: center; justify-content: center;">
+                                            <span class="text-muted small">No image uploaded</span>
+                                        </div>
+                                        <input type="file" class="form-control form-control-sm mb-2" id="blogFormImageFile" accept="image/jpeg,image/png,image/webp">
+                                        <button type="button" class="btn btn-sm btn-outline-danger w-100 d-none" id="blogFormImageRemoveBtn"><i class="fas fa-trash me-1"></i> Remove Image</button>
+                                    </div>
+
+                                    <!-- SEO Accordion -->
+                                    <div class="accordion" id="blogSeoAccordion">
+                                        <div class="accordion-item border rounded-3 overflow-hidden">
+                                            <h2 class="accordion-header">
+                                                <button class="accordion-button collapsed py-2 px-3 small fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#blogSeoCollapse">
+                                                    <i class="fas fa-search me-2 text-primary"></i> SEO Meta Information (Optional)
+                                                </button>
+                                            </h2>
+                                            <div id="blogSeoCollapse" class="accordion-collapse collapse" data-bs-parent="#blogSeoAccordion">
+                                                <div class="accordion-body p-3 bg-light small">
+                                                    <div class="mb-2">
+                                                        <label class="form-label small fw-bold">SEO Title</label>
+                                                        <input type="text" class="form-control form-control-sm" id="blogFormSeoTitle" placeholder="Custom browser tab / title tag" maxlength="255">
+                                                    </div>
+                                                    <div class="mb-2">
+                                                        <label class="form-label small fw-bold">SEO Description</label>
+                                                        <textarea class="form-control form-control-sm" id="blogFormSeoDesc" rows="2" placeholder="Meta description for search engines..." maxlength="500"></textarea>
+                                                    </div>
+                                                    <div class="mb-0">
+                                                        <label class="form-label small fw-bold">SEO Keywords</label>
+                                                        <input type="text" class="form-control form-control-sm" id="blogFormSeoKeywords" placeholder="stock market, trading, sip" maxlength="500">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <section class="view" id="view-blog-categories">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <div>
+                            <h4 class="fw-bold mb-0">Blog Categories</h4>
+                            <small class="text-muted">Manage website-specific categories for articles.</small>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <select class="form-select form-select-sm" id="catSiteFilter" style="width:auto;">
+                                <option value="">All Websites</option>
+                                <option value="ACADEMY">Share Market</option>
+                                <option value="MUTUAL_FUND">Mutual Fund</option>
+                            </select>
+                            <button class="btn btn-sm btn-primary" onclick="Admin.openCategoryForm()"><i class="fas fa-plus me-1"></i> Add Category</button>
+                        </div>
+                    </div>
+
+                    <div class="adm-card">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0 align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Category Name</th>
+                                        <th>Slug</th>
+                                        <th>Website</th>
+                                        <th>Description</th>
+                                        <th>Order</th>
+                                        <th>Status</th>
+                                        <th>Articles</th>
+                                        <th class="text-end" style="width: 140px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="categoriesBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="view" id="view-audit">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="fw-bold mb-0">Audit Logs</h4>
+                        <button class="btn btn-sm btn-light" onclick="Admin.loadAudit(0)"><i class="fas fa-sync-alt me-1"></i> Refresh</button>
+                    </div>
+                    <div class="adm-card"><div class="table-responsive"><table class="table table-sm mb-0">
+                        <thead><tr><th>Time</th><th>Who</th><th>Action</th><th>Entity</th><th>Description</th><th>IP</th></tr></thead>
+                        <tbody id="auditBody"></tbody></table></div>
+                        <div class="p-2 border-top d-flex justify-content-between align-items-center"><small class="text-muted" id="auditCount"></small><div id="auditPager"></div></div>
+                    </div>
+                </section>
+
+                <section class="view" id="view-settings">
+                    <h4 class="fw-bold mb-3">Settings</h4>
+                    <div class="row g-3">
+                        <div class="col-lg-5"><div class="adm-card p-4">
+                            <h6 class="fw-bold mb-3">Change My Password</h6>
+                            <form id="changePasswordForm">
+                                <div class="mb-2"><label class="form-label small fw-bold">Current password</label><input type="password" class="form-control" id="cpCurrent" required></div>
+                                <div class="mb-2"><label class="form-label small fw-bold">New password</label><input type="password" class="form-control" id="cpNew" required minlength="8"></div>
+                                <div class="mb-3"><label class="form-label small fw-bold">Confirm new password</label><input type="password" class="form-control" id="cpConfirm" required></div>
+                                <button class="btn btn-primary btn-sm" type="submit">Update Password</button>
+                                <div class="form-text mt-2">Changing the password logs you out everywhere.</div>
+                            </form>
+                        </div></div>
+                        <div class="col-lg-7"><div class="adm-card p-4">
+                            <h6 class="fw-bold mb-3">Configuration</h6>
+                            <p class="small text-muted mb-2">Database, Razorpay keys, SMTP and JWT settings are supplied through environment variables on the server (see <code>backend/.env.example</code>). They are intentionally not editable from this screen.</p>
+                            <div class="small"><strong>API base:</strong> <code id="settingsApiBase"></code></div>
+                        </div></div>
+                    </div>
+                </section>
             </div>
         </div>
     </div>
-    <!-- Multilingual Engine -->
-    <script src="js/translations.js"></script>
-    <script src="js/lang.js"></script>
-    <script src="js/mode.js"></script>
+
+    <div class="modal fade" id="formModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" id="formModalDialog">
+            <div class="modal-content border-0 shadow-lg" style="border-radius:16px;">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, var(--lsi-navy), var(--lsi-blue)); border-radius:16px 16px 0 0;">
+                    <h5 class="modal-title fw-bold text-white" id="formModalTitle">Form</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formModalForm">
+                    <div class="modal-body p-4" id="formModalBody"></div>
+                    <div class="modal-footer border-0 pt-0 flex-column align-items-stretch">
+                        <div class="alert alert-danger py-2 px-3 small d-none mb-2" id="formModalError"></div>
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary" id="formModalSubmit">Save</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg" style="border-radius:16px;">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, var(--lsi-navy), var(--lsi-blue)); border-radius:16px 16px 0 0;">
+                    <h5 class="modal-title fw-bold text-white"><i class="fas fa-star text-warning me-2"></i>Review Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4" id="reviewModalBody"></div>
+                <div class="modal-footer border-0 pt-0 d-flex justify-content-between flex-wrap gap-2">
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-danger btn-sm" id="reviewDeleteBtn"><i class="fas fa-trash me-1"></i> Delete</button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="reviewEditBtn"><i class="fas fa-edit me-1"></i> Edit</button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="reviewPhotoBtn"><i class="fas fa-image me-1"></i> Photo</button>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-outline-warning" id="reviewDeclineBtn"><i class="fas fa-times me-1"></i> Decline Review</button>
+                        <button type="button" class="btn btn-success" id="reviewAcceptBtn"><i class="fas fa-check me-1"></i> Accept Review</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-area"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/admin-dashboard.js"></script>
 </body>
 </html>

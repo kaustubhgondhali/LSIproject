@@ -1,0 +1,104 @@
+spring:
+  application:
+    name: lsi-backend
+
+  config:
+    # Loads backend/.env automatically (when present) so `mvn spring-boot:run` works
+    # without exporting variables. Real environment variables still take precedence.
+    import: optional:file:./.env[.properties]
+
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/lsi_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Kolkata}
+    # Local MySQL defaults (root/root). Set DB_USERNAME / DB_PASSWORD in the environment
+    # or backend/.env to override — never rely on these defaults on a real server.
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      pool-name: lsi-pool
+      maximum-pool-size: 10
+      minimum-idle: 2
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      # Schema is owned by Flyway migrations, never by Hibernate auto-DDL.
+      # "validate" makes startup fail loudly if entities and schema ever drift.
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc:
+          time_zone: Asia/Kolkata
+
+  flyway:
+    enabled: ${FLYWAY_ENABLED:true}
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  servlet:
+    multipart:
+      max-file-size: 512MB
+      max-request-size: 512MB
+
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-stacktrace: never
+    include-message: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+lsi:
+  public-base-url: ${PUBLIC_BASE_URL:http://localhost:5500}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5500,http://127.0.0.1:5500,http://localhost:8080}
+  jwt:
+    secret: ${JWT_SECRET}
+    access-token-minutes: ${JWT_ACCESS_TOKEN_MINUTES:120}
+    refresh-token-days: ${JWT_REFRESH_TOKEN_DAYS:7}
+    issuer: lordsai-lsi
+  storage:
+    base-path: ${STORAGE_BASE_PATH:./uploads}
+    max-video-size-mb: ${MAX_VIDEO_SIZE_MB:512}
+    max-document-size-mb: ${MAX_DOCUMENT_SIZE_MB:25}
+  support:
+    email: ${SUPPORT_EMAIL:info@lordsaiinvestment.com}
+    phone: ${SUPPORT_PHONE:+91 99202 54354}
+  mail:
+    # false = emails are written to the log instead of sent (no SMTP account needed).
+    enabled: ${MAIL_ENABLED:false}
+    from: ${MAIL_FROM:${MAIL_USERNAME:no-reply@lordsaiinvestment.com}}
+  bootstrap-admin:
+    email: ${BOOTSTRAP_ADMIN_EMAIL:}
+    password: ${BOOTSTRAP_ADMIN_PASSWORD:}
+    name: ${BOOTSTRAP_ADMIN_NAME:Academy Administrator}
+
+razorpay:
+  key-id: ${RAZORPAY_KEY_ID:}
+  key-secret: ${RAZORPAY_KEY_SECRET:}
+  webhook-secret: ${RAZORPAY_WEBHOOK_SECRET:}
+  currency: INR
+
+logging:
+  level:
+    com.lordsai.lsi: INFO

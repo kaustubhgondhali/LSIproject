@@ -263,10 +263,11 @@
         submitBtn.html('<i class="fas fa-spinner fa-spin me-2"></i> Registering...').prop('disabled', true);
 
         setTimeout(function() {
-            submitBtn.html('<i class="fas fa-check-circle me-2"></i> Seat Confirmed!').removeClass('btn-primary').addClass('btn-success');
-            
-            // Show alert/success box
-            var successMsg = $('<div class="alert alert-success mt-3 shadow-sm"><i class="fas fa-check-circle me-2"></i> <strong>Congratulations!</strong> Your free strategy session seat is reserved. Our mentor team will contact you on WhatsApp with the joining link.</div>');
+            submitBtn.html('<i class="fas fa-check-circle me-2"></i> Request Noted').removeClass('btn-primary').addClass('btn-success');
+
+            // NOTE: this form is frontend-only (no backend persistence or notification exists yet), so the
+            // message must not claim a seat was reserved. It directs the visitor to the real contact channel.
+            var successMsg = $('<div class="alert alert-success mt-3 shadow-sm"><i class="fas fa-check-circle me-2"></i> <strong>Thank you!</strong> To confirm your free strategy session seat, please message us on <a href="https://wa.me/919920254354?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20book%20a%20free%20strategy%20session" target="_blank" rel="noopener" class="alert-link">WhatsApp (+91 99202 54354)</a> or call us — our mentor team will share the joining link.</div>');
             form.append(successMsg);
 
             setTimeout(function() {
@@ -376,7 +377,8 @@
         var sliderWrapper = document.getElementById('mf-hero');
         if (!track || !viewport || !sliderWrapper) return;
 
-        // Prevent duplicate initialization
+        // Prevent duplicate initialization (call track.__mfSliderDestroy() first to re-initialise
+        // on a new slide set — js/mf-slider.js does this when admin-managed slides arrive late).
         if (track.getAttribute('data-slider-initialized') === 'true') return;
         track.setAttribute('data-slider-initialized', 'true');
 
@@ -499,10 +501,11 @@
             startAutoplay();
         }
 
-        track.addEventListener('transitionend', function(e) {
+        function onTrackTransitionEnd(e) {
             if (e.target !== track) return;
             handleTransitionComplete();
-        });
+        }
+        track.addEventListener('transitionend', onTrackTransitionEnd);
 
         function startAutoplay() {
             stopAutoplay();
@@ -518,21 +521,21 @@
             }
         }
 
-        // Arrow navigation clicks
-        $('#mfSlideNext').on('click', function(e) {
+        // Arrow navigation clicks (namespaced so destroy() can unbind exactly these)
+        $('#mfSlideNext').on('click.mfSlider', function(e) {
             e.preventDefault();
             slideNext();
             startAutoplay();
         });
 
-        $('#mfSlidePrev').on('click', function(e) {
+        $('#mfSlidePrev').on('click.mfSlider', function(e) {
             e.preventDefault();
             slidePrev();
             startAutoplay();
         });
 
         // Dot navigation clicks
-        $dotsContainer.on('click', '.mf-dot', function(e) {
+        $dotsContainer.on('click.mfSlider', '.mf-dot', function(e) {
             e.preventDefault();
             var targetIdx = parseInt($(this).data('slide'), 10);
             if (!isNaN(targetIdx)) {
@@ -544,11 +547,10 @@
         var touchStartX = 0;
         var touchEndX = 0;
 
-        sliderWrapper.addEventListener('touchstart', function(e) {
+        function onTouchStart(e) {
             touchStartX = e.changedTouches[0].screenX;
-        }, { passive: true });
-
-        sliderWrapper.addEventListener('touchend', function(e) {
+        }
+        function onTouchEnd(e) {
             touchEndX = e.changedTouches[0].screenX;
             var swipeThreshold = 40;
             if (touchStartX - touchEndX > swipeThreshold) {
@@ -558,20 +560,44 @@
                 slidePrev();
                 startAutoplay();
             }
-        }, { passive: true });
+        }
+        sliderWrapper.addEventListener('touchstart', onTouchStart, { passive: true });
+        sliderWrapper.addEventListener('touchend', onTouchEnd, { passive: true });
 
         // Page Visibility API — Resume when tab is active
-        document.addEventListener('visibilitychange', function() {
+        function onVisibilityChange() {
             if (document.hidden) {
                 stopAutoplay();
             } else {
                 startAutoplay();
             }
-        });
+        }
+        document.addEventListener('visibilitychange', onVisibilityChange);
+
+        // Teardown: stops timers, unbinds this instance's listeners and removes its clones so the
+        // engine can be re-run against a different slide set without stale counts/positions.
+        track.__mfSliderDestroy = function() {
+            stopAutoplay();
+            if (transitionTimeout) { clearTimeout(transitionTimeout); transitionTimeout = null; }
+            track.removeEventListener('transitionend', onTrackTransitionEnd);
+            sliderWrapper.removeEventListener('touchstart', onTouchStart);
+            sliderWrapper.removeEventListener('touchend', onTouchEnd);
+            document.removeEventListener('visibilitychange', onVisibilityChange);
+            $('#mfSlideNext, #mfSlidePrev').off('.mfSlider');
+            $dotsContainer.off('.mfSlider');
+            Array.prototype.forEach.call(track.querySelectorAll('.mf-carousel-slide.mf-clone'), function(c) { c.parentNode.removeChild(c); });
+            track.style.transition = 'none';
+            track.style.transform = '';
+            track.removeAttribute('data-slider-initialized');
+            track.__mfSliderDestroy = null;
+        };
 
         // Start automatic continuous slideshow immediately
         startAutoplay();
     }
+
+    // Exposed (like initLiveDisclaimerTicker) so js/mf-slider.js can re-initialise after swapping slides
+    window.initMfHeroSlider = initMfHeroSlider;
 
     // =========================================================================
     // LIVE MUTUAL FUND MARKET DASHBOARD & WEALTH COMPOUNDING ENGINE
@@ -1435,7 +1461,15 @@
         calculateSWPCashflow();
         initWebinarCountdown();
         initLiveDisclaimerTicker();
-        initMfHeroSlider();
+        // js/mf-slider.js (loaded before this file) may still be fetching admin-managed slide
+        // images; wait for it so the carousel initializes with the final slide list. If that
+        // script is missing or its fetch fails, mfSliderReady is undefined/resolves harmlessly
+        // and the existing hardcoded slides in home.html are used exactly as before.
+        if (window.mfSliderReady && typeof window.mfSliderReady.then === "function") {
+            window.mfSliderReady.then(initMfHeroSlider);
+        } else {
+            initMfHeroSlider();
+        }
         initMfInvestmentGrowthTree();
         initMfBackgroundWaves();
     });

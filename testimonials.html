@@ -296,6 +296,35 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Visitor reviews (approved by admin) — loaded from the API, scoped to the current website (Share Market Academy / Mutual Fund) -->
+            <div class="d-none mt-5" id="visitorReviews">
+                <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
+                    <div>
+                        <span class="badge-brand-blue mb-2 text-uppercase mode-academy-only">Student Feedback</span>
+                        <span class="badge-brand-green mb-2 text-uppercase mode-mf-only">Investor Feedback</span>
+                        <h3 class="fw-bold mb-0 mode-academy-only">Approved Share Market Academy Reviews</h3>
+                        <h3 class="fw-bold mb-0 mode-mf-only">Approved Mutual Fund Investor Reviews</h3>
+                    </div>
+                </div>
+                <div class="row g-4" id="visitorReviewsGrid"></div>
+            </div>
+
+            <!-- Add Your Review CTA (shown on both the Share Market Academy and Mutual Fund websites) -->
+            <div class="text-center mt-5">
+                <div class="mode-academy-only">
+                    <button type="button" class="btn btn-primary rounded-pill px-5 py-3 fw-bold shadow-sm lsi-add-review-btn" data-bs-toggle="modal" data-bs-target="#addReviewModal">
+                        <i class="fas fa-star text-warning me-2"></i> Add Your Review
+                    </button>
+                    <p class="text-muted small mt-2 mb-0">Share your Share Market Academy learning experience — reviews are published after a quick check by our team.</p>
+                </div>
+                <div class="mode-mf-only">
+                    <button type="button" class="btn btn-success rounded-pill px-5 py-3 fw-bold shadow-sm lsi-add-review-btn" style="background-color: #2EC4B6; border-color: #2EC4B6;" data-bs-toggle="modal" data-bs-target="#addReviewModal">
+                        <i class="fas fa-star text-warning me-2"></i> Add Your Review
+                    </button>
+                    <p class="text-muted small mt-2 mb-0">Share your Mutual Fund investment experience — reviews are published after a quick check by our team.</p>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -489,21 +518,45 @@
                     <div class="mf-ticker-content">
                         <div class="mf-ticker-item">
                             <span class="mf-ticker-highlight">
-                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully before investing. SIP returns are not guaranteed or fixed. Past performance does not indicate or guarantee future returns. Investors should make investment decisions based on their financial goals, risk appetite, and financial situation. If required, consult a SEBI-registered Investment Adviser before investing.
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
                             </span>
                             <span class="mf-ticker-bullet">&bull;</span>
                             <span class="mf-ticker-highlight">
-                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully before investing. SIP returns are not guaranteed or fixed. Past performance does not indicate or guarantee future returns. Investors should make investment decisions based on their financial goals, risk appetite, and financial situation. If required, consult a SEBI-registered Investment Adviser before investing.
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
                             </span>
                             <span class="mf-ticker-bullet">&bull;</span>
                         </div>
                         <div class="mf-ticker-item" aria-hidden="true">
                             <span class="mf-ticker-highlight">
-                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully before investing. SIP returns are not guaranteed or fixed. Past performance does not indicate or guarantee future returns. Investors should make investment decisions based on their financial goals, risk appetite, and financial situation. If required, consult a SEBI-registered Investment Adviser before investing.
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
                             </span>
                             <span class="mf-ticker-bullet">&bull;</span>
                             <span class="mf-ticker-highlight">
-                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully before investing. SIP returns are not guaranteed or fixed. Past performance does not indicate or guarantee future returns. Investors should make investment decisions based on their financial goals, risk appetite, and financial situation. If required, consult a SEBI-registered Investment Adviser before investing.
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
                             </span>
                             <span class="mf-ticker-bullet">&bull;</span>
                         </div>
@@ -583,6 +636,8 @@
     <div class="container-fluid copyright py-3">
         <div class="container text-center">
             <span>&copy; Lord Sai Investment & Share Market Academy (Class). All Rights Reserved.</span>
+            <a href="student-login.html" class="btn btn-sm btn-outline-info rounded-pill px-3 ms-3 lsi-student-link mode-academy-only" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
+            <a href="student-login.html?portal=admin" class="btn btn-sm btn-outline-light rounded-pill px-3 ms-3 lsi-admin-link" title="Administrator login"><i class="fas fa-user-shield me-1"></i> Admin</a>
         </div>
     </div>
     <!-- Copyright End -->
@@ -595,6 +650,92 @@
 
     <!-- Back to Top -->
     <a href="#" class="back-to-top"><i class="fa fa-arrow-up"></i></a>
+
+    <!-- Add Your Review Modal -->
+    <div class="modal fade" id="addReviewModal" tabindex="-1" aria-labelledby="addReviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, var(--lsi-navy), var(--lsi-blue)); border-radius: 16px 16px 0 0;">
+                    <div>
+                        <h5 class="modal-title fw-bold text-white" id="addReviewModalLabel"><i class="fas fa-star text-warning me-2"></i>Add Your Review</h5>
+                        <small class="text-light opacity-75" id="addReviewModalSubtitle">Your review is published after approval by our team.</small>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div id="reviewFormWrap">
+                        <form id="reviewForm" novalidate>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="reviewName" class="form-label fw-bold small text-muted">Full Name *</label>
+                                    <input type="text" class="form-control" id="reviewName" name="fullName" maxlength="150" placeholder="Enter your full name" required autocomplete="name">
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="reviewEmail" class="form-label fw-bold small text-muted">Email *</label>
+                                    <input type="email" class="form-control" id="reviewEmail" name="email" maxlength="190" placeholder="you@example.com" required autocomplete="email">
+                                    <div class="invalid-feedback"></div>
+                                    <div class="form-text">Never shown publicly. Used only to confirm your review.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="reviewCourse" id="reviewCourseLabel" class="form-label fw-bold small text-muted">Course / Program <span class="fw-normal">(optional)</span></label>
+                                    <input type="text" class="form-control" id="reviewCourse" name="course" maxlength="150" list="reviewCourseOptions" placeholder="e.g. Swing Trading, Technical Analysis">
+                                    <datalist id="reviewCourseOptions">
+                                        <option value="Share Market Education & Training"></option>
+                                        <option value="Stock Market Basics"></option>
+                                        <option value="Technical Analysis"></option>
+                                        <option value="Intraday Trading"></option>
+                                        <option value="Swing Trading"></option>
+                                        <option value="Options Trading"></option>
+                                        <option value="Mutual Funds & SIP"></option>
+                                        <option value="Financial Planning & Insurance"></option>
+                                    </datalist>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-muted d-block">Rating *</label>
+                                    <div class="lsi-star-input" id="reviewStars" role="radiogroup" aria-label="Star rating">
+                                        <button type="button" data-value="1" role="radio" aria-checked="false" aria-label="1 star"><i class="fas fa-star"></i></button>
+                                        <button type="button" data-value="2" role="radio" aria-checked="false" aria-label="2 stars"><i class="fas fa-star"></i></button>
+                                        <button type="button" data-value="3" role="radio" aria-checked="false" aria-label="3 stars"><i class="fas fa-star"></i></button>
+                                        <button type="button" data-value="4" role="radio" aria-checked="false" aria-label="4 stars"><i class="fas fa-star"></i></button>
+                                        <button type="button" data-value="5" role="radio" aria-checked="false" aria-label="5 stars"><i class="fas fa-star"></i></button>
+                                        <span class="ms-2 small text-muted" id="reviewRatingLabel">Select a rating</span>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <label for="reviewText" class="form-label fw-bold small text-muted">Your Review *</label>
+                                    <textarea class="form-control" id="reviewText" name="reviewText" rows="5" placeholder="Tell us about your learning or investment experience (20–1000 characters)" required></textarea>
+                                    <div class="invalid-feedback"></div>
+                                    <div class="form-text text-end" id="reviewCount">0 / 1000</div>
+                                </div>
+                                <div class="col-12">
+                                    <label for="reviewPhoto" class="form-label fw-bold small text-muted">Profile Photo <span class="fw-normal">(optional, JPG/PNG/WebP up to 5 MB)</span></label>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <input type="file" class="form-control" id="reviewPhoto" name="photo" accept="image/jpeg,image/png,image/webp">
+                                        <img id="reviewPhotoPreview" class="d-none rounded-circle border" alt="Preview" style="width:56px;height:56px;object-fit:cover;flex-shrink:0;">
+                                    </div>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                            <div class="alert alert-danger small py-2 mt-3 d-none" id="reviewFormError" role="alert" tabindex="-1"></div>
+                            <button type="submit" class="btn btn-primary rounded-pill w-100 py-2 mt-3" id="reviewSubmitBtn">
+                                <i class="fas fa-paper-plane me-2"></i> Submit Review
+                            </button>
+                            <p class="text-muted small text-center mt-2 mb-0">By submitting you agree that your name, rating, course and review may be shown on this website once approved.</p>
+                        </form>
+                    </div>
+                    <div class="text-center py-4 d-none" id="reviewSuccess" tabindex="-1">
+                        <div class="lsi-review-success-icon mx-auto mb-3"><i class="fas fa-check"></i></div>
+                        <h4 class="fw-bold mb-2">Thank you for sharing your experience!</h4>
+                        <p class="text-muted mb-1">Your review has been submitted successfully</p>
+                        <p class="text-muted mb-4">and is awaiting approval by our team.</p>
+                        <button type="button" class="btn btn-outline-primary rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Demo / Registration Modal -->
     <div class="modal fade" id="demoModal" tabindex="-1" aria-labelledby="demoModalLabel" aria-hidden="true">
@@ -655,6 +796,7 @@
     <script src="js/live-chart.js"></script>
 
     <!-- Authentication Engine -->
+    <script src="js/api-config.js"></script>
     <script src="js/auth.js"></script>
 
     <!-- Multilingual Engine -->
@@ -662,6 +804,7 @@
     <script src="js/lang.js"></script>
     <script src="js/mode.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/reviews.js"></script>
 </body>
 
 </html>

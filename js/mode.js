@@ -217,16 +217,19 @@
             });
 
             // 3. Keep mode parameter on all internal page links (.html, .html#hash, etc.)
-            $('a[href*=".html"]:not(.gateway-link):not(.topbar-switch-btn):not(.navbar-switch-item)').each(function () {
+            $('a[href*=".html"]:not(.gateway-link):not(.topbar-switch-btn):not(.navbar-switch-item):not(.lsi-admin-link)').each(function () {
                 const href = $(this).attr("href");
-                if (href && !href.startsWith("http") && !href.startsWith("//") && !href.startsWith("#") && !href.includes("?mode=")) {
+                if (href && !href.startsWith("http") && !href.startsWith("//") && !href.startsWith("#")
+                        && !href.includes("?mode=") && !href.includes("&mode=")) {
                     const hashParts = href.split("#");
                     const path = hashParts[0];
                     const hash = hashParts[1] ? "#" + hashParts[1] : "";
                     if (path === "index.html") {
                         $(this).attr("href", "home.html?mode=" + currentMode + hash);
                     } else {
-                        $(this).attr("href", path + "?mode=" + currentMode + hash);
+                        // Links that already carry a query string get "&mode=", not a second "?".
+                        const joiner = path.includes("?") ? "&" : "?";
+                        $(this).attr("href", path + joiner + "mode=" + currentMode + hash);
                     }
                 }
             });

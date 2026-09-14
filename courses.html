@@ -801,7 +801,7 @@
 
             <div class="row justify-content-center">
                 <div class="col-lg-7 col-md-10">
-                    <div class="card border-2 border-primary shadow-lg p-4 p-lg-5 bg-white position-relative" style="border-radius: 20px;">
+                    <div class="card border-2 course-pricing-card shadow-lg p-4 p-lg-5 bg-white position-relative" style="border-radius: 20px;">
                         <div class="position-absolute top-0 end-0 mt-3 me-3">
                             <span class="badge bg-success px-3 py-2 rounded-pill font-monospace">All-Inclusive Master Course</span>
                         </div>
@@ -817,7 +817,7 @@
                             <div>
                                 <small class="text-muted text-decoration-line-through d-block fs-6">Original Fee: ₹14,999</small>
                                 <div class="d-flex align-items-baseline gap-2">
-                                    <span class="display-5 fw-bold text-primary">₹9,999</span>
+                                    <span class="display-5 fw-bold course-price-current">₹9,999</span>
                                     <small class="text-muted fw-bold">/ One-Time Course Fee</small>
                                 </div>
                             </div>
@@ -846,8 +846,11 @@
                         </div>
 
                         <!-- Action Button -->
-                        <button type="button" class="btn btn-primary btn-lg rounded-pill w-100 py-3 fw-bold shadow" data-bs-toggle="modal" data-bs-target="#demoModal">
-                            <i class="fas fa-paper-plane me-2"></i> Enroll Now for ₹9,999
+                        <button type="button" class="btn btn-buy-course-red btn-lg rounded-pill w-100 py-3 fw-bold shadow lsi-buy-course" data-course-code="SMET-MASTER">
+                            <i class="fas fa-shopping-cart me-2"></i> Buy Course — <span class="lsi-course-price">₹9,999</span>
+                        </button>
+                        <button type="button" class="btn btn-outline-primary rounded-pill w-100 py-2 mt-2" data-bs-toggle="modal" data-bs-target="#demoModal">
+                            <i class="fas fa-question-circle me-2"></i> Ask a Question First
                         </button>
 
                         <div class="mt-4 pt-3 border-top text-center">
@@ -884,8 +887,8 @@
                     Start your structured learning journey with <strong>Share Market Education & Training</strong> at Lord Sai Academy in Uran. Build skills and risk discipline that stay with you forever.
                 </p>
                 <div class="d-flex flex-wrap justify-content-center gap-3">
-                    <button type="button" class="btn btn-enquire btn-lg px-5 shadow" data-bs-toggle="modal" data-bs-target="#demoModal">
-                        <i class="fas fa-graduation-cap me-2"></i> Enroll Now — ₹9,999
+                    <button type="button" class="btn btn-buy-course-red btn-lg px-5 shadow lsi-buy-course" data-course-code="SMET-MASTER">
+                        <i class="fas fa-shopping-cart me-2"></i> Buy Course — <span class="lsi-course-price">₹9,999</span>
                     </button>
                     <a href="https://wa.me/919920254354?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20know%20about%20the%20next%20batch%20dates" target="_blank" class="btn btn-outline-light btn-lg rounded-pill px-4">
                         <i class="fab fa-whatsapp text-success me-2"></i> Check Next Batch Dates
@@ -951,21 +954,45 @@
                     <div class="mf-ticker-content">
                         <div class="mf-ticker-item">
                             <span class="mf-ticker-highlight">
-                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully before investing. SIP returns are not guaranteed or fixed. Past performance does not indicate or guarantee future returns. Investors should make investment decisions based on their financial goals, risk appetite, and financial situation. If required, consult a SEBI-registered Investment Adviser before investing.
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
                             </span>
                             <span class="mf-ticker-bullet">&bull;</span>
                             <span class="mf-ticker-highlight">
-                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully before investing. SIP returns are not guaranteed or fixed. Past performance does not indicate or guarantee future returns. Investors should make investment decisions based on their financial goals, risk appetite, and financial situation. If required, consult a SEBI-registered Investment Adviser before investing.
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
                             </span>
                             <span class="mf-ticker-bullet">&bull;</span>
                         </div>
                         <div class="mf-ticker-item" aria-hidden="true">
                             <span class="mf-ticker-highlight">
-                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully before investing. SIP returns are not guaranteed or fixed. Past performance does not indicate or guarantee future returns. Investors should make investment decisions based on their financial goals, risk appetite, and financial situation. If required, consult a SEBI-registered Investment Adviser before investing.
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
                             </span>
                             <span class="mf-ticker-bullet">&bull;</span>
                             <span class="mf-ticker-highlight">
-                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully before investing. SIP returns are not guaranteed or fixed. Past performance does not indicate or guarantee future returns. Investors should make investment decisions based on their financial goals, risk appetite, and financial situation. If required, consult a SEBI-registered Investment Adviser before investing.
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
                             </span>
                             <span class="mf-ticker-bullet">&bull;</span>
                         </div>
@@ -1045,6 +1072,8 @@
     <div class="container-fluid copyright py-3">
         <div class="container text-center">
             <span data-i18n="footer.copyrightAcademy">&copy; Lord Sai Investment & Share Market Academy. All Rights Reserved.</span>
+            <a href="student-login.html" class="btn btn-sm btn-outline-info rounded-pill px-3 ms-3 lsi-student-link mode-academy-only" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
+            <a href="student-login.html?portal=admin" class="btn btn-sm btn-outline-light rounded-pill px-3 ms-3 lsi-admin-link" title="Administrator login"><i class="fas fa-user-shield me-1"></i> Admin</a>
         </div>
     </div>
     <!-- Copyright End -->
@@ -1057,6 +1086,116 @@
 
     <!-- Back to Top -->
     <a href="#" class="back-to-top"><i class="fa fa-arrow-up"></i></a>
+
+    <!-- Course Purchase Modal (Razorpay checkout) -->
+    <div class="modal fade" id="purchaseModal" tabindex="-1" aria-labelledby="purchaseModalLabel" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, var(--lsi-navy), var(--lsi-blue)); border-radius: 16px 16px 0 0;">
+                    <div>
+                        <h5 class="modal-title fw-bold text-white" id="purchaseModalLabel">Buy Course</h5>
+                        <small class="text-light opacity-75">Secure payment via Razorpay · Instant Student Portal access</small>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+
+                    <!-- Step 1: details -->
+                    <div id="purchaseStepDetails">
+                        <div class="row g-4">
+                            <div class="col-md-7">
+                                <h6 class="fw-bold text-dark mb-3"><i class="fas fa-user-edit text-primary me-2"></i> Your Details</h6>
+                                <form id="purchaseForm" novalidate>
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold text-muted">Full Name *</label>
+                                        <input type="text" class="form-control" id="purchaseName" placeholder="As it should appear on your certificate" maxlength="150" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold text-muted">Email Address *</label>
+                                        <input type="email" class="form-control" id="purchaseEmail" placeholder="you@example.com" maxlength="190" required>
+                                        <div class="form-text">Your Student ID and password setup link will be sent here.</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold text-muted">Mobile Number *</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">+91</span>
+                                            <input type="tel" class="form-control" id="purchaseMobile" placeholder="10-digit mobile" maxlength="10" pattern="[6-9][0-9]{9}" required>
+                                        </div>
+                                    </div>
+                                    <!-- Mode banner: filled by checkout.js from GET /api/payments/mode -->
+                                    <div class="alert py-2 px-3 small d-none" id="purchaseModeBanner"></div>
+                                    <div class="alert alert-danger py-2 px-3 small d-none" id="purchaseError"></div>
+                                    <button type="submit" class="btn btn-primary rounded-pill w-100 py-2 fw-bold" id="purchasePayBtn">
+                                        <span id="purchasePayText"><i class="fas fa-lock me-2"></i> Pay Now — <span id="purchasePayAmount">₹9,999</span></span>
+                                        <span id="purchasePaySpinner" class="d-none"><span class="spinner-border spinner-border-sm me-2"></span> Preparing secure checkout...</span>
+                                    </button>
+                                    <p class="text-muted text-center mt-3 mb-0" style="font-size: 11px;" id="purchaseFootnote">
+                                        <i class="fas fa-shield-alt me-1"></i> Payments are processed by Razorpay. We never see or store your card details.
+                                    </p>
+                                </form>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="p-3 bg-light rounded-3 border h-100">
+                                    <h6 class="fw-bold text-dark mb-3"><i class="fas fa-receipt text-primary me-2"></i> Order Summary</h6>
+                                    <div class="small text-muted">Course</div>
+                                    <div class="fw-bold text-dark mb-3" id="purchaseCourseName">Share Market Education &amp; Training</div>
+                                    <div class="d-flex justify-content-between small mb-1"><span class="text-muted">List price</span><span class="text-decoration-line-through" id="purchaseListPrice">₹14,999</span></div>
+                                    <div class="d-flex justify-content-between mb-3 pt-2 border-top"><strong>Total</strong><strong class="text-primary fs-5" id="purchaseTotal">₹9,999</strong></div>
+                                    <ul class="list-unstyled small text-muted mb-0">
+                                        <li class="mb-1"><i class="fas fa-check text-success me-1"></i> Lifetime access to lesson videos</li>
+                                        <li class="mb-1"><i class="fas fa-check text-success me-1"></i> Module handouts &amp; PDFs</li>
+                                        <li class="mb-1"><i class="fas fa-check text-success me-1"></i> Trade journal with mentor review</li>
+                                        <li><i class="fas fa-check text-success me-1"></i> Doubt desk support</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: verifying -->
+                    <div id="purchaseStepVerifying" class="d-none text-center py-5">
+                        <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;"></div>
+                        <h5 class="fw-bold text-dark">Verifying your payment...</h5>
+                        <p class="text-muted mb-0">Please do not close this window.</p>
+                    </div>
+
+                    <!-- Step 3: success -->
+                    <div id="purchaseStepSuccess" class="d-none text-center py-3">
+                        <div class="trust-icon icon-green mx-auto mb-3" style="width: 72px; height: 72px; font-size: 32px;"><i class="fas fa-check"></i></div>
+                        <h4 class="fw-bold text-dark mb-1">Payment Successful</h4>
+                        <p class="text-muted mb-4" id="purchaseSuccessMessage"></p>
+                        <div class="p-3 bg-light rounded-3 border text-start mx-auto mb-4" style="max-width: 420px;">
+                            <div class="d-flex justify-content-between small mb-2"><span class="text-muted">Course</span><strong id="successCourse"></strong></div>
+                            <div class="d-flex justify-content-between small mb-2"><span class="text-muted">Enrollment</span><span class="badge bg-success">Active</span></div>
+                            <div class="d-flex justify-content-between small mb-2"><span class="text-muted">Student ID</span><strong class="font-monospace" id="successStudentId"></strong></div>
+                            <div class="d-flex justify-content-between small mb-2"><span class="text-muted">Order Ref</span><span class="font-monospace" id="successOrderRef"></span></div>
+                            <div class="d-flex justify-content-between small"><span class="text-muted">Email sent to</span><strong id="successEmail"></strong></div>
+                        </div>
+                        <a href="student-login.html" class="btn btn-primary rounded-pill px-5 py-2 fw-bold"><i class="fas fa-user-graduate me-2"></i> Go to Student Portal</a>
+                        <p class="text-muted small mt-3 mb-0" id="successHint"></p>
+                    </div>
+
+                    <!-- Step 4b: cancelled by the student -->
+                    <div id="purchaseStepCancelled" class="d-none text-center py-3">
+                        <div class="trust-icon mx-auto mb-3" style="width: 72px; height: 72px; font-size: 32px; background: rgba(245,158,11,0.15); color: #B45309;"><i class="fas fa-hand-paper"></i></div>
+                        <h4 class="fw-bold text-dark mb-1">Payment Cancelled</h4>
+                        <p class="text-muted mb-1">Your payment was cancelled. No course enrollment was created and nothing was charged.</p>
+                        <p class="text-muted mb-4">You can try again whenever you're ready.</p>
+                        <button type="button" class="btn btn-primary rounded-pill px-4" id="purchaseCancelRetryBtn"><i class="fas fa-redo me-1"></i> Try Again</button>
+                    </div>
+
+                    <!-- Step 4: failure -->
+                    <div id="purchaseStepFailed" class="d-none text-center py-3">
+                        <div class="trust-icon mx-auto mb-3" style="width: 72px; height: 72px; font-size: 32px; background: rgba(220,53,69,0.12); color: #dc3545;"><i class="fas fa-times"></i></div>
+                        <h4 class="fw-bold text-dark mb-1">Payment Not Completed</h4>
+                        <p class="text-muted mb-4" id="purchaseFailedMessage"></p>
+                        <button type="button" class="btn btn-outline-primary rounded-pill px-4" id="purchaseRetryBtn">Try Again</button>
+                        <a href="https://wa.me/919920254354" target="_blank" class="btn btn-success rounded-pill px-4 ms-2"><i class="fab fa-whatsapp me-1"></i> Contact Academy</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Demo / Registration Modal -->
     <div class="modal fade" id="demoModal" tabindex="-1" aria-labelledby="demoModalLabel" aria-hidden="true">
@@ -1112,7 +1251,9 @@
     <script src="js/live-chart.js"></script>
 
     <!-- Authentication Engine -->
+    <script src="js/api-config.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/checkout.js"></script>
 
     <!-- Template Javascript -->
     <script src="js/translations.js"></script>

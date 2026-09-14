@@ -207,7 +207,7 @@
                             <p class="text-muted mb-4" style="line-height: 1.8;">
                                 From parents funding higher education without expensive loans to working professionals building early retirement pensions, read how systematic SIP investing transforms real-world goals.
                             </p>
-                            <a href="http://p.njw.bz/33377" target="_blank" class="btn btn-primary rounded-pill px-4 fw-bold">
+                            <a href="https://p.njw.bz/33377" target="_blank" class="btn btn-primary rounded-pill px-4 fw-bold">
                                 <i class="fas fa-user-plus me-1"></i> Start Your Wealth Journey
                             </a>
                         </div>
@@ -220,15 +220,23 @@
 
             <div class="text-center mx-auto pb-5 mode-academy-only" style="max-width: 750px;">
                 <span class="badge-brand-blue mb-2 text-uppercase">Real Growth</span>
-                <h2 class="display-6 fw-bold mb-3">Student Learning Journeys</h2>
-                <p class="text-muted">Real students &rarr; Real learning experiences &rarr; Real video reviews.</p>
+                <h2 class="display-6 fw-bold mb-3">Success Stories</h2>
+                <p class="text-muted">Real students, teachers and parents &rarr; Real learning experiences &rarr; Real video reviews.</p>
             </div>
 
-            <div class="row g-4">
+            <!-- Success Story Category Filter (Students / Teachers / Parents are content categories) -->
+            <div class="d-flex flex-wrap justify-content-center gap-2 mb-4" id="storyFilters">
+                <button type="button" class="btn btn-outline-primary rounded-pill px-4 py-2 story-filter-btn active" data-story-filter="ALL">All</button>
+                <button type="button" class="btn btn-outline-primary rounded-pill px-4 py-2 story-filter-btn" data-story-filter="STUDENTS">Students</button>
+                <button type="button" class="btn btn-outline-primary rounded-pill px-4 py-2 story-filter-btn" data-story-filter="TEACHERS">Teachers</button>
+                <button type="button" class="btn btn-outline-primary rounded-pill px-4 py-2 story-filter-btn" data-story-filter="PARENTS">Parents</button>
+            </div>
+
+            <div class="row g-4" id="storiesGrid">
                 <!-- Video 1 -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-6 story-item" data-story-category="STUDENTS">
                     <div class="video-story-item">
-                        <div class="video-pure-card" data-bs-toggle="modal" data-bs-target="#studentVideoModal" data-video-url="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" role="button" aria-label="Play Rahul Sharma Review Video">
+                        <div class="video-pure-card" data-bs-toggle="modal" data-bs-target="#studentVideoModal" data-video-url="" role="button" aria-label="Play Rahul Sharma Review Video">
                             <div class="video-pure-thumb">
                                 <img src="img/students/video_rahul.jpg" alt="Rahul Sharma Video Review" class="video-pure-img">
                                 <div class="video-pure-overlay">
@@ -246,9 +254,9 @@
                 </div>
 
                 <!-- Video 2 -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-6 story-item" data-story-category="STUDENTS">
                     <div class="video-story-item">
-                        <div class="video-pure-card" data-bs-toggle="modal" data-bs-target="#studentVideoModal" data-video-url="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" role="button" aria-label="Play Pooja Deshmukh Review Video">
+                        <div class="video-pure-card" data-bs-toggle="modal" data-bs-target="#studentVideoModal" data-video-url="" role="button" aria-label="Play Pooja Deshmukh Review Video">
                             <div class="video-pure-thumb">
                                 <img src="img/students/video_pooja.jpg" alt="Pooja Deshmukh Video Review" class="video-pure-img">
                                 <div class="video-pure-overlay">
@@ -266,9 +274,9 @@
                 </div>
 
                 <!-- Video 3 -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-6 story-item" data-story-category="STUDENTS">
                     <div class="video-story-item">
-                        <div class="video-pure-card" data-bs-toggle="modal" data-bs-target="#studentVideoModal" data-video-url="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" role="button" aria-label="Play Anand Kulkarni Review Video">
+                        <div class="video-pure-card" data-bs-toggle="modal" data-bs-target="#studentVideoModal" data-video-url="" role="button" aria-label="Play Anand Kulkarni Review Video">
                             <div class="video-pure-thumb">
                                 <img src="img/students/video_anand.jpg" alt="Anand Kulkarni Video Review" class="video-pure-img">
                                 <div class="video-pure-overlay">
@@ -286,9 +294,9 @@
                 </div>
 
                 <!-- Video 4 -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-6 story-item" data-story-category="STUDENTS">
                     <div class="video-story-item">
-                        <div class="video-pure-card" data-bs-toggle="modal" data-bs-target="#studentVideoModal" data-video-url="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" role="button" aria-label="Play Swapnil Patil Review Video">
+                        <div class="video-pure-card" data-bs-toggle="modal" data-bs-target="#studentVideoModal" data-video-url="" role="button" aria-label="Play Swapnil Patil Review Video">
                             <div class="video-pure-thumb">
                                 <img src="img/students/video_swapnil.jpg" alt="Swapnil Patil Video Review" class="video-pure-img">
                                 <div class="video-pure-overlay">
@@ -306,9 +314,9 @@
                 </div>
 
                 <!-- Video 5 -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-6 story-item" data-story-category="STUDENTS">
                     <div class="video-story-item">
-                        <div class="video-pure-card" data-bs-toggle="modal" data-bs-target="#studentVideoModal" data-video-url="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" role="button" aria-label="Play Sneha Shinde Review Video">
+                        <div class="video-pure-card" data-bs-toggle="modal" data-bs-target="#studentVideoModal" data-video-url="" role="button" aria-label="Play Sneha Shinde Review Video">
                             <div class="video-pure-thumb">
                                 <img src="img/students/video_sneha.jpg" alt="Sneha Shinde Video Review" class="video-pure-img">
                                 <div class="video-pure-overlay">
@@ -326,9 +334,9 @@
                 </div>
 
                 <!-- Video 6 -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-6 story-item" data-story-category="STUDENTS">
                     <div class="video-story-item">
-                        <div class="video-pure-card" data-bs-toggle="modal" data-bs-target="#studentVideoModal" data-video-url="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" role="button" aria-label="Play Amit Kadam Review Video">
+                        <div class="video-pure-card" data-bs-toggle="modal" data-bs-target="#studentVideoModal" data-video-url="" role="button" aria-label="Play Amit Kadam Review Video">
                             <div class="video-pure-thumb">
                                 <img src="img/students/video_amit.jpg" alt="Amit Kadam Video Review" class="video-pure-img">
                                 <div class="video-pure-overlay">
@@ -675,21 +683,45 @@
                     <div class="mf-ticker-content">
                         <div class="mf-ticker-item">
                             <span class="mf-ticker-highlight">
-                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully before investing. SIP returns are not guaranteed or fixed. Past performance does not indicate or guarantee future returns. Investors should make investment decisions based on their financial goals, risk appetite, and financial situation. If required, consult a SEBI-registered Investment Adviser before investing.
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
                             </span>
                             <span class="mf-ticker-bullet">&bull;</span>
                             <span class="mf-ticker-highlight">
-                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully before investing. SIP returns are not guaranteed or fixed. Past performance does not indicate or guarantee future returns. Investors should make investment decisions based on their financial goals, risk appetite, and financial situation. If required, consult a SEBI-registered Investment Adviser before investing.
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
                             </span>
                             <span class="mf-ticker-bullet">&bull;</span>
                         </div>
                         <div class="mf-ticker-item" aria-hidden="true">
                             <span class="mf-ticker-highlight">
-                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully before investing. SIP returns are not guaranteed or fixed. Past performance does not indicate or guarantee future returns. Investors should make investment decisions based on their financial goals, risk appetite, and financial situation. If required, consult a SEBI-registered Investment Adviser before investing.
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
                             </span>
                             <span class="mf-ticker-bullet">&bull;</span>
                             <span class="mf-ticker-highlight">
-                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully before investing. SIP returns are not guaranteed or fixed. Past performance does not indicate or guarantee future returns. Investors should make investment decisions based on their financial goals, risk appetite, and financial situation. If required, consult a SEBI-registered Investment Adviser before investing.
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
                             </span>
                             <span class="mf-ticker-bullet">&bull;</span>
                         </div>
@@ -769,6 +801,8 @@
     <div class="container-fluid copyright py-3">
         <div class="container text-center">
             <span>&copy; Lord Sai Investment & Share Market Academy (Class). All Rights Reserved.</span>
+            <a href="student-login.html" class="btn btn-sm btn-outline-info rounded-pill px-3 ms-3 lsi-student-link mode-academy-only" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
+            <a href="student-login.html?portal=admin" class="btn btn-sm btn-outline-light rounded-pill px-3 ms-3 lsi-admin-link" title="Administrator login"><i class="fas fa-user-shield me-1"></i> Admin</a>
         </div>
     </div>
     <!-- Copyright End -->
@@ -841,7 +875,9 @@
                 <div class="modal-body p-3 p-lg-4">
                     <div class="ratio ratio-16x9 rounded-3 overflow-hidden shadow-sm" style="background: #000;">
                         <iframe id="studentVideoIframe" src="" title="Student Video Review" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border: none;"></iframe>
+                        <video id="studentVideoPlayer" class="d-none" controls controlsList="nodownload" playsinline preload="metadata" style="width:100%;height:100%;background:#000;"></video>
                     </div>
+                    <p class="small text-white-50 mt-3 mb-0 d-none" id="studentVideoCaption"></p>
                 </div>
             </div>
         </div>
@@ -861,6 +897,7 @@
     <script src="js/live-chart.js"></script>
 
     <!-- Authentication Engine -->
+    <script src="js/api-config.js"></script>
     <script src="js/auth.js"></script>
 
     <!-- Multilingual Engine -->
@@ -895,17 +932,83 @@
                 }
             });
 
-            // Video Modal Controller
+            // ---- Success Stories (admin-managed, only PUBLISHED stories are returned) ----
+            var apiBase = (window.LSI_CONFIG && LSI_CONFIG.API_BASE) || "/api";
+            function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+            function mediaUrl(p) { return p && p.indexOf("images/") === 0 ? apiBase + "/public/" + p : p; }
+
+            function storyCard(s) {
+                var attrs = s.videoType === "UPLOAD"
+                    ? 'data-video-src="' + esc(apiBase + "/public/stories/" + s.id + "/video") + '"'
+                    : 'data-video-url="' + esc(s.videoUrl || "") + '"';
+                var thumb = s.thumbnailPath ? '<img src="' + esc(mediaUrl(s.thumbnailPath)) + '" alt="' + esc(s.title) + '" class="video-pure-img" loading="lazy">'
+                    : '<div class="video-pure-img d-flex align-items-center justify-content-center bg-dark text-white-50" style="min-height:220px"><i class="fas fa-video fa-3x"></i></div>';
+                return '<div class="col-lg-4 col-md-6 story-item" data-story-category="' + esc(s.category) + '">' +
+                    '<div class="video-story-item">' +
+                    '<div class="video-pure-card" data-bs-toggle="modal" data-bs-target="#studentVideoModal" ' + attrs + ' data-video-title="' + esc(s.title) + '" data-video-caption="' + esc(s.description || "") + '" role="button" aria-label="Play ' + esc(s.title) + '">' +
+                    '<div class="video-pure-thumb">' + thumb + '<div class="video-pure-overlay"><div class="video-pure-play-btn"><i class="fas fa-play"></i></div></div></div></div>' +
+                    '<div class="video-reviewer-info"><h6 class="video-reviewer-name">' + esc(s.personName || s.title) + '</h6>' +
+                    '<small class="video-reviewer-location">' + esc(s.location || "") + '</small>' +
+                    '<span class="badge rounded-pill bg-light text-primary border ms-2 align-middle" style="font-size:.65rem">' + esc(s.category.charAt(0) + s.category.slice(1).toLowerCase()) + '</span></div>' +
+                    '</div></div>';
+            }
+
+            function applyStoryFilter() {
+                var f = $('.story-filter-btn.active').data('story-filter') || 'ALL';
+                var visible = 0;
+                $('#storiesGrid .story-item').each(function () {
+                    var show = f === 'ALL' || $(this).data('story-category') === f;
+                    $(this).toggle(show);
+                    if (show) visible++;
+                });
+                $('#storiesEmpty').remove();
+                if (!visible) $('#storiesGrid').append('<div class="col-12 text-center text-muted py-5" id="storiesEmpty"><i class="fas fa-video fa-2x mb-3 d-block opacity-50"></i>No stories published in this category yet.</div>');
+            }
+
+            $(document).on('click', '.story-filter-btn', function (e) {
+                e.preventDefault();
+                $('.story-filter-btn').removeClass('active');
+                $(this).addClass('active');
+                applyStoryFilter();
+            });
+
+            // Replace the static cards with the admin-managed list. If the backend is not
+            // reachable the static cards stay, so the page never appears broken.
+            fetch(apiBase + "/public/stories").then(function (r) { return r.json(); }).then(function (res) {
+                if (!res || !res.success || !Array.isArray(res.data)) return;
+                $('#storiesGrid').html(res.data.map(storyCard).join(""));
+                applyStoryFilter();
+            }).catch(function () { /* offline: keep static fallback */ });
+
+            // Video Modal Controller (YouTube embed or self-hosted upload)
             $('#studentVideoModal').on('show.bs.modal', function (event) {
                 var button = $(event.relatedTarget);
-                var videoUrl = button.data('video-url') || "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ";
                 var modal = $(this);
-                modal.find('#studentVideoIframe').attr('src', videoUrl + "?autoplay=1&rel=0");
+                var iframe = modal.find('#studentVideoIframe'), player = modal.find('#studentVideoPlayer');
+                var src = button.data('video-src'), url = button.data('video-url');
+                modal.find('#studentVideoModalLabel').text(button.data('video-title') || 'Student Learning Journey');
+                var caption = button.data('video-caption');
+                modal.find('#studentVideoCaption').text(caption || '').toggleClass('d-none', !caption);
+                if (src) {
+                    iframe.addClass('d-none').attr('src', '');
+                    player.removeClass('d-none').attr('src', src);
+                    player[0].play && player[0].play().catch(function () { });
+                } else if (url) {
+                    player.addClass('d-none').attr('src', '');
+                    iframe.removeClass('d-none').attr('src', url + "?autoplay=1&rel=0");
+                } else {
+                    // No video attached to this story yet — never substitute an unrelated placeholder video.
+                    player.addClass('d-none').attr('src', '');
+                    iframe.addClass('d-none').attr('src', '');
+                    modal.find('#studentVideoCaption').text('This story's video has not been added yet. Please check back soon.').removeClass('d-none');
+                }
             });
 
             // Stop/clear video on modal close
             $('#studentVideoModal').on('hidden.bs.modal', function () {
                 $(this).find('#studentVideoIframe').attr('src', '');
+                var p = $(this).find('#studentVideoPlayer')[0];
+                if (p) { p.pause(); p.removeAttribute('src'); p.load(); }
             });
 
         })(jQuery);

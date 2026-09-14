@@ -1,238 +1,196 @@
 /**
  * ============================================================================
- * LORD SAI ACADEMY — AUTHENTICATION & SESSION MANAGEMENT ENGINE (js/auth.js)
+ * LORD SAI ACADEMY — AUTHENTICATION CLIENT (js/auth.js)
  * ============================================================================
- * End-to-end authentication, session persistence, role-based authorization,
- * and security middleware for student, teacher, and admin portals.
+ * Thin client over the Spring Boot authentication API. The browser only holds the
+ * access token; every decision (credentials, account status, single-device rule,
+ * role authorization) is made by the backend.
+ *
+ * Public interface kept identical to the previous version so existing pages work:
+ *   LSI_Auth.login(identifier, password, rememberMe, portal) -> Promise<{success, user, redirectUrl, message}>
+ *       portal = "STUDENT" (default, Student Admin) | "ADMIN" (Admin Login); the server enforces the role match
+ *   LSI_Auth.logout(), LSI_Auth.getSession(), LSI_Auth.getCurrentUser(), LSI_Auth.getUserRole(),
+ *   LSI_Auth.isAuthenticated(), LSI_Auth.requireAuth(role, loginUrl), LSI_Auth.updateNavUI()
+ * New:
+ *   LSI_Auth.api(path, options) -> fetch with bearer token and JSON handling
+ *   LSI_Auth.refreshProfile()   -> re-validates the token against /auth/me
  */
-
 (function (window, $) {
     "use strict";
 
-    const STORAGE_KEY_SESSION = "lsi_auth_user_session";
-    const STORAGE_KEY_TOKEN = "lsi_auth_token";
-    const STORAGE_KEY_REDIRECT = "lsi_auth_redirect_target";
+    var STORAGE_KEY_SESSION = "lsi_auth_user_session";
+    var STORAGE_KEY_REDIRECT = "lsi_auth_redirect_target";
+    var API_BASE = (window.LSI_CONFIG && window.LSI_CONFIG.API_BASE) || "/api";
 
-    // Preset verified accounts database
-    const VERIFIED_ACCOUNTS = [
-        {
-            identifiers: ["student@lordsai.com", "student", "lsi-2024", "lsi2024", "9920254354", "rahul.sharma@example.com"],
-            password: "student123",
-            role: "student",
-            profile: {
-                id: "LSI-2024-884",
-                name: "Rahul Sharma",
-                email: "student@lordsai.com",
-                mobile: "9920 254 354",
-                location: "Pune, Maharashtra",
-                batch: "Uran Classroom Batch 2024",
-                course: "Stock Market Basics & Technical Analysis",
-                mentor: "Vaibhav S. Pawar",
-                enrolledDate: "15 Jan 2024",
-                attendance: "92%",
-                moduleProgress: "Module 4 of 6 (75% Complete)",
-                journalEntriesCount: 14,
-                avatar: "img/students/video_rahul.jpg"
-            },
-            redirectUrl: "student-dashboard.html"
-        },
-        {
-            identifiers: ["pooja@lordsai.com", "pooja.deshmukh", "lsi-2024-02"],
-            password: "student123",
-            role: "student",
-            profile: {
-                id: "LSI-2024-02",
-                name: "Pooja Deshmukh",
-                email: "pooja@lordsai.com",
-                mobile: "9920 254 354",
-                location: "Uran, Navi Mumbai",
-                batch: "Navi Mumbai Evening Cohort",
-                course: "Swing Trading & Risk Management",
-                mentor: "Vaibhav S. Pawar",
-                enrolledDate: "10 Feb 2024",
-                attendance: "95%",
-                moduleProgress: "Module 5 of 6 (85% Complete)",
-                journalEntriesCount: 22,
-                avatar: "img/students/video_pooja.jpg"
-            },
-            redirectUrl: "student-dashboard.html"
-        },
-        {
-            identifiers: ["mentor@lordsai.com", "teacher@lordsai.com", "mentor", "teacher", "vaibhav@lordsai.com"],
-            password: "mentor123",
-            role: "teacher",
-            profile: {
-                id: "LSI-FAC-01",
-                name: "Vaibhav S. Pawar",
-                email: "mentor@lordsai.com",
-                roleTitle: "Founder & Lead Mentor — AMFI Registered MFD (ARN-280789)",
-                location: "Uran, Navi Mumbai",
-                activeBatches: ["Uran Batch 2024", "Navi Mumbai Cohort", "Weekend Executive Batch"]
-            },
-            redirectUrl: "teacher-dashboard.html"
-        },
-        {
-            identifiers: ["admin@lordsai.com", "admin"],
-            password: "admin123",
-            role: "admin",
-            profile: {
-                id: "LSI-ADM-01",
-                name: "Academy Administrator",
-                email: "admin@lordsai.com",
-                roleTitle: "LSI System Admin & Registrar"
-            },
-            redirectUrl: "admin-dashboard.html"
+    function storage() {
+        return localStorage.getItem(STORAGE_KEY_SESSION) ? localStorage : sessionStorage;
+    }
+
+    function readSession() {
+        try {
+            var raw = localStorage.getItem(STORAGE_KEY_SESSION) || sessionStorage.getItem(STORAGE_KEY_SESSION);
+            return raw ? JSON.parse(raw) : null;
+        } catch (e) {
+            return null;
         }
-    ];
+    }
 
-    const LSI_Auth = {
-        /**
-         * Authenticate credentials
-         * @param {string} identifier - Email or Student ID
-         * @param {string} password - User Password
-         * @param {boolean} rememberMe - Persist in localStorage
-         * @returns {Promise<object>}
-         */
-        login: function (identifier, password, rememberMe) {
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    const cleanId = (identifier || "").trim().toLowerCase();
-                    const cleanPass = (password || "").trim();
+    function writeSession(session, rememberMe) {
+        localStorage.removeItem(STORAGE_KEY_SESSION);
+        sessionStorage.removeItem(STORAGE_KEY_SESSION);
+        (rememberMe ? localStorage : sessionStorage).setItem(STORAGE_KEY_SESSION, JSON.stringify(session));
+    }
 
-                    if (!cleanId || !cleanPass) {
-                        resolve({
-                            success: false,
-                            message: "Please enter both your Student ID/Email and Password."
-                        });
-                        return;
-                    }
+    function clearSession() {
+        localStorage.removeItem(STORAGE_KEY_SESSION);
+        sessionStorage.removeItem(STORAGE_KEY_SESSION);
+    }
 
-                    // 1. Check in verified preset accounts
-                    let matched = VERIFIED_ACCOUNTS.find(acc =>
-                        acc.identifiers.includes(cleanId) && acc.password === cleanPass
-                    );
+    function toProfile(user) {
+        if (!user) {
+            return null;
+        }
+        return {
+            id: user.studentId || ("USR-" + user.id),
+            userId: user.id,
+            name: user.fullName,
+            email: user.email,
+            mobile: user.mobile || "",
+            role: (user.role || "").toLowerCase(),
+            studentId: user.studentId || null,
+            lastLoginAt: user.lastLoginAt || null
+        };
+    }
 
-                    // 2. Also accept standard student credentials if valid format and password is correct demo
-                    if (!matched) {
-                        const isStudentFormat = cleanId.includes("@") || cleanId.startsWith("lsi") || /^\d{10}$/.test(cleanId);
-                        if (isStudentFormat && (cleanPass === "student123" || cleanPass === "lsi@2024" || cleanPass === "123456")) {
-                            matched = {
-                                role: "student",
-                                profile: {
-                                    id: cleanId.toUpperCase(),
-                                    name: cleanId.split("@")[0].replace(".", " ").toUpperCase() || "Enrolled Student",
-                                    email: cleanId.includes("@") ? cleanId : cleanId + "@student.lordsai.com",
-                                    batch: "Uran Classroom Batch 2024",
-                                    course: "Stock Market Basics & Technical Analysis",
-                                    mentor: "Vaibhav S. Pawar",
-                                    attendance: "90%",
-                                    moduleProgress: "Module 4 of 6",
-                                    journalEntriesCount: 10,
-                                    avatar: "img/students/video_rahul.jpg"
-                                },
-                                redirectUrl: "student-dashboard.html"
-                            };
-                        }
-                    }
+    function dashboardFor(role) {
+        if (role === "admin") return "admin-dashboard.html";
+        return "student-dashboard.html";
+    }
 
-                    if (matched) {
-                        const token = "lsi_jwt_" + Math.random().toString(36).substring(2) + "_" + Date.now();
-                        const sessionData = {
-                            token: token,
-                            role: matched.role,
-                            profile: matched.profile,
-                            loginTime: new Date().toISOString(),
-                            rememberMe: !!rememberMe
-                        };
+    /**
+     * fetch() wrapper: attaches the bearer token, sends/receives JSON, and normalises
+     * failures into { success:false, message, status }.
+     */
+    function api(path, options) {
+        options = options || {};
+        var session = readSession();
+        var headers = options.headers || {};
+        if (!(options.body instanceof FormData)) {
+            headers["Content-Type"] = "application/json";
+        }
+        headers["Accept"] = "application/json";
+        if (session && session.token) {
+            headers["Authorization"] = "Bearer " + session.token;
+        }
+        var init = {
+            method: options.method || "GET",
+            headers: headers,
+            body: options.body instanceof FormData ? options.body
+                : (options.body !== undefined ? JSON.stringify(options.body) : undefined)
+        };
+        return fetch(API_BASE + path, init).then(function (response) {
+            return response.text().then(function (text) {
+                var data = null;
+                try {
+                    data = text ? JSON.parse(text) : null;
+                } catch (e) {
+                    data = null;
+                }
+                if (!data) {
+                    data = { success: response.ok, message: response.ok ? "" : "Unexpected server response." };
+                }
+                data.status = response.status;
+                if (response.status === 401 && session && !options.skipAuthRedirect) {
+                    clearSession();
+                }
+                return data;
+            });
+        }).catch(function () {
+            return { success: false, status: 0, message: "Cannot reach the server. Please check your connection and try again." };
+        });
+    }
 
-                        const storage = rememberMe ? localStorage : sessionStorage;
-                        localStorage.removeItem(STORAGE_KEY_SESSION);
-                        sessionStorage.removeItem(STORAGE_KEY_SESSION);
-                        localStorage.removeItem(STORAGE_KEY_TOKEN);
-                        sessionStorage.removeItem(STORAGE_KEY_TOKEN);
+    var LSI_Auth = {
+        api: api,
+        apiBase: API_BASE,
 
-                        storage.setItem(STORAGE_KEY_SESSION, JSON.stringify(sessionData));
-                        storage.setItem(STORAGE_KEY_TOKEN, token);
+        login: function (identifier, password, rememberMe, portal) {
+            return api("/auth/login", {
+                method: "POST",
+                body: { identifier: (identifier || "").trim(), password: password || "", portal: portal || "STUDENT" },
+                skipAuthRedirect: true
+            }).then(function (res) {
+                if (!res.success || !res.data) {
+                    return { success: false, message: res.message || "Invalid email/student ID or password." };
+                }
+                var profile = toProfile(res.data.user);
+                writeSession({
+                    token: res.data.accessToken,
+                    expiresAt: res.data.expiresAt,
+                    role: profile.role,
+                    profile: profile,
+                    loginTime: new Date().toISOString(),
+                    rememberMe: !!rememberMe
+                }, rememberMe);
 
-                        const redirectTarget = sessionStorage.getItem(STORAGE_KEY_REDIRECT) || matched.redirectUrl;
-                        sessionStorage.removeItem(STORAGE_KEY_REDIRECT);
-
-                        resolve({
-                            success: true,
-                            role: matched.role,
-                            user: matched.profile,
-                            redirectUrl: redirectTarget
-                        });
-                    } else {
-                        resolve({
-                            success: false,
-                            message: "Invalid email/student ID or password. Please check your credentials and try again."
-                        });
-                    }
-                }, 450);
+                var redirectTarget = sessionStorage.getItem(STORAGE_KEY_REDIRECT) || res.data.redirectUrl || dashboardFor(profile.role);
+                sessionStorage.removeItem(STORAGE_KEY_REDIRECT);
+                return { success: true, role: profile.role, user: profile, redirectUrl: redirectTarget };
             });
         },
 
-        /**
-         * Get current session data
-         * @returns {object|null}
-         */
-        getSession: function () {
-            try {
-                let raw = localStorage.getItem(STORAGE_KEY_SESSION) || sessionStorage.getItem(STORAGE_KEY_SESSION);
-                return raw ? JSON.parse(raw) : null;
-            } catch (e) {
-                return null;
+        /** Confirms the stored token is still valid on the server and refreshes the cached profile. */
+        refreshProfile: function () {
+            var session = readSession();
+            if (!session || !session.token) {
+                return Promise.resolve(null);
             }
+            return api("/auth/me").then(function (res) {
+                if (!res.success || !res.data) {
+                    clearSession();
+                    return null;
+                }
+                session.profile = toProfile(res.data);
+                session.role = session.profile.role;
+                storage().setItem(STORAGE_KEY_SESSION, JSON.stringify(session));
+                return session.profile;
+            });
         },
 
-        /**
-         * Check if a session exists
-         * @returns {boolean}
-         */
+        getSession: readSession,
+
         isAuthenticated: function () {
-            const session = this.getSession();
+            var session = readSession();
             return !!(session && session.token && session.role);
         },
 
-        /**
-         * Get currently logged-in user profile
-         * @returns {object|null}
-         */
         getCurrentUser: function () {
-            const session = this.getSession();
+            var session = readSession();
             return session ? session.profile : null;
         },
 
-        /**
-         * Get user role
-         * @returns {string|null}
-         */
         getUserRole: function () {
-            const session = this.getSession();
+            var session = readSession();
             return session ? session.role : null;
         },
 
-        /**
-         * Logout user and redirect
-         */
         logout: function () {
-            localStorage.removeItem(STORAGE_KEY_SESSION);
-            sessionStorage.removeItem(STORAGE_KEY_SESSION);
-            localStorage.removeItem(STORAGE_KEY_TOKEN);
-            sessionStorage.removeItem(STORAGE_KEY_TOKEN);
-            sessionStorage.removeItem(STORAGE_KEY_REDIRECT);
-            window.location.href = "student-login.html?logged_out=1";
+            var finish = function () {
+                clearSession();
+                sessionStorage.removeItem(STORAGE_KEY_REDIRECT);
+                window.location.href = "student-login.html?logged_out=1";
+            };
+            api("/auth/logout", { method: "POST", skipAuthRedirect: true }).then(finish, finish);
         },
 
         /**
-         * Route guard: require authorization for protected pages
-         * @param {string} requiredRole - e.g. 'student', 'teacher', 'admin'
-         * @param {string} fallbackLoginUrl - defaults to 'student-login.html'
+         * Route guard. Redirects immediately if no token is stored, then validates the token with
+         * the server in the background and redirects if it has been revoked (logout elsewhere,
+         * admin force-logout, password change, expiry).
          */
         requireAuth: function (requiredRole, fallbackLoginUrl) {
-            const loginPage = fallbackLoginUrl || "student-login.html";
-            const session = this.getSession();
+            var loginPage = fallbackLoginUrl || "student-login.html";
+            var session = readSession();
 
             if (!session || !session.token) {
                 sessionStorage.setItem(STORAGE_KEY_REDIRECT, window.location.pathname.split("/").pop());
@@ -240,40 +198,51 @@
                 return false;
             }
 
-            if (requiredRole && session.role !== requiredRole && session.role !== "admin") {
-                if (session.role === "student") {
-                    window.location.replace("student-dashboard.html");
-                } else if (session.role === "teacher") {
-                    window.location.replace("teacher-dashboard.html");
-                } else if (session.role === "admin") {
-                    window.location.replace("admin-dashboard.html");
-                }
+            // Strict role separation: an admin session cannot open the student dashboard and vice
+            // versa — each role is sent to its own dashboard. (APIs enforce the same on the server.)
+            if (requiredRole && session.role !== requiredRole) {
+                window.location.replace(dashboardFor(session.role));
                 return false;
             }
 
+            LSI_Auth.refreshProfile().then(function (profile) {
+                if (!profile) {
+                    sessionStorage.setItem(STORAGE_KEY_REDIRECT, window.location.pathname.split("/").pop());
+                    window.location.replace(loginPage + "?session_expired=1");
+                }
+            });
             return true;
         },
 
-        /**
-         * Update UI navigation links across headers dynamically
-         */
         updateNavUI: function () {
-            const session = this.getSession();
-            if (session && session.profile) {
-                const targetDashboard = session.role === "student" ? "student-dashboard.html" : (session.role === "teacher" ? "teacher-dashboard.html" : "admin-dashboard.html");
-                
+            var session = readSession();
+            if (session && session.profile && $) {
+                var targetDashboard = dashboardFor(session.role);
+                var first = (session.profile.name || "User").split(" ")[0];
                 $('.topbar a[href="student-login.html"]').each(function () {
-                    $(this).html(
-                        '<i class="fas fa-user-check text-warning me-1"></i> ' +
-                        session.profile.name.split(" ")[0] + ' (Dashboard)'
-                    ).attr('href', targetDashboard);
+                    $(this).html('<i class="fas fa-user-check text-warning me-1"></i> ' + first + ' (Dashboard)')
+                        .attr('href', targetDashboard);
                 });
-
                 $('.navbar-nav a[href="student-login.html"]').each(function () {
-                    $(this).text('Dashboard (' + session.profile.name.split(" ")[0] + ')')
-                           .attr('href', targetDashboard);
+                    $(this).text('Dashboard (' + first + ')').attr('href', targetDashboard);
                 });
             }
+        },
+
+        forgotPassword: function (email) {
+            return api("/auth/forgot-password", { method: "POST", body: { email: email }, skipAuthRedirect: true });
+        },
+
+        checkToken: function (token) {
+            return api("/auth/token-check?token=" + encodeURIComponent(token), { skipAuthRedirect: true });
+        },
+
+        setPasswordWithToken: function (token, newPassword) {
+            return api("/auth/reset-password", { method: "POST", body: { token: token, newPassword: newPassword }, skipAuthRedirect: true });
+        },
+
+        changePassword: function (currentPassword, newPassword) {
+            return api("/auth/change-password", { method: "POST", body: { currentPassword: currentPassword, newPassword: newPassword } });
         }
     };
 
@@ -286,4 +255,3 @@
     }
 
 })(typeof window !== "undefined" ? window : globalThis, typeof window !== "undefined" ? window.jQuery : undefined);
-
