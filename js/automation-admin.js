@@ -117,7 +117,8 @@
         var loaders = { dashboard: loadDashboard, students: function () { loadStudents(0); }, student: function () { openStudent(arg); },
             payments: loadPaymentsView, receipts: function () { loadReceipts(0, arg); }, attendance: loadAttendanceView,
             masters: loadMasters, reports: runReport, import: function () { },
-            purchases: runPurchases, invoices: function () { loadInvoices(0); }, communication: loadCommunicationView, "comm-history": function () { loadHistory(0); } };
+            purchases: runPurchases, invoices: function () { loadInvoices(0); }, communication: loadCommunicationView, "comm-history": function () { loadHistory(0); },
+            settings: loadStudentIdSeries };
         if (loaders[view]) loaders[view]();
     }
     function route() {
@@ -259,7 +260,7 @@
             var p = res.data, s = p.student, f = p.fees, a = p.attendance;
             var head = '<div class="au-card pad mb-3"><div class="d-flex flex-wrap justify-content-between align-items-start gap-3">' +
                 '<div><div class="d-flex align-items-center gap-2 flex-wrap"><h4 class="fw-bold mb-0" style="color:var(--au-navy)">' + esc(s.fullName) + '</h4>' + badge(s.paymentStatus) + (s.status === "ARCHIVED" ? badge("ARCHIVED") : "") + '</div>' +
-                '<div class="text-muted mt-1">Student ID <strong class="mono" style="color:var(--au-navy)">' + esc(s.studentId) + '</strong> · Batch <strong>' + esc(s.batchName || "—") + '</strong> · ' + esc(s.courseName || "—") + '</div>' +
+                '<div class="text-muted mt-1">Student ID <strong class="mono" style="color:var(--au-navy)">' + esc(s.studentId) + '</strong> · Batch <strong>' + esc(s.batchName || "—") + '</strong> · ' + esc(s.courseName || "—") + (p.fees.feeReceiptNo ? ' · Fee Receipt No <strong class="mono" style="color:var(--au-navy)">' + esc(p.fees.feeReceiptNo) + '</strong>' : "") + '</div>' +
                 (s.reviewNote ? '<div class="alert alert-warning small py-2 mt-2 mb-0"><i class="fas fa-flag me-1"></i> Needs review: ' + esc(s.reviewNote) + ' — open Edit to correct it.</div>' : "") + '</div>' +
                 '<div class="au-actions"><button class="au-btn ghost" id="spEdit"><i class="fas fa-edit"></i> Edit</button><button class="au-btn success" id="spPay"><i class="fas fa-rupee-sign"></i> Record Payment</button><button class="au-btn primary" id="spReceipt"' + (p.receipts.length ? "" : " disabled") + '><i class="fas fa-file-invoice"></i> Latest Receipt</button><button class="au-btn ghost" id="spAtt"><i class="fas fa-calendar-check"></i> Mark Attendance</button>' +
                 '<button class="au-btn ' + (s.status === "ARCHIVED" ? "success" : "danger") + '" id="spArchive">' + (s.status === "ARCHIVED" ? '<i class="fas fa-undo"></i> Restore' : '<i class="fas fa-archive"></i> Archive') + '</button></div></div></div>';
@@ -277,11 +278,12 @@
                     var paidPct = f.courseFee > 0 ? Math.min(100, Math.round(f.totalPaid * 100 / f.courseFee)) : 0;
                     return '<div class="row g-3 mb-3"><div class="col-md-4"><div class="au-stat c-green"><div class="ico"><i class="fas fa-rupee-sign"></i></div><div><div class="lbl">Course Fee</div><div class="val">' + inr(f.courseFee) + '</div></div></div></div><div class="col-md-4"><div class="au-stat c-blue"><div class="ico"><i class="fas fa-check"></i></div><div><div class="lbl">Total Paid</div><div class="val">' + inr(f.totalPaid) + '</div></div></div></div><div class="col-md-4"><div class="au-stat c-amber"><div class="ico"><i class="fas fa-hourglass-half"></i></div><div><div class="lbl">Balance</div><div class="val">' + inr(f.balance) + '</div></div></div></div></div>' +
                         '<div class="au-progress mb-3"><span style="width:' + paidPct + '%"></span></div>' +
-                        '<div class="au-table-wrap"><table class="au-table"><thead><tr><th>Installment</th><th>Status</th><th>Date</th><th class="num">Amount</th><th>Payment No</th></tr></thead><tbody>' + f.installments.map(function (i) { return '<tr><td>' + esc(i.label) + '</td><td>' + (i.paid ? badge("PAID") : (i.installmentNo === f.nextInstallmentNo ? badge("PENDING") : '<span class="text-muted">—</span>')) + '</td><td>' + (i.paymentDate ? d(i.paymentDate) : "—") + '</td><td class="num">' + (i.amount != null ? inr(i.amount) : "—") + '</td><td class="mono">' + esc(i.paymentNo || "—") + '</td></tr>'; }).join("") + '</tbody></table></div>' +
+                        '<div class="au-table-wrap"><table class="au-table"><thead><tr><th>Installment</th><th>Status</th><th>Date</th><th class="num">Amount</th><th>Payment No</th><th>Receipt No</th></tr></thead><tbody>' + f.installments.map(function (i) { return '<tr><td>' + esc(i.label) + '</td><td>' + (i.paid ? badge("PAID") : (i.installmentNo === f.nextInstallmentNo ? badge("PENDING") : '<span class="text-muted">—</span>')) + '</td><td>' + (i.paymentDate ? d(i.paymentDate) : "—") + '</td><td class="num">' + (i.amount != null ? inr(i.amount) : "—") + '</td><td class="mono">' + esc(i.paymentNo || "—") + '</td><td>' + (i.receiptId ? '<a href="#receipts/' + i.receiptId + '" class="au-link mono">' + esc(i.receiptNo) + '</a>' : "—") + '</td></tr>'; }).join("") + '</tbody></table></div>' +
+                        (f.feeReceiptNo ? '<div class="text-muted small mb-2"><i class="fas fa-hashtag me-1"></i>Fee Receipt No. <strong class="mono">' + esc(f.feeReceiptNo) + '</strong> — the same number is printed on every installment receipt for this student (' + f.installmentsRecorded + ' recorded so far).</div>' : "") +
                         (f.nextInstallmentNo ? '<div class="mt-3"><button class="au-btn success" id="spPay2"><i class="fas fa-plus"></i> Record ' + esc(f.installments[f.nextInstallmentNo - 1] ? f.installments[f.nextInstallmentNo - 1].label : "next installment") + '</button></div>' : '<div class="mt-3 text-success fw-semibold"><i class="fas fa-check-circle"></i> Fully paid.</div>');
                 },
                 function () { return paymentsTable(p.payments, true); },
-                function () { return p.receipts.length ? '<div class="au-table-wrap"><table class="au-table"><thead><tr><th>Receipt No</th><th>Date</th><th>Installment</th><th class="num">Paid</th><th class="num">Balance</th><th>Mode</th><th>Emailed</th><th></th></tr></thead><tbody>' + p.receipts.map(function (r) { return '<tr><td class="mono">' + esc(r.receiptNo) + '</td><td>' + d(r.paymentDate) + '</td><td>' + esc(ordinal(r.installmentNo)) + ' Installment</td><td class="num">' + inr(r.amountPaid) + '</td><td class="num">' + inr(r.balance) + '</td><td>' + esc(r.paymentMode) + '</td><td>' + (r.emailedAt ? d(r.emailedAt) : "—") + '</td><td><button class="au-view-btn" data-receipt="' + r.id + '">Open</button></td></tr>'; }).join("") + '</tbody></table></div>' : '<div class="au-empty">No receipts yet.</div>'; },
+                function () { return p.receipts.length ? '<div class="au-table-wrap"><table class="au-table"><thead><tr><th>Receipt No</th><th>Payment No</th><th>Date</th><th>Installment</th><th class="num">Paid</th><th class="num">Balance</th><th>Mode</th><th>Emailed</th><th></th></tr></thead><tbody>' + p.receipts.map(function (r) { return '<tr><td class="mono">' + esc(r.receiptNo) + '</td><td class="mono">' + esc(r.paymentNo) + '</td><td>' + d(r.paymentDate) + '</td><td>' + esc(ordinal(r.installmentNo)) + ' Installment</td><td class="num">' + inr(r.amountPaid) + '</td><td class="num">' + inr(r.balance) + '</td><td>' + esc(r.paymentMode) + '</td><td>' + (r.emailedAt ? d(r.emailedAt) : "—") + '</td><td><button class="au-view-btn" data-receipt="' + r.id + '">Open</button></td></tr>'; }).join("") + '</tbody></table></div>' : '<div class="au-empty">No receipts yet.</div>'; },
                 function () {
                     return '<div class="row g-3 mb-3"><div class="col-md-3"><div class="au-stat c-teal"><div class="ico"><i class="fas fa-calendar-check"></i></div><div><div class="lbl">Attendance</div><div class="val">' + (a.sessionsTotal ? a.present + a.late + " / " + (a.sessionsTotal - a.excused) : "—") + '</div></div></div></div><div class="col-md-3"><div class="au-stat ' + (a.percent != null && a.percent < 75 ? "c-red" : "c-green") + '"><div class="ico"><i class="fas fa-percent"></i></div><div><div class="lbl">Rate</div><div class="val">' + pct(a.percent) + '</div></div></div></div><div class="col-md-3"><div class="au-stat c-amber"><div class="ico"><i class="fas fa-user-times"></i></div><div><div class="lbl">Absent</div><div class="val">' + a.absent + '</div></div></div></div><div class="col-md-3"><div class="au-stat c-gray"><div class="ico"><i class="fas fa-redo"></i></div><div><div class="lbl">Consecutive absences</div><div class="val">' + a.consecutiveAbsences + '</div></div></div></div></div>' +
                         (p.attendanceHistory.length ? '<div class="au-table-wrap"><table class="au-table"><thead><tr><th>Date</th><th>Batch</th><th>Type</th><th>Status</th></tr></thead><tbody>' + p.attendanceHistory.map(function (h) { return '<tr><td>' + d(h.sessionDate) + '</td><td>' + esc(h.batchName) + '</td><td>' + esc(h.sessionType) + '</td><td>' + badge(h.status) + '</td></tr>'; }).join("") + '</tbody></table></div>' : '<div class="au-empty">No attendance recorded yet.</div>');
@@ -398,7 +400,7 @@
             '<div class="rh"><img src="img/lord-sai-logo.png" alt=""><div><div class="n">' + esc(r.academyName) + '</div><div class="s">' + esc(r.academyTagline) + '</div></div></div>' +
             '<div class="addr">' + esc(r.academyAddress) + '<br>Email: ' + esc(r.academyEmail) + ' · Mob: ' + esc(r.academyPhone) + '</div>' +
             '<div class="text-center"><span class="title">FEE RECEIPT</span></div>' +
-            '<div class="meta d-flex justify-content-between flex-wrap"><div><b>Receipt No.</b>: <strong class="mono">' + esc(r.receiptNo) + '</strong></div><div><b style="min-width:auto">Date</b>: ' + d(r.paymentDate || r.issuedAt) + '</div></div>' +
+            '<div class="meta d-flex justify-content-between flex-wrap"><div><b>Receipt No.</b>: <strong class="mono">' + esc(r.receiptNo) + '</strong></div><div><b style="min-width:auto">Payment No.</b>: <span class="mono">' + esc(r.paymentNo) + '</span></div><div><b style="min-width:auto">Date</b>: ' + d(r.paymentDate || r.issuedAt) + '</div></div>' +
             '<div class="meta"><div><b>Student ID</b>: <span class="mono">' + esc(r.studentCode) + '</span></div><div><b>Student Name</b>: ' + esc(r.studentName) + '</div><div><b>Mobile No.</b>: ' + esc(r.studentMobile || "—") + '</div><div><b>Course</b>: ' + esc(r.courseName || "—") + '</div><div><b>Batch / Class</b>: ' + esc(r.batchName || "—") + (r.batchSchedule ? " (" + esc(r.batchSchedule) + ")" : "") + '</div><div><b>Installment</b>: ' + esc(inst) + '</div><div><b>Payment Mode</b>: ' + esc(r.paymentMode) + '</div>' + (r.referenceNo ? '<div><b>Transaction Ref.</b>: ' + esc(r.referenceNo) + '</div>' : "") + '</div>' +
             '<table><thead><tr><th>Particulars</th><th class="num">Amount (₹)</th></tr></thead><tbody><tr><td>Course Fee</td><td class="num">' + Number(r.totalFee).toLocaleString("en-IN") + '</td></tr><tr><td>Amount Paid (this receipt)</td><td class="num">' + Number(r.amountPaid).toLocaleString("en-IN") + '</td></tr><tr><td>Total Paid to Date</td><td class="num">' + Number(r.totalPaid).toLocaleString("en-IN") + '</td></tr><tr><td><strong>Balance Amount</strong></td><td class="num"><strong>' + Number(r.balance).toLocaleString("en-IN") + '</strong></td></tr></tbody></table>' +
             '<div class="words"><strong>Amount in Words:</strong> ' + esc(r.amountInWords) + '</div>' +
@@ -493,6 +495,22 @@
             }).join("") || '<tr><td colspan="6" class="au-empty">No sessions yet. Open a sheet to start.</td></tr>';
             el("sessionsBody").querySelectorAll("[data-sess]").forEach(function (b) { b.addEventListener("click", function () { api("/automation/attendance/sessions/" + b.dataset.sess).then(function (r) { if (handle(r, false)) { renderSheet(r.data); el("attBatch").value = r.data.session.batchId; el("attDate").value = r.data.session.sessionDate; } }); }); });
             el("sessionsBody").querySelectorAll("[data-sdel]").forEach(function (b) { b.addEventListener("click", function () { if (!confirm("Delete this session and all its attendance marks?")) return; api("/automation/attendance/sessions/" + b.dataset.sdel, { method: "DELETE" }).then(function (r) { if (handle(r)) { loadSessions(); if (state.sheet && String(state.sheet.session.id) === b.dataset.sdel) el("sheetCard").classList.add("d-none"); } }); }); });
+        });
+    }
+
+    // ---- settings: Student ID series ---------------------------------------------------------------
+
+    function renderStudentIdSeries(info) {
+        el("sidCurrentNext").textContent = info.nextStudentId;
+        el("sidHighestExisting").textContent = info.highestExistingStudentId || "None issued yet";
+        el("sidNewNumber").min = info.highestExistingNumber + 1;
+        el("sidNewNumber").placeholder = "e.g. " + info.nextNumber;
+    }
+
+    function loadStudentIdSeries() {
+        api("/automation/settings/student-id-sequence").then(function (res) {
+            if (!handle(res, false)) return;
+            renderStudentIdSeries(res.data);
         });
     }
 
@@ -837,6 +855,18 @@
             });
         });
         el("automationLogoutBtn").addEventListener("click", function () { LSI_Auth.logout(AUTOMATION_LOGIN); });
+
+        // ---- Student ID series (Settings) ---------------------------------------------------
+        el("studentIdSeriesForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            var next = Number(el("sidNewNumber").value);
+            if (!next || next < 1 || !Number.isInteger(next)) { toast("Enter a whole number of 1 or greater.", false); return; }
+            var btn = el("studentIdSeriesSubmit"); btn.disabled = true;
+            api("/automation/settings/student-id-sequence", { method: "PUT", body: { nextNumber: next } }).then(function (r) {
+                btn.disabled = false;
+                if (handle(r)) { el("sidNewNumber").value = ""; renderStudentIdSeries(r.data); }
+            });
+        });
         document.querySelectorAll("[data-quick]").forEach(function (b) { b.addEventListener("click", function () { quick(b.dataset.quick); }); });
 
         el("globalSearch").addEventListener("input", function () { var q = this.value.trim(); debounce("gs", function () { globalSearch(q); }, 250); });

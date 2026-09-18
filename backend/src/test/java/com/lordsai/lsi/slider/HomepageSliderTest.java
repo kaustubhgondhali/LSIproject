@@ -59,14 +59,14 @@ class HomepageSliderTest {
     void existingHardcodedSlidesWereMigratedActiveAndInOrder() throws Exception {
         JsonNode list = api.data(api.get(admin, "/api/admin/mutual-fund/slider").andExpect(status().isOk()));
         assertThat(list.size()).isEqualTo(5);
-        assertThat(list.get(0).path("imagePath").asText()).isEqualTo("img/mf-hero-retirement.jpg");
+        assertThat(list.get(0).path("imagePath").asText()).isEqualTo("img/mf-hero-child-plan.jpg");
         assertThat(list.get(0).path("active").asBoolean()).isTrue();
         assertThat(list.get(0).path("displayOrder").asInt()).isEqualTo(1);
-        assertThat(list.get(4).path("imagePath").asText()).isEqualTo("img/mf-hero-sip.jpg");
+        assertThat(list.get(4).path("imagePath").asText()).isEqualTo("img/mf-hero-financial-goals.jpg");
 
         JsonNode pub = api.data(api.get(null, "/api/public/mutual-fund/slider-images").andExpect(status().isOk()));
         assertThat(pub.size()).isEqualTo(5);
-        assertThat(pub.get(0).path("imagePath").asText()).isEqualTo("img/mf-hero-retirement.jpg");
+        assertThat(pub.get(0).path("imagePath").asText()).isEqualTo("img/mf-hero-child-plan.jpg");
         assertThat(pub.get(0).has("createdBy")).isFalse();
     }
 

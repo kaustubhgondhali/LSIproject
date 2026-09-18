@@ -192,6 +192,42 @@
             const i18nElements = document.querySelectorAll("[data-i18n]");
             i18nElements.forEach(function (el) {
                 const key = el.getAttribute("data-i18n");
+
+                // Dynamic business switch button label depends on current website
+                if (key === "topbar.switch" || key === "nav.switchBusiness") {
+                    const isMf = (window.LSI_Mode && typeof window.LSI_Mode.getMode === "function" && window.LSI_Mode.getMode() === "mutual-fund") ||
+                                 (document.documentElement && document.documentElement.classList.contains("mode-mutual-fund")) ||
+                                 (document.body && document.body.classList.contains("mode-mutual-fund")) ||
+                                 (window.location && /investments\.html|financial-planning\.html|insurance\.html|sip\.html|swp\.html/i.test(window.location.pathname));
+                    
+                    const mfSpan = el.querySelector(".mode-mf-only");
+                    const acadSpan = el.querySelector(".mode-academy-only");
+
+                    let mfLabel = "Share Market Class";
+                    let acadLabel = "Invest & Wealth Manager";
+                    if (lang === "mr") {
+                        mfLabel = "शेअर मार्केट क्लास";
+                        acadLabel = "इन्व्हेस्ट आणि वेल्थ मॅनेजर";
+                    } else if (lang === "hi") {
+                        mfLabel = "शेयर मार्केट क्लास";
+                        acadLabel = "इन्वेस्ट और वेल्थ मैनेजर";
+                    }
+
+                    if (mfSpan && acadSpan) {
+                        mfSpan.innerHTML = '<i class="fas fa-th-large me-1"></i> ' + mfLabel;
+                        acadSpan.innerHTML = '<i class="fas fa-th-large me-1"></i> ' + acadLabel;
+                        return;
+                    }
+
+                    const icon = el.querySelector("i.fas, i.fab, i.far, i.fa, i.bi");
+                    const iconHtml = icon ? icon.outerHTML : '<i class="fas fa-th-large me-1"></i>';
+                    const activeLabel = isMf ? mfLabel : acadLabel;
+                    const fullHtml = iconHtml + " " + activeLabel;
+                    self.originalCache.set(el, fullHtml);
+                    el.innerHTML = fullHtml;
+                    return;
+                }
+
                 let translated = dict[key];
 
                 // Cache original English innerHTML once

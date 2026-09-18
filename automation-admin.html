@@ -432,6 +432,19 @@
                     </form>
                 </div>
                 <div class="au-card pad">
+                    <h5 class="fw-bold">Student ID Series</h5>
+                    <p class="text-muted small">Control where the Student ID numbering picks up for new students this year. The <code>LSA/YYYY/</code> prefix and 4-digit format never change — only the next number. Existing Student IDs are never altered, and a number already in use can never be reissued.</p>
+                    <div class="au-kv mb-3" id="studentIdSeriesInfo" style="grid-template-columns:1fr 1fr">
+                        <div><span>Current Next Student ID</span><strong id="sidCurrentNext">—</strong></div>
+                        <div><span>Highest Existing ID (this year)</span><strong id="sidHighestExisting">—</strong></div>
+                    </div>
+                    <form id="studentIdSeriesForm" class="au-form" autocomplete="off">
+                        <div class="fld"><label>New Next Number</label><input type="number" id="sidNewNumber" min="1" step="1" required>
+                            <small class="text-muted">Must be greater than the highest existing Student ID number for the current year, so no ID can ever be reused.</small></div>
+                        <button type="submit" class="au-btn primary" id="studentIdSeriesSubmit">Update Series</button>
+                    </form>
+                </div>
+                <div class="au-card pad">
                     <h5 class="fw-bold">Session</h5>
                     <p class="text-muted small">Signed in as <strong id="automationSessionUser">Automation Admin</strong>. Logging out ends this session on the server and returns you to the Automation Admin login. It does not affect the Main Admin.</p>
                     <button type="button" class="au-btn danger" id="automationLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
@@ -466,6 +479,6 @@
     <div class="au-toast-area" id="toastArea"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/automation-admin.js?v=20260918-settings2"></script>
+    <script src="js/automation-admin.js?v=20260918-settings3"></script>
 </body>
 </html>

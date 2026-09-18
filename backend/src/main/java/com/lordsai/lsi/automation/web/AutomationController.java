@@ -12,11 +12,14 @@ import com.lordsai.lsi.automation.dto.AutomationDtos.SaveCourseRequest;
 import com.lordsai.lsi.automation.dto.AutomationDtos.SaveMasterItemRequest;
 import com.lordsai.lsi.automation.dto.AutomationDtos.SaveStudentRequest;
 import com.lordsai.lsi.automation.dto.AutomationDtos.SearchHit;
+import com.lordsai.lsi.automation.dto.AutomationDtos.StudentIdSeriesDto;
 import com.lordsai.lsi.automation.dto.AutomationDtos.StudentProfile;
 import com.lordsai.lsi.automation.dto.AutomationDtos.StudentRow;
+import com.lordsai.lsi.automation.dto.AutomationDtos.UpdateStudentIdSeriesRequest;
 import com.lordsai.lsi.automation.service.AcadDashboardService;
 import com.lordsai.lsi.automation.service.AcadImportService;
 import com.lordsai.lsi.automation.service.AcadMasterService;
+import com.lordsai.lsi.automation.service.AcadSequenceService;
 import com.lordsai.lsi.automation.service.AcadStudentService;
 import com.lordsai.lsi.dto.ApiResponse;
 import com.lordsai.lsi.entity.User;
@@ -51,14 +54,16 @@ public class AutomationController {
     private final AcadStudentService studentService;
     private final AcadMasterService master;
     private final AcadImportService importService;
+    private final AcadSequenceService sequenceService;
     private final UserService userService;
 
     public AutomationController(AcadDashboardService dashboard, AcadStudentService studentService, AcadMasterService master,
-                                AcadImportService importService, UserService userService) {
+                                AcadImportService importService, AcadSequenceService sequenceService, UserService userService) {
         this.dashboard = dashboard;
         this.studentService = studentService;
         this.master = master;
         this.importService = importService;
+        this.sequenceService = sequenceService;
         this.userService = userService;
     }
 
@@ -183,6 +188,27 @@ public class AutomationController {
     public ApiResponse<StudentRow> deleteAlias(@PathVariable Long id, HttpServletRequest req) {
         // Deleting is never destructive here: it archives (the ledger keeps every payment and receipt).
         return ApiResponse.ok("Student archived.", studentService.setStatus(id, true, actor(), RequestUtil.clientIp(req)));
+    }
+
+    // ---- settings: Student ID series ---------------------------------------------------------
+    // Admin-only like every /api/automation/** endpoint (SecurityConfig). Only affects future
+    // Student ID generation; existing Student IDs are never changed, and the generator's own
+    // safety net (AcadSequenceService) still guarantees no ID already in use can be reissued.
+
+    @GetMapping("/settings/student-id-sequence")
+    public ApiResponse<StudentIdSeriesDto> studentIdSequence() {
+        var info = sequenceService.studentIdSeriesInfo();
+        return ApiResponse.ok(new StudentIdSeriesDto(info.year(), info.nextNumber(), info.nextStudentId(),
+                info.highestExistingNumber(), info.highestExistingStudentId()));
+    }
+
+    @PutMapping("/settings/student-id-sequence")
+    public ApiResponse<StudentIdSeriesDto> updateStudentIdSequence(@Valid @RequestBody UpdateStudentIdSeriesRequest body,
+                                                                   HttpServletRequest req) {
+        var info = sequenceService.setNextStudentNumber(body.nextNumber(), actor(), RequestUtil.clientIp(req));
+        return ApiResponse.ok("Student ID series updated. The next student created will be " + info.nextStudentId() + ".",
+                new StudentIdSeriesDto(info.year(), info.nextNumber(), info.nextStudentId(),
+                        info.highestExistingNumber(), info.highestExistingStudentId()));
     }
 
     private User actor() {

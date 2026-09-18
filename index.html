@@ -238,7 +238,41 @@
             object-fit: contain;
         }
 
-        /* Blue Academy Section Title Block */
+        /* Blue Academy Section Logo & Title Block */
+        .gateway-emblem-badge {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            width: 100%;
+        }
+
+        .gateway-academy-logo-badge {
+            background: #FFFFFF;
+            border-radius: 14px;
+            padding: 10px 22px;
+            border: 2px solid rgba(0, 180, 216, 0.85);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+            flex-shrink: 0;
+        }
+
+        .gateway-academy-logo-badge img {
+            height: 76px;
+            width: auto;
+            max-width: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .gateway-card-blue:hover .gateway-academy-logo-badge {
+            transform: translateY(-3px) scale(1.015);
+            box-shadow: 0 10px 28px rgba(0, 119, 182, 0.45);
+            border-color: #00B4D8;
+        }
+
         .gateway-academy-header-block {
             display: inline-flex;
             flex-direction: column;
@@ -650,6 +684,12 @@
             .gateway-card-blue-bg-art {
                 width: 280px;
             }
+            .gateway-academy-logo-badge {
+                padding: 8px 18px;
+            }
+            .gateway-academy-logo-badge img {
+                height: 64px;
+            }
             .gateway-emblem-badge {
                 gap: 12px;
             }
@@ -888,6 +928,13 @@
                         </div>
                         <img src="img/bull-vs-bear-transparent.png" alt="" class="gateway-card-blue-bg-art" aria-hidden="true">
                         <div class="gateway-card-inner">
+                            <!-- Lord Sai Share Market Academy Logo -->
+                            <div class="gateway-emblem-badge mb-3">
+                                <div class="gateway-academy-logo-badge" title="Lord Sai Investment & Share Market Academy">
+                                    <img src="img/lord-sai-logo.png" alt="Lord Sai Investment & Share Market Academy Logo">
+                                </div>
+                            </div>
+
                             <div class="gateway-academy-badge-wrap mb-3" style="width: 100%; display: flex; justify-content: center; align-items: center;">
                                 <span class="badge bg-primary text-uppercase font-monospace gateway-academy-badge" data-i18n="gateway.academyBadge"><i class="fas fa-graduation-cap me-1"></i> Share Market Academy</span>
                             </div>

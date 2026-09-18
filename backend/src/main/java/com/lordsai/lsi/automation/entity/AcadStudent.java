@@ -66,6 +66,15 @@ public class AcadStudent extends BaseEntity {
     @Column(name = "course_fee", nullable = false, precision = 10, scale = 2)
     private BigDecimal courseFee = BigDecimal.ZERO;
 
+    /**
+     * The ONE permanent receipt/reference number for this student's fee plan (format
+     * LSR/YYYY/####, same sequence as before). Assigned once, the first time a payment is
+     * recorded, and reused on every installment receipt from then on — see
+     * {@link com.lordsai.lsi.automation.service.AcadPaymentService#issueReceipt}.
+     */
+    @Column(name = "fee_receipt_no", length = 30)
+    private String feeReceiptNo;
+
     @Column(nullable = false, length = 20)
     private String status = STATUS_ACTIVE;
 

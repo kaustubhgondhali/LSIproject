@@ -84,13 +84,19 @@ public class AcadPaymentService {
         BigDecimal paid = list.stream().map(AcadPayment::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
         Map<Integer, AcadPayment> byNo = new HashMap<>();
         list.forEach(p -> byNo.put(p.getInstallmentNo(), p));
+        // One receipt per payment, keyed by payment id, so each installment slot can show its own
+        // receipt link even though the receipt_no printed on all of them is the same shared number.
+        Map<Long, AcadReceipt> receiptByPaymentId = new HashMap<>();
+        receipts.findByStudentIdOrderByIssuedAtDesc(s.getId()).forEach(r -> receiptByPaymentId.put(r.getPayment().getId(), r));
         int maxSlots = Math.max(5, list.stream().mapToInt(AcadPayment::getInstallmentNo).max().orElse(0));
         List<InstallmentSlot> slots = new java.util.ArrayList<>();
         Integer next = null;
         for (int n = 1; n <= maxSlots; n++) {
             AcadPayment p = byNo.get(n);
+            AcadReceipt r = p == null ? null : receiptByPaymentId.get(p.getId());
             slots.add(new InstallmentSlot(n, master.installmentLabel(n), p != null, p == null ? null : p.getAmount(),
-                    p == null ? null : p.getPaymentDate(), p == null ? null : p.getPaymentNo()));
+                    p == null ? null : p.getPaymentDate(), p == null ? null : p.getPaymentNo(),
+                    r == null ? null : r.getId(), r == null ? null : r.getReceiptNo()));
             if (next == null && p == null) {
                 next = n;
             }
@@ -99,7 +105,7 @@ public class AcadPaymentService {
         return new FeeSummary(s.getId(), s.getStudentId(), s.getFullName(),
                 s.getBatch() == null ? null : s.getBatch().getName(), s.getCourse() == null ? null : s.getCourse().getName(),
                 s.getCourseFee(), paid, balance, AcadRowMapper.paymentStatus(s.getCourseFee(), paid), slots,
-                balance.signum() > 0 ? (next == null ? maxSlots + 1 : next) : null);
+                balance.signum() > 0 ? (next == null ? maxSlots + 1 : next) : null, s.getFeeReceiptNo(), list.size());
     }
 
     // ---- record / edit / delete ------------------------------------------------------------------
@@ -191,14 +197,28 @@ public class AcadPaymentService {
 
     // ---- receipts ----------------------------------------------------------------------------
 
-    /** Creates the receipt for a payment (also used by the importer, which passes null for actor). */
+    /**
+     * Creates the receipt for a payment (also used by the importer, which passes null for actor).
+     * Every receipt for the same student shares ONE permanent receipt/reference number
+     * ({@link AcadStudent#getFeeReceiptNo()}): it is generated once, the first time a payment is
+     * recorded for that student, and reused unchanged on every later installment's receipt. The
+     * payment itself keeps its own unique {@code payment_no}, so individual payments stay
+     * traceable even though several receipts now print the same overall receipt number.
+     */
     @Transactional
     public AcadReceipt issueReceipt(AcadPayment p, User actor) {
+        AcadStudent s = p.getStudent();
+        String feeReceiptNo = s.getFeeReceiptNo();
+        if (feeReceiptNo == null || feeReceiptNo.isBlank()) {
+            int year = p.getPaymentDate() != null ? p.getPaymentDate().getYear() : LocalDate.now(java.time.ZoneId.of("Asia/Kolkata")).getYear();
+            feeReceiptNo = sequences.next(AcadSequenceService.RECEIPT, year);
+            s.setFeeReceiptNo(feeReceiptNo);
+            students.save(s);
+        }
         AcadReceipt r = new AcadReceipt();
-        int year = p.getPaymentDate() != null ? p.getPaymentDate().getYear() : LocalDate.now(java.time.ZoneId.of("Asia/Kolkata")).getYear();
-        r.setReceiptNo(sequences.next(AcadSequenceService.RECEIPT, year));
+        r.setReceiptNo(feeReceiptNo);
         r.setPayment(p);
-        r.setStudent(p.getStudent());
+        r.setStudent(s);
         fillSnapshot(r, p, actor);
         return receipts.save(r);
     }

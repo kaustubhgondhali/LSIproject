@@ -3,6 +3,10 @@ package com.lordsai.lsi.automation.service;
 import com.lordsai.lsi.automation.entity.AcadSequence;
 import com.lordsai.lsi.automation.repository.AcadSequenceRepository;
 import com.lordsai.lsi.automation.repository.AcadStudentRepository;
+import com.lordsai.lsi.entity.User;
+import com.lordsai.lsi.exception.ApiException;
+import com.lordsai.lsi.service.AuditService;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,10 +34,12 @@ public class AcadSequenceService {
 
     private final AcadSequenceRepository sequences;
     private final AcadStudentRepository students;
+    private final AuditService auditService;
 
-    public AcadSequenceService(AcadSequenceRepository sequences, AcadStudentRepository students) {
+    public AcadSequenceService(AcadSequenceRepository sequences, AcadStudentRepository students, AuditService auditService) {
         this.sequences = sequences;
         this.students = students;
+        this.auditService = auditService;
     }
 
     /** Must run inside the transaction that creates the record so the row lock lasts until commit. */
@@ -66,6 +72,62 @@ public class AcadSequenceService {
             n = Math.max(n, highestExistingStudentNumber(year) + 1);
         }
         return format(kind, year, n);
+    }
+
+    // ---- Automation Admin Settings: Student ID series -------------------------------------
+
+    /**
+     * The current state of the Student ID series for the running year: the next number that
+     * will actually be issued (already accounting for the existing-ID safety net below) and the
+     * highest number already in use, so the admin UI can show both and validate before saving.
+     */
+    public record StudentIdSeriesInfo(int year, int nextNumber, String nextStudentId, int highestExistingNumber,
+                                      String highestExistingStudentId) {
+    }
+
+    @Transactional(readOnly = true)
+    public StudentIdSeriesInfo studentIdSeriesInfo() {
+        int year = LocalDate.now(INDIA).getYear();
+        int highest = highestExistingStudentNumber(year);
+        int configured = sequences.findByKindAndYear(STUDENT, year).map(AcadSequence::getLastNumber).orElse(0);
+        int next = Math.max(configured, highest) + 1;
+        return new StudentIdSeriesInfo(year, next, format(STUDENT, year, next), highest,
+                highest == 0 ? null : format(STUDENT, year, highest));
+    }
+
+    /**
+     * Sets the next Student ID number the office wants to start issuing from (Automation Admin
+     * -> Settings -> Student ID Series). Runs in its own transaction — this is a standalone admin
+     * action, not part of creating a student. The row lock held for the update means a student
+     * being created at the same moment either fully happens before or fully after this change.
+     *
+     * <p>Rejects any value that would let the very next generated ID collide with (or fall
+     * behind) an ID already in use this year: the new next number must be strictly greater than
+     * the highest existing Student ID number for the year. Existing Student IDs are never
+     * touched — only future generation is affected.
+     */
+    @Transactional
+    public StudentIdSeriesInfo setNextStudentNumber(int newNextNumber, User actor, String ip) {
+        if (newNextNumber < 1) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "The next Student ID number must be 1 or greater.");
+        }
+        int year = LocalDate.now(INDIA).getYear();
+        int highest = highestExistingStudentNumber(year);
+        if (newNextNumber <= highest) {
+            throw new ApiException(HttpStatus.CONFLICT, "Student ID " + format(STUDENT, year, newNextNumber)
+                    + " is already in use (or below the highest existing ID, " + format(STUDENT, year, highest)
+                    + "). Choose a number greater than " + highest + " so no existing Student ID can be reused.");
+        }
+        AcadSequence seq = sequences.findForUpdate(STUDENT, year)
+                .orElseGet(() -> sequences.saveAndFlush(new AcadSequence(STUDENT, year)));
+        int before = seq.getLastNumber();
+        seq.setLastNumber(newNextNumber - 1);
+        sequences.save(seq);
+        auditService.record(actor, "ACAD_STUDENT_ID_SEQUENCE_CHANGED", "AcadSequence", seq.getId(),
+                "Student ID series for " + year + ": next number changed from " + (before + 1) + " to " + newNextNumber
+                        + " (" + format(STUDENT, year, newNextNumber) + ")", ip);
+        return new StudentIdSeriesInfo(year, newNextNumber, format(STUDENT, year, newNextNumber), highest,
+                highest == 0 ? null : format(STUDENT, year, highest));
     }
 
     private int highestExistingStudentNumber(int year) {

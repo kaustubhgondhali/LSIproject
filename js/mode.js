@@ -20,11 +20,24 @@
          * Get the current active mode ('academy' or 'mutual-fund')
          */
         getMode: function () {
+            // 1. Dedicated pages have absolute priority
+            if (window.location && window.location.pathname) {
+                const path = window.location.pathname.toLowerCase();
+                if (path.endsWith("investments.html") || path.endsWith("financial-planning.html") || path.endsWith("insurance.html") || path.endsWith("sip.html") || path.endsWith("swp.html")) {
+                    this.activeMode = "mutual-fund";
+                    return "mutual-fund";
+                }
+                if (path.endsWith("courses.html") || path.endsWith("student-login.html") || path.endsWith("set-password.html") || path.endsWith("student-dashboard.html") || path.endsWith("admin-dashboard.html") || path.endsWith("automation-admin.html")) {
+                    this.activeMode = "academy";
+                    return "academy";
+                }
+            }
+
             if (this.activeMode) {
                 return this.activeMode;
             }
 
-            // 1. Check URL query param
+            // 2. Check URL query param
             if (window.location && window.location.search) {
                 const urlParams = new URLSearchParams(window.location.search);
                 const paramMode = urlParams.get("mode");
@@ -34,19 +47,6 @@
                     if (window.sessionStorage) window.sessionStorage.setItem(STORAGE_KEY, normalized);
                     if (window.localStorage) window.localStorage.setItem(STORAGE_KEY, normalized);
                     return normalized;
-                }
-            }
-
-            // 2. Check pathname inference for dedicated pages
-            if (window.location && window.location.pathname) {
-                const path = window.location.pathname.toLowerCase();
-                if (path.endsWith("investments.html") || path.endsWith("financial-planning.html") || path.endsWith("insurance.html") || path.endsWith("sip.html") || path.endsWith("swp.html")) {
-                    this.activeMode = "mutual-fund";
-                    return "mutual-fund";
-                }
-                if (path.endsWith("courses.html")) {
-                    this.activeMode = "academy";
-                    return "academy";
                 }
             }
 
@@ -209,28 +209,35 @@
                 }
             }
 
-            // 2. Intercept and convert any legacy index.html links to home.html with active mode preserved
-            $('a[href^="index.html"]:not(.gateway-link):not(.topbar-switch-btn):not(.navbar-switch-item)').each(function () {
+            // 2. Intercept and convert any legacy index.html links to home.html with active mode preserved (excluding switch buttons)
+            $('a[href^="index.html"]:not(.gateway-link):not(.topbar-switch-btn):not(.navbar-switch-item):not([data-i18n*="switch"])').each(function () {
                 const href = $(this).attr("href");
                 const hash = href.includes("#") ? "#" + href.split("#")[1] : "";
                 $(this).attr("href", "home.html?mode=" + currentMode + hash);
             });
 
-            // 3. Keep mode parameter on all internal page links (.html, .html#hash, etc.)
-            $('a[href*=".html"]:not(.gateway-link):not(.topbar-switch-btn):not(.navbar-switch-item):not(.lsi-admin-link)').each(function () {
+            // 3. Keep mode parameter on internal dual-mode page links (.html, .html#hash, etc.)
+            $('a[href*=".html"]:not(.gateway-link):not(.topbar-switch-btn):not(.navbar-switch-item):not([data-i18n*="switch"]):not(.lsi-admin-link)').each(function () {
                 const href = $(this).attr("href");
                 if (href && !href.startsWith("http") && !href.startsWith("//") && !href.startsWith("#")
                         && !href.includes("?mode=") && !href.includes("&mode=")) {
                     const hashParts = href.split("#");
-                    const path = hashParts[0];
+                    const path = hashParts[0].toLowerCase();
                     const hash = hashParts[1] ? "#" + hashParts[1] : "";
-                    if (path === "index.html") {
-                        $(this).attr("href", "home.html?mode=" + currentMode + hash);
-                    } else {
-                        // Links that already carry a query string get "&mode=", not a second "?".
-                        const joiner = path.includes("?") ? "&" : "?";
-                        $(this).attr("href", path + joiner + "mode=" + currentMode + hash);
+
+                    // Never append academy mode to dedicated mutual-fund pages
+                    if (currentMode === "academy" && (path.endsWith("investments.html") || path.endsWith("financial-planning.html") || path.endsWith("insurance.html") || path.endsWith("sip.html") || path.endsWith("swp.html"))) {
+                        return;
                     }
+                    // Never append mutual-fund mode to dedicated academy pages
+                    if (currentMode === "mutual-fund" && (path.endsWith("courses.html") || path.endsWith("student-login.html") || path.endsWith("set-password.html") || path.endsWith("student-dashboard.html"))) {
+                        return;
+                    }
+                    if (path === "index.html") {
+                        return;
+                    }
+                    const joiner = hashParts[0].includes("?") ? "&" : "?";
+                    $(this).attr("href", hashParts[0] + joiner + "mode=" + currentMode + hash);
                 }
             });
 
@@ -250,14 +257,21 @@
         },
 
         /**
-         * Render a professional "Switch Business" button
+         * Render / update the business switch button label based on active website:
+         * - Mutual Fund website -> "Share Market Class"
+         * - Share Market website -> "Invest & Wealth Manager"
+         * Keeps the exact icon (<i class="fas fa-th-large me-1"></i>) and href ("index.html").
          */
         renderSwitchButton: function (currentMode) {
-            // In Topbar
+            const isMf = currentMode === "mutual-fund";
+            const btnText = isMf ? "Share Market Class" : "Invest & Wealth Manager";
+            const btnTitle = isMf ? "Switch to Share Market Class" : "Switch to Invest & Wealth Manager";
+
+            // 1. In Topbar (inject if missing)
             if ($('.topbar').length && !$('.topbar-switch-btn').length) {
                 const switchHtml = `
-                    <a href="index.html" class="btn btn-sm btn-outline-warning rounded-pill py-1 px-3 me-2 topbar-switch-btn" title="Return to Service Selection Gateway">
-                        <i class="fas fa-th-large me-1"></i> Switch Business
+                    <a href="index.html" class="btn btn-sm btn-outline-warning rounded-pill py-1 px-3 me-3 topbar-switch-btn" title="${btnTitle}" data-i18n="topbar.switch">
+                        <i class="fas fa-th-large me-1"></i> ${btnText}
                     </a>
                 `;
                 const $target = $('.topbar .col-lg-5 .d-inline-flex');
@@ -266,15 +280,31 @@
                 }
             }
 
-            // In Navbar for mobile and desktop
+            // 2. In Navbar for mobile and desktop (inject if missing)
             if ($('.navbar-nav').length && !$('.navbar-switch-item').length) {
                 const navSwitchHtml = `
-                    <a href="index.html" class="nav-item nav-link navbar-switch-item text-warning fw-bold d-lg-none" title="Return to Service Selection Gateway">
-                        <i class="fas fa-th-large me-1"></i> Switch Business
+                    <a href="index.html" class="nav-item nav-link navbar-switch-item text-warning fw-bold d-lg-none" title="${btnTitle}" data-i18n="nav.switchBusiness">
+                        <i class="fas fa-th-large me-1"></i> ${btnText}
                     </a>
                 `;
                 $('.navbar-nav').append(navSwitchHtml);
             }
+
+            // 3. Update all existing switch buttons across the page
+            $('.topbar-switch-btn, .navbar-switch-item, [data-i18n="topbar.switch"], [data-i18n="nav.switchBusiness"]').each(function () {
+                const $btn = $(this);
+                $btn.attr('title', btnTitle);
+                const $mfSpan = $btn.find('.mode-mf-only');
+                const $acadSpan = $btn.find('.mode-academy-only');
+                if ($mfSpan.length && $acadSpan.length) {
+                    $mfSpan.html('<i class="fas fa-th-large me-1"></i> Share Market Class');
+                    $acadSpan.html('<i class="fas fa-th-large me-1"></i> Invest & Wealth Manager');
+                } else {
+                    const $icon = $btn.find('i');
+                    const iconHtml = $icon.length ? $icon.prop('outerHTML') : '<i class="fas fa-th-large me-1"></i>';
+                    $btn.html(iconHtml + ' ' + btnText);
+                }
+            });
         }
     };
 

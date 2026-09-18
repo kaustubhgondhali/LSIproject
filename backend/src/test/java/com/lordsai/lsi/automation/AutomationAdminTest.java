@@ -151,6 +151,98 @@ class AutomationAdminTest {
         assertThat(profile.path("activity").toString()).contains("ACAD_PAYMENT_RECORDED", "ACAD_RECEIPT_GENERATED");
     }
 
+    // ---- permanent fee receipt number ----------------------------------------------------------
+
+    @Test
+    void everyInstallmentOfTheSameStudentSharesOnePermanentReceiptNumberWhileEachPaymentStaysUnique() throws Exception {
+        long id = api.data(api.post(auto, "/api/automation/students", student("Rahul Sharma", "9876543215"))).path("id").asLong();
+
+        // No receipt number yet: it is only assigned once the first payment is recorded.
+        api.get(auto, "/api/automation/students/" + id + "/fees")
+                .andExpect(jsonPath("$.data.feeReceiptNo").doesNotExist())
+                .andExpect(jsonPath("$.data.installmentsRecorded").value(0));
+
+        JsonNode p1 = api.data(api.post(auto, "/api/automation/payments", Map.of("studentId", id, "installmentNo", 1,
+                "paymentDate", "2026-09-05", "amount", 3000, "paymentMode", "CASH")).andExpect(status().isOk()));
+        String receiptNo = p1.path("receiptNo").asText();
+        String paymentNo1 = p1.path("paymentNo").asText();
+        assertThat(receiptNo).startsWith("LSR/");
+
+        JsonNode p2 = api.data(api.post(auto, "/api/automation/payments", Map.of("studentId", id, "installmentNo", 2,
+                "paymentDate", "2026-09-10", "amount", 3000, "paymentMode", "CASH")).andExpect(status().isOk()));
+        JsonNode p3 = api.data(api.post(auto, "/api/automation/payments", Map.of("studentId", id, "installmentNo", 3,
+                "paymentDate", "2026-09-15", "amount", 4000, "paymentMode", "CASH")).andExpect(status().isOk()));
+
+        // Same overall Receipt No. on every installment...
+        assertThat(p2.path("receiptNo").asText()).isEqualTo(receiptNo);
+        assertThat(p3.path("receiptNo").asText()).isEqualTo(receiptNo);
+        // ...but each payment keeps its own unique payment/transaction number.
+        assertThat(p2.path("paymentNo").asText()).isNotEqualTo(paymentNo1).isNotEqualTo(p3.path("paymentNo").asText());
+        assertThat(java.util.Set.of(paymentNo1, p2.path("paymentNo").asText(), p3.path("paymentNo").asText())).hasSize(3);
+
+        // The fee summary now carries the permanent number and the count of recorded payments,
+        // and every installment slot links to its own receipt id even though the number repeats.
+        api.get(auto, "/api/automation/students/" + id + "/fees")
+                .andExpect(jsonPath("$.data.feeReceiptNo").value(receiptNo))
+                .andExpect(jsonPath("$.data.installmentsRecorded").value(3))
+                .andExpect(jsonPath("$.data.installments[0].receiptNo").value(receiptNo))
+                .andExpect(jsonPath("$.data.installments[1].receiptNo").value(receiptNo))
+                .andExpect(jsonPath("$.data.installments[2].receiptNo").value(receiptNo))
+                .andExpect(jsonPath("$.data.installments[0].receiptId").value(org.hamcrest.Matchers.not(
+                        org.hamcrest.Matchers.equalTo(p2.path("receiptId").asInt()))));
+
+        // A second, unrelated student gets their OWN distinct permanent number, not this one.
+        long other = api.data(api.post(auto, "/api/automation/students", student("Sneha Kulkarni", "9876543216"))).path("id").asLong();
+        JsonNode op1 = api.data(api.post(auto, "/api/automation/payments", Map.of("studentId", other, "installmentNo", 1,
+                "paymentDate", "2026-09-05", "amount", 2000, "paymentMode", "CASH")).andExpect(status().isOk()));
+        assertThat(op1.path("receiptNo").asText()).isNotEqualTo(receiptNo);
+
+        // Every receipt for the first student prints the same Receipt No., each with its own Payment No.
+        JsonNode receipts = api.data(api.get(auto, "/api/automation/receipts?studentId=" + id));
+        java.util.List<String> receiptNos = new java.util.ArrayList<>();
+        java.util.Set<String> paymentNos = new java.util.HashSet<>();
+        receipts.path("content").forEach(r -> { receiptNos.add(r.path("receiptNo").asText()); paymentNos.add(r.path("paymentNo").asText()); });
+        assertThat(receiptNos).hasSize(3).containsOnly(receiptNo);
+        assertThat(paymentNos).hasSize(3);
+    }
+
+    // ---- Automation Admin Settings: Student ID series ----------------------------------------
+
+    @Test
+    void studentIdSeriesCanBeMovedForwardByTheAdminWithoutReusingAnExistingId() throws Exception {
+        api.post(auto, "/api/automation/students", student("Series One", "9876543217"));
+        api.post(auto, "/api/automation/students", student("Series Two", "9876543218"));
+        // Two students exist -> highest existing number is 2, next would normally be 3.
+        JsonNode before = api.data(api.get(auto, "/api/automation/settings/student-id-sequence")
+                .andExpect(jsonPath("$.data.highestExistingNumber").value(2))
+                .andExpect(jsonPath("$.data.nextNumber").value(3)));
+        int year = before.path("year").asInt();
+
+        // Cannot reuse/collide with an existing ID.
+        api.put(auto, "/api/automation/settings/student-id-sequence", Map.of("nextNumber", 2)).andExpect(status().isConflict());
+        api.put(auto, "/api/automation/settings/student-id-sequence", Map.of("nextNumber", 1)).andExpect(status().isConflict());
+        api.put(auto, "/api/automation/settings/student-id-sequence", Map.of("nextNumber", 0)).andExpect(status().isBadRequest());
+        api.put(auto, "/api/automation/settings/student-id-sequence", Map.of("nextNumber", -5)).andExpect(status().isBadRequest());
+
+        // A safe forward move is accepted and reflected immediately.
+        api.put(auto, "/api/automation/settings/student-id-sequence", Map.of("nextNumber", 1001))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.nextNumber").value(1001))
+                .andExpect(jsonPath("$.data.nextStudentId").value("LSA/" + year + "/1001"));
+        api.get(auto, "/api/automation/settings/student-id-sequence").andExpect(jsonPath("$.data.nextNumber").value(1001));
+
+        // The next student actually created gets exactly that ID...
+        String third = api.data(api.post(auto, "/api/automation/students", student("Series Three", "9876543219"))).path("studentId").asText();
+        assertThat(third).isEqualTo("LSA/" + year + "/1001");
+
+        // ...and existing students keep their original IDs, untouched.
+        api.get(auto, "/api/automation/search?q=Series One").andExpect(jsonPath("$.data[0].studentId").value("LSA/" + year + "/0001"));
+        api.get(auto, "/api/automation/search?q=Series Two").andExpect(jsonPath("$.data[0].studentId").value("LSA/" + year + "/0002"));
+
+        // Student-only / unauthenticated cannot touch it (the shared /api/automation/** rule).
+        api.get(null, "/api/automation/settings/student-id-sequence").andExpect(status().isUnauthorized());
+    }
+
     // ---- attendance ---------------------------------------------------------------------------------
 
     @Test

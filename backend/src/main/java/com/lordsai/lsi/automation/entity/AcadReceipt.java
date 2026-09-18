@@ -20,6 +20,11 @@ import java.time.LocalDate;
 /**
  * The fee receipt issued for one payment. Linked to the student and payment, and it also keeps
  * a snapshot of what was printed so a later name/fee edit never rewrites an issued receipt.
+ *
+ * <p>{@link #receiptNo} is NOT unique per row: it is the student's one permanent
+ * {@link AcadStudent#getFeeReceiptNo() fee receipt number}, copied onto every receipt issued for
+ * that student so every installment prints the same reference. The individual payment stays
+ * traceable through {@link #payment}'s own unique {@code payment_no}.
  */
 @Getter
 @Setter
@@ -28,7 +33,7 @@ import java.time.LocalDate;
 @Table(name = "acad_receipts")
 public class AcadReceipt extends BaseEntity {
 
-    @Column(name = "receipt_no", nullable = false, length = 30, unique = true)
+    @Column(name = "receipt_no", nullable = false, length = 30)
     private String receiptNo;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)

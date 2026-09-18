@@ -103,12 +103,19 @@ public final class AutomationDtos {
 
     // ---- fees / payments --------------------------------------------------------------------
 
-    public record InstallmentSlot(int installmentNo, String label, boolean paid, BigDecimal amount, LocalDate paymentDate, String paymentNo) {
+    public record InstallmentSlot(int installmentNo, String label, boolean paid, BigDecimal amount, LocalDate paymentDate,
+                                  String paymentNo, Long receiptId, String receiptNo) {
     }
 
+    /**
+     * @param feeReceiptNo the ONE permanent receipt/reference number for this student's fee plan
+     *                     (same on every installment's receipt); null until the first payment is recorded.
+     * @param installmentsRecorded how many payments have actually been recorded so far.
+     */
     public record FeeSummary(Long studentId, String studentCode, String fullName, String batchName, String courseName,
                              BigDecimal courseFee, BigDecimal totalPaid, BigDecimal balance, String paymentStatus,
-                             List<InstallmentSlot> installments, Integer nextInstallmentNo) {
+                             List<InstallmentSlot> installments, Integer nextInstallmentNo,
+                             String feeReceiptNo, int installmentsRecorded) {
     }
 
     public record PaymentDto(
@@ -195,6 +202,16 @@ public final class AutomationDtos {
     }
 
     public record ActivityRow(String action, String description, String actor, Instant at) {
+    }
+
+    // ---- settings: Student ID series -------------------------------------------------------
+
+    /** Mirrors {@link com.lordsai.lsi.automation.service.AcadSequenceService.StudentIdSeriesInfo}. */
+    public record StudentIdSeriesDto(int year, int nextNumber, String nextStudentId,
+                                     int highestExistingNumber, String highestExistingStudentId) {
+    }
+
+    public record UpdateStudentIdSeriesRequest(@NotNull @Min(1) @Max(999999) Integer nextNumber) {
     }
 
     // ---- dashboard --------------------------------------------------------------------------

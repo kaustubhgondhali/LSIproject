@@ -185,15 +185,27 @@
 }
 @media (max-width: 575px) { .au-cards { grid-template-columns: 1fr; } .au-quick { grid-template-columns: repeat(2, 1fr); } }
 
-/* ---- print: only the receipt / report block ------------------------------------------------ */
+/* ---- print: only the receipt / report block --------------------------------------------------
+   Bug fixed here: body.au-app and .au-main both carry `min-height: 100vh` for the on-screen
+   layout (so the navy sidebar always reaches the bottom of a short page). In print that same
+   min-height forced an empty, near-full-page-tall box before/after the actual receipt content
+   (the receipt lives in #receiptPrintArea, a sibling AFTER </main>, not inside it), which is
+   exactly what produced the unwanted blank second page. Printing must reset those heights to
+   the content's own height, not the screen viewport's. --------------------------------------- */
 @media print {
+    html, body.au-app { min-height: 0 !important; height: auto !important; }
     body.au-app { background: #fff; }
     .au-header, .au-sidebar, .au-backdrop, .au-toast-area, .au-no-print { display: none !important; }
-    .au-main { margin: 0; padding: 0; }
+    .au-main { margin: 0; padding: 0; min-height: 0 !important; }
     .au-view { display: none !important; }
+    /* Printing a receipt needs nothing from <main> at all (the receipt lives outside it) — hide
+       it outright so it can never contribute stray height; printing a report still needs its
+       own #reportPrintArea, which stays governed by the rules below. */
+    body.au-print-receipt .au-main { display: none !important; }
     body.au-print-receipt #receiptPrintArea, body.au-print-report #reportPrintArea { display: block !important; }
-    .au-receipt { border-width: 1px; max-width: 720px; margin: 0 auto; }
+    .au-receipt { border-width: 1px; max-width: 720px; margin: 0 auto; break-inside: avoid; page-break-inside: avoid; }
 }
+@page { margin: 12mm; }
 
 /* ---- export toolbar (Print / PDF / Excel on every record section) + Online Academy nav ---- */
 .au-nav-label { padding: 14px 22px 4px; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,.4); }
