@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+<div th:replace="~{email/layout :: wrapper('Congratulations — you are enrolled!', ~{::content})}">
+    <div th:fragment="content">
+        <p style="margin:0 0 14px;font-size:15px;line-height:1.6;">Dear <strong th:text="${name}">Student</strong>,</p>
+        <p style="margin:0 0 18px;font-size:15px;line-height:1.6;">
+            Your payment was successful and your enrollment is now <strong style="color:#0f9f90;">active</strong>.
+            Welcome to the academy — we are glad to have you with us.
+        </p>
+
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;margin:0 0 22px;">
+            <tr><td style="padding:14px 18px;font-size:14px;line-height:1.8;">
+                <div><span style="color:#64748b;">Course:</span> <strong th:text="${courseName}">Course</strong></div>
+                <div><span style="color:#64748b;">Student ID:</span> <strong style="font-family:monospace;font-size:15px;color:#0a1128;" th:text="${studentId}">LSI-2026-00001</strong></div>
+                <div><span style="color:#64748b;">Login email:</span> <span th:text="${email}">email</span></div>
+                <div><span style="color:#64748b;">Order reference:</span> <span th:text="${orderRef}">LSI-ORD</span></div>
+                <div><span style="color:#64748b;">Amount paid:</span> <span th:text="${amount}">₹</span></div>
+            </td></tr>
+        </table>
+
+        <div th:if="${setupLink != null}">
+            <p style="margin:0 0 14px;font-size:15px;line-height:1.6;">
+                To access the Student Portal, first create your password using the secure link below.
+                The link is valid for <strong>48 hours</strong> and can be used only once.
+            </p>
+            <p style="margin:0 0 22px;text-align:center;">
+                <a th:href="${setupLink}" style="display:inline-block;background:#0f9f90;color:#ffffff;text-decoration:none;font-weight:700;padding:13px 28px;border-radius:30px;font-size:15px;">Set my password</a>
+            </p>
+            <p style="margin:0 0 18px;font-size:12px;color:#64748b;line-height:1.6;">
+                If the button does not work, copy this address into your browser:<br>
+                <span th:text="${setupLink}" style="word-break:break-all;color:#0f9f90;">link</span>
+            </p>
+        </div>
+        <div th:if="${setupLink == null}">
+            <p style="margin:0 0 14px;font-size:15px;line-height:1.6;">
+                This course has been added to your existing Student Portal account. Log in with your usual password to start learning.
+            </p>
+            <p style="margin:0 0 22px;text-align:center;">
+                <a th:href="${portalUrl}" style="display:inline-block;background:#0f9f90;color:#ffffff;text-decoration:none;font-weight:700;padding:13px 28px;border-radius:30px;font-size:15px;">Open Student Portal</a>
+            </p>
+        </div>
+
+        <p style="margin:0;font-size:14px;line-height:1.6;color:#334155;">
+            Inside the portal you will find your modules, lesson videos, downloadable handouts, the trade journal and the doubt desk.
+        </p>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Learn | Lord Sai Investment & Share Market Academy</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/lms.css" rel="stylesheet">
+</head>
+<body class="lms-app">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="js/api-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>LSI_Auth.requireAuth('student');</script>
+    <script src="js/student-protect.js?v=20260918"></script>
+
+    <header class="lms-topbar">
+        <a href="student-dashboard.html#learning" class="lms-btn ghost sm" title="Back to My Learning"><i class="fas fa-arrow-left"></i> <span class="d-none d-sm-inline">My Learning</span></a>
+        <a href="student-dashboard.html" class="lms-brand" style="min-width:0">
+            <img src="img/lord-sai-logo.png" alt="Lord Sai">
+            <div><div class="name">LORD SAI</div><div class="sub">Student Learning</div></div>
+        </a>
+        <div class="flex-grow-1 text-truncate px-2 d-none d-md-block"><strong id="courseTitle" style="font-size:14px">Loading course…</strong></div>
+        <div class="lms-user">
+            <div class="meta text-end"><strong id="navStudentName">Student</strong><small><span id="courseProgressText">0%</span> complete</small></div>
+            <div style="width:120px" class="d-none d-md-block">
+                <div class="lms-progress"><span id="courseProgressBar" style="width:0%"></span></div>
+                <small class="text-muted" style="font-size:11px"><span id="courseDone">0</span> / <span id="courseTotal">0</span> lessons</small>
+            </div>
+        </div>
+    </header>
+
+    <main class="lms-main lms-learn" style="padding-top: calc(var(--lms-topbar-h) + 20px);">
+        <div class="alert alert-danger d-none" id="learnError"></div>
+        <div class="alert alert-success d-none d-flex flex-wrap align-items-center justify-content-between gap-2" id="learnCompleteBanner">
+            <span><i class="fas fa-check-circle me-1"></i> <strong>Course Completed ✓</strong> You are eligible to apply for the final exam.</span>
+            <a href="student-dashboard.html#exams" class="lms-btn primary sm"><i class="fas fa-file-signature"></i> Apply for Exam</a>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="lms-player-wrap" id="playerShell" data-protect-fs>
+                    <div class="ratio ratio-16x9" id="playerWrap">
+                        <video id="lessonVideo" controls controlsList="nodownload noremoteplayback" disablepictureinpicture playsinline preload="metadata" oncontextmenu="return false;" style="width:100%;height:100%;background:#000;"></video>
+                        <div id="noVideo" class="d-none d-flex align-items-center justify-content-center text-white-50 flex-column">
+                            <i class="fas fa-video-slash fa-3x mb-3"></i>
+                            <div>No video has been uploaded for this lesson yet.</div>
+                        </div>
+                    </div>
+                    <button type="button" class="lsi-fs-btn d-none" id="fsBtn" title="Fullscreen" aria-label="Toggle fullscreen"><i class="fas fa-expand"></i></button>
+                </div>
+
+                <!-- Handout viewer: pages are rendered in the portal with the student watermark; no file is handed to the browser. -->
+                <div class="lms-card lsi-pdf d-none" id="materialViewer">
+                    <div class="lsi-pdf-head">
+                        <strong><i class="fas fa-file-pdf text-danger me-2"></i><span id="materialName">Handout</span></strong>
+                        <button type="button" class="lms-btn ghost sm" id="materialCloseBtn"><i class="fas fa-times"></i> Close</button>
+                    </div>
+                    <div class="lsi-pdf-pages" id="materialPages"></div>
+                </div>
+
+                <div class="lms-card pad mt-3">
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+                        <div>
+                            <span class="lms-chip info" id="lessonModule">Module</span>
+                            <h2 class="mt-2 mb-0" style="font-size:19px;font-weight:700" id="lessonTitle">Select a lesson</h2>
+                        </div>
+                        <span class="lms-chip ok d-none" id="lessonCompletedBadge"><i class="fas fa-check-circle me-1"></i> Completed</span>
+                    </div>
+                    <p class="text-muted mb-3" id="lessonDescription" style="line-height:1.75"></p>
+                    <div class="d-flex flex-wrap gap-2 align-items-center pt-3" style="border-top:1px solid var(--lms-border)">
+                        <button class="lms-btn ghost sm" id="prevLessonBtn" disabled><i class="fas fa-chevron-left"></i> Previous</button>
+                        <button class="lms-btn ghost sm" id="nextLessonBtn" disabled>Next <i class="fas fa-chevron-right"></i></button>
+                        <div class="ms-auto d-flex gap-2 flex-wrap">
+                            <button class="lms-btn ghost sm d-none" id="materialBtn"><i class="fas fa-file-pdf text-danger"></i> View handout</button>
+                            <button class="lms-btn accent sm" id="completeBtn"><i class="fas fa-check"></i> Mark as complete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="lms-card lms-curriculum">
+                    <div class="p-3" style="border-bottom:1px solid var(--lms-border)"><strong><i class="fas fa-list-ul me-2" style="color:var(--lms-primary)"></i>Course content</strong></div>
+                    <div id="curriculum" class="p-2"><div class="text-muted small p-3">Loading…</div></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- PDF.js renders handouts to canvas inside the portal (no native viewer, no download/print toolbar). -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="js/learn.js"></script>
+</body>
+</html>

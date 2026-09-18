@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<!--
+  The ONE course certificate template. Rendered by PdfRenderer (same engine as the invoices).
+
+  Two designs come out of this single file:
+    * Default Lord Sai certificate — used whenever no admin-uploaded design is active. The blue
+      Lord Sai logo, double border and typography are drawn here; nothing external is needed, so
+      this default can never go missing.
+    * Admin-uploaded design — when ${customBackground} is set (a data URI of the uploaded JPG/PNG,
+      A4 landscape) it fills the page and the student / course / result text is laid over it.
+
+  Every value is injected by CertificateService. Must stay well-formed XHTML (PDF renderer parses XML).
+-->
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="'Certificate ' + ${certificateNumber}">Certificate</title>
+    <style>
+        @page { size: A4 landscape; margin: 0; }
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; }
+        body { font-family: 'Noto Sans', 'Segoe UI', Arial, sans-serif; color: #0A1128; background: #ffffff; }
+        .page { position: relative; width: 297mm; height: 210mm; overflow: hidden; }
+        .bg { position: absolute; top: 0; left: 0; width: 297mm; height: 210mm; }
+        /* Default Lord Sai design: white page with a double blue frame. */
+        .frame { position: absolute; top: 10mm; left: 10mm; width: 277mm; height: 190mm; border: 2.2mm double #0B5FA5; }
+        .frame-inner { position: absolute; top: 14mm; left: 14mm; width: 269mm; height: 182mm; border: 0.4mm solid #2EC4B6; }
+        .corner { position: absolute; width: 22mm; height: 22mm; border-color: #0A1128; border-style: solid; }
+        .corner.tl { top: 16mm; left: 16mm; border-width: 1.2mm 0 0 1.2mm; }
+        .corner.tr { top: 16mm; right: 16mm; border-width: 1.2mm 1.2mm 0 0; }
+        .corner.bl { bottom: 16mm; left: 16mm; border-width: 0 0 1.2mm 1.2mm; }
+        .corner.br { bottom: 16mm; right: 16mm; border-width: 0 1.2mm 1.2mm 0; }
+        .content { position: absolute; left: 26mm; width: 245mm; top: 22mm; text-align: center; }
+        .content.custom { top: 52mm; }
+        /* Uploaded designs: translucent panels keep the printed text legible on any background. */
+        .panel { position: absolute; left: 24mm; width: 249mm; background: #ffffff; opacity: 0.82; border-radius: 4mm; }
+        .panel.main { top: 46mm; height: 90mm; }
+        .panel.foot { top: 146mm; height: 52mm; }
+        .logo { height: 22mm; }
+        .academy { font-size: 9.5pt; letter-spacing: 3px; text-transform: uppercase; color: #0B5FA5; font-weight: 700; margin-top: 3mm; }
+        .title { font-size: 30pt; font-weight: 700; letter-spacing: 6px; color: #0A1128; margin-top: 7mm; line-height: 1; }
+        .subtitle { font-size: 10.5pt; letter-spacing: 3px; text-transform: uppercase; color: #64748b; margin-top: 2.5mm; }
+        .lead { font-size: 11.5pt; color: #334155; margin-top: 8mm; }
+        .name { font-size: 26pt; font-weight: 700; color: #0B5FA5; margin-top: 2.5mm; line-height: 1.15; }
+        .sid { font-size: 10pt; color: #475569; margin-top: 1.5mm; letter-spacing: 1px; }
+        .course { font-size: 17pt; font-weight: 700; color: #0A1128; margin-top: 2.5mm; line-height: 1.25; }
+        .result { font-size: 10.5pt; color: #334155; margin-top: 3.5mm; line-height: 1.55; }
+        .result strong { color: #0A1128; }
+        .sig-row { position: absolute; left: 30mm; width: 237mm; top: 150mm; }
+        .sig-row table { width: 100%; border-collapse: collapse; }
+        .sig-row td { width: 33%; text-align: center; vertical-align: bottom; font-size: 9.5pt; color: #475569; }
+        .sig-row .line { border-top: 0.35mm solid #0A1128; width: 58mm; margin: 0 auto 1.6mm; }
+        .sig-row strong { display: block; font-size: 10.5pt; color: #0A1128; }
+        .seal { width: 30mm; height: 30mm; border-radius: 15mm; border: 1.1mm solid #0B5FA5; margin: 0 auto 1.5mm; padding-top: 6.5mm; }
+        .seal div { text-align: center; font-size: 7pt; letter-spacing: 1.5px; color: #0B5FA5; font-weight: 700; line-height: 1.35; }
+        .seal .lsi { font-size: 12pt; letter-spacing: 3px; display: block; }
+        .foot { position: absolute; left: 30mm; width: 237mm; top: 190mm; text-align: center; font-size: 7.5pt; color: #64748b; letter-spacing: .4px; }
+        .foot strong { color: #0B5FA5; }
+        .preview-tag { position: absolute; top: 4mm; right: 6mm; font-size: 8pt; color: #b91c1c; font-weight: 700; letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+<div class="page">
+    <!-- Admin-uploaded background, when one is active -->
+    <img th:if="${customBackground != null}" th:src="${customBackground}" class="bg" alt=""/>
+
+    <!-- Default Lord Sai design -->
+    <th:block th:if="${customBackground == null}">
+        <div class="frame"></div>
+        <div class="frame-inner"></div>
+        <div class="corner tl"></div>
+        <div class="corner tr"></div>
+        <div class="corner bl"></div>
+        <div class="corner br"></div>
+    </th:block>
+
+    <th:block th:if="${customBackground != null}">
+        <div class="panel main"></div>
+        <div class="panel foot"></div>
+    </th:block>
+
+    <div th:if="${preview}" class="preview-tag">SAMPLE PREVIEW</div>
+
+    <div th:class="${customBackground == null} ? 'content' : 'content custom'">
+        <th:block th:if="${customBackground == null}">
+            <img th:src="${logoDataUri}" class="logo" alt="Lord Sai Investment &amp; Share Market Academy"/>
+            <div class="academy" th:text="${academyName}">Lord Sai Investment &amp; Share Market Academy</div>
+            <div class="title">CERTIFICATE</div>
+            <div class="subtitle">of course completion</div>
+        </th:block>
+
+        <div class="lead">This is to certify that</div>
+        <div class="name" th:text="${studentName}">Student Name</div>
+        <div class="sid">Student ID <span th:text="${studentId}">LSI-2026-00001</span></div>
+        <div class="lead" style="margin-top:4mm;">has successfully completed the course</div>
+        <div class="course" th:text="${courseName}">Course Name</div>
+        <div class="result">
+            and has <strong>PASSED</strong> the <span th:text="${examTitle}">Final Course Examination</span>
+            with a score of <strong th:text="${score} + ' / ' + ${totalMarks}">45 / 50</strong>
+            (passing marks <span th:text="${passingMarks}">30</span>).<br/>
+            Course completed on <span th:text="${completionDate}">01 January 2026</span>.
+        </div>
+    </div>
+
+    <div class="sig-row">
+        <table>
+            <tr>
+                <td>
+                    <div class="line"></div>
+                    <strong th:text="${issueDate}">18 September 2026</strong>
+                    Date of issue
+                </td>
+                <td>
+                    <div class="seal"><div><span class="lsi">LSI</span>LORD SAI<br/>ACADEMY</div></div>
+                </td>
+                <td>
+                    <div class="line"></div>
+                    <strong th:text="${signatoryName}">Vaibhav S. Pawar</strong>
+                    <span th:text="${signatoryTitle}">Founder &amp; Lead Educator</span>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="foot">
+        Certificate No. <strong th:text="${certificateNumber}">LSI-CERT-2026-000001</strong>
+        &#160;·&#160; Issued by <span th:text="${academyName}">Lord Sai Investment &amp; Share Market Academy</span>
+        &#160;·&#160; <span th:text="${supportEmail}">info@lordsaiinvestment.com</span>
+        &#160;·&#160; <span th:text="${supportPhone}">+91 99202 54354</span>
+    </div>
+</div>
+</body>
+</html>

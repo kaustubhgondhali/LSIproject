@@ -1,0 +1,1803 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Welcome to Lord Sai Investment & Share Market Academy | Choose Your Service</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Lord Sai Investment, Share Market Academy, Stock Market Classes Uran Navi Mumbai, Technical Analysis, Vaibhav Pawar, AMFI Registered Mutual Fund Distributor, ARN 280789, SIP, Mutual Funds" name="keywords">
+    <meta content="Welcome to Lord Sai Investment & Share Market Academy. Select your service: Our Academy (Share Market Education & Training) or Mutual Fund Distribution Services by Vaibhav Pawar (AMFI Registered MFD — ARN: 280789) in Uran, Navi Mumbai." name="description">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet"> 
+
+    <!-- Icon Font Stylesheet -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link rel="stylesheet" href="lib/animate/animate.min.css"/>
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="css/style.css" rel="stylesheet">
+
+    <style>
+        .gateway-wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #F8FAFC;
+        }
+
+        .gateway-header {
+            position: sticky;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 9999;
+            background: linear-gradient(135deg, #061526 0%, #0B2742 100%);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+            padding: 14px 0 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .gateway-brand-line {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            padding: 5px 16px;
+            border-radius: 8px;
+        }
+
+        .gateway-brand-logo {
+            height: 46px;
+            width: auto;
+            object-fit: contain;
+            flex-shrink: 0;
+            background: #FFFFFF;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+
+        .gateway-header .brand-name {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            line-height: 1;
+            background: linear-gradient(
+                90deg,
+                #C89B3C 0%,
+                #F3D27A 40%,
+                #D4AF37 70%,
+                #C89B3C 100%
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            white-space: nowrap;
+        }
+
+        .gateway-tagline {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2.2px;
+            color: #94A3B8;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .gateway-card {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            border: 2px solid transparent;
+        }
+
+        .gateway-card-blue {
+            background: linear-gradient(145deg, #0A1128 0%, #001F54 50%, #0077B6 100%);
+            box-shadow: 0 15px 35px rgba(0, 31, 84, 0.2);
+            color: #FFFFFF;
+        }
+
+        .gateway-card-blue:hover {
+            transform: translateY(-8px) scale(1.015);
+            box-shadow: 0 25px 50px rgba(0, 119, 182, 0.35);
+            border-color: #00B4D8;
+            color: #FFFFFF;
+        }
+
+        .gateway-card-green {
+            background: linear-gradient(145deg, #03201E 0%, #08413B 50%, #0F9F90 100%);
+            box-shadow: 0 15px 35px rgba(15, 159, 144, 0.2);
+            color: #FFFFFF;
+        }
+
+        .gateway-card-green:hover {
+            transform: translateY(-8px) scale(1.015);
+            box-shadow: 0 25px 50px rgba(46, 196, 182, 0.35);
+            border-color: #2EC4B6;
+            color: #FFFFFF;
+        }
+
+        .gateway-card-inner {
+            padding: 40px 32px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            position: relative;
+            z-index: 3;
+        }
+
+        .gateway-card-candle-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+            opacity: 0.36;
+            transition: opacity 0.4s ease;
+            -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.55) 50%, rgba(0,0,0,0.85) 100%);
+            mask-image: linear-gradient(180deg, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.55) 50%, rgba(0,0,0,0.85) 100%);
+        }
+
+        .gateway-card-blue:hover .gateway-card-candle-bg {
+            opacity: 0.52;
+        }
+
+        .gateway-live-candle-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .gateway-feature-item {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: background 0.2s ease;
+        }
+
+        .gateway-card:hover .gateway-feature-item {
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        .gateway-bg-deco {
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            font-size: 180px;
+            color: rgba(255, 255, 255, 0.03);
+            pointer-events: none;
+            z-index: 1;
+            transition: transform 0.4s ease;
+        }
+
+        .gateway-card:hover .gateway-bg-deco {
+            transform: scale(1.1) rotate(-5deg);
+            color: rgba(255, 255, 255, 0.06);
+        }
+
+        .gateway-mf-trust-strip {
+            background: rgba(0, 0, 0, 0.22);
+            border: 1px solid rgba(46, 196, 182, 0.3);
+            border-radius: 12px;
+            padding: 10px 12px 6px;
+        }
+
+        .gateway-logo-row {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+        }
+
+        .gateway-mini-logo {
+            background: #FFFFFF;
+            border-radius: 8px;
+            padding: 4px 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 38px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .gateway-mini-logo:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(46, 196, 182, 0.4);
+        }
+
+        .gateway-mini-logo img {
+            max-width: 100%;
+            max-height: 28px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
+
+        /* Blue Academy Section Title Block */
+        .gateway-academy-header-block {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            align-self: flex-start;
+            width: fit-content;
+            max-width: 100%;
+        }
+
+        .gateway-academy-badge-wrap {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 0.9rem;
+            text-align: center;
+        }
+
+        .gateway-academy-badge {
+            font-size: clamp(1.05rem, 1.85vw, 1.25rem) !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.8px;
+            padding: 8px 22px !important;
+            border-radius: 8px !important;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.35;
+            white-space: nowrap;
+            max-width: 100%;
+            box-shadow: 0 4px 16px rgba(0, 119, 182, 0.4);
+            border: 1px solid rgba(144, 224, 239, 0.35);
+        }
+
+        .gateway-academy-badge i {
+            font-size: 1.1em;
+            margin-right: 8px;
+        }
+
+        .gateway-academy-header-block h2 {
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Blue Academy Section Founder Block */
+        .gateway-academy-founder-block {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .gateway-academy-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #FFD166;
+            letter-spacing: 0.2px;
+            line-height: 1.25;
+            margin-bottom: 6px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .gateway-academy-reg-line {
+            font-size: 0.90rem;
+            font-weight: 600;
+            color: #90E0EF;
+            display: inline-flex;
+            align-items: center;
+            line-height: 1.35;
+            margin-bottom: 6px;
+        }
+
+        /* Green Mutual Fund Section 4-Line Text Hierarchy */
+        .gateway-mf-header-block {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .gateway-mf-title {
+            font-size: clamp(1.45rem, 2.3vw, 1.95rem);
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.2px;
+            line-height: 1.2;
+            white-space: nowrap;
+            margin-bottom: 6px;
+        }
+
+        .gateway-mf-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #FFD166;
+            letter-spacing: 0.2px;
+            line-height: 1.25;
+            margin-bottom: 6px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .gateway-mf-reg-line {
+            font-size: 0.90rem;
+            font-weight: 600;
+            color: #A7E8E1;
+            display: inline-flex;
+            align-items: center;
+            line-height: 1.35;
+            margin-bottom: 6px;
+        }
+
+        .gateway-mf-arn-line {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .gateway-mf-arn-badge {
+            background-color: #FFD166 !important;
+            color: #03201E !important;
+            font-size: 0.88rem;
+            letter-spacing: 0.6px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 209, 102, 0.6);
+        }
+
+        .gateway-badge-green,
+        .badge.bg-success {
+            background-color: #0E8074 !important;
+            color: #FFFFFF !important;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+            filter: none !important;
+            animation: none !important;
+            opacity: 1 !important;
+        }
+
+        @media (max-width: 575.98px) {
+            .gateway-academy-badge {
+                font-size: 0.90rem !important;
+                padding: 6px 14px !important;
+                letter-spacing: 0.5px;
+            }
+            .gateway-academy-name {
+                font-size: 1.1rem;
+            }
+            .gateway-academy-reg-line {
+                font-size: 0.82rem;
+            }
+            .gateway-mf-title {
+                font-size: 1.35rem;
+                white-space: normal;
+            }
+            .gateway-mf-name {
+                font-size: 1.1rem;
+            }
+            .gateway-mf-reg-line {
+                font-size: 0.82rem;
+            }
+        }
+
+        .gateway-card-blue-bg-art {
+            position: absolute;
+            top: 0;
+            right: -25px;
+            width: 360px;
+            height: auto;
+            max-width: none;
+            opacity: 0.16;
+            pointer-events: none;
+            z-index: 2;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+            filter: drop-shadow(0 0 30px rgba(0, 180, 216, 0.4));
+        }
+
+        .gateway-bull-bear-strip {
+            position: relative;
+            background: linear-gradient(180deg, rgba(8, 22, 48, 0.72) 0%, rgba(3, 10, 26, 0.90) 100%);
+            border: 1px solid rgba(0, 180, 216, 0.38);
+            border-radius: 14px;
+            padding: 12px 16px 10px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.30);
+        }
+
+        .gateway-card-blue:hover .gateway-bull-bear-strip {
+            border-color: rgba(0, 180, 216, 0.65);
+            box-shadow: 0 8px 25px rgba(0, 119, 182, 0.40);
+            background: linear-gradient(180deg, rgba(8, 26, 58, 0.82) 0%, rgba(3, 12, 34, 0.95) 100%);
+        }
+
+        .gateway-bullbear-candle-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.82;
+            transition: opacity 0.4s ease;
+        }
+
+        .gateway-card-blue:hover .gateway-bullbear-candle-canvas {
+            opacity: 0.96;
+        }
+
+        .gateway-bull-bear-labels {
+            position: relative;
+            z-index: 3;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .gateway-bull-tag {
+            color: #26a69a;
+            display: inline-flex;
+            align-items: center;
+            text-shadow: 0 0 10px rgba(38, 166, 154, 0.55);
+            font-weight: 800;
+        }
+
+        .gateway-clash-tag {
+            color: rgba(255, 255, 255, 0.80);
+            font-size: 10px;
+            letter-spacing: 2px;
+            font-weight: 700;
+            background: rgba(0, 0, 0, 0.45);
+            padding: 2px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .gateway-bear-tag {
+            color: #ef5350;
+            display: inline-flex;
+            align-items: center;
+            text-shadow: 0 0 10px rgba(239, 83, 80, 0.55);
+            font-weight: 800;
+        }
+
+        .gateway-bull-bear-img-wrap {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 4px 0;
+        }
+
+        .gateway-bull-bear-img {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 100%;
+            height: 220px;
+            object-fit: contain;
+            filter: drop-shadow(0 6px 20px rgba(0, 119, 182, 0.45));
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .gateway-card-blue:hover .gateway-bull-bear-img {
+            transform: scale(1.04);
+        }
+
+        .gateway-welcome-rangoli-wrapper {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 16px;
+        }
+
+        .gateway-welcome-text {
+            font-size: 42px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: #0B1F3A;
+            line-height: 1;
+            white-space: nowrap;
+            display: inline-block;
+            text-align: center;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+        }
+
+        .gateway-welcome-side-decor {
+            height: 95px;
+            width: auto;
+            max-width: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.09));
+            opacity: 0.98;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            flex-shrink: 0;
+            image-rendering: -webkit-optimize-contrast;
+        }
+
+        .gateway-welcome-rangoli-wrapper:hover .gateway-welcome-side-decor {
+            transform: scale(1.06);
+            opacity: 1;
+        }
+
+        .gateway-mf-logos-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: nowrap;
+            gap: 16px;
+            width: 100%;
+        }
+
+        .gateway-mf-partner-box {
+            background: #FFFFFF;
+            border-radius: 14px;
+            padding: 10px 22px;
+            border: 2px solid rgba(46, 196, 182, 0.85);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+            flex-shrink: 0;
+        }
+
+        .gateway-mf-partner-box img,
+        .gateway-mf-partner-img {
+            height: 80px;
+            width: auto;
+            max-width: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .gateway-card-green:hover .gateway-mf-partner-box {
+            transform: translateY(-3px) scale(1.015);
+            box-shadow: 0 10px 28px rgba(46, 196, 182, 0.45);
+            border-color: #2EC4B6;
+        }
+
+        .gateway-mf-logo-primary {
+            width: 104px;
+            height: 104px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2.5px solid rgba(46, 196, 182, 0.7);
+            background: #FFFFFF;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+            flex-shrink: 0;
+            display: block;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .gateway-card-green:hover .gateway-mf-logo-primary {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 8px 20px rgba(46, 196, 182, 0.35);
+        }
+
+        .gateway-mf-partner-label {
+            font-size: 0.84rem;
+            font-weight: 700;
+            letter-spacing: 0.9px;
+            text-transform: uppercase;
+            color: #A7E8E1;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            text-shadow: none !important;
+            filter: none !important;
+        }
+
+        .gateway-mf-partner-label i {
+            color: #2EC4B6;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 991.98px) {
+            .gateway-welcome-rangoli-wrapper {
+                gap: 18px;
+                margin-bottom: 14px;
+            }
+            .gateway-welcome-text {
+                font-size: 34px;
+            }
+            .gateway-welcome-side-decor {
+                height: 75px;
+            }
+            .gateway-bull-bear-img {
+                height: 180px;
+            }
+            .gateway-card-blue-bg-art {
+                width: 280px;
+            }
+            .gateway-emblem-badge {
+                gap: 12px;
+            }
+            .gateway-mf-logos-row {
+                gap: 14px;
+            }
+            .gateway-mf-logo-primary {
+                width: 88px;
+                height: 88px;
+            }
+            .gateway-mf-partner-box {
+                padding: 8px 18px;
+            }
+            .gateway-mf-partner-box img,
+            .gateway-mf-partner-img {
+                height: 68px;
+            }
+            .gateway-mf-partner-label {
+                font-size: 0.80rem;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .gateway-welcome-rangoli-wrapper {
+                gap: 12px;
+                margin-bottom: 12px;
+            }
+            .gateway-welcome-text {
+                font-size: 28px;
+                letter-spacing: 1px;
+            }
+            .gateway-welcome-side-decor {
+                height: 56px;
+            }
+            .gateway-bull-bear-img {
+                height: 140px;
+            }
+            .gateway-bull-bear-labels {
+                font-size: 9px;
+            }
+            .gateway-card-blue-bg-art {
+                width: 220px;
+                opacity: 0.12;
+            }
+            .gateway-brand-line {
+                padding: 4px 10px;
+                gap: 8px;
+            }
+            .gateway-header .brand-name {
+                font-size: 18px !important;
+                white-space: nowrap !important;
+            }
+            .gateway-header .brand-sub {
+                font-size: 11px !important;
+            }
+            .gateway-header img {
+                height: 40px !important;
+                flex-shrink: 0 !important;
+            }
+            .gateway-academy-logo-badge {
+                height: 44px;
+                padding: 3px 6px;
+            }
+            .gateway-academy-logo-badge img {
+                height: 30px;
+            }
+            .gateway-emblem-badge {
+                gap: 10px;
+            }
+            .gateway-mf-logos-row {
+                gap: 10px;
+            }
+            .gateway-mf-logo-primary {
+                width: 68px !important;
+                height: 68px !important;
+            }
+            .gateway-mf-partner-box {
+                padding: 6px 14px !important;
+                max-width: 100%;
+            }
+            .gateway-mf-partner-box img,
+            .gateway-mf-partner-img {
+                height: 52px !important;
+            }
+            .gateway-mf-partner-label {
+                font-size: 0.76rem !important;
+            }
+            .gateway-logo-row {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+            }
+            .gateway-mini-logo {
+                height: 34px;
+                padding: 3px 5px;
+            }
+            .gateway-mini-logo img {
+                max-height: 24px;
+            }
+        }
+        @media (max-width: 375px) {
+            .gateway-welcome-rangoli-wrapper {
+                gap: 8px;
+                margin-bottom: 10px;
+            }
+            .gateway-welcome-text {
+                font-size: 22px;
+                letter-spacing: 0.5px;
+            }
+            .gateway-welcome-side-decor {
+                height: 44px;
+            }
+            .gateway-bull-bear-img {
+                height: 110px;
+            }
+            .gateway-bull-bear-labels {
+                font-size: 8px;
+            }
+            .gateway-brand-line {
+                padding: 3px 6px;
+                gap: 6px;
+            }
+            .gateway-header .brand-name {
+                font-size: 16px !important;
+            }
+            .gateway-header .brand-sub {
+                font-size: 10px !important;
+            }
+            .gateway-header img {
+                height: 34px !important;
+            }
+            .gateway-academy-logo-badge {
+                height: 38px;
+                padding: 2px 4px;
+            }
+            .gateway-academy-logo-badge img {
+                height: 26px;
+            }
+            .gateway-emblem-badge {
+                gap: 8px;
+            }
+            .gateway-mf-logos-row {
+                gap: 8px;
+            }
+            .gateway-mf-logo-primary {
+                width: 56px !important;
+                height: 56px !important;
+            }
+            .gateway-mf-partner-box {
+                padding: 5px 10px !important;
+            }
+            .gateway-mf-partner-box img,
+            .gateway-mf-partner-img {
+                height: 44px !important;
+            }
+            .gateway-mf-partner-label {
+                font-size: 0.70rem !important;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="gateway-wrapper">
+
+        <!-- Topbar Notification -->
+        <div class="container-fluid topbar px-4 py-2 d-none d-lg-block text-white">
+            <div class="row gx-0 align-items-center">
+                <div class="col-lg-7 text-start">
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                        <span class="badge bg-primary"><i class="fas fa-map-marker-alt me-1"></i> Shreeraj Nagar Apt., Kamtha Road, Near Dr. Gade Hospital, Uran</span>
+                        <a href="tel:9920254354" class="text-light small text-decoration-none"><i class="fas fa-phone-alt text-info me-1"></i> 9920 254 354</a>
+                        <a href="mailto:lordsai.academy@gmail.com" class="text-light small text-decoration-none"><i class="fas fa-envelope text-info me-1"></i> lordsai.academy@gmail.com</a>
+                    </div>
+                </div>
+                <div class="col-lg-5 text-end">
+                    <div class="d-inline-flex align-items-center gap-3">
+                        <a href="https://wa.me/919920254354" target="_blank" class="text-light small"><i class="fab fa-whatsapp text-success me-1"></i> WhatsApp Helpline</a>
+                        <a href="student-login.html" class="btn btn-sm btn-outline-light rounded-pill py-0 px-3"><i class="fas fa-user-lock me-1"></i> Student Portal</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gateway Header Branding -->
+        <header class="gateway-header">
+            <div class="container text-center">
+                <div class="gateway-brand-line mb-2 flex-nowrap">
+                    <img src="img/lord-sai-logo.png" alt="LORD SAI Logo" class="gateway-brand-logo">
+                    <div class="d-flex flex-column align-items-center text-center" style="white-space: nowrap; flex-shrink: 0;">
+                        <h2 class="brand-name mb-0 text-center">LORD SAI ACADEMY</h2>
+                    </div>
+                </div>
+                <div>
+                    <span class="gateway-tagline" data-i18n="gateway.welcomeTagline">
+                        LEARN &bull; ANALYZE &bull; INVEST &bull; GROW
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Language Selector Bar Start -->
+        <div class="site-lang-bar" id="siteLangBar">
+            <div class="container d-flex justify-content-end align-items-center">
+                <div class="lang-selector-wrap" role="group" aria-label="Language Selector">
+                    <button type="button" class="lang-btn active" data-lang="en" aria-label="Switch language to English">English</button>
+                    <span class="lang-divider">|</span>
+                    <button type="button" class="lang-btn" data-lang="mr" aria-label="Switch language to Marathi">मराठी</button>
+                    <span class="lang-divider">|</span>
+                    <button type="button" class="lang-btn" data-lang="hi" aria-label="Switch language to Hindi">हिंदी</button>
+                </div>
+            </div>
+        </div>
+        <!-- Language Selector Bar End -->
+
+        <!-- Main Selection Portal Body -->
+        <main class="container my-auto py-5" id="gatewayMain">
+
+            <div class="text-center mx-auto mb-4 pb-2" style="max-width: 820px;">
+                
+                <h1 class="display-6 fw-bold text-dark mb-2" data-i18n="gateway.title">Please Select Your Destination</h1>
+                <p class="text-muted fs-6 mb-0" data-i18n="gateway.sub">Choose between our comprehensive stock market coaching academy or our mutual fund distribution & wealth planning services.</p>
+            </div>
+
+            <div class="row g-4 justify-content-center align-items-stretch">
+
+                <!-- ============================================================
+                     BLUE SECTION: OUR ACADEMY
+                     ============================================================ -->
+                <div class="col-lg-6 col-md-12">
+                    <a href="home.html?mode=academy" class="gateway-card gateway-card-blue" onclick="LSI_Mode.setMode('academy', false);">
+                        <!-- Live Animated Candlestick Background Layer -->
+                        <div class="gateway-card-candle-bg" aria-hidden="true">
+                            <canvas id="gatewayCandleCanvas" class="gateway-live-candle-canvas"></canvas>
+                        </div>
+                        <img src="img/bull-vs-bear-transparent.png" alt="" class="gateway-card-blue-bg-art" aria-hidden="true">
+                        <div class="gateway-card-inner">
+                            <div class="gateway-academy-badge-wrap mb-3" style="width: 100%; display: flex; justify-content: center; align-items: center;">
+                                <span class="badge bg-primary text-uppercase font-monospace gateway-academy-badge" data-i18n="gateway.academyBadge"><i class="fas fa-graduation-cap me-1"></i> Share Market Academy</span>
+                            </div>
+
+                            <div class="gateway-academy-header-block mb-2" style="display: inline-flex; flex-direction: column; align-items: center; align-self: flex-start; width: fit-content; max-width: 100%;">
+                                <h2 class="display-6 fw-bold text-white mb-1 text-center" style="width: 100%; text-align: center;">LORD SAI</h2>
+                                <h4 class="h5 text-info fw-bold mb-0" data-i18n="gateway.academySub">Share Market Education & Training</h4>
+                            </div>
+
+                            <!-- Founder Information in Blue Section matching Green Section Hierarchy -->
+                            <div class="gateway-academy-founder-block mb-3">
+                                <h3 class="gateway-academy-name" data-i18n="gateway.founderName">Vaibhav S. Pawar</h3>
+                                <div class="gateway-academy-reg-line" data-i18n="gateway.academyCert">
+                                    <i class="fas fa-award text-warning me-1"></i>
+                                    <span> B.Com | NISM Series VIII – Equity Derivatives Certified Trainer & Proprietor</span>
+                                </div>
+                            </div>
+                            
+                            <p class="text-light opacity-75 small mb-4" data-i18n="gateway.academyDesc">
+                                Practical, structured classroom and live market coaching designed to build independent, knowledgeable, and risk-disciplined traders and investors.
+                            </p>
+
+                            <!-- 4 Key Pillars -->
+                            <div class="mb-4">
+                                <div class="gateway-feature-item">
+                                    <i class="fas fa-chart-bar text-info fs-5"></i>
+                                    <div>
+                                        <strong class="d-block text-white small" data-i18n="gateway.p1Title">Technical Analysis</strong>
+                                        <small class="text-light opacity-75" data-i18n="gateway.p1Desc">Candlestick anatomy, chart patterns & multi-timeframe trends</small>
+                                    </div>
+                                </div>
+                                <div class="gateway-feature-item">
+                                    <i class="fas fa-bolt text-warning fs-5"></i>
+                                    <div>
+                                        <strong class="d-block text-white small" data-i18n="gateway.p2Title">Price Action Trading</strong>
+                                        <small class="text-light opacity-75" data-i18n="gateway.p2Desc">Pure price dynamics, support-resistance & high-probability setups</small>
+                                    </div>
+                                </div>
+                                <div class="gateway-feature-item">
+                                    <i class="fas fa-shield-alt text-danger fs-5"></i>
+                                    <div>
+                                        <strong class="d-block text-white small" data-i18n="gateway.p3Title">Risk & Money Management</strong>
+                                        <small class="text-light opacity-75" data-i18n="gateway.p3Desc">Strict 1-2% position sizing math & drawdown protection rules</small>
+                                    </div>
+                                </div>
+                                <div class="gateway-feature-item">
+                                    <i class="fas fa-brain text-primary fs-5"></i>
+                                    <div>
+                                        <strong class="d-block text-white small" data-i18n="gateway.p4Title">Discipline & Psychology</strong>
+                                        <small class="text-light opacity-75" data-i18n="gateway.p4Desc">Eliminating FOMO, emotional trading & maintaining trade journal</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bull vs Bear Trading Dynamics Art -->
+                            <div class="gateway-bull-bear-strip">
+                                <!-- Dedicated Candlestick Chart Layer Behind Bull & Bear -->
+                                <canvas id="bullBearCandleCanvas" class="gateway-bullbear-candle-canvas" aria-hidden="true"></canvas>
+
+                                <div class="gateway-bull-bear-labels">
+                                    <span class="gateway-bull-tag" data-i18n="gateway.bullMarket"><i class="fas fa-arrow-trend-up me-1"></i> BULL MARKET</span>
+                                    <span class="gateway-clash-tag" data-i18n="gateway.marketDynamics">MARKET DYNAMICS</span>
+                                    <span class="gateway-bear-tag" data-i18n="gateway.bearMarket">BEAR MARKET <i class="fas fa-arrow-trend-down ms-1"></i></span>
+                                </div>
+                                <div class="gateway-bull-bear-img-wrap">
+                                    <img src="img/bull-vs-bear-transparent.png" alt="Bull vs Bear Trading Dynamic" class="gateway-bull-bear-img">
+                                </div>
+                            </div>
+
+                            <!-- CTA Button -->
+                            <div class="mt-auto pt-2">
+                                <div class="btn btn-light btn-lg rounded-pill w-100 py-3 fw-bold text-primary shadow d-flex justify-content-center align-items-center gap-2">
+                                    <i class="fas fa-door-open"></i>
+                                    <span data-i18n="gateway.academyCta">CLICK TO ENTER ACADEMY</span>
+                                    <i class="fas fa-arrow-right ms-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- ============================================================
+                     GREEN SECTION: MUTUAL FUND DISTRIBUTION SERVICES
+                     ============================================================ -->
+                <div class="col-lg-6 col-md-12">
+                    <a href="home.html?mode=mutual-fund" class="gateway-card gateway-card-green" onclick="LSI_Mode.setMode('mutual-fund', false);">
+                        <i class="fas fa-piggy-bank gateway-bg-deco"></i>
+                        <div class="gateway-card-inner">
+                            <!-- Two-Logo Top Row: NJ Partner Logo (Left) & Lord Sai Secondary Logo (Right) on Same Horizontal Line -->
+                            <div class="gateway-mf-logos-row mb-3">
+                                <div class="gateway-mf-partner-box" title="NJ Wealth — Financial Products Distributors Network">
+                                    <img src="img/nj-wealth-updated.png" alt="NJ Wealth Partner - Financial Products Distributors Network" class="gateway-mf-partner-img">
+                                </div>
+                                <img src="img/lord-sai-secondary.jpeg" alt="Lord Sai Investment" class="gateway-mf-logo-primary" title="Lord Sai Investment">
+                            </div>
+
+                            <!-- In Partnership with NJ Wealth -->
+                            <div class="gateway-mf-partner-label mb-3">
+                                <i class="fas fa-handshake"></i>
+                                <span data-i18n="gateway.mfPlatformLabel">Authorized Platform Partner</span>
+                            </div>
+
+                            <!-- Investment Services Category Heading -->
+                            <div class="mb-3">
+                                <span class="badge text-uppercase px-3 py-1 font-monospace gateway-badge-green" data-i18n="gateway.mfBadge">
+                                    <i class="fas fa-coins me-1"></i> AMFI REGISTERED MUTUAL FUND DISTRIBUTOR 
+                                </span>
+                            </div>
+
+                            <!-- Four-Line Professional Distributor Hierarchy -->
+                            <div class="gateway-mf-header-block mb-3">
+                                <h2 class="gateway-mf-title" data-i18n="gateway.mfTitle">Mutual Fund Distribution Services</h2>
+                                <h3 class="gateway-mf-name" data-i18n="gateway.mfName">Vaibhav S. Pawar</h3>
+                                <div class="gateway-mf-reg-line" data-i18n="gateway.mfReg">
+                                    <i class="fas fa-award text-warning me-1"></i>
+                                    <span> B.Com | AMFI Registered Mutual Fund Distributor • ARN: 280789</span>
+                                </div>
+                            </div>
+
+                            <p class="text-light opacity-75 small mb-4" data-i18n="gateway.mfDesc">
+                                Professional, transparent, and goal-aligned mutual fund distribution helping individuals and families across Uran & Navi Mumbai build sustainable compounding wealth.
+                            </p>
+
+                            <!-- 4 Key Pillars -->
+                            <div class="mb-4">
+                                <div class="gateway-feature-item">
+                                    <i class="fas fa-coins text-warning fs-5"></i>
+                                    <div>
+                                        <strong class="d-block text-white small" data-i18n="gateway.mfP1Title">Systematic Investment Plans (SIP)</strong>
+                                        <small class="text-light opacity-75" data-i18n="gateway.mfP1Desc">Disciplined monthly compounding for milestones</small>
+                                    </div>
+                                </div>
+                                <div class="gateway-feature-item">
+                                    <i class="fas fa-hand-holding-usd text-success fs-5"></i>
+                                    <div>
+                                        <strong class="d-block text-white small" data-i18n="gateway.mfP2Title">Systematic Withdrawal Plans (SWP)</strong>
+                                        <small class="text-light opacity-75" data-i18n="gateway.mfP2Desc">Tax-efficient regular cashflow for retirement</small>
+                                    </div>
+                                </div>
+                                <div class="gateway-feature-item">
+                                    <i class="fas fa-bullseye text-info fs-5"></i>
+                                    <div>
+                                        <strong class="d-block text-white small" data-i18n="gateway.mfP3Title">Comprehensive Insurance Solutions</strong>
+                                        <small class="text-light opacity-75" data-i18n="gateway.mfP3Desc">Life, Health, General & Family Plans Designed for Your Needs</small>
+                                    </div>
+                                </div>
+                                <div class="gateway-feature-item">
+                                    <i class="fas fa-building text-light fs-5"></i>
+                                    <div>
+                                        <strong class="d-block text-white small" data-i18n="gateway.mfP4Title">Zero Speculation Philosophy</strong>
+                                        <small class="text-light opacity-75" data-i18n="gateway.mfP4Desc">Pure long-term compounding with institutional discipline</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Compact Leading Fund Houses Trust Strip -->
+                            <div class="gateway-mf-trust-strip mb-3">
+                                <div class="mb-2">
+                                    <small class="text-white fw-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.8px; color: #2EC4B6 !important;">
+                                        <i class="fas fa-landmark me-1"></i> Leading Mutual Fund Companies
+                                    </small>
+                                </div>
+                                <div class="gateway-logo-row">
+                                    <div class="gateway-mini-logo" title="SBI Mutual Fund">
+                                        <img src="img/mf-logos/sbi-mutual-fund.png" alt="SBI Mutual Fund" loading="lazy">
+                                    </div>
+                                    <div class="gateway-mini-logo" title="HDFC Mutual Fund">
+                                        <img src="img/mf-logos/hdfc-mutual-fund.png" alt="HDFC Mutual Fund" loading="lazy">
+                                    </div>
+                                    <div class="gateway-mini-logo" title="ICICI Prudential Mutual Fund">
+                                        <img src="img/mf-logos/icici-prudential-mutual-fund.png" alt="ICICI Prudential Mutual Fund" loading="lazy">
+                                    </div>
+                                    <div class="gateway-mini-logo" title="Nippon India Mutual Fund">
+                                        <img src="img/mf-logos/nippon-india-mutual-fund.png" alt="Nippon India Mutual Fund" loading="lazy">
+                                    </div>
+                                    <div class="gateway-mini-logo" title="Axis Mutual Fund">
+                                        <img src="img/mf-logos/axis-mutual-fund.png" alt="Axis Mutual Fund" loading="lazy">
+                                    </div>
+                                    <div class="gateway-mini-logo" title="Kotak Mutual Fund">
+                                        <img src="img/mf-logos/kotak-mutual-fund.png" alt="Kotak Mutual Fund" loading="lazy">
+                                    </div>
+                                </div>
+                                <div class="text-center mt-1">
+                                    <small class="text-light opacity-75 fst-italic" style="font-size: 0.65rem;">
+                                        * Displayed names and logos are for informational purposes only.
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- CTA Button -->
+                            <div class="mt-auto pt-1">
+                                <div class="btn btn-warning btn-lg rounded-pill w-100 py-3 fw-bold text-dark shadow d-flex justify-content-center align-items-center gap-2">
+                                    <i class="fas fa-chart-pie"></i>
+                                    <span data-i18n="gateway.mfCta">CLICK TO ENTER MUTUAL FUNDS</span>
+                                    <i class="fas fa-arrow-right ms-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Gateway Footer -->
+        <footer class="bg-white border-top py-4 mt-auto">
+            <div class="container text-center">
+                <div class="row g-3 align-items-center text-muted small">
+                    <div class="col-md-4 text-md-start">
+                        <strong>Lord Sai Investment & Share Market Academy</strong><br>
+                        Shreeraj Nagar Apt., Kamtha Road, Near Dr. Gade Hospital, Uran
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <a href="tel:9920254354" class="text-decoration-none text-dark fw-bold me-3"><i class="fas fa-phone-alt text-primary me-1"></i> 9920 254 354</a>
+                        <a href="mailto:lordsai.academy@gmail.com" class="text-decoration-none text-dark fw-bold me-3"><i class="fas fa-envelope text-primary me-1"></i> lordsai.academy@gmail.com</a>
+                        <a href="https://wa.me/919920254354" target="_blank" class="text-decoration-none text-success fw-bold"><i class="fab fa-whatsapp me-1"></i> WhatsApp</a>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <span>&copy; Lord Sai Academy. All Rights Reserved.</span>
+                        <a href="student-login.html" class="btn btn-sm btn-outline-primary rounded-pill px-3 ms-3 lsi-student-link" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
+            <a href="student-login.html?portal=admin" class="btn btn-sm btn-outline-primary rounded-pill px-3 ms-3 lsi-admin-link" title="Administrator login"><i class="fas fa-user-shield me-1"></i> Admin</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Mode Controller -->
+    <script src="js/mode.js"></script>
+
+    <!-- Dedicated Realistic Red & Green Candlestick Chart Engine for Bull & Bear Visual -->
+    <script>
+    (function() {
+        'use strict';
+
+        const canvas = document.getElementById('bullBearCandleCanvas');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d', { alpha: true });
+        let animationId = null;
+        let isVisible = true;
+        let isReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let width = 0, height = 0;
+        const dpr = window.devicePixelRatio || 1;
+
+        // Configuration
+        const NUM_CANDLES = 26;
+        const CANDLE_INTERVAL_MS = 2500;
+        const candles = [];
+        let activeCandle = null;
+        let lastRollTime = Date.now();
+        let pulsePhase = 0;
+
+        // Realistic market cycle correlating with Bull (left rally) & Bear (right pullback) layout
+        function initChartSeries() {
+            candles.length = 0;
+            const now = Date.now();
+            let price = 24220;
+
+            for (let i = 0; i < NUM_CANDLES; i++) {
+                const progress = i / (NUM_CANDLES - 1);
+                let isBull;
+                let bodySize;
+                let wickUp;
+                let wickDown;
+
+                if (progress < 0.42) {
+                    // Bull phase (Left - rising strongly with green dominance)
+                    isBull = Math.random() > 0.22;
+                    bodySize = Math.random() * 46 + 24;
+                    wickUp = Math.random() * 20 + 6;
+                    wickDown = Math.random() * 30 + 10;
+                } else if (progress < 0.62) {
+                    // Clash / Peak zone (Center - consolidation & top swing)
+                    isBull = Math.random() > 0.50;
+                    bodySize = Math.random() * 34 + 10;
+                    wickUp = Math.random() * 42 + 16;
+                    wickDown = Math.random() * 38 + 14;
+                } else if (progress < 0.88) {
+                    // Bear phase (Right - corrective drop with red dominance)
+                    isBull = Math.random() > 0.78;
+                    bodySize = Math.random() * 44 + 22;
+                    wickUp = Math.random() * 28 + 10;
+                    wickDown = Math.random() * 18 + 5;
+                } else {
+                    // Support rebound & active live session
+                    isBull = Math.random() > 0.35;
+                    bodySize = Math.random() * 30 + 15;
+                    wickUp = Math.random() * 18 + 6;
+                    wickDown = Math.random() * 32 + 10;
+                }
+
+                const open = price;
+                const delta = bodySize * (isBull ? 1 : -1);
+                const close = open + delta;
+                const high = Math.max(open, close) + wickUp;
+                const low = Math.min(open, close) - wickDown;
+                const volume = Math.random() * 0.65 + 0.35;
+
+                candles.push({
+                    open,
+                    close,
+                    high,
+                    low,
+                    volume,
+                    time: now - (NUM_CANDLES - i) * CANDLE_INTERVAL_MS
+                });
+
+                price = close;
+            }
+
+            startActiveCandle();
+        }
+
+        function startActiveCandle() {
+            const lastClose = candles.length > 0 ? candles[candles.length - 1].close : 24350;
+            activeCandle = {
+                open: lastClose,
+                close: lastClose,
+                high: lastClose + 4,
+                low: lastClose - 4,
+                volume: 0.5,
+                time: Date.now()
+            };
+            lastRollTime = Date.now();
+        }
+
+        function updateLiveTick() {
+            if (!activeCandle) return;
+            const now = Date.now();
+
+            // Subtle gentle market tick
+            const tick = (Math.random() - 0.49) * 3.2;
+            activeCandle.close += tick;
+            if (activeCandle.close > activeCandle.high) activeCandle.high = activeCandle.close;
+            if (activeCandle.close < activeCandle.low) activeCandle.low = activeCandle.close;
+            activeCandle.volume = Math.min(activeCandle.volume + 0.004, 1.0);
+
+            // Roll over to next candle
+            if (now - lastRollTime >= CANDLE_INTERVAL_MS) {
+                candles.push({ ...activeCandle });
+                if (candles.length > NUM_CANDLES) {
+                    candles.shift();
+                }
+                startActiveCandle();
+            }
+        }
+
+        function resize() {
+            const parent = canvas.parentElement;
+            const rect = parent ? parent.getBoundingClientRect() : canvas.getBoundingClientRect();
+            width = Math.max(rect.width || 300, 260);
+            height = Math.max(rect.height || 260, 200);
+
+            canvas.width = Math.floor(width * dpr);
+            canvas.height = Math.floor(height * dpr);
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        function render() {
+            if (width === 0 || height === 0) return;
+            ctx.clearRect(0, 0, width, height);
+
+            const allCandles = [...candles];
+            if (activeCandle) allCandles.push(activeCandle);
+            if (allCandles.length === 0) return;
+
+            // Compute price bounds
+            let minP = Infinity, maxP = -Infinity;
+            for (let i = 0; i < allCandles.length; i++) {
+                const c = allCandles[i];
+                if (c.low < minP) minP = c.low;
+                if (c.high > maxP) maxP = c.high;
+            }
+
+            const pad = (maxP - minP) * 0.15 || 50;
+            minP -= pad;
+            maxP += pad;
+            const priceRange = maxP - minP;
+
+            const paddingTop = 32;
+            const paddingBottom = 26;
+            const chartHeight = height - paddingTop - paddingBottom;
+            const getY = (p) => paddingTop + chartHeight - ((p - minP) / priceRange) * chartHeight;
+
+            // 1. Subtle horizontal price gridlines
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.055)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([4, 6]);
+            const gridSteps = 4;
+            for (let i = 0; i <= gridSteps; i++) {
+                const gy = paddingTop + (chartHeight / gridSteps) * i;
+                ctx.beginPath();
+                ctx.moveTo(0, gy);
+                ctx.lineTo(width, gy);
+                ctx.stroke();
+
+                // Subtle price label on right edge
+                const pVal = Math.round(maxP - (priceRange / gridSteps) * i);
+                ctx.font = '9px "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.22)';
+                ctx.textAlign = 'right';
+                ctx.fillText(pVal.toLocaleString(), width - 6, gy - 3);
+            }
+            ctx.setLineDash([]);
+
+            // 2. Trendline (20-period Exponential Moving Average)
+            const total = allCandles.length;
+            const candleSpacing = width / Math.max(total, 1);
+            const candleBodyWidth = Math.max(Math.min(candleSpacing * 0.58, 14), 4.5);
+
+            const emaPoints = [];
+            let ema = allCandles[0].close;
+            const k = 2 / (14 + 1);
+            for (let i = 0; i < total; i++) {
+                ema = (allCandles[i].close * k) + (ema * (1 - k));
+                const x = i * candleSpacing + candleSpacing / 2;
+                const y = getY(ema);
+                emaPoints.push({ x, y });
+            }
+
+            if (emaPoints.length > 1) {
+                // Gradient glow fill under EMA
+                ctx.beginPath();
+                ctx.moveTo(emaPoints[0].x, emaPoints[0].y);
+                for (let i = 1; i < emaPoints.length; i++) {
+                    const prev = emaPoints[i - 1];
+                    const curr = emaPoints[i];
+                    const cpX = (prev.x + curr.x) / 2;
+                    ctx.bezierCurveTo(cpX, prev.y, cpX, curr.y, curr.x, curr.y);
+                }
+                ctx.lineTo(emaPoints[emaPoints.length - 1].x, height - 8);
+                ctx.lineTo(emaPoints[0].x, height - 8);
+                ctx.closePath();
+
+                const waveGrad = ctx.createLinearGradient(0, paddingTop, 0, height);
+                waveGrad.addColorStop(0, 'rgba(0, 180, 216, 0.12)');
+                waveGrad.addColorStop(0.6, 'rgba(0, 119, 182, 0.04)');
+                waveGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                ctx.fillStyle = waveGrad;
+                ctx.fill();
+
+                // EMA Line
+                ctx.beginPath();
+                ctx.strokeStyle = 'rgba(0, 212, 255, 0.42)';
+                ctx.lineWidth = 1.6;
+                ctx.moveTo(emaPoints[0].x, emaPoints[0].y);
+                for (let i = 1; i < emaPoints.length; i++) {
+                    const prev = emaPoints[i - 1];
+                    const curr = emaPoints[i];
+                    const cpX = (prev.x + curr.x) / 2;
+                    ctx.bezierCurveTo(cpX, prev.y, cpX, curr.y, curr.x, curr.y);
+                }
+                ctx.stroke();
+            }
+
+            // 3. Mini Volume Histogram Bars at Base
+            const volumeMaxH = 22;
+            const volumeBaseY = height - 4;
+            for (let i = 0; i < total; i++) {
+                const c = allCandles[i];
+                const isBull = c.close >= c.open;
+                const cx = i * candleSpacing + candleSpacing / 2;
+                const vH = (c.volume || 0.5) * volumeMaxH;
+                
+                ctx.fillStyle = isBull ? 'rgba(38, 166, 154, 0.22)' : 'rgba(239, 83, 80, 0.22)';
+                ctx.fillRect(cx - candleBodyWidth / 2, volumeBaseY - vH, candleBodyWidth, vH);
+            }
+
+            // 4. Authentic Japanese Candlesticks (Green & Red)
+            for (let i = 0; i < total; i++) {
+                const c = allCandles[i];
+                const isBull = c.close >= c.open;
+                const isLast = (i === total - 1);
+
+                const cx = i * candleSpacing + candleSpacing / 2;
+                const openY = getY(c.open);
+                const closeY = getY(c.close);
+                const highY = getY(c.high);
+                const lowY = getY(c.low);
+
+                const bodyTop = Math.min(openY, closeY);
+                const bodyHeight = Math.max(Math.abs(closeY - openY), 2.5);
+
+                // Premium Trading Palette: Emerald Green (#26A69A) & Coral Red (#EF5350)
+                const bullFill = 'rgba(38, 166, 154, 0.65)';
+                const bullStroke = 'rgba(38, 166, 154, 0.95)';
+                const bearFill = 'rgba(239, 83, 80, 0.65)';
+                const bearStroke = 'rgba(239, 83, 80, 0.95)';
+
+                // Upper & Lower Wicks (Fine 1.3px line)
+                ctx.strokeStyle = isBull ? bullStroke : bearStroke;
+                ctx.lineWidth = 1.3;
+                ctx.beginPath();
+                ctx.moveTo(cx, highY);
+                ctx.lineTo(cx, lowY);
+                ctx.stroke();
+
+                // Candle Body Fill & Crisp Border
+                ctx.fillStyle = isBull ? bullFill : bearFill;
+                ctx.fillRect(cx - candleBodyWidth / 2, bodyTop, candleBodyWidth, bodyHeight);
+
+                ctx.strokeStyle = isBull ? bullStroke : bearStroke;
+                ctx.lineWidth = 1.2;
+                ctx.strokeRect(cx - candleBodyWidth / 2, bodyTop, candleBodyWidth, bodyHeight);
+
+                // Active candle live pulse & horizontal price crosshair
+                if (isLast && !isReducedMotion) {
+                    // Live price horizontal dashed reference line
+                    ctx.save();
+                    ctx.setLineDash([3, 4]);
+                    ctx.strokeStyle = isBull ? 'rgba(38, 166, 154, 0.45)' : 'rgba(239, 83, 80, 0.45)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(0, closeY);
+                    ctx.lineTo(width, closeY);
+                    ctx.stroke();
+                    ctx.restore();
+
+                    // Glowing Beacon on Active Price
+                    const pulseRadius = 3 + Math.sin(pulsePhase) * 1.6;
+                    ctx.beginPath();
+                    ctx.arc(cx, closeY, pulseRadius + 3.5, 0, Math.PI * 2);
+                    ctx.fillStyle = isBull ? 'rgba(38, 166, 154, 0.28)' : 'rgba(239, 83, 80, 0.28)';
+                    ctx.fill();
+
+                    ctx.beginPath();
+                    ctx.arc(cx, closeY, 2.6, 0, Math.PI * 2);
+                    ctx.fillStyle = isBull ? '#26A69A' : '#EF5350';
+                    ctx.fill();
+                }
+            }
+        }
+
+        function animate() {
+            if (!isVisible) {
+                animationId = null;
+                return;
+            }
+
+            if (!isReducedMotion) {
+                pulsePhase += 0.05;
+                updateLiveTick();
+            }
+
+            render();
+            animationId = requestAnimationFrame(animate);
+        }
+
+        function start() {
+            if (!animationId && isVisible) {
+                animationId = requestAnimationFrame(animate);
+            }
+        }
+
+        function stop() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+        }
+
+        // Initialize and bind lifecycle listeners
+        initChartSeries();
+        resize();
+
+        window.addEventListener('resize', () => {
+            resize();
+            render();
+        });
+
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    isVisible = entry.isIntersecting;
+                    if (isVisible) {
+                        start();
+                    } else {
+                        stop();
+                    }
+                });
+            }, { threshold: 0.05 });
+            observer.observe(canvas.parentElement || canvas);
+        } else {
+            start();
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                stop();
+            } else if (isVisible) {
+                start();
+            }
+        });
+
+        if (window.matchMedia) {
+            const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+            if (motionQuery.addEventListener) {
+                motionQuery.addEventListener('change', (e) => {
+                    isReducedMotion = e.matches;
+                    render();
+                });
+            }
+        }
+    })();
+    </script>
+
+    <!-- Card Background Candlestick Engine -->
+    <script>
+    (function() {
+        'use strict';
+
+        const canvas = document.getElementById('gatewayCandleCanvas');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d', { alpha: true });
+        let animationId = null;
+        let isVisible = true;
+        let isReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let width = 0, height = 0;
+        const dpr = window.devicePixelRatio || 1;
+
+        const NUM_CANDLES = 28;
+        const CANDLE_INTERVAL_MS = 2200;
+        const candles = [];
+        let currentPrice = 2480;
+        let activeCandle = null;
+        let lastNewCandleTime = Date.now();
+        let pulsePhase = 0;
+
+        function initCandles() {
+            candles.length = 0;
+            let price = 2430;
+            const now = Date.now();
+            for (let i = NUM_CANDLES; i > 0; i--) {
+                const isBull = Math.random() > 0.44;
+                const open = price;
+                const delta = (Math.random() * 10 + 3.5) * (isBull ? 1 : -0.88);
+                const close = open + delta;
+                const high = Math.max(open, close) + (Math.random() * 6 + 1.5);
+                const low = Math.min(open, close) - (Math.random() * 6 + 1.5);
+                candles.push({ open, close, high, low, time: now - i * CANDLE_INTERVAL_MS });
+                price = close;
+            }
+            currentPrice = price;
+            startActiveCandle();
+        }
+
+        function startActiveCandle() {
+            const lastClose = candles.length > 0 ? candles[candles.length - 1].close : currentPrice;
+            activeCandle = {
+                open: lastClose,
+                close: lastClose,
+                high: lastClose,
+                low: lastClose,
+                time: Date.now()
+            };
+            lastNewCandleTime = Date.now();
+        }
+
+        function updateLiveTick() {
+            if (!activeCandle) return;
+            const now = Date.now();
+
+            const tick = (Math.random() - 0.48) * 2.2;
+            activeCandle.close += tick;
+            if (activeCandle.close > activeCandle.high) activeCandle.high = activeCandle.close;
+            if (activeCandle.close < activeCandle.low) activeCandle.low = activeCandle.close;
+
+            if (now - lastNewCandleTime >= CANDLE_INTERVAL_MS) {
+                candles.push({ ...activeCandle });
+                if (candles.length > NUM_CANDLES) {
+                    candles.shift();
+                }
+                startActiveCandle();
+            }
+        }
+
+        function resize() {
+            const parent = canvas.parentElement;
+            const rect = parent ? parent.getBoundingClientRect() : canvas.getBoundingClientRect();
+            width = Math.max(rect.width || 300, 260);
+            height = Math.max(rect.height || 400, 320);
+
+            canvas.width = Math.floor(width * dpr);
+            canvas.height = Math.floor(height * dpr);
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        function render() {
+            if (width === 0 || height === 0) return;
+            ctx.clearRect(0, 0, width, height);
+
+            const allCandles = [...candles];
+            if (activeCandle) allCandles.push(activeCandle);
+            if (allCandles.length === 0) return;
+
+            let minP = Infinity, maxP = -Infinity;
+            for (let i = 0; i < allCandles.length; i++) {
+                const c = allCandles[i];
+                if (c.low < minP) minP = c.low;
+                if (c.high > maxP) maxP = c.high;
+            }
+
+            const pad = (maxP - minP) * 0.18 || 20;
+            minP -= pad;
+            maxP += pad;
+            const priceRange = maxP - minP;
+
+            const paddingTop = 45;
+            const paddingBottom = 45;
+            const chartHeight = height - paddingTop - paddingBottom;
+            const getY = (p) => paddingTop + chartHeight - ((p - minP) / priceRange) * chartHeight;
+
+            ctx.strokeStyle = 'rgba(0, 180, 216, 0.08)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([4, 6]);
+            const gridSteps = 5;
+            for (let i = 0; i <= gridSteps; i++) {
+                const gy = paddingTop + (chartHeight / gridSteps) * i;
+                ctx.beginPath();
+                ctx.moveTo(0, gy);
+                ctx.lineTo(width, gy);
+                ctx.stroke();
+            }
+            ctx.setLineDash([]);
+
+            const total = allCandles.length;
+            const candleSpacing = width / Math.max(total, 1);
+            const candleBodyWidth = Math.max(Math.min(candleSpacing * 0.62, 13), 4.5);
+
+            // EMA
+            const emaPoints = [];
+            let ema = allCandles[0].close;
+            const k = 2 / (14 + 1);
+            for (let i = 0; i < total; i++) {
+                ema = (allCandles[i].close * k) + (ema * (1 - k));
+                const x = i * candleSpacing + candleSpacing / 2;
+                const y = getY(ema);
+                emaPoints.push({ x, y });
+            }
+
+            if (emaPoints.length > 1) {
+                ctx.beginPath();
+                ctx.moveTo(emaPoints[0].x, emaPoints[0].y);
+                for (let i = 1; i < emaPoints.length; i++) {
+                    const prev = emaPoints[i - 1];
+                    const curr = emaPoints[i];
+                    const cpX = (prev.x + curr.x) / 2;
+                    ctx.bezierCurveTo(cpX, prev.y, cpX, curr.y, curr.x, curr.y);
+                }
+                ctx.lineTo(emaPoints[emaPoints.length - 1].x, height);
+                ctx.lineTo(emaPoints[0].x, height);
+                ctx.closePath();
+
+                const areaGrad = ctx.createLinearGradient(0, paddingTop, 0, height);
+                areaGrad.addColorStop(0, 'rgba(0, 180, 216, 0.10)');
+                areaGrad.addColorStop(0.65, 'rgba(0, 119, 182, 0.03)');
+                areaGrad.addColorStop(1, 'rgba(10, 17, 40, 0)');
+                ctx.fillStyle = areaGrad;
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.strokeStyle = 'rgba(0, 180, 216, 0.38)';
+                ctx.lineWidth = 1.8;
+                ctx.moveTo(emaPoints[0].x, emaPoints[0].y);
+                for (let i = 1; i < emaPoints.length; i++) {
+                    const prev = emaPoints[i - 1];
+                    const curr = emaPoints[i];
+                    const cpX = (prev.x + curr.x) / 2;
+                    ctx.bezierCurveTo(cpX, prev.y, cpX, curr.y, curr.x, curr.y);
+                }
+                ctx.stroke();
+            }
+
+            // Candlesticks (Realistic Green & Red)
+            for (let i = 0; i < total; i++) {
+                const c = allCandles[i];
+                const isBull = c.close >= c.open;
+                const isLast = (i === total - 1);
+
+                const cx = i * candleSpacing + candleSpacing / 2;
+                const openY = getY(c.open);
+                const closeY = getY(c.close);
+                const highY = getY(c.high);
+                const lowY = getY(c.low);
+
+                const bodyTop = Math.min(openY, closeY);
+                const bodyHeight = Math.max(Math.abs(closeY - openY), 2.5);
+
+                const bullStroke = 'rgba(38, 166, 154, 0.75)';
+                const bullFill = 'rgba(38, 166, 154, 0.36)';
+                const bearStroke = 'rgba(239, 83, 80, 0.75)';
+                const bearFill = 'rgba(239, 83, 80, 0.36)';
+
+                ctx.strokeStyle = isBull ? bullStroke : bearStroke;
+                ctx.lineWidth = 1.4;
+                ctx.beginPath();
+                ctx.moveTo(cx, highY);
+                ctx.lineTo(cx, lowY);
+                ctx.stroke();
+
+                ctx.fillStyle = isBull ? bullFill : bearFill;
+                ctx.fillRect(cx - candleBodyWidth / 2, bodyTop, candleBodyWidth, bodyHeight);
+
+                ctx.strokeStyle = isBull ? bullStroke : bearStroke;
+                ctx.lineWidth = 1.2;
+                ctx.strokeRect(cx - candleBodyWidth / 2, bodyTop, candleBodyWidth, bodyHeight);
+
+                if (isLast && !isReducedMotion) {
+                    const pulseRadius = 3 + Math.sin(pulsePhase) * 1.5;
+                    ctx.beginPath();
+                    ctx.arc(cx, closeY, pulseRadius + 3, 0, Math.PI * 2);
+                    ctx.fillStyle = isBull ? 'rgba(38, 166, 154, 0.25)' : 'rgba(239, 83, 80, 0.25)';
+                    ctx.fill();
+
+                    ctx.beginPath();
+                    ctx.arc(cx, closeY, 2.5, 0, Math.PI * 2);
+                    ctx.fillStyle = isBull ? '#26A69A' : '#EF5350';
+                    ctx.fill();
+                }
+            }
+        }
+
+        function animate() {
+            if (!isVisible) {
+                animationId = null;
+                return;
+            }
+
+            if (!isReducedMotion) {
+                pulsePhase += 0.05;
+                updateLiveTick();
+            }
+
+            render();
+            animationId = requestAnimationFrame(animate);
+        }
+
+        function start() {
+            if (!animationId && isVisible) {
+                animationId = requestAnimationFrame(animate);
+            }
+        }
+
+        function stop() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+        }
+
+        initCandles();
+        resize();
+
+        window.addEventListener('resize', () => {
+            resize();
+            render();
+        });
+
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    isVisible = entry.isIntersecting;
+                    if (isVisible) {
+                        start();
+                    } else {
+                        stop();
+                    }
+                });
+            }, { threshold: 0.05 });
+            observer.observe(canvas.parentElement || canvas);
+        } else {
+            start();
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                stop();
+            } else if (isVisible) {
+                start();
+            }
+        });
+
+        if (window.matchMedia) {
+            const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+            if (motionQuery.addEventListener) {
+                motionQuery.addEventListener('change', (e) => {
+                    isReducedMotion = e.matches;
+                    render();
+                });
+            }
+        }
+    })();
+    </script>
+
+    <!-- Multi-Language System Scripts -->
+    <script src="js/translations.js"></script>
+    <script src="js/lang.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<!--
+  Shared building blocks for the purchase emails (course / ebook / existing-account). Lord Sai BLUE
+  branding (#0B5FA5 / navy #0A1128) — this is the Share Market Academy palette, never the Mutual
+  Fund green. Every value is injected by PurchaseCommunicationService.
+-->
+<body>
+
+<!-- Purchase summary box: product, price, payment, invoice -->
+<table th:fragment="summary" role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f0f6fc;border:1px solid #cfe0f1;border-radius:10px;margin:0 0 20px;">
+    <tr><td style="padding:14px 18px;font-size:14px;line-height:1.9;color:#0f172a;">
+        <div><span style="color:#64748b;display:inline-block;min-width:130px;">Student name:</span> <strong th:text="${name}">Student</strong></div>
+        <div><span style="color:#64748b;display:inline-block;min-width:130px;">Student ID:</span> <strong style="font-family:monospace;font-size:15px;color:#0A1128;" th:text="${studentId}">LSI-2026-00001</strong></div>
+        <div><span style="color:#64748b;display:inline-block;min-width:130px;" th:text="${productType} + ' name:'">Course name:</span> <strong th:text="${productName}">Product</strong></div>
+        <div><span style="color:#64748b;display:inline-block;min-width:130px;" th:text="${productType} + ' price:'">Course price:</span> <strong th:text="${amount}">₹</strong></div>
+        <div><span style="color:#64748b;display:inline-block;min-width:130px;">Payment status:</span> <strong style="color:#15803d;" th:text="${paymentStatus}">PAID</strong></div>
+        <div><span style="color:#64748b;display:inline-block;min-width:130px;">Payment date:</span> <span th:text="${paymentDate}">date</span></div>
+        <div><span style="color:#64748b;display:inline-block;min-width:130px;">Transaction ID:</span> <span style="font-family:monospace;" th:text="${transactionId}">pay_</span></div>
+        <div><span style="color:#64748b;display:inline-block;min-width:130px;">Invoice number:</span> <strong style="font-family:monospace;color:#0B5FA5;" th:text="${invoiceNumber}">LSI-INV-2026-000001</strong></div>
+        <div><span style="color:#64748b;display:inline-block;min-width:130px;">Login email:</span> <span th:text="${email}">email</span></div>
+    </td></tr>
+</table>
+
+<!-- Credential / setup block: one-time secure link for new accounts, portal login for existing ones -->
+<div th:fragment="credentials">
+    <div th:if="${temporaryPassword != null}">
+        <h3 style="margin:0 0 8px;font-size:16px;color:#0A1128;">Your Student Portal login details</h3>
+        <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#334155;">
+            Your Student ID is shown above. We have generated a secure temporary password for your new account.
+            Please keep it safe and use it to log in to the official Student Portal.
+        </p>
+        <p style="margin:0 0 10px;font-size:14px;line-height:1.7;color:#0f172a;">
+            <span style="color:#64748b;display:inline-block;min-width:110px;">Student ID:</span>
+            <strong style="font-family:monospace;font-size:15px;color:#0A1128;" th:text="${studentId}">LSI-2026-00001</strong>
+        </p>
+        <p style="margin:0 0 10px;font-size:14px;line-height:1.7;color:#0f172a;">
+            <span style="color:#64748b;display:inline-block;min-width:110px;">Password:</span>
+            <strong style="font-family:monospace;font-size:15px;color:#0A1128;" th:text="${temporaryPassword}">TempPass@123</strong>
+        </p>
+        <p style="margin:0 0 18px;text-align:center;">
+            <a th:href="${portalUrl}" style="display:inline-block;background:#0B5FA5;color:#ffffff;text-decoration:none;font-weight:700;padding:13px 28px;border-radius:30px;font-size:15px;">Open Student Portal</a>
+        </p>
+    </div>
+    <div th:if="${temporaryPassword == null and setupLink != null}">
+        <h3 style="margin:0 0 8px;font-size:16px;color:#0A1128;">Your Student Portal credentials</h3>
+        <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#334155;">
+            Your login ID is your <strong>Student ID</strong> shown above (your email address also works). For security, create your own password with the secure one-time link below.
+        </p>
+        <p style="margin:0 0 16px;text-align:center;">
+            <a th:href="${setupLink}" style="display:inline-block;background:#0B5FA5;color:#ffffff;text-decoration:none;font-weight:700;padding:13px 28px;border-radius:30px;font-size:15px;">Set my password &amp; log in</a>
+        </p>
+        <p style="margin:0 0 18px;font-size:12px;color:#64748b;line-height:1.6;">
+            If the button does not work, copy this address into your browser:<br/>
+            <span th:text="${setupLink}" style="word-break:break-all;color:#0B5FA5;">link</span>
+        </p>
+    </div>
+    <div th:if="${temporaryPassword == null and setupLink == null}">
+        <h3 style="margin:0 0 8px;font-size:16px;color:#0A1128;">How to log in</h3>
+        <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#334155;">
+            Open the Student Portal and sign in with your <strong>Student ID</strong> (or email) and your existing password.
+            Forgot it? Use "Forgot password" on the login page — we never email passwords.
+        </p>
+        <p style="margin:0 0 18px;text-align:center;">
+            <a th:href="${portalUrl}" style="display:inline-block;background:#0B5FA5;color:#ffffff;text-decoration:none;font-weight:700;padding:13px 28px;border-radius:30px;font-size:15px;">Open Student Portal</a>
+        </p>
+    </div>
+    <p style="margin:0 0 6px;font-size:12px;color:#64748b;">Student Portal: <a th:href="${portalUrl}" th:text="${portalUrl}" style="color:#0B5FA5;">portal</a></p>
+</div>
+
+<!-- Access condition + invoice attachment note + support -->
+<div th:fragment="access(message)">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:18px 0 16px;">
+        <tr><td style="background:#eff6ff;border-left:4px solid #0B5FA5;padding:12px 14px;font-size:13px;line-height:1.6;color:#1e3a8a;">
+            <strong>Access condition.</strong> <span th:text="${message}">Access message</span><br/>
+            Your Student Portal credentials are only for accessing your Lord Sai Student Portal account. Purchased courses and
+            ebooks can be accessed only after logging into the official Student Portal. Direct access to protected course or
+            ebook files is not permitted.
+        </td></tr>
+    </table>
+    <p style="margin:0 0 10px;font-size:13px;line-height:1.6;color:#334155;">
+        <strong>Invoice:</strong> your invoice <span th:text="${invoiceNumber}">LSI-INV</span> is attached as a PDF and is also available
+        under <em>My Invoices</em> in the Student Portal.
+    </p>
+    <p style="margin:0;font-size:13px;line-height:1.6;color:#334155;">
+        <strong>Support:</strong> <a th:href="'mailto:' + ${supportEmail}" th:text="${supportEmail}" style="color:#0B5FA5;">support</a>
+        · <span th:text="${supportPhone}">phone</span>
+    </p>
+</div>
+
+</body>
+</html>
