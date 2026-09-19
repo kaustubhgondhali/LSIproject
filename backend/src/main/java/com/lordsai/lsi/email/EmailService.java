@@ -61,4 +61,7 @@ public interface EmailService {
      */
     EmailDelivery sendMessage(String toEmail, String recipientName, String subject, String message,
                               EmailAttachment attachment);
+
+    /** Device binding / OTP verification email for registration, linking secondary browsers, or device recovery. */
+    EmailDelivery sendDeviceOtp(User user, String otp, String actionDescription, String ipAddress);
 }

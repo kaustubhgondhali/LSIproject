@@ -115,7 +115,6 @@
         var e = state.ebooks.find(function (x) { return String(x.ebookId) === String(ebookId); }) || {};
         setText("ebookReaderTitle", e.title || "Ebook");
         setText("ebookReaderMeta", (e.author ? e.author + " · " : "") + "Licensed to " + ((state.overview && state.overview.studentId) || "you") + " — for personal use inside the Student Portal only");
-        el("ebookReaderWatermark").textContent = (state.overview ? state.overview.studentId + " · " + state.overview.email : "");
         el("ebookReaderLoading").style.display = "flex";
         el("ebookReaderFrame").style.display = "none";
         readerModal.show();
@@ -123,7 +122,7 @@
             if (readerBlobUrl) URL.revokeObjectURL(readerBlobUrl);
             readerBlobUrl = URL.createObjectURL(blob);
             var frame = el("ebookReaderFrame");
-            frame.src = readerBlobUrl + "#toolbar=0";
+            frame.src = readerBlobUrl + "#toolbar=0&navpanes=0";
             frame.style.display = "block";
             el("ebookReaderLoading").style.display = "none";
         }).catch(function (err) {

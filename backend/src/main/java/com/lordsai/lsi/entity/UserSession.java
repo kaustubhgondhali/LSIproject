@@ -42,6 +42,9 @@ public class UserSession extends BaseEntity {
     @Column(name = "device_info", length = 300)
     private String deviceInfo;
 
+    @Column(name = "device_id", length = 64)
+    private String deviceId;
+
     @Column(name = "ip_address", length = 45)
     private String ipAddress;
 

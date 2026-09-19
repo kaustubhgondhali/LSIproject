@@ -18,5 +18,21 @@ public class WebConfig implements WebMvcConfigurer {
             }
         });
     }
+
+    @Override
+    public void addResourceHandlers(org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/**")
+                .addResourceLocations(
+                        "file:./",
+                        "file:../",
+                        "classpath:/static/",
+                        "classpath:/public/"
+                );
+    }
+
+    @Override
+    public void addViewControllers(org.springframework.web.servlet.config.annotation.ViewControllerRegistry registry) {
+        registry.addViewController("/").setViewName("forward:/index.html");
+    }
 }
 

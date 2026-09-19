@@ -55,17 +55,20 @@ public class AdminController {
     private final PaymentService paymentService;
     private final DoubtService doubtService;
     private final UserService userService;
+    private final com.lordsai.lsi.service.DeviceBindingService deviceBindingService;
 
     public AdminController(AdminService adminService,
                            EnrollmentService enrollmentService,
                            PaymentService paymentService,
                            DoubtService doubtService,
-                           UserService userService) {
+                           UserService userService,
+                           com.lordsai.lsi.service.DeviceBindingService deviceBindingService) {
         this.adminService = adminService;
         this.enrollmentService = enrollmentService;
         this.paymentService = paymentService;
         this.doubtService = doubtService;
         this.userService = userService;
+        this.deviceBindingService = deviceBindingService;
     }
 
     // ---- Dashboard & search ----------------------------------------------------------------
@@ -156,6 +159,17 @@ public class AdminController {
     @GetMapping("/students/{id}/sessions")
     public ApiResponse<List<SessionInfo>> studentSessions(@PathVariable Long id) {
         return ApiResponse.ok(adminService.sessions(id));
+    }
+
+    @GetMapping("/students/{id}/device")
+    public ApiResponse<com.lordsai.lsi.dto.auth.DeviceBindingDtos.StudentDeviceResponse> studentDevice(@PathVariable Long id) {
+        return ApiResponse.ok(deviceBindingService.getStudentDevice(id).orElse(null));
+    }
+
+    @PostMapping("/students/{id}/reset-device")
+    public ApiResponse<Void> resetDevice(@PathVariable Long id, HttpServletRequest req) {
+        deviceBindingService.adminResetDevice(id, actor(), RequestUtil.clientIp(req));
+        return ApiResponse.message("The student's device registration has been reset. They will be required to register their computer on next login.");
     }
 
 

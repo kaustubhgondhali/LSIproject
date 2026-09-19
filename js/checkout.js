@@ -38,6 +38,77 @@
         e.innerText = msg; e.classList.remove("d-none");
     }
 
+    // ---- Share Market Course Purchase (Frontend Setting) -------------------
+    var SM_PURCHASE_STORAGE_KEY = "shareMarketCoursePurchaseEnabled";
+    var SM_CHANNEL_NAME = "lsi_purchase_channel";
+
+    function isShareMarketPurchaseEnabled() {
+        try {
+            var m = /[?&]purchase=([^&#]*)/i.exec(window.location.search);
+            if (m) {
+                var p = decodeURIComponent(m[1]).toLowerCase();
+                if (p === "off" || p === "false" || p === "0" || p === "disabled") return false;
+                if (p === "on" || p === "true" || p === "1" || p === "enabled") return true;
+            }
+        } catch (e) {}
+        try {
+            var val = localStorage.getItem(SM_PURCHASE_STORAGE_KEY);
+            if (val === "false") return false;
+            if (val === "true") return true;
+        } catch (e) {}
+        try {
+            var cookieMatch = document.cookie.match(new RegExp('(?:^|;\\s*)' + SM_PURCHASE_STORAGE_KEY + '=(true|false)(?:;|$)'));
+            if (cookieMatch) return cookieMatch[1] !== "false";
+        } catch (e) {}
+        try {
+            var sVal = sessionStorage.getItem(SM_PURCHASE_STORAGE_KEY);
+            if (sVal === "false") return false;
+            if (sVal === "true") return true;
+        } catch (e) {}
+        return true;
+    }
+
+    function isShareMarketCourse(courseCode, productName) {
+        if (!courseCode && !productName) return true;
+        if (courseCode && (courseCode === "SMET-MASTER" || courseCode.indexOf("SMET") !== -1)) return true;
+        if (productName && productName.toLowerCase().indexOf("share market") !== -1) return true;
+        return false;
+    }
+
+    function applyShareMarketPurchaseSetting() {
+        if (typeof window.LSI_updateCourseUI === "function") {
+            window.LSI_updateCourseUI();
+            return;
+        }
+        var enabled = isShareMarketPurchaseEnabled();
+        document.querySelectorAll(".lsi-buy-course").forEach(function (btn) {
+            var code = btn.getAttribute("data-course-code");
+            if (isShareMarketCourse(code)) {
+                if (!btn._lsiOriginalHtml) {
+                    btn._lsiOriginalHtml = btn.innerHTML;
+                    btn._lsiOriginalClass = btn.className;
+                }
+                if (!enabled) {
+                    btn.disabled = true;
+                    btn.setAttribute("aria-disabled", "true");
+                    btn.classList.add("disabled");
+                    btn.classList.remove("btn-buy-course-red");
+                    btn.classList.add("btn-secondary");
+                    btn.style.cursor = "not-allowed";
+                    btn.style.opacity = "0.85";
+                    btn.innerHTML = '<i class="fas fa-ban me-2"></i> Admissions Currently Closed (Purchase Disabled)';
+                } else {
+                    btn.disabled = false;
+                    btn.removeAttribute("aria-disabled");
+                    btn.className = btn._lsiOriginalClass;
+                    btn.style.cursor = "";
+                    btn.style.opacity = "";
+                    btn.innerHTML = btn._lsiOriginalHtml;
+                }
+            }
+        });
+    }
+
     /** Pulls live prices so the page never shows a stale number after the admin edits a product. */
     function loadCatalog() {
         var wantCourses = document.querySelector(".lsi-buy-course") || !document.querySelector(".lsi-buy-ebook");
@@ -51,6 +122,7 @@
                 document.querySelectorAll('.lsi-buy-course[data-course-code="' + c.courseCode + '"] .lsi-course-price')
                     .forEach(function (span) { span.innerText = inr(c.effectivePrice); });
             });
+            applyShareMarketPurchaseSetting();
         }));
         if (wantEbooks) calls.push(api("/public/ebooks", { skipAuthRedirect: true }).then(function (res) {
             if (!res.success || !res.data) return;
@@ -132,6 +204,12 @@
         if (!selected) {
             alert("This product is not available for online purchase right now. Please contact the academy.");
             return;
+        }
+        if (selected.productType === "COURSE" && isShareMarketCourse(selected.courseCode, selected.productName)) {
+            if (!isShareMarketPurchaseEnabled()) {
+                alert("Purchase is currently unavailable for this course. Please contact the academy.");
+                return;
+            }
         }
         var isEbook = selected.productType === "EBOOK";
         var label = el("purchaseProductLabel"); if (label) label.innerText = isEbook ? "Ebook" : "Course";
@@ -326,15 +404,23 @@
         });
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
+    function initCheckout() {
+        applyShareMarketPurchaseSetting();
+
         modalEl = el("purchaseModal");
-        if (!modalEl || typeof bootstrap === "undefined") return;
-        modal = new bootstrap.Modal(modalEl);
+        if (modalEl && typeof bootstrap !== "undefined" && bootstrap.Modal) {
+            try {
+                modal = new bootstrap.Modal(modalEl);
+            } catch (e) {}
+        }
 
         loadCatalog();
         document.querySelectorAll(".lsi-buy-course").forEach(function (btn) {
             btn.addEventListener("click", function () {
                 var code = btn.getAttribute("data-course-code");
+                if (isShareMarketCourse(code) && !isShareMarketPurchaseEnabled()) {
+                    return;
+                }
                 if (courses[code]) openModal(courses[code]);
                 else loadCatalog().then(function () { openModal(courses[code]); });
             });
@@ -346,10 +432,35 @@
                 else loadCatalog().then(function () { openModal(ebooks[id]); });
             });
         });
-        el("purchaseForm").addEventListener("submit", startPayment);
-        el("successResendBtn").addEventListener("click", resendSetupEmail);
-        el("purchaseRetryBtn").addEventListener("click", function () { showStep("Details"); setBusy(false); });
-        el("purchaseCancelRetryBtn").addEventListener("click", function () { showStep("Details"); setBusy(false); });
-        el("purchaseMobile").addEventListener("input", function () { this.value = this.value.replace(/\D/g, "").slice(0, 10); });
-    });
+        if (el("purchaseForm")) el("purchaseForm").addEventListener("submit", startPayment);
+        if (el("successResendBtn")) el("successResendBtn").addEventListener("click", resendSetupEmail);
+        if (el("purchaseRetryBtn")) el("purchaseRetryBtn").addEventListener("click", function () { showStep("Details"); setBusy(false); });
+        if (el("purchaseCancelRetryBtn")) el("purchaseCancelRetryBtn").addEventListener("click", function () { showStep("Details"); setBusy(false); });
+        if (el("purchaseMobile")) el("purchaseMobile").addEventListener("input", function () { this.value = this.value.replace(/\D/g, "").slice(0, 10); });
+
+        window.addEventListener("storage", function (e) {
+            if (e.key === SM_PURCHASE_STORAGE_KEY) {
+                applyShareMarketPurchaseSetting();
+            }
+        });
+        try {
+            if (typeof BroadcastChannel !== "undefined") {
+                var bc = new BroadcastChannel(SM_CHANNEL_NAME);
+                bc.onmessage = function (ev) {
+                    if (ev.data && ev.data.key === SM_PURCHASE_STORAGE_KEY) {
+                        applyShareMarketPurchaseSetting();
+                    }
+                };
+            }
+        } catch (e) {}
+    }
+
+    applyShareMarketPurchaseSetting();
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initCheckout);
+    } else {
+        initCheckout();
+    }
+
+    window.LSI_applyShareMarketPurchaseSetting = applyShareMarketPurchaseSetting;
 })();

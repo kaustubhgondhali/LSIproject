@@ -110,4 +110,11 @@ public class LoggingEmailService implements EmailService {
                 toEmail, subject, attachment == null ? "none" : attachment.filename());
         return EmailDelivery.disabled();
     }
+
+    @Override
+    public EmailDelivery sendDeviceOtp(User user, String otp, String actionDescription, String ipAddress) {
+        log.warn("[EMAIL:DEV-SINK] Device OTP for {} ({}): OTP={} ip={}",
+                user.getEmail(), actionDescription, otp, ipAddress);
+        return EmailDelivery.disabled();
+    }
 }

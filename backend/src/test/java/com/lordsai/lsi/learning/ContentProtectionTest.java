@@ -164,4 +164,46 @@ class ContentProtectionTest {
         api.post(student, "/api/student/protection-events", tooLong).andExpect(status().isBadRequest());
         assertThat(auditLogRepository.findAll().stream().filter(a -> a.getAction().startsWith("PROTECTION_")).count()).isZero();
     }
+
+    @Test
+    void crossStudentTicketUsageIsRejectedAndAudited() throws Exception {
+        User studentUser2 = users.student("pupil2@test.local");
+        String student2 = api.login("pupil2@test.local", TestUsers.PASSWORD);
+
+        // Student 1 is enrolled, obtains valid ticket
+        api.post(admin, "/api/admin/enrollments", Map.of("studentUserId", studentUser.getId(), "courseId", courseId)).andExpect(status().isOk());
+        String ticketUrl = api.data(api.get(student, "/api/student/lessons/" + lessonId + "/stream-ticket")).path("url").asText();
+
+        // Student 2 calls with student 2's session bearer token and student 1's ticket
+        mockMvc.perform(get(ticketUrl).header("Authorization", "Bearer " + student2))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value("You do not have access to this stream ticket."));
+
+        assertThat(auditLogRepository.findAll().stream()
+                .anyMatch(a -> "PROTECTION_UNAUTHORIZED_MEDIA_REQUEST".equals(a.getAction())
+                        && a.getDescription().contains("Cross-student video access attempt"))).isTrue();
+    }
+
+    @Test
+    void videoRangeSeekingReturnsPartialContentWithHardenedHeaders() throws Exception {
+        api.post(admin, "/api/admin/enrollments", Map.of("studentUserId", studentUser.getId(), "courseId", courseId)).andExpect(status().isOk());
+        String ticketUrl = api.data(api.get(student, "/api/student/lessons/" + lessonId + "/stream-ticket")).path("url").asText();
+
+        mockMvc.perform(get(ticketUrl).header("Range", "bytes=0-15"))
+                .andExpect(status().isPartialContent())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header().string("Accept-Ranges", "bytes"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header().string("Content-Disposition", "inline"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header().string("Cache-Control", "private, no-store"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header().string("Pragma", "no-cache"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header().string("Expires", "0"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header().string("X-Content-Type-Options", "nosniff"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header().string("X-Frame-Options", "SAMEORIGIN"));
+    }
+
+    @Test
+    void unmappedDirectUploadsUrlsAreProtected() throws Exception {
+        // Direct attempt to access unmapped uploads directory paths should be denied, never statically served
+        mockMvc.perform(get("/uploads/videos/s.mp4")).andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/uploads/ebooks/test.pdf")).andExpect(status().isUnauthorized());
+    }
 }

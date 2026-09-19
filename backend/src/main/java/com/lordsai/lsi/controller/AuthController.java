@@ -35,6 +35,7 @@ public class AuthController {
     @PostMapping("/login")
     public ApiResponse<LoginResponse> login(@Valid @RequestBody LoginRequest body, HttpServletRequest request) {
         LoginResponse response = authService.login(body.identifier(), body.password(), body.portal(),
+                body.deviceId(), body.deviceToken(),
                 RequestUtil.deviceInfo(request), RequestUtil.clientIp(request));
         return ApiResponse.ok("Login successful.", response);
     }

@@ -22,8 +22,19 @@ public final class AuthDtos {
             @NotBlank(message = "Enter your password.") String password,
             /** Which login screen sent this: "STUDENT" (Student Admin) or "ADMIN" (Admin Login).
              *  The server refuses the login when the account's role does not belong to that portal. */
-            String portal
+            String portal,
+            String deviceId,
+            String deviceToken,
+            String devicePublicKey,
+            String deviceName,
+            String devicePlatform
     ) {
+        public LoginRequest(String identifier, String password, String portal) {
+            this(identifier, password, portal, null, null, null, null, null);
+        }
+        public LoginRequest(String identifier, String password) {
+            this(identifier, password, null, null, null, null, null, null);
+        }
     }
 
     public record LoginResponse(
@@ -31,8 +42,26 @@ public final class AuthDtos {
             String tokenType,
             Instant expiresAt,
             UserSummary user,
-            String redirectUrl
+            String redirectUrl,
+            String deviceStatus,
+            String deviceId,
+            String deviceToken,
+            String tempToken,
+            String emailMasked,
+            String registeredDeviceName,
+            String message
     ) {
+        public LoginResponse(String accessToken, String tokenType, Instant expiresAt, UserSummary user, String redirectUrl) {
+            this(accessToken, tokenType, expiresAt, user, redirectUrl, "AUTHENTICATED", null, null, null, null, null, null);
+        }
+
+        public LoginResponse(String accessToken, String tokenType, Instant expiresAt, UserSummary user, String redirectUrl, String deviceId, String deviceToken) {
+            this(accessToken, tokenType, expiresAt, user, redirectUrl, "AUTHENTICATED", deviceId, deviceToken, null, null, null, null);
+        }
+
+        public static LoginResponse deviceRequired(String deviceStatus, String tempToken, String emailMasked, String registeredDeviceName, String message) {
+            return new LoginResponse(null, null, null, null, null, deviceStatus, null, null, tempToken, emailMasked, registeredDeviceName, message);
+        }
     }
 
     public record UserSummary(

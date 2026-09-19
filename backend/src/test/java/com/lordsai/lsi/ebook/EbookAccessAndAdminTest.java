@@ -35,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class EbookAccessAndAdminTest {
 
     private static final byte[] PDF = "%PDF-1.4\n%test\n".getBytes();
+    private static final byte[] PNG = {(byte) 0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A, 1, 2, 3};
 
     @Autowired ApiClient api;
     @Autowired TestUsers users;
@@ -80,7 +81,7 @@ class EbookAccessAndAdminTest {
                         .header("Authorization", "Bearer " + admin))
                 .andExpect(status().isBadRequest());
         mockMvc.perform(multipart("/api/admin/ebooks/" + ebookId + "/cover")
-                        .file(new MockMultipartFile("file", "cover.png", "image/png", new byte[32]))
+                        .file(new MockMultipartFile("file", "cover.png", "image/png", PNG))
                         .header("Authorization", "Bearer " + admin))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.coverImagePath").value(org.hamcrest.Matchers.startsWith("images/")));
@@ -145,6 +146,15 @@ class EbookAccessAndAdminTest {
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header().string("Cache-Control", "private, no-store"))
                 .andReturn().getResponse().getContentAsByteArray();
         assertThat(body).isEqualTo(PDF);
+
+        byte[] viewBody = api.get(studentA, "/api/student/ebooks/" + ebookId + "/view")
+                .andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header().string("Content-Disposition", org.hamcrest.Matchers.startsWith("inline")))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header().string("X-Frame-Options", "SAMEORIGIN"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header().string("Cache-Control", "private, no-store"))
+                .andReturn().getResponse().getContentAsByteArray();
+        assertThat(viewBody).isEqualTo(PDF);
+
         api.get(studentB, "/api/student/ebooks/" + ebookId + "/download").andExpect(status().isForbidden());
         api.get(studentB, "/api/student/ebooks").andExpect(status().isOk()).andExpect(jsonPath("$.data.length()").value(0));
 

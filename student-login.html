@@ -107,9 +107,9 @@
                     <a href="sip.html" class="nav-item nav-link mode-mf-only" data-i18n="nav.sipTab">SIP</a>
                     <a href="swp.html" class="nav-item nav-link mode-mf-only" data-i18n="nav.swpTab">SWP</a>
 
-                    <!-- Financial Services Dropdown -->
+                    <!-- Insurance Dropdown -->
                     <div class="nav-item dropdown">
-                        <a href="insurance.html" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" data-i18n="nav.financialServices">Financial Services</a>
+                        <a href="insurance.html" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" data-i18n="nav.financialServices">Insurance</a>
                         <div class="dropdown-menu">
                             <a href="insurance.html" class="dropdown-item" data-i18n="nav.insurancePlan">Insurance</a>
                             <a href="financial-planning.html" class="dropdown-item" data-i18n="nav.holisticPlan">Financial Planning</a>
@@ -616,6 +616,123 @@
     </div>
     <!-- Copyright End -->
 
+    <!-- Student Device Authorization Modal -->
+    <div class="modal fade" id="deviceBindingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deviceModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow" style="border-radius: 16px; overflow: hidden;">
+                <div class="modal-header bg-primary text-white py-3">
+                    <h5 class="modal-title fw-bold fs-6" id="deviceModalTitle"><i class="fas fa-laptop-code me-2"></i> Device Authorization</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div id="deviceModalAlert" class="alert alert-danger py-2 px-3 small d-none mb-3"></div>
+
+                    <!-- View 1: First-Time Registration -->
+                    <div id="viewDeviceRegister" class="d-none">
+                        <div class="text-center mb-3">
+                            <div class="d-inline-flex p-3 rounded-circle bg-light text-primary mb-2" style="font-size: 26px;">
+                                <i class="fas fa-laptop-house"></i>
+                            </div>
+                            <h5 class="fw-bold mb-1 text-dark">Register This Computer</h5>
+                            <p class="text-muted small mb-0">
+                                To protect your video and course materials, accounts are bound to <strong>one physical computer</strong>.
+                            </p>
+                        </div>
+                        <div class="alert alert-info py-2 px-3 small mb-3">
+                            <i class="fas fa-envelope me-1"></i> Verification code sent to <strong id="regMaskedEmail">your email</strong>.
+                        </div>
+                        <form id="formDeviceRegister">
+                            <div class="mb-3 text-start">
+                                <label class="form-label small fw-bold text-muted">Computer Name</label>
+                                <input type="text" class="form-control" id="regDeviceName" placeholder="e.g. My Laptop / Home PC" maxlength="100">
+                                <small class="text-muted" style="font-size: 11px;">You will be able to use Chrome, Edge, and Firefox on this computer.</small>
+                            </div>
+                            <div class="mb-3 text-start">
+                                <label class="form-label small fw-bold text-muted">6-Digit Verification Code <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control text-center font-monospace fs-4 fw-bold" id="regDeviceOtp" placeholder="000000" maxlength="6" pattern="[0-9]{6}" required autocomplete="one-time-code" style="letter-spacing: 4px;">
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill fw-bold" id="btnSubmitRegister">
+                                <i class="fas fa-check-circle me-1"></i> Register & Enter Dashboard
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- View 2: Secondary Browser Linking on Same Device -->
+                    <div id="viewDeviceLink" class="d-none">
+                        <div class="text-center mb-3">
+                            <div class="d-inline-flex p-3 rounded-circle bg-light text-success mb-2" style="font-size: 26px;">
+                                <i class="fas fa-window-restore"></i>
+                            </div>
+                            <h5 class="fw-bold mb-1 text-dark">Authorize This Browser</h5>
+                            <p class="text-muted small mb-0">
+                                Account is registered to <strong id="linkRegisteredDevice" class="text-dark">Primary Computer</strong>.
+                            </p>
+                        </div>
+                        <div class="alert alert-info py-2 px-3 small mb-3">
+                            <i class="fas fa-shield-alt me-1"></i> Using this registered computer? Enter the verification code sent to <strong id="linkMaskedEmail">your email</strong>.
+                        </div>
+                        <form id="formDeviceLink">
+                            <div class="mb-3 text-start">
+                                <label class="form-label small fw-bold text-muted">6-Digit Verification Code <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control text-center font-monospace fs-4 fw-bold" id="linkDeviceOtp" placeholder="000000" maxlength="6" pattern="[0-9]{6}" required autocomplete="one-time-code" style="letter-spacing: 4px;">
+                            </div>
+                            <button type="submit" class="btn btn-success w-100 py-2 rounded-pill fw-bold" id="btnSubmitLink">
+                                <i class="fas fa-link me-1"></i> Authorize Browser
+                            </button>
+                        </form>
+                        <div class="text-center mt-3">
+                            <button type="button" class="btn btn-link text-decoration-none small text-muted p-0" id="btnShowReset">
+                                Changed your physical computer? <span class="text-primary fw-bold">Reset Device</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- View 3: Self-Service Device Reset -->
+                    <div id="viewDeviceReset" class="d-none">
+                        <div class="text-center mb-3">
+                            <div class="d-inline-flex p-3 rounded-circle bg-light text-warning mb-2" style="font-size: 26px;">
+                                <i class="fas fa-sync-alt"></i>
+                            </div>
+                            <h5 class="fw-bold mb-1 text-dark">Reset Registered Computer</h5>
+                            <p class="text-muted small mb-0">
+                                Transfer your student account to a new physical computer.
+                            </p>
+                        </div>
+                        <div id="resetStep1">
+                            <p class="text-muted small text-start">
+                                A verification code will be sent to your registered email to unbind your previous computer.
+                            </p>
+                            <div class="mb-3 text-start">
+                                <label class="form-label small fw-bold text-muted">Email / Student ID <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="resetIdentifier" placeholder="e.g. you@example.com">
+                            </div>
+                            <button type="button" class="btn btn-warning w-100 py-2 rounded-pill fw-bold text-dark" id="btnSendResetOtp">
+                                <i class="fas fa-paper-plane me-1"></i> Send Reset Code
+                            </button>
+                        </div>
+                        <div id="resetStep2" class="d-none">
+                            <div class="alert alert-info py-2 px-3 small mb-3">
+                                <i class="fas fa-envelope me-1"></i> Enter the 6-digit code sent to your email to confirm.
+                            </div>
+                            <div class="mb-3 text-start">
+                                <label class="form-label small fw-bold text-muted">New Computer Name</label>
+                                <input type="text" class="form-control" id="resetNewDeviceName" placeholder="e.g. New Laptop" maxlength="100">
+                            </div>
+                            <div class="mb-3 text-start">
+                                <label class="form-label small fw-bold text-muted">6-Digit Reset Code <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control text-center font-monospace fs-4 fw-bold" id="resetOtp" placeholder="000000" maxlength="6" required style="letter-spacing: 4px;">
+                            </div>
+                            <button type="button" class="btn btn-danger w-100 py-2 rounded-pill fw-bold" id="btnConfirmReset">
+                                <i class="fas fa-check me-1"></i> Confirm & Bind New Computer
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Floating WhatsApp Support Button -->
     <a href="https://wa.me/919920254354?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20enquire%20about%20your%20stock%20market%20and%20investment%20classes" target="_blank" class="floating-whatsapp" title="Chat on WhatsApp">
         <span class="whatsapp-pulse"></span>
@@ -843,6 +960,13 @@
                             setTimeout(function() {
                                 window.location.href = res.redirectUrl || 'student-dashboard.html';
                             }, 400);
+                        } else if (res.deviceRequired) {
+                            // Reset loading state on button
+                            if (submitBtn) submitBtn.disabled = false;
+                            if (btnText) btnText.classList.remove('d-none');
+                            if (btnSpinner) btnSpinner.classList.add('d-none');
+
+                            handleDeviceBindingRequired(res, idVal);
                         } else {
                             // Reset loading state on button
                             if (submitBtn) submitBtn.disabled = false;
@@ -869,6 +993,215 @@
                             errorText.innerText = "An unexpected error occurred. Please check your connection and try again.";
                             errorAlert.classList.remove('d-none');
                         }
+                    });
+                });
+            }
+
+            // ---- Device Binding Modal Logic -----------------------------------------
+            var devModalEl = document.getElementById('deviceBindingModal');
+            var devModal = devModalEl && window.bootstrap ? new bootstrap.Modal(devModalEl) : null;
+            var currentDeviceToken = null;
+            var currentStudentId = null;
+
+            function showDevModalAlert(msg) {
+                var a = document.getElementById('deviceModalAlert');
+                if (a) {
+                    a.innerText = msg;
+                    a.classList.remove('d-none');
+                }
+            }
+            function hideDevModalAlert() {
+                var a = document.getElementById('deviceModalAlert');
+                if (a) a.classList.add('d-none');
+            }
+
+            function handleDeviceBindingRequired(res, identifier) {
+                currentDeviceToken = res.tempToken;
+                currentStudentId = identifier;
+                hideDevModalAlert();
+
+                var viewReg = document.getElementById('viewDeviceRegister');
+                var viewLink = document.getElementById('viewDeviceLink');
+                var viewReset = document.getElementById('viewDeviceReset');
+                if (viewReg) viewReg.classList.add('d-none');
+                if (viewLink) viewLink.classList.add('d-none');
+                if (viewReset) viewReset.classList.add('d-none');
+
+                if (res.deviceStatus === 'DEVICE_REGISTRATION_REQUIRED') {
+                    if (viewReg) {
+                        viewReg.classList.remove('d-none');
+                        var maskedEl = document.getElementById('regMaskedEmail');
+                        if (maskedEl) maskedEl.innerText = res.emailMasked || 'your registered email';
+                        var otpInput = document.getElementById('regDeviceOtp');
+                        if (otpInput) { otpInput.value = ''; otpInput.focus(); }
+                    }
+                    if (devModal) devModal.show();
+                } else if (res.deviceStatus === 'DEVICE_LINK_REQUIRED') {
+                    if (viewLink) {
+                        viewLink.classList.remove('d-none');
+                        var linkMasked = document.getElementById('linkMaskedEmail');
+                        if (linkMasked) linkMasked.innerText = res.emailMasked || 'your registered email';
+                        var linkDevName = document.getElementById('linkRegisteredDevice');
+                        if (linkDevName) linkDevName.innerText = res.registeredDeviceName || 'Primary Computer';
+                        var linkOtpInput = document.getElementById('linkDeviceOtp');
+                        if (linkOtpInput) { linkOtpInput.value = ''; linkOtpInput.focus(); }
+                    }
+                    if (devModal) devModal.show();
+                }
+            }
+
+            // Register form submit
+            var formReg = document.getElementById('formDeviceRegister');
+            if (formReg) {
+                formReg.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    hideDevModalAlert();
+                    var otp = (document.getElementById('regDeviceOtp').value || '').trim();
+                    var devName = (document.getElementById('regDeviceName').value || '').trim();
+                    if (!otp || otp.length < 6) {
+                        showDevModalAlert('Please enter the 6-digit verification code.');
+                        return;
+                    }
+                    var btn = document.getElementById('btnSubmitRegister');
+                    if (btn) btn.disabled = true;
+                    LSI_Auth.registerDevice(currentDeviceToken, otp, devName).then(function(r) {
+                        if (btn) btn.disabled = false;
+                        if (r.success) {
+                            if (devModal) devModal.hide();
+                            if (successAlert) {
+                                successAlert.innerHTML = '<i class="fas fa-check-circle me-1"></i> Device registered successfully! Redirecting...';
+                                successAlert.classList.remove('d-none');
+                            }
+                            setTimeout(function() {
+                                window.location.href = r.redirectUrl || 'student-dashboard.html';
+                            }, 400);
+                        } else {
+                            showDevModalAlert(r.message || 'Verification failed. Please try again.');
+                        }
+                    }).catch(function() {
+                        if (btn) btn.disabled = false;
+                        showDevModalAlert('Unable to complete registration. Please check your connection.');
+                    });
+                });
+            }
+
+            // Link form submit
+            var formLink = document.getElementById('formDeviceLink');
+            if (formLink) {
+                formLink.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    hideDevModalAlert();
+                    var otp = (document.getElementById('linkDeviceOtp').value || '').trim();
+                    if (!otp || otp.length < 6) {
+                        showDevModalAlert('Please enter the 6-digit verification code.');
+                        return;
+                    }
+                    var btn = document.getElementById('btnSubmitLink');
+                    if (btn) btn.disabled = true;
+                    LSI_Auth.linkBrowser(currentDeviceToken, otp).then(function(r) {
+                        if (btn) btn.disabled = false;
+                        if (r.success) {
+                            if (devModal) devModal.hide();
+                            if (successAlert) {
+                                successAlert.innerHTML = '<i class="fas fa-check-circle me-1"></i> Browser authorized! Redirecting...';
+                                successAlert.classList.remove('d-none');
+                            }
+                            setTimeout(function() {
+                                window.location.href = r.redirectUrl || 'student-dashboard.html';
+                            }, 400);
+                        } else {
+                            showDevModalAlert(r.message || 'Authorization failed. Please check the code.');
+                        }
+                    }).catch(function() {
+                        if (btn) btn.disabled = false;
+                        showDevModalAlert('Unable to authorize browser. Please check your connection.');
+                    });
+                });
+            }
+
+            // Show Reset view
+            var btnShowReset = document.getElementById('btnShowReset');
+            if (btnShowReset) {
+                btnShowReset.addEventListener('click', function() {
+                    hideDevModalAlert();
+                    var viewLink = document.getElementById('viewDeviceLink');
+                    var viewReset = document.getElementById('viewDeviceReset');
+                    if (viewLink) viewLink.classList.add('d-none');
+                    if (viewReset) {
+                        viewReset.classList.remove('d-none');
+                        var step1 = document.getElementById('resetStep1');
+                        var step2 = document.getElementById('resetStep2');
+                        if (step1) step1.classList.remove('d-none');
+                        if (step2) step2.classList.add('d-none');
+                        var resetIdInput = document.getElementById('resetIdentifier');
+                        if (resetIdInput) {
+                            resetIdInput.value = currentStudentId || (studentIdInput ? studentIdInput.value.trim() : '');
+                            resetIdInput.focus();
+                        }
+                    }
+                });
+            }
+
+            // Reset step 1: Request Reset
+            var btnSendResetOtp = document.getElementById('btnSendResetOtp');
+            if (btnSendResetOtp) {
+                btnSendResetOtp.addEventListener('click', function() {
+                    hideDevModalAlert();
+                    var idVal = (document.getElementById('resetIdentifier').value || '').trim();
+                    if (!idVal) {
+                        showDevModalAlert('Please enter your email or Student ID.');
+                        return;
+                    }
+                    btnSendResetOtp.disabled = true;
+                    LSI_Auth.requestDeviceReset(idVal).then(function(res) {
+                        btnSendResetOtp.disabled = false;
+                        if (res.success && res.data && res.data.tempToken) {
+                            currentDeviceToken = res.data.tempToken;
+                            var step1 = document.getElementById('resetStep1');
+                            var step2 = document.getElementById('resetStep2');
+                            if (step1) step1.classList.add('d-none');
+                            if (step2) step2.classList.remove('d-none');
+                            var resetOtpInput = document.getElementById('resetOtp');
+                            if (resetOtpInput) { resetOtpInput.value = ''; resetOtpInput.focus(); }
+                        } else {
+                            showDevModalAlert(res.message || 'Failed to send reset code.');
+                        }
+                    }).catch(function() {
+                        btnSendResetOtp.disabled = false;
+                        showDevModalAlert('Connection error. Please try again.');
+                    });
+                });
+            }
+
+            // Reset step 2: Confirm Reset
+            var btnConfirmReset = document.getElementById('btnConfirmReset');
+            if (btnConfirmReset) {
+                btnConfirmReset.addEventListener('click', function() {
+                    hideDevModalAlert();
+                    var otp = (document.getElementById('resetOtp').value || '').trim();
+                    var devName = (document.getElementById('resetNewDeviceName').value || '').trim();
+                    if (!otp || otp.length < 6) {
+                        showDevModalAlert('Please enter the 6-digit reset code.');
+                        return;
+                    }
+                    btnConfirmReset.disabled = true;
+                    LSI_Auth.confirmDeviceReset(currentDeviceToken, otp, devName).then(function(r) {
+                        btnConfirmReset.disabled = false;
+                        if (r.success) {
+                            if (devModal) devModal.hide();
+                            if (successAlert) {
+                                successAlert.innerHTML = '<i class="fas fa-check-circle me-1"></i> Device reset successfully! Redirecting...';
+                                successAlert.classList.remove('d-none');
+                            }
+                            setTimeout(function() {
+                                window.location.href = r.redirectUrl || 'student-dashboard.html';
+                            }, 400);
+                        } else {
+                            showDevModalAlert(r.message || 'Device reset failed. Please check the code.');
+                        }
+                    }).catch(function() {
+                        btnConfirmReset.disabled = false;
+                        showDevModalAlert('Unable to complete reset. Please check your connection.');
                     });
                 });
             }

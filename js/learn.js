@@ -333,6 +333,8 @@
         var video = el("lessonVideo");
         video.disablePictureInPicture = true;
         video.addEventListener("dblclick", function (e) { e.preventDefault(); toggleFullscreen(); });
+        video.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+        video.addEventListener("dragstart", function (e) { e.preventDefault(); });
         if (window.LSI_Protect) LSI_Protect.setContext(courseId, currentLessonId);
         loadCourse();
     });

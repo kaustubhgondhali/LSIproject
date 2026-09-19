@@ -1,29 +1,47 @@
 /**
  * LORD SAI ACADEMY — STUDENT PORTAL CONTENT PROTECTION (js/student-protect.js)
  *
- * Loaded by every Student Portal page after js/auth.js. Activates only for an authenticated
- * STUDENT session and applies, page-wide:
- *   - a dynamic, student-specific watermark (name / Student ID / email) drawn on protected
- *     media only: inside the lesson player and on rendered handout pages. There is no
- *     page-background watermark and no roaming identity badge;
- *   - best-effort screen-capture detection (Print Screen, print / save / copy / dev-tools
- *     shortcuts) that hides the content behind a warning overlay and reports the event;
- *   - hiding protected content while the tab is hidden or the window loses focus;
- *   - context-menu, copy/cut, drag and text-selection blocking outside editable fields;
- *   - print suppression (except the student's own certificate).
+ * Loaded exclusively by authenticated Student Portal pages (student-dashboard.html, learn.html)
+ * after js/auth.js. Activates only for an authenticated STUDENT session.
  *
- * Browsers cannot stop an operating system or a phone camera from capturing the screen. The
- * server-side enrollment checks and the identifying watermark are the primary protection; the
- * rest is deterrence. Nothing here logs the student out or blocks legitimate typing.
+ * Browser-Level Screenshot & Screen-Recording Mitigation System:
+ *   - Instantaneous FULL-PAGE BLACKOUT overlay (#capture-protection-overlay) whenever the page
+ *     loses visibility, is backgrounded, minimized, or blurred during potential screen capture.
+ *   - Instant concealment of course content (video, handouts, ebooks, UI) under pure opaque black.
+ *   - 100% state preservation: video playback time, playing state, and ebook reading position
+ *     are preserved without reloading, navigating, or resetting.
+ *   - Zero watermark: videos, handouts, and UI remain 100% visually clean with NO watermarks.
+ *   - Detection & suppression of screenshot keys (PrintScreen, PrtSc, Cmd+Shift+3/4/5),
+ *     save shortcuts (Ctrl/Cmd+S), print attempts (Ctrl/Cmd+P), and devtools chords.
+ *   - Public pages (home, courses, about, login) are completely unaffected.
+ *
+ * TECHNICAL REALITY NOTICE:
+ * Web browsers cannot intercept operating-system-level screen recorders (e.g. OBS Studio, OS Snipping
+ * Tool outside the browser window, or external hardware/cameras). The browser-level blackout mitigates
+ * standard browser capture and blur events while server-side authentication, short-lived signed stream
+ * tickets, and Range-restricted video access provide strong content protection.
  */
 (function (window, document) {
     "use strict";
 
     var Auth = window.LSI_Auth;
     var state = {
-        active: false, profile: null, courseId: null, lessonId: null,
-        lastEvent: {}, warnTimer: null, blurTimer: null, wmTimer: null,
-        shield: null, modal: null, inactive: null, locals: []
+        active: false,
+        profile: null,
+        courseId: null,
+        lessonId: null,
+        lastEvent: {},
+        warnTimer: null,
+        blurTimer: null,
+        restoreTimer: null,
+        autoRestoreTimer: null,
+        blackoutActive: false,
+        videoState: { wasPlaying: false, currentTime: 0 },
+        overlay: null,
+        shield: null,
+        modal: null,
+        inactive: null,
+        locals: []
     };
     var EDITABLE = 'input, textarea, select, option, [contenteditable=""], [contenteditable="true"], .lsi-allow-select';
 
@@ -33,6 +51,17 @@
     function session() { try { return Auth && Auth.getSession ? Auth.getSession() : null; } catch (e) { return null; } }
     function isStudentSession() { var s = session(); return !!(s && s.token && s.role === "student"); }
     function certificateOpen() { var c = el("certificatePrint"); return !!(c && !c.classList.contains("d-none")); }
+
+    function isPageOrIframeFocused() {
+        try {
+            if (document.hasFocus && document.hasFocus()) return true;
+            var active = document.activeElement;
+            if (active && (active.tagName === "IFRAME" || active.tagName === "EMBED")) {
+                return true;
+            }
+        } catch (e) {}
+        return false;
+    }
 
     // ---- audit reporting (throttled per type; never sends tokens) ------------------------------
 
@@ -50,48 +79,34 @@
         } catch (e) { /* reporting must never break the page */ }
     }
 
-    // ---- watermark ------------------------------------------------------------------------------
+    // ---- watermark (strictly disabled - clean presentation) ----------------------------------
 
-    function watermarkImage() {
-        var p = state.profile || {};
-        var lines = ["LSI VITC", p.name || "Student", p.studentId || "", p.email || "", "Protected Course Content"].filter(Boolean);
-        var w = 380, h = 240, cx = w / 2, cy = h / 2, start = cy - ((lines.length - 1) * 21) / 2;
-        var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '">' +
-            '<g transform="rotate(-27 ' + cx + ' ' + cy + ')" fill="#0a1128" fill-opacity="0.16" font-family="Inter,Segoe UI,Arial,sans-serif" text-anchor="middle">' +
-            lines.map(function (t, i) {
-                return '<text x="' + cx + '" y="' + (start + i * 21) + '" font-size="' + (i === 0 ? 16 : 13) + '" font-weight="' + (i === 0 || i === 2 ? 800 : 600) + '">' + escXml(t) + '</text>';
-            }).join("") + '</g></svg>';
-        return 'url("data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg) + '")';
-    }
-
-    function shiftWatermark() {
-        var pos = Math.floor(Math.random() * 380) + "px " + Math.floor(Math.random() * 240) + "px";
-        state.locals.forEach(function (l) { if (l.isConnected) l.style.backgroundPosition = pos; });
-    }
-
-    /** Refreshes the watermark on the media layers only; nothing is added to the page background. */
     function mountWatermark() {
-        var img = watermarkImage();
-        state.locals.forEach(function (l) { if (l.isConnected) l.style.backgroundImage = img; });
-        shiftWatermark();
-        clearInterval(state.wmTimer);
-        if (state.locals.length) state.wmTimer = setInterval(shiftWatermark, 20000);
+        document.querySelectorAll(".lsi-wm-local").forEach(function (node) { node.remove(); });
+        state.locals = [];
     }
 
-    /** Adds a watermark layer inside a container so it stays visible when that container is fullscreen. */
     function attachLocalWatermark(container) {
-        if (!container || container.querySelector(":scope > .lsi-wm-local")) return;
-        var l = document.createElement("div");
-        l.className = "lsi-wm-local";
-        l.setAttribute("aria-hidden", "true");
-        if (state.profile) l.style.backgroundImage = watermarkImage();
-        container.appendChild(l);
-        state.locals.push(l);
+        if (!container) return;
+        container.querySelectorAll(":scope > .lsi-wm-local").forEach(function (node) { node.remove(); });
     }
 
-    // ---- warning overlay -------------------------------------------------------------------------
+    // ---- full-page blackout & overlay management ---------------------------------------------
 
     function mountOverlays() {
+        if (!state.overlay) {
+            state.overlay = el("capture-protection-overlay");
+            if (!state.overlay) {
+                state.overlay = document.createElement("div");
+                state.overlay.id = "capture-protection-overlay";
+                state.overlay.setAttribute("aria-hidden", "true");
+                var blackout = document.createElement("div");
+                blackout.className = "capture-protection-blackout";
+                state.overlay.appendChild(blackout);
+                (document.body || document.documentElement).appendChild(state.overlay);
+            }
+        }
+
         if (state.shield) return;
         state.shield = document.createElement("div");
         state.shield.className = "lsi-shield";
@@ -112,7 +127,7 @@
             '<div class="lsi-warn-icon"><i class="fas fa-shield-alt"></i></div>' +
             '<h3>Protected Content</h3>' +
             '<p id="lsiWarnText">Screen capture and recording of LSI VITC course content is not permitted.</p>' +
-            '<p class="lsi-warn-sub">Your Student ID is embedded in the content watermark.</p>' +
+            '<p class="lsi-warn-sub">All access to academy course material is licensed and monitored.</p>' +
             '<button type="button" class="lms-btn primary" id="lsiWarnContinue">Continue</button>' +
             '</div>';
         document.body.appendChild(state.modal);
@@ -124,32 +139,96 @@
         document.body.appendChild(notice);
     }
 
-    function pauseMedia() {
-        document.querySelectorAll("video, audio").forEach(function (m) { try { if (!m.paused) m.pause(); } catch (e) { /* ignore */ } });
+    // ---- media state preservation -------------------------------------------------------------
+
+    function handleMediaOnBlackout() {
+        var videos = document.querySelectorAll("video");
+        videos.forEach(function (v) {
+            try {
+                var isPlaying = (!v.paused && !v.ended && v.readyState > 2);
+                state.videoState.wasPlaying = isPlaying;
+                state.videoState.currentTime = v.currentTime;
+                if (isPlaying) {
+                    v.pause();
+                }
+            } catch (e) { /* ignore */ }
+        });
+        document.querySelectorAll("audio").forEach(function (a) {
+            try { if (!a.paused) a.pause(); } catch (e) { /* ignore */ }
+        });
     }
 
-    /** Hides the content behind the warning; restores on Continue or after a short delay. */
+    function handleMediaOnRestore() {
+        if (state.videoState && state.videoState.wasPlaying) {
+            var videos = document.querySelectorAll("video");
+            videos.forEach(function (v) {
+                try {
+                    v.play().catch(function () {});
+                } catch (e) { /* ignore */ }
+            });
+        }
+        state.videoState.wasPlaying = false;
+    }
+
+    // ---- blackout application ------------------------------------------------------------------
+
+    function applyBlackout(on, reportType, reportDetail, autoRestoreMs) {
+        if (!state.active) return;
+        mountOverlays();
+        clearTimeout(state.autoRestoreTimer);
+
+        if (on) {
+            if (!state.blackoutActive) {
+                state.blackoutActive = true;
+                handleMediaOnBlackout();
+                document.documentElement.classList.add("capture-protection-active");
+                document.body.classList.add("capture-protection-active");
+            }
+            if (reportType) report(reportType, reportDetail);
+            if (autoRestoreMs && autoRestoreMs > 0) {
+                state.autoRestoreTimer = setTimeout(function () {
+                    if (!document.hidden && isPageOrIframeFocused()) {
+                        applyBlackout(false);
+                    }
+                }, autoRestoreMs);
+            }
+        } else {
+            if (state.blackoutActive) {
+                state.blackoutActive = false;
+                document.documentElement.classList.remove("capture-protection-active");
+                document.body.classList.remove("capture-protection-active");
+                handleMediaOnRestore();
+            }
+        }
+    }
+
+    /** Compatibility modal lockdown for explicit user interaction */
     function lockdown(type, message, detail, opts) {
         opts = opts || {};
         mountOverlays();
-        el("lsiWarnText").textContent = message;
+        applyBlackout(true, type, detail, opts.autoMs || 3000);
+        if (el("lsiWarnText")) el("lsiWarnText").textContent = message;
         document.body.classList.add("lsi-capture-lock");
-        if (!opts.keepPlaying) pauseMedia();
         clearTimeout(state.warnTimer);
         state.warnTimer = setTimeout(unlock, opts.autoMs || 8000);
-        report(type, detail);
         setTimeout(function () { var b = el("lsiWarnContinue"); if (b) b.focus(); }, 30);
     }
 
     function unlock() {
         clearTimeout(state.warnTimer);
         document.body.classList.remove("lsi-capture-lock");
+        if (!document.hidden && isPageOrIframeFocused()) {
+            applyBlackout(false);
+        }
     }
 
     function setInactive(on) {
         if (!state.active) return;
-        document.body.classList.toggle("lsi-inactive", on);
-        if (on) { pauseMedia(); report("PROTECTED_CONTENT_BLUR", document.hidden ? "tab hidden" : "window blurred"); }
+        if (on) {
+            applyBlackout(true, "PROTECTED_CONTENT_BLUR", document.hidden ? "tab hidden" : "window blurred");
+        } else {
+            applyBlackout(false);
+        }
     }
 
     // ---- event handlers --------------------------------------------------------------------------
@@ -158,34 +237,44 @@
         var k = (e.key || "").toLowerCase();
         var mod = e.ctrlKey || e.metaKey;
 
-        if (e.key === "PrintScreen") {
+        if (e.key === "PrintScreen" || e.key === "Snapshot") {
             e.preventDefault();
-            lockdown("SCREEN_CAPTURE_ATTEMPT", "Screen capture is not allowed for course content.", "PrintScreen key");
+            applyBlackout(true, "SCREEN_CAPTURE_ATTEMPT", "PrintScreen key", 2500);
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText("Screen capture of LSI VITC course content is not permitted.").catch(function () {});
+                }
+            } catch (err) {}
             return;
         }
-        // macOS screenshot chords rarely reach the page, but when they do, react.
+
+        // macOS screen capture chords
         if (e.metaKey && e.shiftKey && (k === "3" || k === "4" || k === "5")) {
             e.preventDefault();
-            lockdown("SCREEN_CAPTURE_ATTEMPT", "Screen capture is not allowed for course content.", "Cmd+Shift+" + k);
+            applyBlackout(true, "SCREEN_CAPTURE_ATTEMPT", "Cmd+Shift+" + k, 2500);
             return;
         }
+
         if (mod && k === "p") {
             if (certificateOpen()) return;
             e.preventDefault(); e.stopPropagation();
-            lockdown("PRINT_ATTEMPT", "Printing protected course content is not permitted.", "Ctrl/Cmd+P", { autoMs: 5000 });
+            applyBlackout(true, "PRINT_ATTEMPT", "Ctrl/Cmd+P", 2500);
             return;
         }
+
         if (mod && k === "s") {
             if (isEditable(e.target) && !e.shiftKey) { e.preventDefault(); return; }
             e.preventDefault(); e.stopPropagation();
-            lockdown("DOWNLOAD_ATTEMPT", "Saving or downloading course content is not permitted.", "Ctrl/Cmd+S", { autoMs: 5000 });
+            applyBlackout(true, "DOWNLOAD_ATTEMPT", "Ctrl/Cmd+S", 2500);
             return;
         }
+
         if (mod && (k === "c" || k === "x" || k === "a") && !isEditable(e.target)) {
             e.preventDefault(); e.stopPropagation();
             report("COPY_ATTEMPT", "Ctrl/Cmd+" + k.toUpperCase());
             return;
         }
+
         var devtools = e.key === "F12" || (mod && k === "u") ||
             (mod && e.shiftKey && (k === "i" || k === "j" || k === "c")) ||
             (e.metaKey && e.altKey && (k === "i" || k === "j" || k === "c"));
@@ -196,15 +285,14 @@
     }
 
     function onKeyUp(e) {
-        // Windows fires keyup reliably for Print Screen even when keydown is swallowed.
-        if (e.key !== "PrintScreen") return;
-        lockdown("SCREEN_CAPTURE_ATTEMPT", "Screen capture is not allowed for course content.", "PrintScreen key");
-        try {
-            var p = state.profile || {};
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText("Screen capture of LSI VITC course content is not permitted. " + (p.studentId || "")).catch(function () { /* ignore */ });
-            }
-        } catch (err) { /* clipboard access is optional */ }
+        if (e.key === "PrintScreen" || e.key === "Snapshot") {
+            applyBlackout(true, "SCREEN_CAPTURE_ATTEMPT", "PrintScreen key (keyup)", 2500);
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText("Screen capture of LSI VITC course content is not permitted.").catch(function () {});
+                }
+            } catch (err) {}
+        }
     }
 
     function onContextMenu(e) { if (!isEditable(e.target)) e.preventDefault(); }
@@ -215,16 +303,47 @@
     function onBeforePrint() {
         if (certificateOpen()) { document.body.classList.add("lsi-print-allowed"); return; }
         document.body.classList.remove("lsi-print-allowed");
-        report("PRINT_ATTEMPT", "beforeprint");
+        applyBlackout(true, "PRINT_ATTEMPT", "beforeprint", 2500);
     }
-    function onAfterPrint() { document.body.classList.remove("lsi-print-allowed"); }
+    function onAfterPrint() {
+        document.body.classList.remove("lsi-print-allowed");
+        if (!document.hidden && isPageOrIframeFocused()) {
+            applyBlackout(false);
+        }
+    }
 
-    function onVisibility() { setInactive(document.hidden); }
+    function onVisibility() {
+        if (document.hidden) {
+            clearTimeout(state.restoreTimer);
+            applyBlackout(true, "PROTECTED_CONTENT_BLUR", "tab hidden");
+        } else {
+            clearTimeout(state.restoreTimer);
+            state.restoreTimer = setTimeout(function () {
+                if (!document.hidden && isPageOrIframeFocused()) {
+                    applyBlackout(false);
+                }
+            }, 60);
+        }
+    }
+
     function onBlur() {
         clearTimeout(state.blurTimer);
-        state.blurTimer = setTimeout(function () { if (!document.hasFocus()) setInactive(true); }, 400);
+        state.blurTimer = setTimeout(function () {
+            if (document.hidden || !isPageOrIframeFocused()) {
+                applyBlackout(true, "PROTECTED_CONTENT_BLUR", "window blurred");
+            }
+        }, 80);
     }
-    function onFocus() { clearTimeout(state.blurTimer); setInactive(false); }
+
+    function onFocus() {
+        clearTimeout(state.blurTimer);
+        clearTimeout(state.restoreTimer);
+        state.restoreTimer = setTimeout(function () {
+            if (!document.hidden && isPageOrIframeFocused()) {
+                applyBlackout(false);
+            }
+        }, 60);
+    }
 
     // ---- activation ------------------------------------------------------------------------------
 
@@ -234,12 +353,11 @@
             studentId: profile.studentId || "",
             email: profile.email || ""
         };
-        if (state.active) { mountWatermark(); return; }
+        mountWatermark();
+        if (state.active) { return; }
         state.active = true;
         document.body.classList.add("lsi-protected");
         mountOverlays();
-        document.querySelectorAll("[data-protect-fs]").forEach(attachLocalWatermark);
-        mountWatermark();
 
         document.addEventListener("keydown", onKeyDown, true);
         document.addEventListener("keyup", onKeyUp, true);
@@ -256,7 +374,7 @@
 
         try {
             console.log("%cLSI VITC — Protected Student Portal", "font-size:16px;font-weight:700;color:#0077B6");
-            console.log("This content is licensed to one student and carries an identifying watermark. Copying or redistributing it is a breach of the academy's terms.");
+            console.log("This content is licensed to one student. Copying or redistributing it is a breach of the academy's terms.");
         } catch (e) { /* console may be unavailable */ }
     }
 
@@ -275,22 +393,10 @@
         attachLocalWatermark: attachLocalWatermark,
         report: report,
         lockdown: lockdown,
+        applyBlackout: applyBlackout,
         isActive: function () { return state.active; },
-        /** Draws the student watermark across a canvas (used by the handout viewer). */
-        stampCanvas: function (canvas) {
-            if (!state.profile) return;
-            var ctx = canvas.getContext("2d"); if (!ctx) return;
-            var p = state.profile, text = "LSI VITC · " + (p.name || "") + " · " + (p.studentId || p.email || "");
-            ctx.save();
-            ctx.globalAlpha = 0.14; ctx.fillStyle = "#0a1128";
-            ctx.font = "700 " + Math.max(14, Math.round(canvas.width / 38)) + "px Inter, Segoe UI, Arial, sans-serif";
-            ctx.translate(canvas.width / 2, canvas.height / 2); ctx.rotate(-Math.PI / 7);
-            var step = Math.max(140, Math.round(canvas.height / 4)), w = ctx.measureText(text).width + 120;
-            for (var y = -canvas.height; y < canvas.height; y += step) {
-                for (var x = -canvas.width; x < canvas.width; x += w) { ctx.fillText(text, x, y); }
-            }
-            ctx.restore();
-        }
+        /** Safe no-op to ensure course handouts and videos remain 100% visually clean without watermarks. */
+        stampCanvas: function (canvas) {}
     };
 
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);

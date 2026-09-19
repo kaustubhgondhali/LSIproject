@@ -55,6 +55,7 @@ public class AuthService {
     private final EmailService emailService;
     private final EnrollmentService enrollmentService;
     private final EbookEntitlementService ebookEntitlementService;
+    private final DeviceBindingService deviceBindingService;
 
     public AuthService(UserRepository userRepository,
                        StudentProfileRepository studentProfileRepository,
@@ -66,7 +67,8 @@ public class AuthService {
                        AuditService auditService,
                        EmailService emailService,
                        EnrollmentService enrollmentService,
-                       EbookEntitlementService ebookEntitlementService) {
+                       EbookEntitlementService ebookEntitlementService,
+                       DeviceBindingService deviceBindingService) {
         this.userRepository = userRepository;
         this.studentProfileRepository = studentProfileRepository;
         this.passwordEncoder = passwordEncoder;
@@ -78,11 +80,17 @@ public class AuthService {
         this.emailService = emailService;
         this.enrollmentService = enrollmentService;
         this.ebookEntitlementService = ebookEntitlementService;
+        this.deviceBindingService = deviceBindingService;
     }
 
     @Transactional(noRollbackFor = ApiException.class)
     public LoginResponse login(String identifier, String rawPassword, String deviceInfo, String ipAddress) {
-        return login(identifier, rawPassword, null, deviceInfo, ipAddress);
+        return login(identifier, rawPassword, null, null, null, deviceInfo, ipAddress);
+    }
+
+    @Transactional(noRollbackFor = ApiException.class)
+    public LoginResponse login(String identifier, String rawPassword, String portal, String deviceInfo, String ipAddress) {
+        return login(identifier, rawPassword, portal, null, null, deviceInfo, ipAddress);
     }
 
     /**
@@ -91,7 +99,8 @@ public class AuthService {
      *               no session is created. Enforced here, on the server, not in the browser.
      */
     @Transactional(noRollbackFor = ApiException.class)
-    public LoginResponse login(String identifier, String rawPassword, String portal, String deviceInfo, String ipAddress) {
+    public LoginResponse login(String identifier, String rawPassword, String portal,
+                               String deviceId, String deviceToken, String deviceInfo, String ipAddress) {
         String cleanId = identifier == null ? "" : identifier.trim();
 
         if (loginAttemptService.isLocked(cleanId)) {
@@ -138,16 +147,39 @@ public class AuthService {
                             : required == Role.AUTOMATION_ADMIN ? AUTOMATION_PORTAL_ONLY : ADMIN_PORTAL_ONLY);
         }
 
-        // Throws 409 for a student who already has a live session elsewhere.
+        // Account-to-Device binding evaluation for students
+        String boundDeviceId = null;
+        String boundDeviceToken = null;
+
+        if (user.getRole() == Role.STUDENT) {
+            var check = deviceBindingService.evaluateLogin(user, deviceId, deviceToken, deviceInfo, ipAddress);
+            if (!check.allowed()) {
+                if ("DEVICE_REGISTRATION_REQUIRED".equals(check.deviceStatus())) {
+                    return LoginResponse.deviceRequired(check.deviceStatus(), check.tempToken(), check.emailMasked(), null, check.message());
+                } else if ("DEVICE_LINK_REQUIRED".equals(check.deviceStatus())) {
+                    return LoginResponse.deviceRequired(check.deviceStatus(), check.tempToken(), check.emailMasked(), check.registeredDeviceName(), check.message());
+                } else {
+                    throw new ApiException(HttpStatus.FORBIDDEN, "This account is already registered to another device.");
+                }
+            }
+            if (check.device() != null) {
+                boundDeviceId = check.device().getDeviceId();
+                boundDeviceToken = deviceToken;
+            }
+        }
+
         UserSession session = sessionService.open(user, jwtService.accessTokenTtl(), deviceInfo, ipAddress);
+        if (boundDeviceId != null) {
+            session.setDeviceId(boundDeviceId);
+        }
 
         loginAttemptService.recordSuccess(cleanId);
         user.setLastLoginAt(Instant.now());
         userRepository.save(user);
         auditService.record(user, "LOGIN_SUCCESS", "User", user.getId(), "Logged in", ipAddress);
 
-        String token = jwtService.issueAccessToken(user, session.getTokenId(), session.getExpiresAt());
-        return new LoginResponse(token, "Bearer", session.getExpiresAt(), summarize(user), redirectFor(user.getRole()));
+        String token = jwtService.issueAccessToken(user, session.getTokenId(), session.getExpiresAt(), boundDeviceId);
+        return new LoginResponse(token, "Bearer", session.getExpiresAt(), summarize(user), redirectFor(user.getRole()), boundDeviceId, boundDeviceToken);
     }
 
     @Transactional

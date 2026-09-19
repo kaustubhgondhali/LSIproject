@@ -21,6 +21,12 @@ public final class TokenUtil {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 
+    /** Generates a cryptographically secure 6-digit verification code. */
+    public static String generate6DigitOtp() {
+        int code = RANDOM.nextInt(900000) + 100000;
+        return String.valueOf(code);
+    }
+
     /**
      * A 12-character temporary password that satisfies the login rule (letters + digits) and
      * avoids look-alike characters. Only its BCrypt hash is stored; the value lives in one email.

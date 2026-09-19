@@ -77,7 +77,7 @@ public class StudentLibraryController {
      * Streams the protected ebook PDF to its owner only. Needs the bearer header, so it can never
      * be opened as a plain link; a denied attempt is written to the audit trail before the 403.
      */
-    @GetMapping("/ebooks/{ebookId}/download")
+    @GetMapping({"/ebooks/{ebookId}/download", "/ebooks/{ebookId}/view"})
     public ResponseEntity<Resource> download(@PathVariable Long ebookId, HttpServletRequest request) {
         Long userId = me();
         Ebook ebook;
@@ -86,7 +86,7 @@ public class StudentLibraryController {
         } catch (ApiException e) {
             if (e.getStatus() == HttpStatus.FORBIDDEN) {
                 User user = userService.requireUser(userId);
-                protectionEvents.recordUnauthorizedMedia(user, null, "Denied ebook download (ebook " + ebookId + "): " + e.getMessage(),
+                protectionEvents.recordUnauthorizedMedia(user, null, "Denied ebook access (ebook " + ebookId + "): " + e.getMessage(),
                         RequestUtil.clientIp(request));
             }
             throw e;
@@ -111,7 +111,10 @@ public class StudentLibraryController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + name.replace("\"", "") + "\"")
                 .header(HttpHeaders.ACCEPT_RANGES, "bytes")
                 .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .header("Pragma", "no-cache")
+                .header("Expires", "0")
                 .header("X-Content-Type-Options", "nosniff")
+                .header("X-Frame-Options", "SAMEORIGIN")
                 .body(pdf);
     }
 

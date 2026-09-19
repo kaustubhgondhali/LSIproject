@@ -228,6 +228,19 @@ public class SmtpEmailService implements EmailService {
         return send(channel.get(), toEmail, null, subject, "email/communication", model, attachment);
     }
 
+    @Override
+    public EmailDelivery sendDeviceOtp(User user, String otp, String actionDescription, String ipAddress) {
+        Optional<MailSenderResolver.ActiveMail> channel = resolver.resolve();
+        if (channel.isEmpty()) {
+            return notSent(fallback.sendDeviceOtp(user, otp, actionDescription, ipAddress));
+        }
+        Map<String, Object> model = base();
+        model.put("name", user.getFullName());
+        model.put("subject", "Device Verification Code - Lord Sai Academy");
+        model.put("message", "Your verification code for " + actionDescription + " is: " + otp + "\n\nThis code will expire in 10 minutes.\nRequest IP: " + ipAddress + "\nIf you did not initiate this request, please change your password immediately.");
+        return send(channel.get(), user.getEmail(), null, "Device Verification Code - Lord Sai Academy", "email/communication", model, null);
+    }
+
     /** Where a user of this role signs in; used in credential and notification emails. */
     public String loginUrlFor(Role role) {
         String base = properties.publicBaseUrl().replaceAll("/+$", "") + "/student-login.html";

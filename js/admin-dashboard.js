@@ -94,10 +94,10 @@
         if (target) target.classList.add("active");
         document.querySelectorAll(".adm-nav a[data-view]").forEach(function (a) { a.classList.toggle("active", a.dataset.view === view); });
         el("sidebar").classList.remove("open");
-        var loaders = { dashboard: loadDashboard, students: function () { loadStudents(0); }, courses: loadCourses, curriculum: initCurriculum,
+        var loaders = { dashboard: loadDashboard, students: function () { loadStudents(0); }, courses: function () { initShareMarketPurchaseToggle(); return loadCourses(); }, curriculum: initCurriculum,
             enrollments: function () { loadEnrollments(0); }, payments: function () { loadPayments(0); }, stories: loadStories, reviews: function () { loadReviews(0); },
             mentoring: loadMentoring, "mf-slider": loadSlider, blogs: function () { loadBlogs(0); }, "blog-categories": loadBlogCategories,
-            gateway: loadGateway, email: loadEmailSettings, audit: function () { loadAudit(0); }, settings: function () { el("settingsApiBase").innerText = LSI_Auth.apiBase; }, whatsapp: loadWhatsAppSettings,
+            gateway: loadGateway, email: loadEmailSettings, audit: function () { loadAudit(0); }, settings: function () { el("settingsApiBase").innerText = LSI_Auth.apiBase; initShareMarketPurchaseToggle(); }, whatsapp: loadWhatsAppSettings,
             ebooks: loadEbooks, invoices: function () { loadInvoices(0); },
             "exam-applications": function () { loadExamApplications(0); }, exams: loadExams, "exam-results": function () { loadExamResults(0); }, certificates: function () { loadCertificates(0); } };
         if (loaders[view]) loaders[view]();
@@ -240,9 +240,10 @@
         show("student-detail");
         el("studentDetail").innerHTML = '<div class="text-muted">Loading...</div>';
         Promise.all([api("/admin/students/" + id), api("/admin/students/" + id + "/enrollments"), api("/admin/students/" + id + "/payments"),
-                     api("/admin/students/" + id + "/sessions"), api("/admin/students/" + id + "/ebooks")]).then(function (r) {
+                     api("/admin/students/" + id + "/sessions"), api("/admin/students/" + id + "/ebooks"),
+                     api("/admin/students/" + id + "/device")]).then(function (r) {
             if (!r[0].success) { el("studentDetail").innerHTML = '<div class="alert alert-danger">' + esc(r[0].message) + '</div>'; return; }
-            var s = r[0].data, enr = r[1].data || [], pay = r[2].data || [], ses = r[3].data || [], ebk = r[4].data || [];
+            var s = r[0].data, enr = r[1].data || [], pay = r[2].data || [], ses = r[3].data || [], ebk = r[4].data || [], dev = (r[5] && r[5].success) ? r[5].data : null;
             var disabled = s.accountStatus === "DISABLED";
             el("studentDetail").innerHTML =
                 '<div class="adm-card p-4 mb-3"><div class="d-flex flex-wrap justify-content-between align-items-start gap-3">' +
@@ -255,10 +256,25 @@
                 '<button class="btn btn-sm btn-outline-primary" id="sdResendSetup"><i class="fas fa-paper-plane me-1"></i> Resend Setup Email</button>' +
                 '<button class="btn btn-sm btn-outline-secondary" id="sdSendCreds"><i class="fas fa-envelope-open-text me-1"></i> Send Login Credentials</button>' +
                 '<button class="btn btn-sm btn-outline-warning" id="sdLogout"><i class="fas fa-sign-out-alt me-1"></i> Logout All Devices</button>' +
+                '<button class="btn btn-sm btn-outline-danger" id="sdResetDevice"><i class="fas fa-laptop me-1"></i> Reset Device Binding</button>' +
                 '<button class="btn btn-sm ' + (disabled ? "btn-success" : "btn-outline-danger") + '" id="sdToggle">' + (disabled ? '<i class="fas fa-check me-1"></i> Activate' : '<i class="fas fa-ban me-1"></i> Deactivate') + '</button>' +
                 '<button class="btn btn-sm btn-outline-danger" id="sdDelete"><i class="fas fa-trash me-1"></i> Delete</button>' +
                 '</div></div></div>' +
                 '<div class="row g-3">' +
+                '<div class="col-lg-6"><div class="adm-card p-3"><div class="d-flex justify-content-between align-items-center mb-2"><h6 class="fw-bold mb-0"><i class="fas fa-laptop me-1 text-primary"></i> Registered Computer (1 Account = 1 Device)</h6>' +
+                (dev ? '<button class="btn btn-xs btn-outline-danger" id="sdCardResetDevice"><i class="fas fa-trash me-1"></i> Reset Binding</button>' : '') +
+                '</div>' +
+                (dev ? (
+                    '<div class="small">' +
+                    '<div class="mb-1"><strong>Device Name:</strong> ' + esc(dev.deviceName || "Primary Computer") + ' <span class="badge ' + (dev.deviceStatus === 'ACTIVE' ? 'bg-success' : 'bg-secondary') + ' ms-1">' + esc(dev.deviceStatus || "BOUND") + '</span></div>' +
+                    '<div class="mb-1"><strong>Platform:</strong> ' + esc(dev.devicePlatform || "—") + '</div>' +
+                    '<div class="mb-1"><strong>Device ID:</strong> <span class="font-monospace text-muted">' + esc(dev.deviceId) + '</span></div>' +
+                    '<div class="mb-1"><strong>Registered:</strong> ' + dt(dev.registeredAt) + '</div>' +
+                    '<div class="mb-1"><strong>Last Activity:</strong> ' + dt(dev.lastSeenAt) + '</div>' +
+                    (dev.resetRequired ? '<div class="alert alert-warning py-1 px-2 mt-2 mb-0 small"><i class="fas fa-exclamation-triangle me-1"></i> Device reset pending. Student can register their new computer on next login.</div>' : '') +
+                    '</div>'
+                ) : '<div class="text-muted small py-2"><i class="fas fa-info-circle me-1"></i> No computer bound yet. The student will bind their computer automatically on first login.</div>') +
+                '</div></div>' +
                 '<div class="col-lg-6"><div class="adm-card p-3"><div class="d-flex justify-content-between align-items-center mb-2"><h6 class="fw-bold mb-0">Courses & Progress</h6><button class="btn btn-xs btn-primary" id="sdEnroll">+ Enroll in course</button></div>' +
                 '<table class="table table-sm mb-0"><thead><tr><th>Course</th><th>Status</th><th>Progress</th><th>Source</th><th></th></tr></thead><tbody>' +
                 (enr.map(function (e) { return '<tr><td>' + esc(e.courseName) + '</td><td>' + badge(e.status) + '</td><td>' + e.progressPercent + '% <small class="text-muted">(' + e.completedLessons + '/' + e.totalLessons + ')</small></td><td>' + badge(e.source) + '</td><td>' + enrollmentActions(e) + '</td></tr>'; }).join("") || '<tr><td colspan="5" class="text-muted">Not enrolled in any course.</td></tr>') +
@@ -281,6 +297,13 @@
             el("sdResendSetup").onclick = function () { if (confirmAction("Re-send the enrollment email (Student ID + password setup link) to " + s.email + "?")) api("/admin/students/" + id + "/resend-setup", { method: "POST" }).then(handle); };
             el("sdSendCreds").onclick = function () { if (confirmAction("Generate a secure password setup link for " + s.fullName + " and email it to " + s.email + "? Their current password stops working and all sessions end.")) api("/admin/students/" + id + "/send-credentials", { method: "POST" }).then(function (r) { if (handle(r)) openStudent(id); }); };
             el("sdLogout").onclick = function () { if (confirmAction("Log this student out of all devices?")) api("/admin/students/" + id + "/force-logout", { method: "POST" }).then(function (r) { if (handle(r)) openStudent(id); }); };
+
+            function doResetDevice() {
+                if (!confirmAction("Reset the registered computer for " + s.fullName + "?\n\nThis will remove the current computer binding and terminate all active sessions so the student can bind their new computer on next login.")) return;
+                api("/admin/students/" + id + "/reset-device", { method: "POST" }).then(function (r) { if (handle(r)) openStudent(id); });
+            }
+            if (el("sdResetDevice")) el("sdResetDevice").onclick = doResetDevice;
+            if (el("sdCardResetDevice")) el("sdCardResetDevice").onclick = doResetDevice;
             el("sdToggle").onclick = function () {
                 var next = disabled ? "ACTIVE" : "DISABLED";
                 if (confirmAction((disabled ? "Activate" : "Deactivate") + " this account?" + (disabled ? "" : " The student will be logged out and cannot sign in."))) api("/admin/students/" + id + "/status?status=" + next, { method: "PATCH" }).then(function (r) { if (handle(r)) openStudent(id); });
@@ -298,6 +321,145 @@
             bindEnrollmentActions(el("studentDetail"), function () { openStudent(id); });
         });
     }
+
+    // ---- Share Market Course Purchase Toggle (Frontend Setting) ------------
+    var SM_PURCHASE_STORAGE_KEY = "shareMarketCoursePurchaseEnabled";
+    var SM_CHANNEL_NAME = "lsi_purchase_channel";
+
+    function isShareMarketPurchaseEnabled() {
+        try {
+            var val = localStorage.getItem(SM_PURCHASE_STORAGE_KEY);
+            if (val === "false") return false;
+            if (val === "true") return true;
+        } catch (e) {}
+        try {
+            var m = document.cookie.match(new RegExp('(?:^|;\\s*)' + SM_PURCHASE_STORAGE_KEY + '=(true|false)(?:;|$)'));
+            if (m) return m[1] !== "false";
+        } catch (e) {}
+        try {
+            var sVal = sessionStorage.getItem(SM_PURCHASE_STORAGE_KEY);
+            if (sVal === "false") return false;
+            if (sVal === "true") return true;
+        } catch (e) {}
+        return true;
+    }
+
+    function setShareMarketPurchaseEnabled(enabled) {
+        var isEnabled = Boolean(enabled);
+        var str = isEnabled ? "true" : "false";
+        try { localStorage.setItem(SM_PURCHASE_STORAGE_KEY, str); } catch (e) {}
+        try { sessionStorage.setItem(SM_PURCHASE_STORAGE_KEY, str); } catch (e) {}
+        try {
+            document.cookie = SM_PURCHASE_STORAGE_KEY + "=" + str + "; path=/; max-age=31536000; SameSite=Lax";
+            if (location.hostname === "localhost") {
+                document.cookie = SM_PURCHASE_STORAGE_KEY + "=" + str + "; path=/; domain=localhost; max-age=31536000; SameSite=Lax";
+            }
+        } catch (e) {}
+
+        try {
+            if (typeof BroadcastChannel !== "undefined") {
+                var bc = new BroadcastChannel(SM_CHANNEL_NAME);
+                bc.postMessage({ key: SM_PURCHASE_STORAGE_KEY, enabled: isEnabled });
+            }
+        } catch (e) {}
+
+        updateShareMarketPurchaseUI(isEnabled);
+        toast(isEnabled ? "Share Market course purchase is now ENABLED." : "Share Market course purchase is now DISABLED (Admissions Closed).");
+    }
+
+    function updateShareMarketPurchaseUI(enabled) {
+        var isEnabled = enabled !== false;
+        var param = isEnabled ? "on" : "off";
+
+        // Courses view controls
+        var sw = el("shareMarketPurchaseSwitch");
+        var badgeEl = el("shareMarketPurchaseBadge");
+        var btnText = el("btnToggleShareMarketPurchaseText");
+        var linkCourses = el("adminPreviewCourseLink");
+
+        if (sw) sw.checked = isEnabled;
+        if (badgeEl) {
+            badgeEl.innerText = isEnabled ? "ON" : "OFF";
+            badgeEl.className = "badge " + (isEnabled ? "bg-success" : "bg-secondary");
+        }
+        if (btnText) {
+            btnText.innerText = isEnabled ? "Turn OFF" : "Turn ON";
+        }
+        if (linkCourses) {
+            linkCourses.href = "courses.html?purchase=" + param;
+        }
+
+        // Settings view controls
+        var sSw = el("settingsShareMarketPurchaseSwitch");
+        var sBadge = el("settingsShareMarketPurchaseBadge");
+        var sStatus = el("settingsShareMarketStatusText");
+        var linkSettings = el("settingsPreviewCourseLink");
+
+        if (sSw) sSw.checked = isEnabled;
+        if (sBadge) {
+            sBadge.innerText = isEnabled ? "ON" : "OFF";
+            sBadge.className = "badge " + (isEnabled ? "bg-success" : "bg-secondary");
+        }
+        if (sStatus) {
+            sStatus.innerText = isEnabled ? "Enabled" : "Disabled";
+            sStatus.className = isEnabled ? "text-success fw-bold" : "text-danger fw-bold";
+        }
+        if (linkSettings) {
+            linkSettings.href = "courses.html?purchase=" + param;
+        }
+    }
+
+    function initShareMarketPurchaseToggle() {
+        var enabled = isShareMarketPurchaseEnabled();
+        updateShareMarketPurchaseUI(enabled);
+
+        var sw = el("shareMarketPurchaseSwitch");
+        if (sw && !sw._lsiBound) {
+            sw._lsiBound = true;
+            sw.addEventListener("change", function () {
+                setShareMarketPurchaseEnabled(sw.checked);
+            });
+        }
+
+        var btn = el("btnToggleShareMarketPurchase");
+        if (btn && !btn._lsiBound) {
+            btn._lsiBound = true;
+            btn.addEventListener("click", function () {
+                setShareMarketPurchaseEnabled(!isShareMarketPurchaseEnabled());
+            });
+        }
+
+        var sSw = el("settingsShareMarketPurchaseSwitch");
+        if (sSw && !sSw._lsiBound) {
+            sSw._lsiBound = true;
+            sSw.addEventListener("change", function () {
+                setShareMarketPurchaseEnabled(sSw.checked);
+            });
+        }
+    }
+
+    // Expose helpers globally immediately
+    window.LSI_setPurchaseSetting = setShareMarketPurchaseEnabled;
+    window.LSI_togglePurchaseSetting = function () { setShareMarketPurchaseEnabled(!isShareMarketPurchaseEnabled()); };
+    window.LSI_isPurchaseEnabled = isShareMarketPurchaseEnabled;
+    window.LSI_initPurchaseToggle = initShareMarketPurchaseToggle;
+
+    // Run right away if DOM is already ready or in progress
+    initShareMarketPurchaseToggle();
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initShareMarketPurchaseToggle);
+    }
+    window.addEventListener("load", initShareMarketPurchaseToggle);
+    try {
+        if (typeof BroadcastChannel !== "undefined") {
+            var admBc = new BroadcastChannel(SM_CHANNEL_NAME);
+            admBc.onmessage = function (ev) {
+                if (ev.data && ev.data.key === SM_PURCHASE_STORAGE_KEY) {
+                    updateShareMarketPurchaseUI(ev.data.enabled);
+                }
+            };
+        }
+    } catch (e) {}
 
     // ---- courses ---------------------------------------------------------------------------
 
@@ -2790,6 +2952,13 @@
         if (adminSession && adminSession.profile && adminSession.profile.email) {
             el("adminCurrentUserId").value = adminSession.profile.email.split("@")[0];
         }
+
+        initShareMarketPurchaseToggle();
+        window.addEventListener("storage", function (e) {
+            if (e.key === SM_PURCHASE_STORAGE_KEY) {
+                updateShareMarketPurchaseUI(isShareMarketPurchaseEnabled());
+            }
+        });
 
         // A return trip from Google lands here; go straight to Email Settings and say what happened.
         var googleOutcome = consumeGoogleCallbackResult();

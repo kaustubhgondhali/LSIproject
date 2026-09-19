@@ -52,12 +52,21 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .headers(headers -> headers
                         .contentTypeOptions(c -> { })
-                        .frameOptions(f -> f.deny())
+                        .frameOptions(f -> f.sameOrigin())
                         .referrerPolicy(r -> r.policy(
                                 org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter
                                         .ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(
+                                "/",
+                                "/*.html",
+                                "/css/**",
+                                "/js/**",
+                                "/img/**",
+                                "/lib/**",
+                                "/branding/**",
+                                "/favicon.ico").permitAll()
                         .requestMatchers("/api/health", "/actuator/health").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers(
@@ -65,7 +74,8 @@ public class SecurityConfig {
                                 "/api/auth/forgot-password",
                                 "/api/auth/reset-password",
                                 "/api/auth/resend-setup",
-                                "/api/auth/token-check").permitAll()
+                                "/api/auth/token-check",
+                                "/api/auth/device/**").permitAll()
                         // Checkout is performed by visitors who do not have an account yet.
                         .requestMatchers(
                                 "/api/payments/mode",

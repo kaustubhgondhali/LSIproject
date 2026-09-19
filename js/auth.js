@@ -20,6 +20,7 @@
 
     var STORAGE_KEY_SESSION = "lsi_auth_user_session";
     var STORAGE_KEY_REDIRECT = "lsi_auth_redirect_target";
+    var STORAGE_KEY_DEVICE = "lsi_device_binding";
     var API_BASE = (window.LSI_CONFIG && window.LSI_CONFIG.API_BASE) || "/api";
 
     function storage() {
@@ -44,6 +45,31 @@
     function clearSession() {
         localStorage.removeItem(STORAGE_KEY_SESSION);
         sessionStorage.removeItem(STORAGE_KEY_SESSION);
+    }
+
+    function readDeviceBinding() {
+        try {
+            var raw = localStorage.getItem(STORAGE_KEY_DEVICE);
+            return raw ? JSON.parse(raw) : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function saveDeviceBinding(deviceId, deviceToken) {
+        if (!deviceId || !deviceToken) return;
+        try {
+            localStorage.setItem(STORAGE_KEY_DEVICE, JSON.stringify({
+                deviceId: deviceId,
+                deviceToken: deviceToken
+            }));
+        } catch (e) {}
+    }
+
+    function clearDeviceBinding() {
+        try {
+            localStorage.removeItem(STORAGE_KEY_DEVICE);
+        } catch (e) {}
     }
 
     function toProfile(user) {
@@ -75,6 +101,7 @@
     function api(path, options) {
         options = options || {};
         var session = readSession();
+        var dev = readDeviceBinding();
         var headers = options.headers || {};
         if (!(options.body instanceof FormData)) {
             headers["Content-Type"] = "application/json";
@@ -82,6 +109,10 @@
         headers["Accept"] = "application/json";
         if (session && session.token) {
             headers["Authorization"] = "Bearer " + session.token;
+        }
+        if (dev && dev.deviceId && dev.deviceToken) {
+            headers["X-Device-Id"] = dev.deviceId;
+            headers["X-Device-Token"] = dev.deviceToken;
         }
         var init = {
             method: options.method || "GET",
@@ -116,13 +147,37 @@
         apiBase: API_BASE,
 
         login: function (identifier, password, rememberMe, portal) {
+            var dev = readDeviceBinding();
+            var payload = {
+                identifier: (identifier || "").trim(),
+                password: password || "",
+                portal: portal || "STUDENT"
+            };
+            if (dev && dev.deviceId && dev.deviceToken) {
+                payload.deviceId = dev.deviceId;
+                payload.deviceToken = dev.deviceToken;
+            }
             return api("/auth/login", {
                 method: "POST",
-                body: { identifier: (identifier || "").trim(), password: password || "", portal: portal || "STUDENT" },
+                body: payload,
                 skipAuthRedirect: true
             }).then(function (res) {
                 if (!res.success || !res.data) {
                     return { success: false, message: res.message || "Invalid email/student ID or password." };
+                }
+                if (res.data.deviceStatus && res.data.deviceStatus !== "AUTHENTICATED") {
+                    return {
+                        success: false,
+                        deviceRequired: true,
+                        deviceStatus: res.data.deviceStatus,
+                        tempToken: res.data.tempToken,
+                        emailMasked: res.data.emailMasked,
+                        registeredDeviceName: res.data.registeredDeviceName,
+                        message: res.data.message || res.message
+                    };
+                }
+                if (res.data.deviceId && res.data.deviceToken) {
+                    saveDeviceBinding(res.data.deviceId, res.data.deviceToken);
                 }
                 var profile = toProfile(res.data.user);
                 writeSession({
@@ -263,7 +318,122 @@
             return api("/auth/change-user-id", { method: "POST", body: {
                 currentUserId: currentUserId, newUserId: newUserId, currentPassword: currentPassword
             } });
-        }
+        },
+
+        registerDevice: function (tempToken, otp, deviceName) {
+            var platform = (navigator.userAgentData && navigator.userAgentData.platform)
+                ? navigator.userAgentData.platform
+                : (navigator.platform || "Desktop");
+            return api("/auth/device/register", {
+                method: "POST",
+                body: {
+                    tempToken: tempToken,
+                    otp: (otp || "").trim(),
+                    deviceName: (deviceName || "").trim() || "My Computer",
+                    devicePlatform: platform
+                },
+                skipAuthRedirect: true
+            }).then(function (res) {
+                if (!res.success || !res.data) {
+                    return { success: false, message: res.message || "Device registration failed." };
+                }
+                if (res.data.deviceId && res.data.deviceToken) {
+                    saveDeviceBinding(res.data.deviceId, res.data.deviceToken);
+                }
+                var profile = toProfile(res.data.user);
+                writeSession({
+                    token: res.data.accessToken,
+                    expiresAt: res.data.expiresAt,
+                    role: profile.role,
+                    profile: profile,
+                    loginTime: new Date().toISOString(),
+                    rememberMe: true
+                }, true);
+                var redirectTarget = sessionStorage.getItem(STORAGE_KEY_REDIRECT) || res.data.redirectUrl || dashboardFor(profile.role);
+                sessionStorage.removeItem(STORAGE_KEY_REDIRECT);
+                return { success: true, role: profile.role, user: profile, redirectUrl: redirectTarget };
+            });
+        },
+
+        linkBrowser: function (tempToken, otp) {
+            var platform = (navigator.userAgentData && navigator.userAgentData.platform)
+                ? navigator.userAgentData.platform
+                : (navigator.platform || "Desktop");
+            return api("/auth/device/link-browser", {
+                method: "POST",
+                body: {
+                    tempToken: tempToken,
+                    otp: (otp || "").trim(),
+                    devicePlatform: platform
+                },
+                skipAuthRedirect: true
+            }).then(function (res) {
+                if (!res.success || !res.data) {
+                    return { success: false, message: res.message || "Browser authorization failed." };
+                }
+                if (res.data.deviceId && res.data.deviceToken) {
+                    saveDeviceBinding(res.data.deviceId, res.data.deviceToken);
+                }
+                var profile = toProfile(res.data.user);
+                writeSession({
+                    token: res.data.accessToken,
+                    expiresAt: res.data.expiresAt,
+                    role: profile.role,
+                    profile: profile,
+                    loginTime: new Date().toISOString(),
+                    rememberMe: true
+                }, true);
+                var redirectTarget = sessionStorage.getItem(STORAGE_KEY_REDIRECT) || res.data.redirectUrl || dashboardFor(profile.role);
+                sessionStorage.removeItem(STORAGE_KEY_REDIRECT);
+                return { success: true, role: profile.role, user: profile, redirectUrl: redirectTarget };
+            });
+        },
+
+        requestDeviceReset: function (identifier) {
+            return api("/auth/device/reset-request", {
+                method: "POST",
+                body: { identifier: (identifier || "").trim() },
+                skipAuthRedirect: true
+            });
+        },
+
+        confirmDeviceReset: function (tempToken, otp, newDeviceName) {
+            var platform = (navigator.userAgentData && navigator.userAgentData.platform)
+                ? navigator.userAgentData.platform
+                : (navigator.platform || "Desktop");
+            return api("/auth/device/reset-confirm", {
+                method: "POST",
+                body: {
+                    tempToken: tempToken,
+                    otp: (otp || "").trim(),
+                    newDeviceName: (newDeviceName || "").trim() || "My Computer",
+                    newDevicePlatform: platform
+                },
+                skipAuthRedirect: true
+            }).then(function (res) {
+                if (!res.success || !res.data) {
+                    return { success: false, message: res.message || "Device reset failed." };
+                }
+                if (res.data.deviceId && res.data.deviceToken) {
+                    saveDeviceBinding(res.data.deviceId, res.data.deviceToken);
+                }
+                var profile = toProfile(res.data.user);
+                writeSession({
+                    token: res.data.accessToken,
+                    expiresAt: res.data.expiresAt,
+                    role: profile.role,
+                    profile: profile,
+                    loginTime: new Date().toISOString(),
+                    rememberMe: true
+                }, true);
+                var redirectTarget = sessionStorage.getItem(STORAGE_KEY_REDIRECT) || res.data.redirectUrl || dashboardFor(profile.role);
+                sessionStorage.removeItem(STORAGE_KEY_REDIRECT);
+                return { success: true, role: profile.role, user: profile, redirectUrl: redirectTarget };
+            });
+        },
+
+        getDeviceBinding: readDeviceBinding,
+        clearDeviceBinding: clearDeviceBinding
     };
 
     window.LSI_Auth = LSI_Auth;

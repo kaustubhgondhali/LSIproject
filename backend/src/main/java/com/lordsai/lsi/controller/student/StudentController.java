@@ -14,8 +14,10 @@ import com.lordsai.lsi.dto.student.StudentDtos.ProtectionEventRequest;
 import com.lordsai.lsi.entity.Lesson;
 import com.lordsai.lsi.entity.User;
 import com.lordsai.lsi.exception.ApiException;
+import com.lordsai.lsi.security.AuthUser;
 import com.lordsai.lsi.security.CurrentUser;
 import com.lordsai.lsi.security.StreamTicketService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import com.lordsai.lsi.service.AuthService;
 import com.lordsai.lsi.service.FileStorageService;
 import com.lordsai.lsi.service.PaymentService;
@@ -139,6 +141,17 @@ public class StudentController {
             protectionEvents.recordUnauthorizedMedia(null, lessonId, "Invalid or expired stream ticket", RequestUtil.clientIp(request));
             throw e;
         }
+        // Cross-student verification: If the caller is authenticated as another student, forbid access
+        var currentAuth = SecurityContextHolder.getContext().getAuthentication();
+        if (currentAuth != null && currentAuth.getPrincipal() instanceof AuthUser authUser) {
+            if (!authUser.id().equals(t.userId())) {
+                User user = userService.requireUser(authUser.id());
+                protectionEvents.recordUnauthorizedMedia(user, lessonId,
+                        "Cross-student video access attempt: caller " + authUser.id() + " used ticket for user " + t.userId(),
+                        RequestUtil.clientIp(request));
+                throw new ApiException(HttpStatus.FORBIDDEN, "You do not have access to this stream ticket.");
+            }
+        }
         Lesson lesson = accessibleOrAudit(t.userId(), lessonId, "video", request);
         if (lesson.getVideoPath() == null) {
             throw new ApiException(HttpStatus.NOT_FOUND, "This lesson has no video yet.");
@@ -159,7 +172,10 @@ public class StudentController {
                 .contentType(MediaType.APPLICATION_PDF)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + name.replace("\"", "") + "\"")
                 .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .header("Pragma", "no-cache")
+                .header("Expires", "0")
                 .header("X-Content-Type-Options", "nosniff")
+                .header("X-Frame-Options", "SAMEORIGIN")
                 .body(file);
     }
 

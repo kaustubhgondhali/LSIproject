@@ -161,6 +161,36 @@
                         <h4 class="fw-bold mb-0">Courses</h4>
                         <button class="btn btn-sm btn-primary" onclick="Admin.openCourseForm()"><i class="fas fa-plus me-1"></i> Add Course</button>
                     </div>
+
+                    <!-- Share Market Course Purchase Toggle -->
+                    <div class="adm-card p-3 mb-3 border-0 shadow-sm" style="border-radius:12px; border-left: 4px solid #0F9F90 !important;">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary" style="width:42px;height:42px;font-size:18px;flex-shrink:0;">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </div>
+                                <div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="fw-bold" style="font-size:15px;">Share Market Course Purchase</span>
+                                        <span class="badge bg-success" id="shareMarketPurchaseBadge" style="font-size:11px;letter-spacing:0.5px;">ON</span>
+                                    </div>
+                                    <small class="text-muted d-block">Controls whether visitors can purchase the Share Market course on the website.</small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center flex-wrap gap-2">
+                                <a href="courses.html" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3" id="adminPreviewCourseLink">
+                                    <i class="fas fa-external-link-alt me-1"></i> Preview Course Page
+                                </a>
+                                <div class="form-check form-switch m-0 ms-2" style="font-size:1.35rem;">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="shareMarketPurchaseSwitch" checked style="cursor:pointer;" title="Toggle Share Market Course Purchase" onchange="window.LSI_setPurchaseSetting ? window.LSI_setPurchaseSetting(this.checked) : null">
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" id="btnToggleShareMarketPurchase" style="min-width:85px;" onclick="window.LSI_togglePurchaseSetting ? window.LSI_togglePurchaseSetting() : null">
+                                    <span id="btnToggleShareMarketPurchaseText">Turn OFF</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0">
                         <thead><tr><th>Course</th><th>Code</th><th>Price</th><th>Modules / Lessons</th><th>Students</th><th>Status</th><th>Actions</th></tr></thead>
                         <tbody id="coursesBody"></tbody></table></div></div>
@@ -890,11 +920,37 @@
                                 <div class="form-text mt-2">Changing the password logs you out everywhere.</div>
                             </form>
                         </div></div>
-                        <div class="col-lg-7"><div class="adm-card p-4">
-                            <h6 class="fw-bold mb-3">Configuration</h6>
-                            <p class="small text-muted mb-2">Database and JWT settings are supplied through environment variables on the server (see <code>backend/.env.example</code>) and are intentionally not editable here. Razorpay keys are managed under <a href="#gateway" data-view="gateway">Payment Gateway</a>, SMTP under <a href="#email" data-view="email">Email Settings</a> and WhatsApp under <a href="#whatsapp" data-view="whatsapp">WhatsApp Settings</a>.</p>
-                            <div class="small"><strong>API base:</strong> <code id="settingsApiBase"></code></div>
-                        </div></div>
+                        <div class="col-lg-7">
+                            <div class="adm-card p-4 mb-3" style="border-left: 4px solid #0F9F90 !important;">
+                                <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                                    <h6 class="fw-bold mb-0">Share Market Course Purchase</h6>
+                                    <a href="courses.html" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3" id="settingsPreviewCourseLink">
+                                        <i class="fas fa-external-link-alt me-1"></i> Preview Course Page
+                                    </a>
+                                </div>
+                                <p class="small text-muted mb-3">Enable or disable the public Buy / Purchase option for the Share Market course. When disabled, the course and curriculum remain fully visible to visitors with purchase marked unavailable.</p>
+                                <div class="d-flex align-items-center justify-content-between p-3 rounded bg-light border">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="fas fa-shopping-cart text-primary"></i>
+                                        <div>
+                                            <div class="fw-bold small">Share Market Course Purchase</div>
+                                            <small class="text-muted">Current status: <span id="settingsShareMarketStatusText" class="text-success fw-bold">Enabled</span></small>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="form-check form-switch m-0" style="font-size: 1.25rem;">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="settingsShareMarketPurchaseSwitch" checked style="cursor:pointer;" title="Toggle Share Market Course Purchase" onchange="window.LSI_setPurchaseSetting ? window.LSI_setPurchaseSetting(this.checked) : null">
+                                        </div>
+                                        <span class="badge bg-success" id="settingsShareMarketPurchaseBadge">ON</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="adm-card p-4">
+                                <h6 class="fw-bold mb-3">Configuration</h6>
+                                <p class="small text-muted mb-2">Database and JWT settings are supplied through environment variables on the server (see <code>backend/.env.example</code>) and are intentionally not editable here. Razorpay keys are managed under <a href="#gateway" data-view="gateway">Payment Gateway</a>, SMTP under <a href="#email" data-view="email">Email Settings</a> and WhatsApp under <a href="#whatsapp" data-view="whatsapp">WhatsApp Settings</a>.</p>
+                                <div class="small"><strong>API base:</strong> <code id="settingsApiBase"></code></div>
+                            </div>
+                        </div>
                     </div>
                 </section>
             </div>
@@ -990,6 +1046,6 @@
     <div id="toast-area"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/admin-dashboard.js?v=20260918-exams"></script>
+    <script src="js/admin-dashboard.js?v=20260919-toggle-v2"></script>
 </body>
 </html>

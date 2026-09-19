@@ -41,15 +41,34 @@ public class JwtService {
     }
 
     public String issueAccessToken(User user, String tokenId, Instant expiresAt) {
+        return issueAccessToken(user, tokenId, expiresAt, null);
+    }
+
+    public String issueAccessToken(User user, String tokenId, Instant expiresAt, String deviceId) {
         Instant now = Instant.now();
-        return Jwts.builder()
+        var builder = Jwts.builder()
                 .id(tokenId)
                 .issuer(issuer)
                 .subject(String.valueOf(user.getId()))
                 .claim(CLAIM_ROLE, user.getRole().name())
                 .claim(CLAIM_TOKEN_VERSION, user.getTokenVersion())
                 .issuedAt(Date.from(now))
-                .expiration(Date.from(expiresAt))
+                .expiration(Date.from(expiresAt));
+        if (deviceId != null) {
+            builder.claim("dev", deviceId);
+        }
+        return builder.signWith(key).compact();
+    }
+
+    /** Issues a short-lived token for multi-step device verification flows (OTP confirmation). */
+    public String issueTempDeviceToken(Long userId, String purpose, Duration ttl) {
+        Instant now = Instant.now();
+        return Jwts.builder()
+                .issuer(issuer)
+                .subject(String.valueOf(userId))
+                .claim("purpose", purpose)
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(now.plus(ttl)))
                 .signWith(key)
                 .compact();
     }

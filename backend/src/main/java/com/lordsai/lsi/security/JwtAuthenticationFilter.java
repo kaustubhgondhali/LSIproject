@@ -2,6 +2,7 @@ package com.lordsai.lsi.security;
 
 import com.lordsai.lsi.entity.User;
 import com.lordsai.lsi.entity.UserSession;
+import com.lordsai.lsi.entity.enums.Role;
 import com.lordsai.lsi.repository.UserRepository;
 import com.lordsai.lsi.service.SessionService;
 import io.jsonwebtoken.Claims;
@@ -34,13 +35,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final SessionService sessionService;
     private final UserRepository userRepository;
+    private final com.lordsai.lsi.service.DeviceBindingService deviceBindingService;
 
     public JwtAuthenticationFilter(JwtService jwtService,
                                    SessionService sessionService,
-                                   UserRepository userRepository) {
+                                   UserRepository userRepository,
+                                   com.lordsai.lsi.service.DeviceBindingService deviceBindingService) {
         this.jwtService = jwtService;
         this.sessionService = sessionService;
         this.userRepository = userRepository;
+        this.deviceBindingService = deviceBindingService;
     }
 
     @Override
@@ -54,7 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        resolve(header.substring(BEARER_PREFIX.length()).trim()).ifPresent(auth -> {
+        resolve(header.substring(BEARER_PREFIX.length()).trim(), request).ifPresent(auth -> {
             var authentication = new UsernamePasswordAuthenticationToken(
                     auth,
                     null,
@@ -66,7 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         chain.doFilter(request, response);
     }
 
-    private Optional<AuthUser> resolve(String token) {
+    private Optional<AuthUser> resolve(String token, HttpServletRequest request) {
         Optional<Claims> parsed = jwtService.parse(token);
         if (parsed.isEmpty()) {
             return Optional.empty();
@@ -99,9 +103,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return Optional.empty();
         }
 
+        User u = user.get();
+        if (u.getRole() == Role.STUDENT && deviceBindingService.isDeviceBindingEnforced()) {
+            String path = request.getRequestURI();
+            String deviceIdHeader = request.getHeader("X-Device-Id");
+            String deviceTokenHeader = request.getHeader("X-Device-Token");
+            String sessionDevId = session.get().getDeviceId();
+
+            if (sessionDevId != null) {
+                if (!deviceBindingService.validateActiveDevice(u.getId(), sessionDevId)) {
+                    return Optional.empty(); // Device reset or revoked
+                }
+                if (path != null && path.startsWith("/api/student") && !path.endsWith("/video")) {
+                    if (deviceIdHeader == null || deviceTokenHeader == null) {
+                        return Optional.empty(); // Stolen token without device binding headers
+                    }
+                    if (!deviceBindingService.verifyDeviceToken(u.getId(), deviceIdHeader, deviceTokenHeader)) {
+                        return Optional.empty(); // Invalid device credentials
+                    }
+                }
+            } else if (path != null && path.startsWith("/api/student") && !path.endsWith("/video")) {
+                if (deviceBindingService.getStudentDevice(u.getId()).isPresent()) {
+                    return Optional.empty(); // Session not bound to active device
+                }
+            }
+        }
+
         sessionService.touch(session.get());
 
-        User u = user.get();
         return Optional.of(new AuthUser(u.getId(), u.getEmail(), u.getFullName(), u.getRole(), session.get().getId()));
     }
 }

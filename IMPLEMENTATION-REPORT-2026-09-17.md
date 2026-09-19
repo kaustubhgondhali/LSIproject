@@ -177,3 +177,42 @@ client. Excel/CSV cells neutralise formula injection. WhatsApp tokens only in th
    `LIVE-3C28E7`, student `LSI-2026-00010`); the user's own 8080 backend must be restarted to pick up the new code.
 5. Not done: browser-level (UI) automation — JS was syntax-checked with esprima and every element id referenced by
    the scripts was verified to exist in its page; there is no headless browser run in this report.
+
+## 13. Protected Course Content Hardening (19 Sep 2026)
+
+### 13.1 Server-Side Authorization & Endpoint Security
+* **Lesson Video Streaming (`/api/student/lessons/{id}/video`)**:
+  - Enforces short-lived signed HMAC stream tickets generated per lesson (`/api/student/lessons/{id}/stream-ticket`).
+  - Added cross-student session token verification: if an active caller presents a ticket issued to a different student user, access is immediately blocked with HTTP 403 and audited under `PROTECTION_UNAUTHORIZED_MEDIA_REQUEST`.
+  - Streaming uses `VideoStreaming.partial` with chunked HTTP Range requests (`ResourceRegion`), never buffering complete video files in server memory.
+* **Handout PDFs (`/api/student/lessons/{id}/material`)**:
+  - Requires authenticated student JWT session + active course enrollment.
+  - Header hardening: `Content-Disposition: inline`, `Cache-Control: private, no-store`, `Pragma: no-cache`, `Expires: 0`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`.
+* **Ebook Reading (`/api/student/ebooks/{id}/download` and `/api/student/ebooks/{id}/view`)**:
+  - Enforces active student entitlement checks before streaming.
+  - Header hardening: `Content-Disposition: inline`, `Cache-Control: private, no-store`, `Pragma: no-cache`, `Expires: 0`, `X-Frame-Options: SAMEORIGIN`.
+* **Private Storage Unmapped from Web Root**:
+  - Unmapped private disk storage: `./uploads/videos` and `./uploads/ebooks` have no static resource handlers; unauthorized or direct requests return HTTP 401/404.
+
+### 13.2 Visual Cleanliness & Zero-Watermark Compliance
+* **Strictly No Watermarks**:
+  - Removed all video player background watermarks, tiling, SVG generators, and periodic positional shift timers.
+  - Made handout canvas stamping (`LSI_Protect.stampCanvas`) a safe no-op so PDF handouts render with 100% clarity and zero watermark overlay.
+  - Removed `#ebookReaderWatermark` from `student-dashboard.html` and cleaned up reader script assignments.
+  - Updated client security notices and lockdown copy to eliminate any false references to watermarks.
+
+### 13.3 Client-Side Mitigations & Browser Controls
+* **Video Player Controls**:
+  - Native `<video>` configured with `controlsList="nodownload noremoteplayback"`, `disablePictureInPicture`, `playsinline`, `preload="metadata"`.
+  - Bound client-side listeners blocking `dragstart` and `contextmenu` events.
+* **Ebook & Handout Viewers**:
+  - Ebook reader iframe loads with `#toolbar=0&navpanes=0` via temporary object blob URLs revoked immediately upon closing the modal.
+  - Handouts rendered to HTML5 canvas elements via PDF.js rather than embedding native browser PDF viewers with save/print toolbars.
+* **Protection & Capture Interception**:
+  - `student-protect.js` monitors window blur, visibility change, and common screen-capture/devtools shortcuts (`PrintScreen`, `Ctrl+S`, `Ctrl+P`, `Ctrl+Shift+I`), displaying a shield overlay while reporting throttled security events to `/api/student/protection-events`.
+  - Honest security posture: Browser-level script controls cannot physically block OS-level window managers, kernel-level screen recording software, or external cameras; the platform relies on hardened server authorization, private storage, and short-lived scoped tickets.
+
+### 13.4 Verification & Automated Test Results
+* `com.lordsai.lsi.learning.ContentProtectionTest`: **9 tests passed** (including cross-student ticket denial & audit, video range chunk seeking with hardened headers, and unmapped upload URL protection).
+* `com.lordsai.lsi.ebook.EbookAccessAndAdminTest`: **5 tests passed** (including `/view` endpoint and SAMEORIGIN frame options).
+* `com.lordsai.lsi.ebook.EbookSimpleUploadTest`: **6 tests passed** (single-step upload, entitlement checks, and protected storage).
