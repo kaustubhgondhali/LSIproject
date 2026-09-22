@@ -1490,6 +1490,32 @@ body.mode-mutual-fund .calc-brand-name {
     font-size: 13px;
 }
 
+/* Automation Admin / Admin — small labelled buttons under the footer tagline */
+.lsi-footer-admin-links {
+    margin-top: 4px;
+}
+
+.lsi-footer-admin-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: var(--lsi-gray-600);
+    background: rgba(255, 255, 255, 0.04);
+    text-decoration: none;
+    transition: var(--lsi-transition);
+}
+
+.lsi-footer-admin-btn:hover {
+    color: #FFFFFF;
+    background: var(--lsi-blue);
+    border-color: var(--lsi-blue);
+    transform: translateY(-2px);
+}
+
 /* ==========================================================================
    Floating WhatsApp Support Button & Back To Top
    ========================================================================== */

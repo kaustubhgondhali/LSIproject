@@ -45,7 +45,7 @@
                 <div class="d-flex flex-wrap align-items-center">
                     <span class="badge bg-primary me-3 mode-academy-only" data-i18n="topbar.academyBadge"><i class="fas fa-graduation-cap me-1"></i> Admissions Open — Share Market Academy</span>
                     <span class="badge bg-success me-3 mode-mf-only" data-i18n="topbar.mfBadge"><i class="fas fa-certificate text-warning me-1"></i> AMFI Registered MFD • ARN: 280789</span>
-                    <small class="me-3 text-light" data-i18n="topbar.address"><i class="fas fa-map-marker-alt text-info me-1"></i> Shreeraj Nagar Apt., Kamtha Road, Near Dr. Gade Hospital, Uran</small>
+                    <small class="me-3 text-light" data-i18n="topbar.address"><i class="fas fa-map-marker-alt text-info me-1"></i> Shreeraj Nagar Apt., Kamtha Road, Near Dr. Gade Hospital, Uran, Navi Mumbai 400707</small>
                     <a href="tel:9920254354" class="text-light small me-3"><i class="fas fa-phone-alt text-info me-1"></i> 9920 254 354</a>
                     <a href="mailto:lordsai.academy@gmail.com" class="text-light small me-3"><i class="fas fa-envelope text-info me-1"></i> lordsai.academy@gmail.com</a>
                 </div>
@@ -56,7 +56,7 @@
                         <i class="fas fa-th-large me-1"></i> Share Market Class
                     </a>
                     <a href="https://wa.me/919920254354" target="_blank" class="btn btn-sm btn-outline-light rounded-pill py-1 px-3 me-3" data-i18n="topbar.whatsapp"><i class="fab fa-whatsapp text-success me-1"></i> WhatsApp Support</a>
-                    <a href="student-login.html" class="text-light small" data-i18n="topbar.studentLogin"><i class="fas fa-user-lock text-info me-1"></i> Student Login</a>
+                    <a href="student-login.html" class="text-light small mode-academy-only" data-i18n="topbar.studentLogin"><i class="fas fa-user-lock text-info me-1"></i> Student Login</a>
                 </div>
             </div>
         </div>
@@ -121,7 +121,6 @@
                         </div>
                     </div>
 
-
                     <!-- Stories Dropdown -->
                     <div class="nav-item dropdown">
                         <a href="stories.html" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" data-i18n="nav.stories">Stories</a>
@@ -135,7 +134,7 @@
                     <a href="blog.html" class="nav-item nav-link" data-i18n="nav.blog">Blog</a>
                     <a href="store.html" class="nav-item nav-link" data-i18n="nav.store">Store</a>
                     <a href="contact.html" class="nav-item nav-link" data-i18n="nav.contact">Contact</a>
-                    <a href="student-login.html" class="nav-item nav-link d-lg-none" data-i18n="nav.studentLogin">Student Login</a>
+                    <a href="student-login.html" class="nav-item nav-link d-lg-none mode-academy-only" data-i18n="nav.studentLogin">Student Login</a>
                     <a href="index.html" class="nav-item nav-link text-warning fw-bold d-lg-none" title="Switch to Share Market Class" data-i18n="nav.switchBusiness"><i class="fas fa-th-large me-1"></i> Share Market Class</a>
                 </div>
                 <div class="ms-lg-3 my-2 my-lg-0">
@@ -810,6 +809,11 @@
                     <div class="footer-brand-sub mb-3 mode-mf-only">
                         AMFI Registered MFD (ARN-280789) | Systematic Investment Plans | SWP | Wealth Planning
                     </div>
+
+                    <div class="lsi-footer-admin-links d-flex flex-wrap gap-2 mode-academy-only">
+                        <a href="student-login.html?portal=automation" class="lsi-footer-admin-btn lsi-automation-link" title="Academy office: students, fees, receipts, attendance"><i class="fas fa-robot me-1"></i> Automation Admin</a>
+                        <a href="student-login.html?portal=admin" class="lsi-footer-admin-btn lsi-admin-link" title="Administrator login"><i class="fas fa-user-shield me-1"></i> Admin</a>
+                    </div>
                 </div>
 
                 <!-- Quick Links -->
@@ -862,8 +866,6 @@
         <div class="container text-center">
             <span>&copy; Lord Sai Investment & Share Market Academy (Class). All Rights Reserved.</span>
             <a href="student-login.html" class="btn btn-sm btn-outline-info rounded-pill px-3 ms-3 lsi-student-link mode-academy-only" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
-            <a href="student-login.html?portal=automation" class="btn btn-sm btn-outline-info rounded-pill px-3 ms-3 lsi-automation-link mode-academy-only" title="Academy office: students, fees, receipts, attendance"><i class="fas fa-robot me-1"></i> Automation Admin</a>
-            <a href="student-login.html?portal=admin" class="btn btn-sm btn-outline-light rounded-pill px-3 ms-3 lsi-admin-link" title="Administrator login"><i class="fas fa-user-shield me-1"></i> Admin</a>
         </div>
     </div>
     <!-- Copyright End -->

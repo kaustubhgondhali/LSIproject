@@ -45,7 +45,7 @@
                 <div class="d-flex flex-wrap align-items-center">
                     <span class="badge bg-primary me-3 mode-academy-only" data-i18n="topbar.academyBadge"><i class="fas fa-graduation-cap me-1"></i> Admissions Open — Share Market Academy</span>
                     <span class="badge bg-success me-3 mode-mf-only" data-i18n="topbar.mfBadge"><i class="fas fa-certificate text-warning me-1"></i> AMFI Registered MFD • ARN: 280789</span>
-                    <small class="me-3 text-light" data-i18n="topbar.address"><i class="fas fa-map-marker-alt text-info me-1"></i> Shreeraj Nagar Apt., Kamtha Road, Near Dr. Gade Hospital, Uran</small>
+                    <small class="me-3 text-light" data-i18n="topbar.address"><i class="fas fa-map-marker-alt text-info me-1"></i> Shreeraj Nagar Apt., Kamtha Road, Near Dr. Gade Hospital, Uran, Navi Mumbai 400707</small>
                     <a href="tel:9920254354" class="text-light small me-3"><i class="fas fa-phone-alt text-info me-1"></i> 9920 254 354</a>
                     <a href="mailto:lordsai.academy@gmail.com" class="text-light small me-3"><i class="fas fa-envelope text-info me-1"></i> lordsai.academy@gmail.com</a>
                 </div>
@@ -57,7 +57,7 @@
                         <span class="mode-academy-only"><i class="fas fa-th-large me-1"></i> Invest & Wealth Manager</span>
                     </a>
                     <a href="https://wa.me/919920254354" target="_blank" class="btn btn-sm btn-outline-light rounded-pill py-1 px-3 me-3" data-i18n="topbar.whatsapp"><i class="fab fa-whatsapp text-success me-1"></i> WhatsApp Support</a>
-                    <a href="student-login.html" class="text-light small" data-i18n="topbar.studentLogin"><i class="fas fa-user-lock text-info me-1"></i> Student Login</a>
+                    <a href="student-login.html" class="text-light small mode-academy-only" data-i18n="topbar.studentLogin"><i class="fas fa-user-lock text-info me-1"></i> Student Login</a>
                 </div>
             </div>
         </div>
@@ -111,14 +111,15 @@
                     <a href="sip.html" class="nav-item nav-link mode-mf-only" data-i18n="nav.sipTab">SIP</a>
                     <a href="swp.html" class="nav-item nav-link mode-mf-only" data-i18n="nav.swpTab">SWP</a>
 
-                    <!-- Insurance Dropdown -->
-                    <div class="nav-item dropdown">
+                    <!-- Insurance Dropdown (Mutual Fund Mode Only) -->
+                    <div class="nav-item dropdown mode-mf-only">
                         <a href="insurance.html" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" data-i18n="nav.financialServices">Insurance</a>
                         <div class="dropdown-menu">
                             <a href="insurance.html" class="dropdown-item" data-i18n="nav.insurancePlan">Insurance</a>
                             <a href="financial-planning.html" class="dropdown-item" data-i18n="nav.holisticPlan">Financial Planning</a>
                         </div>
                     </div>
+
                     <!-- Stories Dropdown -->
                     <div class="nav-item dropdown">
                         <a href="testimonials.html" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" data-i18n="nav.stories">Stories</a>
@@ -131,7 +132,7 @@
                     <a href="blog.html" class="nav-item nav-link" data-i18n="nav.blog">Blog</a>
                     <a href="store.html" class="nav-item nav-link" data-i18n="nav.store">Store</a>
                     <a href="contact.html" class="nav-item nav-link" data-i18n="nav.contact">Contact</a>
-                    <a href="student-login.html" class="nav-item nav-link d-lg-none" data-i18n="nav.studentLogin">Student Login</a>
+                    <a href="student-login.html" class="nav-item nav-link d-lg-none mode-academy-only" data-i18n="nav.studentLogin">Student Login</a>
                 </div>
                 <div class="ms-lg-3 my-2 my-lg-0">
                     <button type="button" class="btn btn-enquire" data-bs-toggle="modal" data-bs-target="#demoModal" data-i18n="nav.enquireNow">
@@ -217,7 +218,7 @@
                         <img src="img/about-1.jpg" alt="Lord Sai Academy Classroom" class="img-fluid rounded-3 mb-3" style="width: 100%; height: 300px; object-fit: cover;">
                         <div class="text-white text-center p-3 rounded" style="background: rgba(255, 255, 255, 0.08);">
                             <h5 class="text-info fw-bold mb-1">Lord Sai Investment & Share Market Academy (Class)</h5>
-                            <small class="text-light opacity-75">Shreeraj Nagar Apt., Kamtha Road, Near Dr. Gade Hospital, Uran</small>
+                            <small class="text-light opacity-75">Shreeraj Nagar Apt., Kamtha Road, Near Dr. Gade Hospital, Uran, Navi Mumbai</small>
                         </div>
                     </div>
                 </div>
@@ -536,7 +537,7 @@
                             <i class="fas fa-map-marker-alt fs-4 text-primary mt-1"></i>
                             <div>
                                 <strong class="d-block text-dark">Academy Address:</strong>
-                                <span class="text-muted">Shreeraj Nagar Apt., Kamtha Road, Near Dr. Gade Hospital, Uran</span>
+                                <span class="text-muted">Shreeraj Nagar Apt., Kamtha Road, Near Dr. Gade Hospital, Uran,Navi Mumbai 400707</span>
                             </div>
                         </div>
                         <div class="d-flex align-items-center gap-3">
@@ -559,7 +560,7 @@
                     <div class="p-4 rounded-3 text-white shadow" style="background: linear-gradient(135deg, var(--lsi-navy) 0%, var(--lsi-blue) 100%);">
                         <img src="img/lord-sai-logo.png" alt="LSI Academy" style="height: 56px; background: #fff; padding: 3px 8px; border-radius: 6px;" class="mb-3">
                         <h4 class="text-white fw-bold mb-2">Lord&nbsp;Sai Investment & Share Market Academy</h4>
-                        <p class="text-light opacity-75 small mb-3">Shreeraj Nagar Apt., Kamtha Road, Near Dr. Gade Hospital, Uran</p>
+                        <p class="text-light opacity-75 small mb-3">Shreeraj Nagar Apt., Kamtha Road, Near Dr. Gade Hospital, Uran, Navi Mumbai 400707</p>
                         <hr class="border-secondary my-3">
                         <span class="badge bg-light text-dark mb-0">Admissions Open — Classroom & Online</span>
                     </div>
@@ -751,6 +752,11 @@
                     <div class="footer-brand-sub mb-3">
                         Stock Market Education | Trading | Insurance
                     </div>
+
+                    <div class="lsi-footer-admin-links d-flex flex-wrap gap-2 mode-academy-only">
+                        <a href="student-login.html?portal=automation" class="lsi-footer-admin-btn lsi-automation-link" title="Academy office: students, fees, receipts, attendance"><i class="fas fa-robot me-1"></i> Automation Admin</a>
+                        <a href="student-login.html?portal=admin" class="lsi-footer-admin-btn lsi-admin-link" title="Administrator login"><i class="fas fa-user-shield me-1"></i> Admin</a>
+                    </div>
                 </div>
 
                 <!-- Quick Links -->
@@ -786,7 +792,7 @@
                     <div class="footer-contact-item">
                         <i class="fas fa-map-marker-alt"></i>
                         <div>
-                            Shreeraj Nagar Apt., Kamtha Road, Near Dr. Gade Hospital, Uran
+                            Shreeraj Nagar Apt., Kamtha Road, Near Dr. Gade Hospital, Uran, Navi Mumbai 400707
                         </div>
                     </div>
                 </div>
@@ -805,8 +811,6 @@
         <div class="container text-center">
             <span>&copy; Lord Sai Investment & Share Market Academy (Class). All Rights Reserved.</span>
             <a href="student-login.html" class="btn btn-sm btn-outline-info rounded-pill px-3 ms-3 lsi-student-link mode-academy-only" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
-            <a href="student-login.html?portal=automation" class="btn btn-sm btn-outline-info rounded-pill px-3 ms-3 lsi-automation-link mode-academy-only" title="Academy office: students, fees, receipts, attendance"><i class="fas fa-robot me-1"></i> Automation Admin</a>
-            <a href="student-login.html?portal=admin" class="btn btn-sm btn-outline-light rounded-pill px-3 ms-3 lsi-admin-link" title="Administrator login"><i class="fas fa-user-shield me-1"></i> Admin</a>
         </div>
     </div>
     <!-- Copyright End -->
