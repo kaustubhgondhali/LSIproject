@@ -3308,6 +3308,39 @@ body.mode-academy .trading-bg-district {
   }
 }
 
+/* -------------------------------------------------------------------------
+   HOME: keep the "Structured Learning Approach" heading clear of the bull.
+   The heading block is 750px wide and centred on the page, while the bull is
+   a background pinned to the section's right edge, so on screens narrower
+   than ~1500px the text ran over the image. Inset the heading by exactly the
+   distance it would otherwise overlap:
+       (375px half-block + image width + 25px offset + 24px gap) - 50vw
+   which collapses to 0 as soon as the screen is wide enough for both. The
+   three bands match the background-size set for each breakpoint above
+   (250px, 320px, 340px). Below 992px the bull is already hidden, so the
+   heading keeps its full width there.
+   ------------------------------------------------------------------------- */
+@media (min-width: 992px) {
+  body.mode-academy #learning-approach > .container > .text-center.mx-auto,
+  html.mode-academy #learning-approach > .container > .text-center.mx-auto {
+    padding-right: max(0px, calc(674px - 50vw));
+  }
+}
+
+@media (min-width: 1200px) {
+  body.mode-academy #learning-approach > .container > .text-center.mx-auto,
+  html.mode-academy #learning-approach > .container > .text-center.mx-auto {
+    padding-right: max(0px, calc(744px - 50vw));
+  }
+}
+
+@media (min-width: 1400px) {
+  body.mode-academy #learning-approach > .container > .text-center.mx-auto,
+  html.mode-academy #learning-approach > .container > .text-center.mx-auto {
+    padding-right: max(0px, calc(764px - 50vw));
+  }
+}
+
 /* =========================================================================
    MUTUAL FUND COMPANIES — LOGO SHOWCASE & ECOSYSTEM STYLING
    Scoped to Mutual Fund mode and pages.
