@@ -25,7 +25,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Template Stylesheet -->
-    <link href="css/style.css" rel="stylesheet">
+    <link href="css/style.css?v=20260923b" rel="stylesheet">
 
     <style>
         .program-advantages-header {
@@ -89,6 +89,65 @@
         } catch (e) {}
     })();
     </script>
+    <!-- Certificate of Completion sample (scoped to this page) -->
+    <style>
+        .certdoc-stage {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .certdoc-frame {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 31, 84, 0.12);
+            box-shadow: 0 14px 40px rgba(0, 31, 84, 0.18);
+            background: #FBF5EC;
+        }
+        /* width/height on the tag give the browser the 3:2 ratio up front, so the
+           image scales without distortion and without shifting the layout. */
+        .certdoc-img {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        .certdoc-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-24deg);
+            font-family: 'Inter', Arial, sans-serif;
+            font-size: clamp(30px, 6.5vw, 104px);
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            color: rgba(123, 17, 32, 0.13);
+            white-space: nowrap;
+            pointer-events: none;
+            user-select: none;
+        }
+        .certdoc-flag {
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            font-family: 'Inter', Arial, sans-serif;
+            font-size: clamp(8px, 1.05vw, 12px);
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            color: #9B1C2B;
+            border: 1px solid rgba(155, 28, 43, 0.45);
+            border-radius: 20px;
+            padding: 4px 12px;
+            background: rgba(255, 255, 255, 0.8);
+            pointer-events: none;
+        }
+
+        @media (max-width: 575.98px) {
+            .certdoc-frame { border-radius: 8px; }
+            .certdoc-flag { top: 8px; right: 8px; padding: 2px 8px; letter-spacing: 0.12em; }
+        }
+    </style>
+
 </head>
 
 <body>
@@ -101,12 +160,14 @@
     </div>
     <!-- Spinner End -->
 
+    <div class="lsi-header-stack">
     <!-- Topbar Start -->
     <div class="container-fluid topbar px-4 d-none d-lg-block text-white">
         <div class="row gx-0 align-items-center py-2">
             <div class="col-lg-7 text-start">
                 <div class="d-flex flex-wrap align-items-center">
-                    <small class="me-3 text-light" data-i18n="topbar.address"><i class="fas fa-map-marker-alt text-info me-1"></i> Shreeraj Nagar Apt., Kamtha Road, Near Dr. Gade Hospital, Uran, Navi Mumbai 400707</small>
+                    <span class="badge bg-primary me-3 mode-academy-only" data-i18n="topbar.academyBadge"><i class="fas fa-graduation-cap me-1"></i> Admissions Open — Share Market Academy</span>
+                    <small class="me-3 text-light" data-i18n="topbar.address"><i class="fas fa-map-marker-alt text-info me-1"></i> Shreeraj Nagar Apartment, Kamtha Road, Near Dr. Gade Hospital, Uran, Navi Mumbai, Raigad, Maharashtra – 400707, India.</small>
                     <a href="tel:9920254354" class="text-light small me-3"><i class="fas fa-phone-alt text-info me-1"></i> 9920 254 354</a>
                     <a href="mailto:lordsai.academy@gmail.com" class="text-light small me-3"><i class="fas fa-envelope text-info me-1"></i> lordsai.academy@gmail.com</a>
                 </div>
@@ -187,7 +248,7 @@
                     </div>
 
                     <a href="blog.html" class="nav-item nav-link" data-i18n="nav.blog">Blog</a>
-                    <a href="store.html" class="nav-item nav-link" data-i18n="nav.store">Store</a>
+                    <a href="store.html" class="nav-item nav-link mode-academy-only" data-i18n="nav.store">Store</a>
                     <a href="contact.html" class="nav-item nav-link" data-i18n="nav.contact">Contact</a>
                     <a href="student-login.html" class="nav-item nav-link d-lg-none" data-i18n="nav.studentLogin">Student Login</a>
                 </div>
@@ -200,6 +261,7 @@
         </nav>
     </div>
     <!-- Navbar End -->
+    </div>
 
     <!-- Language Selector Bar Start -->
     <div class="site-lang-bar" id="siteLangBar">
@@ -827,6 +889,48 @@
     </section>
 
     <!-- =========================================================================
+         SECTION 5B: CERTIFICATE OF COMPLETION (sample shown inline)
+         A visual sample only. Nothing here issues, generates, downloads or
+         verifies a certificate; the real one is produced server-side by
+         CertificateService when a student completes the course and passes the
+         final examination. Placed directly above Section 6 (Course Fee &
+         Enrollment), which is unchanged.
+
+         img/certificate-sample.jpg is the academy artwork with the student name
+         and student ID replaced by placeholders, so no real personal data is
+         published here.
+         ========================================================================= -->
+    <section class="section-py bg-white border-top" id="certificate">
+        <div class="container">
+            <div class="text-center mx-auto pb-4" style="max-width: 760px;">
+                <span class="badge bg-primary text-uppercase mb-3 px-3 py-1">Your Achievement</span>
+                <h2 class="display-6 fw-bold mb-3 text-dark">Certificate of Completion</h2>
+                <p class="text-muted mb-0">
+                    Complete the course and receive a professional Certificate of Completion from
+                    Lord Sai Investment &amp; Share Market Academy.
+                </p>
+            </div>
+
+            <div class="certdoc-stage">
+                <figure class="certdoc-frame mb-0">
+                    <img src="img/certificate-sample.jpg"
+                         class="certdoc-img"
+                         width="2400" height="1600" loading="lazy" decoding="async"
+                         alt="Sample Certificate of Completion from Lord Sai Investment &amp; Share Market Academy, showing the placeholder student name YOUR NAME, student ID LSA/2026/XXXX and issue date APR 2026.">
+                    <span class="certdoc-watermark" aria-hidden="true">SAMPLE</span>
+                    <span class="certdoc-flag">SAMPLE CERTIFICATE</span>
+                </figure>
+            </div>
+
+            <p class="text-muted small text-center mt-3 mb-0">
+                <i class="fas fa-info-circle me-1" aria-hidden="true"></i>
+                Sample certificate for illustration. Your name, student ID and issue date are filled in
+                when the certificate is issued on successful completion of the course.
+            </p>
+        </div>
+    </section>
+
+    <!-- =========================================================================
          SECTION 6: COURSE FEE & ENROLLMENT (PRICING SECTION)
          ========================================================================= -->
     <section class="section-py bg-white border-top border-bottom" id="pricing">
@@ -1106,7 +1210,7 @@
                     <div class="footer-contact-item">
                         <i class="fas fa-map-marker-alt"></i>
                         <div>
-                            Shreeraj Nagar Apt., Kamtha Road, Near Dr. Gade Hospital, Uran, Navi Mumbai 400707
+                            Shreeraj Nagar Apartment, Kamtha Road, Near Dr. Gade Hospital, Uran, Navi Mumbai, Raigad, Maharashtra – 400707, India.
                         </div>
                     </div>
                 </div>
@@ -1119,6 +1223,26 @@
         </div>
     </div>
     <!-- Footer End -->
+
+    <!-- Accreditation Start -->
+    <div class="container-fluid lsi-accred py-4">
+        <div class="container">
+            <div class="lsi-accred-row">
+                <span class="lsi-accred-title">ISO-Certified</span>
+                <div class="lsi-accred-marks">
+                    <span class="lsi-accred-card">
+                        <img src="img/accreditation/iso-certified.png" width="108" height="88"
+                             loading="lazy" decoding="async" alt="ISO">
+                    </span>
+                    <span class="lsi-accred-card">
+                        <img src="img/accreditation/msme-registered.png" width="83" height="88"
+                             loading="lazy" decoding="async" alt="MSME &ndash; Micro, Small &amp; Medium Enterprises">
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Accreditation End -->
 
     <!-- Copyright Start -->
     <div class="container-fluid copyright py-3">

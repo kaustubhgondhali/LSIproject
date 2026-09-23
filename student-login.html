@@ -25,7 +25,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Template Stylesheet -->
-    <link href="css/style.css" rel="stylesheet">
+    <link href="css/style.css?v=20260923b" rel="stylesheet">
 </head>
 
 <body>
@@ -38,12 +38,14 @@
     </div>
     <!-- Spinner End -->
 
+    <div class="lsi-header-stack">
     <!-- Topbar Start -->
     <div class="container-fluid topbar px-4 d-none d-lg-block text-white">
         <div class="row gx-0 align-items-center py-2">
             <div class="col-lg-7 text-start">
                 <div class="d-flex flex-wrap align-items-center">
-                    <small class="me-3 text-light" data-i18n="topbar.address"><i class="fas fa-map-marker-alt text-info me-1"></i> Shreeraj Nagar Apt., Kamtha Road, Near Dr. Gade Hospital, Uran</small>
+                    <span class="badge bg-primary me-3 mode-academy-only" data-i18n="topbar.academyBadge"><i class="fas fa-graduation-cap me-1"></i> Admissions Open — Share Market Academy</span>
+                    <small class="me-3 text-light" data-i18n="topbar.address"><i class="fas fa-map-marker-alt text-info me-1"></i> Shreeraj Nagar Apartment, Kamtha Road, Near Dr. Gade Hospital, Uran, Navi Mumbai, Raigad, Maharashtra – 400707, India.</small>
                     <a href="tel:9920254354" class="text-light small me-3"><i class="fas fa-phone-alt text-info me-1"></i> 9920 254 354</a>
                     <a href="mailto:lordsai.academy@gmail.com" class="text-light small me-3"><i class="fas fa-envelope text-info me-1"></i> lordsai.academy@gmail.com</a>
                 </div>
@@ -126,7 +128,7 @@
                     </div>
 
                     <a href="blog.html" class="nav-item nav-link" data-i18n="nav.blog">Blog</a>
-                    <a href="store.html" class="nav-item nav-link" data-i18n="nav.store">Store</a>
+                    <a href="store.html" class="nav-item nav-link mode-academy-only" data-i18n="nav.store">Store</a>
                     <a href="contact.html" class="nav-item nav-link" data-i18n="nav.contact">Contact</a>
                     <a href="student-login.html" class="nav-item nav-link d-lg-none active" data-i18n="nav.studentLogin">Student Login</a>
                 </div>
@@ -139,6 +141,7 @@
         </nav>
     </div>
     <!-- Navbar End -->
+    </div>
 
     <!-- Language Selector Bar Start -->
     <div class="site-lang-bar" id="siteLangBar">
@@ -596,7 +599,7 @@
                     <div class="footer-contact-item">
                         <i class="fas fa-map-marker-alt"></i>
                         <div>
-                            Shreeraj Nagar Apt., Kamtha Road, Near Dr. Gade Hospital, Uran
+                            Shreeraj Nagar Apartment, Kamtha Road, Near Dr. Gade Hospital, Uran, Navi Mumbai, Raigad, Maharashtra – 400707, India.
                         </div>
                     </div>
                 </div>
@@ -609,6 +612,26 @@
         </div>
     </div>
     <!-- Footer End -->
+
+    <!-- Accreditation Start -->
+    <div class="container-fluid lsi-accred py-4">
+        <div class="container">
+            <div class="lsi-accred-row">
+                <span class="lsi-accred-title">ISO-Certified</span>
+                <div class="lsi-accred-marks">
+                    <span class="lsi-accred-card">
+                        <img src="img/accreditation/iso-certified.png" width="108" height="88"
+                             loading="lazy" decoding="async" alt="ISO">
+                    </span>
+                    <span class="lsi-accred-card">
+                        <img src="img/accreditation/msme-registered.png" width="83" height="88"
+                             loading="lazy" decoding="async" alt="MSME &ndash; Micro, Small &amp; Medium Enterprises">
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Accreditation End -->
 
     <!-- Copyright Start -->
     <div class="container-fluid copyright py-3">

@@ -26,7 +26,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Template Stylesheet -->
-    <link href="css/style.css" rel="stylesheet">
+    <link href="css/style.css?v=20260923b" rel="stylesheet">
 </head>
 
 <body>
@@ -39,12 +39,13 @@
     </div>
     <!-- Spinner End -->
 
+    <div class="lsi-header-stack">
     <!-- Topbar Start -->
     <div class="container-fluid topbar px-4 d-none d-lg-block text-white">
         <div class="row gx-0 align-items-center py-2">
             <div class="col-lg-7 text-start">
                 <div class="d-flex flex-wrap align-items-center">
-                    <small class="me-3 text-light" data-i18n="topbar.address"><i class="fas fa-map-marker-alt text-info me-1"></i> Shreeraj Nagar Apt., Kamtha Road, Near Dr. Gade Hospital, Uran, Navi Mumbai 400707</small>
+                    <small class="me-3 text-light" data-i18n="topbar.address"><i class="fas fa-map-marker-alt text-info me-1"></i> Shreeraj Nagar Apartment, Kamtha Road, Near Dr. Gade Hospital, Uran, Navi Mumbai, Raigad, Maharashtra – 400707, India.</small>
                     <a href="tel:9920254354" class="text-light small me-3"><i class="fas fa-phone-alt text-info me-1"></i> 9920 254 354</a>
                     <a href="mailto:lordsai.academy@gmail.com" class="text-light small me-3"><i class="fas fa-envelope text-info me-1"></i> lordsai.academy@gmail.com</a>
                 </div>
@@ -127,7 +128,7 @@
                     </div>
 
                     <a href="blog.html" class="nav-item nav-link" data-i18n="nav.blog">Blog</a>
-                    <a href="store.html" class="nav-item nav-link" data-i18n="nav.store">Store</a>
+                    <a href="store.html" class="nav-item nav-link mode-academy-only" data-i18n="nav.store">Store</a>
                     <a href="contact.html" class="nav-item nav-link" data-i18n="nav.contact">Contact</a>
                     <a href="student-login.html" class="nav-item nav-link d-lg-none mode-academy-only" data-i18n="nav.studentLogin">Student Login</a>
                     <a href="index.html" class="nav-item nav-link text-warning fw-bold d-lg-none" title="Switch to Share Market Class" data-i18n="nav.switchBusiness"><i class="fas fa-th-large me-1"></i> Share Market Class</a>
@@ -141,6 +142,7 @@
         </nav>
     </div>
     <!-- Navbar End -->
+    </div>
 
     <!-- Language Selector Bar Start -->
     <div class="site-lang-bar" id="siteLangBar">
@@ -157,7 +159,7 @@
     <!-- Language Selector Bar End -->
 
     <!-- Header Breadcrumb Start -->
-    <div class="container-fluid bg-breadcrumb py-5">
+    <div class="container-fluid bg-breadcrumb mf-hero-video-fit py-5">
         <div class="mf-plant-video-bg" aria-hidden="true">
             <video
                 class="mf-plant-video-el"
@@ -173,13 +175,13 @@
             <div class="mf-plant-video-overlay"></div>
         </div>
         <div class="container text-center py-4">
-            <div class="header-partnership-logos mb-3">
+            <div class="header-partnership-logos mf-hero-logos-split mb-3">
                 <img src="img/lord-sai-secondary.jpeg" alt="Lord Sai Investment Official Emblem" class="investment-emblem-badge">
                 <div class="nj-header-box" title="NJ Wealth — Financial Products Distributors Network">
                     <img src="img/nj-wealth-updated.png" alt="NJ Wealth Partner - Financial Products Distributors Network" class="nj-header-logo">
                 </div>
             </div>
-            <span class="badge bg-primary text-uppercase px-3 py-1 mb-2">Mutual Fund Distribution &bull; ARN-280789</span>
+            <span class="badge bg-primary text-uppercase px-3 py-1 mb-2">Mutual Fund Distribution ARN 280789</span>
             <h1 class="text-white fw-bold mb-2 part-title" style="font-size: calc(1.75rem + 1.4vw);">SIP &mdash; Systematic Investment Plan</h1>
             <p class="text-light fs-5 mb-0 mx-auto" style="max-width: 780px;">
                 Build long-term wealth step by step with disciplined regular investments, rupee-cost averaging, and the power of compounding.
@@ -210,7 +212,7 @@
          TOP ACCOUNT OPENING CTA BANNER
          ========================================================================= -->
     <div class="container py-4">
-        <div class="card border-0 shadow-sm overflow-hidden" style="background: linear-gradient(135deg, var(--lsi-navy) 0%, var(--lsi-blue-dark) 50%, var(--lsi-blue) 100%); border-radius: 16px;">
+        <div class="card border-0 shadow-sm overflow-hidden mf-account-cta" style="background: linear-gradient(135deg, var(--lsi-navy) 0%, var(--lsi-blue-dark) 50%, var(--lsi-blue) 100%); border-radius: 16px;">
             <div class="card-body p-4 p-lg-5 text-white position-relative">
                 <div class="row align-items-center g-4">
                     <div class="col-lg-8">
@@ -294,9 +296,7 @@
                     </div>
 
                     <div class="d-flex flex-wrap gap-3">
-                        <a href="https://p.njw.bz/33377" target="_blank" rel="noopener noreferrer" class="btn btn-warning rounded-pill px-4 fw-bold text-dark">
-                            <i class="fas fa-user-plus me-1"></i> Open Your SIP Account for Free
-                        </a>
+                 
                         <a href="docs/SIP-Sahi-Hai.pdf" target="_blank" rel="noopener noreferrer" class="btn btn-outline-success rounded-pill px-4 fw-bold">
                             <i class="fas fa-file-pdf text-danger me-1"></i> SIP Sahi Hai (PDF)
                         </a>
@@ -367,6 +367,37 @@
             <!-- PROMOTIONAL SHOWCASE: SIP ILLUSTRATIONS (DYNAMIC 3-ILLUSTRATION DISPLAY LINKED TO SITE LANGUAGE) -->
             <div class="p-3 p-sm-4 p-lg-5 bg-light rounded-3 border shadow-sm mt-4" id="sip-matrix">
                 <style>
+                    /* Illustration posters are 2:3 portrait - cap the rendered height so a whole
+                       image fits inside a normal laptop viewport (card tracks the image width) */
+                    #sip-matrix .sip-illustration-card {
+                        --sip-img-max-h: min(80vh, 820px);
+                        max-width: min(960px, calc(var(--sip-img-max-h) / 1.5)) !important;
+                    }
+                    #sip-matrix .sip-illustration-card img {
+                        height: auto;
+                        max-height: var(--sip-img-max-h);
+                        object-fit: contain;
+                    }
+
+                    /* Posters sit BESIDE each other whenever the row has room for another one
+                       at its unchanged size; the rest wrap to the next row, centred. Nothing
+                       here resizes a poster - it only decides how many fit on a row. */
+                    #sip-matrix .sip-lang-group {
+                        column-gap: 24px;
+                        row-gap: 40px;
+                    }
+                    #sip-matrix .sip-illustration-card {
+                        flex: 0 1 auto;
+                    }
+                    /* Reclaim the block's own side padding on large screens so a second
+                       poster fits on the row more often */
+                    @media (min-width: 992px) {
+                        #sip-matrix {
+                            padding-left: 2rem !important;
+                            padding-right: 2rem !important;
+                        }
+                    }
+
                     /* Guarantees strictly 3 images are displayed based on active language */
                     #sip-matrix .sip-lang-group {
                         display: none !important;
@@ -393,7 +424,7 @@
                 <div class="sip-illustrations-flow w-100 my-4" id="sipIllustrationsContainer">
 
                     <!-- ==================== 1. ENGLISH (3 IMAGES: ₹1,000 -> ₹2,000 -> ₹5,000) ==================== -->
-                    <div class="sip-lang-group d-flex flex-column align-items-center w-100 gap-4 gap-md-5" data-sip-lang="en">
+                    <div class="sip-lang-group d-flex flex-wrap justify-content-center align-items-start w-100" data-sip-lang="en">
                         <!-- English ₹1,000 -->
                         <div class="sip-illustration-card w-100 text-center" style="max-width: 960px;">
                             <div class="d-flex align-items-center justify-content-between mb-2 px-1">
@@ -429,7 +460,7 @@
                     </div>
 
                     <!-- ==================== 2. MARATHI (3 IMAGES: ₹1,000 -> ₹2,000 -> ₹5,000) ==================== -->
-                    <div class="sip-lang-group d-flex flex-column align-items-center w-100 gap-4 gap-md-5" data-sip-lang="mr" style="display: none;">
+                    <div class="sip-lang-group d-flex flex-wrap justify-content-center align-items-start w-100" data-sip-lang="mr" style="display: none;">
                         <!-- Marathi ₹1,000 -->
                         <div class="sip-illustration-card w-100 text-center" style="max-width: 960px;">
                             <div class="d-flex align-items-center justify-content-between mb-2 px-1">
@@ -465,7 +496,7 @@
                     </div>
 
                     <!-- ==================== 3. HINDI (3 IMAGES: ₹1,000 -> ₹2,000 -> ₹5,000) ==================== -->
-                    <div class="sip-lang-group d-flex flex-column align-items-center w-100 gap-4 gap-md-5" data-sip-lang="hi" style="display: none;">
+                    <div class="sip-lang-group d-flex flex-wrap justify-content-center align-items-start w-100" data-sip-lang="hi" style="display: none;">
                         <!-- Hindi ₹1,000 -->
                         <div class="sip-illustration-card w-100 text-center" style="max-width: 960px;">
                             <div class="d-flex align-items-center justify-content-between mb-2 px-1">
@@ -989,53 +1020,162 @@
 
             <!-- G: PRACTICAL RULES & FAQ -->
             <div class="sipedu-card mb-5" id="sip-faq">
-                <span class="badge bg-success text-uppercase mb-2">Clarity &amp; Compliance</span>
-                <h3 class="h4 fw-bold mb-3">Practical SIP Rules &amp; Frequently Asked Questions</h3>
+                <style>
+                    /* FAQ block (this section only): centred header, centred accordion column
+                       and the Lord Sai green accent for the open question. */
+                    #sip-faq {
+                        padding: 2.25rem 1.75rem;
+                    }
+                    #sip-faq .faq-head {
+                        text-align: center;
+                        max-width: 760px;
+                        margin: 0 auto 1.85rem;
+                    }
+                    #sip-faq .faq-head h3 {
+                        color: var(--lsi-navy);
+                        margin-bottom: .75rem;
+                    }
+                    #sip-faq .faq-rule {
+                        width: 68px;
+                        height: 3px;
+                        border-radius: 999px;
+                        background: var(--lsi-green-dark);
+                        margin: 0 auto;
+                    }
+                    #sip-faq .accordion {
+                        max-width: 880px;
+                        margin: 0 auto;
+                    }
+                    #sip-faq .accordion-item {
+                        border: 1px solid var(--lsi-gray-200) !important;
+                        border-radius: var(--lsi-radius-md) !important;
+                        background: #fff;
+                        margin-bottom: 14px;
+                        overflow: hidden;
+                        box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+                        transition: var(--lsi-transition);
+                    }
+                    #sip-faq .accordion-item:last-child {
+                        margin-bottom: 0;
+                    }
+                    #sip-faq .accordion-item:hover {
+                        border-color: rgba(46, 196, 182, .55) !important;
+                        box-shadow: 0 6px 18px rgba(16, 24, 40, .08);
+                    }
+                    #sip-faq .accordion-button {
+                        padding: 18px 20px;
+                        font-size: 1rem;
+                        font-weight: 700;
+                        line-height: 1.45;
+                        color: var(--lsi-navy);
+                        background: #fff;
+                        text-align: left;
+                        gap: 1rem;
+                    }
+                    #sip-faq .accordion-button:focus {
+                        box-shadow: 0 0 0 .2rem rgba(46, 196, 182, .25);
+                    }
+                    #sip-faq .accordion-button:not(.collapsed) {
+                        color: var(--lsi-navy);
+                        background: var(--lsi-green-light);
+                        border-left: 4px solid var(--lsi-green-dark);
+                        padding-left: 16px;
+                        box-shadow: none;
+                    }
+                    /* Chevron sits in a round chip so every row ends the same way */
+                    #sip-faq .accordion-button::after {
+                        flex: 0 0 32px;
+                        width: 32px;
+                        height: 32px;
+                        margin-left: auto;
+                        border-radius: 50%;
+                        background-color: var(--lsi-green-light);
+                        background-position: center;
+                        background-size: .95rem;
+                    }
+                    #sip-faq .accordion-button.collapsed::after {
+                        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%230F9F90'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+                    }
+                    #sip-faq .accordion-button:not(.collapsed)::after {
+                        background-color: #fff;
+                    }
+                    #sip-faq .accordion-body {
+                        padding: 16px 20px 20px;
+                        font-size: .95rem;
+                        line-height: 1.75;
+                        color: var(--lsi-gray-700);
+                    }
+                    #sip-faq .accordion-body ul li {
+                        margin-bottom: .45rem;
+                    }
+                    @media (max-width: 575.98px) {
+                        #sip-faq {
+                            padding: 1.5rem 1.1rem;
+                        }
+                        #sip-faq .accordion-button {
+                            padding: 15px 14px;
+                            font-size: .95rem;
+                        }
+                        #sip-faq .accordion-button:not(.collapsed) {
+                            padding-left: 10px;
+                        }
+                        #sip-faq .accordion-body {
+                            padding: 14px 14px 16px;
+                        }
+                    }
+                </style>
+
+                <div class="faq-head">
+                    <span class="badge bg-success text-uppercase mb-2">Clarity &amp; Compliance</span>
+                    <h3 class="h4 fw-bold">Practical SIP Rules &amp; Frequently Asked Questions</h3>
+                    <div class="faq-rule"></div>
+                </div>
+
                 <div class="accordion" id="sipFaqAccordion">
-                    <div class="accordion-item border-0 mb-2 rounded-3 shadow-sm overflow-hidden">
+                    <div class="accordion-item">
                         <h2 class="accordion-header" id="headingOne">
                             <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
                                 Can I pause or stop my SIP if I face financial hardship?
                             </button>
                         </h2>
                         <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#sipFaqAccordion">
-                            <div class="accordion-body text-muted small">
+                            <div class="accordion-body">
                                 Yes. SIP is completely flexible. Unlike recurring bank deposits or insurance policies, there are no penalties for pausing or stopping your SIP. You can pause it for 1&ndash;6 months or discontinue it completely. Your accumulated units continue to stay invested and grow.
                             </div>
                         </div>
                     </div>
-                    <div class="accordion-item border-0 mb-2 rounded-3 shadow-sm overflow-hidden">
+                    <div class="accordion-item">
                         <h2 class="accordion-header" id="headingTwo">
                             <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                                 What is a Step-Up (Top-Up) SIP and why is it beneficial?
                             </button>
                         </h2>
                         <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#sipFaqAccordion">
-                            <div class="accordion-body text-muted small">
+                            <div class="accordion-body">
                                 A Step-Up SIP automatically increases your monthly investment by a predetermined percentage (e.g. 10% per year) or a fixed rupee amount as your salary or business income rises each year. Stepping up your SIP dramatically accelerates wealth accumulation and matches your savings with salary increments.
                             </div>
                         </div>
                     </div>
-                    <div class="accordion-item border-0 mb-2 rounded-3 shadow-sm overflow-hidden">
+                    <div class="accordion-item">
                         <h2 class="accordion-header" id="headingThree">
                             <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
                                 Are there exit loads when withdrawing from an SIP?
                             </button>
                         </h2>
                         <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#sipFaqAccordion">
-                            <div class="accordion-body text-muted small">
+                            <div class="accordion-body">
                                 Exit loads depend on the specific mutual fund scheme. Most equity schemes charge a 1% exit load if units are redeemed within 365 days of their individual purchase date. Because each SIP instalment is treated as a separate purchase, units older than 1 year generally carry 0% exit load. Always check scheme documents.
                             </div>
                         </div>
                     </div>
-                    <div class="accordion-item border-0 mb-2 rounded-3 shadow-sm overflow-hidden">
+                    <div class="accordion-item">
                         <h2 class="accordion-header" id="headingFour">
                             <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
                                 How are equity mutual funds taxed in India?
                             </button>
                         </h2>
                         <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#sipFaqAccordion">
-                            <div class="accordion-body text-muted small">
+                            <div class="accordion-body">
                                 Under current tax laws for equity-oriented funds:
                                 <ul class="mb-1 mt-2 ps-3">
                                     <li><strong>Short-Term Capital Gains (STCG):</strong> Units held for 12 months or less are taxed at 20% plus applicable surcharge and cess.</li>
@@ -1055,13 +1195,61 @@
          ========================================================================= -->
     <section class="section-py bg-light border-top border-bottom" id="calculator">
         <div class="container">
-            <div class="text-center mx-auto pb-4" style="max-width: 750px;">
+            <style>
+                /* Calculator heading block (this page/section only): larger, sharper secondary
+                   emblem and a title that stays on ONE line from 576px upwards. */
+                #calculator .calc-hero {
+                    max-width: 100%;
+                }
+                #calculator .calc-hero-emblem {
+                    width: clamp(140px, 17vw, 210px);
+                    height: clamp(140px, 17vw, 210px);
+                    padding: 4px;
+                    border-width: 4px;
+                    image-rendering: high-quality;
+                }
+                #calculator .calc-hero-title {
+                    margin-left: auto;
+                    margin-right: auto;
+                }
+                #calculator .calc-hero-text {
+                    max-width: 750px;
+                    margin-left: auto;
+                    margin-right: auto;
+                }
+                /* One-line title: size is stepped to match the Bootstrap container width at
+                   each breakpoint (540 / 720 / 960 / 1140 / 1320px) so the full heading
+                   always fits on a single line without overflowing. */
+                @media (min-width: 576px) {
+                    #calculator .calc-hero-title {
+                        white-space: nowrap;
+                        font-size: 1.15rem;
+                    }
+                }
+                @media (min-width: 768px) {
+                    #calculator .calc-hero-title {
+                        font-size: 1.55rem;
+                    }
+                }
+                @media (min-width: 992px) {
+                    #calculator .calc-hero-title {
+                        font-size: 2.1rem;
+                    }
+                }
+                @media (min-width: 1200px) {
+                    #calculator .calc-hero-title {
+                        font-size: 2.5rem;
+                    }
+                }
+            </style>
+
+            <div class="text-center mx-auto pb-4 calc-hero">
                 <div class="mb-3">
-                    <img src="img/lord-sai-secondary.jpeg" alt="Lord Sai Official Emblem" class="investment-emblem-badge" style="width: 100px; height: 100px;">
+                    <img src="img/lord-sai-secondary.jpeg" alt="Lord Sai Official Emblem" class="investment-emblem-badge calc-hero-emblem" width="845" height="849">
                 </div>
                 <span class="badge-brand-green mb-2 text-uppercase fw-bold"><i class="fas fa-coins me-1"></i> LORD SAI WEALTH PLANNING</span>
-                <h2 class="display-6 fw-bold mb-2">LORD SAI SIP Compounding Calculator</h2>
-                <p class="text-muted mb-0">Estimate your potential wealth accumulation and compounding growth with Lord Sai Mutual Fund Distribution Services.</p>
+                <h2 class="display-6 fw-bold mb-2 calc-hero-title">LORD SAI INVESTMENT COMPOUNDING CALCULATOR</h2>
+                <p class="text-muted mb-0 calc-hero-text">Estimate your potential wealth accumulation and compounding growth with Lord Sai Mutual Fund Distribution Services.</p>
             </div>
 
             <div class="row g-5 align-items-center">
@@ -1208,6 +1396,70 @@
         </div>
     </section>
 
+    <!-- =========================================================================
+         HIGHLIGHTED LIVE MOVING MUTUAL FUND DISCLAIMER TICKER
+         ========================================================================= -->
+    <div class="mf-ticker-section-wrapper">
+        <div class="container-fluid px-3 px-lg-4 pb-1">
+            <span class="mf-disclaimer-red-label">
+                <span class="mf-disclaimer-red-dot"></span>
+                DISCLAIMER
+            </span>
+        </div>
+        <div class="mf-live-ticker-bar">
+            <div class="container-fluid px-2">
+                <div class="mf-ticker-track-container">
+                    <div class="mf-ticker-content">
+                        <div class="mf-ticker-item">
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                        </div>
+                        <div class="mf-ticker-item" aria-hidden="true">
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                            <span class="mf-ticker-highlight">
+                                Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully
+                            </span>
+                            <span class="mf-ticker-bullet">&bull;</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer Start -->
     <div class="container-fluid footer py-5">
         <div class="container py-4">
@@ -1277,10 +1529,7 @@
                     <div class="footer-contact-item">
                         <i class="fas fa-map-marker-alt"></i>
                         <div>
-                            Shreeraj Nagar Apt.,<br>
-                            Kamtha Road,<br>
-                            Near Dr. Gade Hospital,<br>
-                            Uran
+                            Shreeraj Nagar Apartment, Kamtha Road, Near Dr. Gade Hospital, Uran, Navi Mumbai, Raigad, Maharashtra – 400707, India.
                         </div>
                     </div>
                 </div>
@@ -1298,6 +1547,26 @@
         </div>
     </div>
     <!-- Footer End -->
+
+    <!-- Accreditation Start -->
+    <div class="container-fluid lsi-accred py-4">
+        <div class="container">
+            <div class="lsi-accred-row">
+                <span class="lsi-accred-title">ISO-Certified</span>
+                <div class="lsi-accred-marks">
+                    <span class="lsi-accred-card">
+                        <img src="img/accreditation/iso-certified.png" width="108" height="88"
+                             loading="lazy" decoding="async" alt="ISO">
+                    </span>
+                    <span class="lsi-accred-card">
+                        <img src="img/accreditation/msme-registered.png" width="83" height="88"
+                             loading="lazy" decoding="async" alt="MSME &ndash; Micro, Small &amp; Medium Enterprises">
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Accreditation End -->
 
     <!-- Copyright Start -->
     <div class="container-fluid copyright py-3">
