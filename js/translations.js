@@ -1,5 +1,5 @@
 /**
- * LORD SAI INVESTMENT & SHARE MARKET ACADEMY
+ * LORD SAI SHARE MARKET CLASSES
  * MULTI-LANGUAGE TRANSLATION DICTIONARY (js/translations.js)
  *
  * Supported Languages:
@@ -182,7 +182,7 @@
             "partner.ctaSip": "Explore SIP Portfolios",
 
             // Hero section additional keys
-            "hero.academyBadgeTitle": "Lord Sai Investment & Share Market Academy",
+            "hero.academyBadgeTitle": "Lord Sai Share Market Classes",
             "hero.academyHeroTitle": "Learn the Share Market. Build the Skill. Build Your Financial Future.",
             "hero.academyHeroDesc": "Practical stock market education, technical analysis, price action trading, and disciplined risk management for beginners, working professionals, and serious learners.",
             "hero.skillBanner": "Stock Market Is a Skill, Not Gambling.",
@@ -204,7 +204,7 @@
 
             // About Us & Founder
             "about.academyMission": "Our Academy Mission",
-            "about.academyTitle": "About Lord Sai Investment & Share Market Academy",
+            "about.academyTitle": "About Lord Sai Share Market Classes",
             "about.academyDesc": "A premier stock market learning institution in Uran, dedicated to removing gambling mindset and replacing it with probabilistic mathematics and emotional resilience.",
             "about.mfMission": "Mutual Fund Distribution Services",
             "about.mfTitle": "About Mutual Fund Services — Vaibhav S. Pawar",
@@ -316,14 +316,14 @@
             "offerings.categoryLabel": "Category:",
 
             // Footer
-            "footer.brandTitleAcademy": "Lord Sai Investment & Share Market Academy",
+            "footer.brandTitleAcademy": "Lord Sai Share Market Classes",
             "footer.brandTitleMf": "Mutual Fund Distribution Services — Vaibhav S. Pawar",
             "footer.ecoLabel": "Distribution Ecosystem Partner",
             "footer.quickLinks": "Quick Links",
             "footer.contact": "Contact",
             "footer.disclaimer": "Disclaimer: Stock market education and training are designed for educational purposes only. Past performance does not guarantee future results.",
             "footer.amfiDisclaimer": "AMFI Disclaimer: Mutual Fund investments are subject to market risks, read all scheme related documents carefully. Past performance is not an indicator of future returns. ARN-280789.",
-            "footer.copyrightAcademy": "© Lord Sai Investment & Share Market Academy. All Rights Reserved.",
+            "footer.copyrightAcademy": "© Lord Sai Share Market Classes. All Rights Reserved.",
             "footer.copyrightMf": "© Vaibhav S. Pawar — AMFI Registered Mutual Fund Distributor (ARN: 280789). All Rights Reserved."
         },
 
@@ -494,7 +494,7 @@
             "partner.ctaSip": "SIP पोर्टफोलिओ एक्सप्लोर करा",
 
             // Hero section additional keys
-            "hero.academyBadgeTitle": "लॉर्ड साई इन्व्हेस्टमेंट आणि शेअर मार्केट अकॅडमी",
+            "hero.academyBadgeTitle": "लॉर्ड साई शेअर मार्केट क्लासेस",
             "hero.academyHeroTitle": "शेअर मार्केट शिका. कौशल्य आत्मसात करा. आर्थिक भविष्य घडवा.",
             "hero.academyHeroDesc": "नवशिक्या, नोकरदार आणि गंभीर विद्यार्थ्यांसाठी प्रत्यक्ष शेअर मार्केट शिक्षण, टेक्निकल ॲनालिसिस, प्राईस ॲक्शन आणि कठोर जोखीम व्यवस्थापन.",
             "hero.skillBanner": "शेअर मार्केट हे एक कौशल्य आहे, सट्टेबाजी नव्हे.",
@@ -516,7 +516,7 @@
 
             // About Us & Founder
             "about.academyMission": "आमचे शैक्षणिक ध्येय",
-            "about.academyTitle": "लॉर्ड साई इन्व्हेस्टमेंट आणि शेअर मार्केट अकॅडमीबद्दल",
+            "about.academyTitle": "लॉर्ड साई शेअर मार्केट क्लासेसबद्दल",
             "about.academyDesc": "उरणमधील एक अग्रगण्य संस्था, जिथे सट्टेबाजीची मानसिकता मोडून गणितीय संभाव्यता आणि भावनिक नियंत्रण शिकवले जाते.",
             "about.mfMission": "म्युच्युअल फंड वितरण सेवा",
             "about.mfTitle": "म्युच्युअल फंड सेवांविषयी — वैभव एस. पवार",
@@ -628,14 +628,14 @@
             "offerings.categoryLabel": "श्रेणी:",
 
             // Footer
-            "footer.brandTitleAcademy": "लॉर्ड साई इन्व्हेस्टमेंट आणि शेअर मार्केट अकॅडमी",
+            "footer.brandTitleAcademy": "लॉर्ड साई शेअर मार्केट क्लासेस",
             "footer.brandTitleMf": "म्युच्युअल फंड वितरण सेवा — वैभव एस. पवार",
             "footer.ecoLabel": "वितरण परिसंस्था भागीदार",
             "footer.quickLinks": "महत्त्वाच्या लिंक्स",
             "footer.contact": "संपर्क",
             "footer.disclaimer": "अस्वीकरण: शेअर मार्केट शिक्षण केवळ शैक्षणिक उद्देशाने दिले जाते. मागील कामगिरी भविष्यातील परताव्याची हमी देत नाही.",
             "footer.amfiDisclaimer": "एएमएफआय अस्वीकरण: म्युच्युअल फंड गुंतवणूक बाजार जोखमीच्या अधीन आहे, योजनेशी संबंधित कागदपत्रे काळजीपूर्वक वाचा. ARN-280789.",
-            "footer.copyrightAcademy": "© लॉर्ड साई इन्व्हेस्टमेंट आणि शेअर मार्केट अकॅडमी. सर्व हक्क राखीव.",
+            "footer.copyrightAcademy": "© लॉर्ड साई शेअर मार्केट क्लासेस. सर्व हक्क राखीव.",
             "footer.copyrightMf": "© वैभव एस. पवार — एएमएफआय नोंदणीकृत म्युच्युअल फंड वितरक (ARN: 280789). सर्व हक्क राखीव."
         },
 
@@ -806,7 +806,7 @@
             "partner.ctaSip": "SIP पोर्टफोलियो देखें",
 
             // Hero section additional keys
-            "hero.academyBadgeTitle": "लॉर्ड साई इन्वेस्टमेंट एवं शेयर मार्केट एकेडमी",
+            "hero.academyBadgeTitle": "लॉर्ड साई शेयर मार्केट क्लासेस",
             "hero.academyHeroTitle": "शेयर बाजार सीखें। कौशल विकसित करें। अपना वित्तीय भविष्य बनाएं।",
             "hero.academyHeroDesc": "शुरुआती, कामकाजी पेशेवरों और गंभीर शिक्षार्थियों के लिए व्यावहारिक शेयर बाजार शिक्षा, तकनीकी विश्लेषण, प्राइस एक्शन और सख्त जोखिम प्रबंधन।",
             "hero.skillBanner": "शेयर बाजार एक कौशल है, सट्टा नहीं।",
@@ -828,7 +828,7 @@
 
             // About Us & Founder
             "about.academyMission": "हमारा शैक्षणिक उद्देश्य",
-            "about.academyTitle": "लॉर्ड साई इन्वेस्टमेंट एवं शेयर मार्केट एकेडमी के बारे में",
+            "about.academyTitle": "लॉर्ड साई शेयर मार्केट क्लासेस के बारे में",
             "about.academyDesc": "उरण में एक प्रमुख स्टॉक मार्केट शिक्षण संस्थान, जहां सट्टेबाजी की मानसिकता को हटाकर गणितीय अनुशासन सिखाया जाता है।",
             "about.mfMission": "म्यूचुअल फंड वितरण सेवाएं",
             "about.mfTitle": "म्यूचुअल फंड सेवाओं के बारे में — वैभव एस. पवार",
@@ -940,14 +940,14 @@
             "offerings.categoryLabel": "श्रेणी:",
 
             // Footer
-            "footer.brandTitleAcademy": "लॉर्ड साई इन्वेस्टमेंट एवं शेयर मार्केट एकेडमी",
+            "footer.brandTitleAcademy": "लॉर्ड साई शेयर मार्केट क्लासेस",
             "footer.brandTitleMf": "म्यूचुअल फंड वितरण सेवाएं — वैभव एस. पवार",
             "footer.ecoLabel": "वितरण इकोसिस्टम पार्टनर",
             "footer.quickLinks": "त्वरित लिंक्स",
             "footer.contact": "संपर्क",
             "footer.disclaimer": "अस्वीकरण: शेयर बाजार शिक्षा केवल शैक्षणिक उद्देश्यों के लिए प्रदान की जाती है। पिछला प्रदर्शन भविष्य के रिटर्न की गारंटी नहीं देता है।",
             "footer.amfiDisclaimer": "एएमएफआई अस्वीकरण: म्यूचुअल फंड निवेश बाजार जोखिमों के अधीन हैं, योजना से संबंधित दस्तावेजों को ध्यान से पढ़ें। ARN-280789.",
-            "footer.copyrightAcademy": "© लॉर्ड साई इन्वेस्टमेंट एवं शेयर मार्केट एकेडमी। सर्वाधिकार सुरक्षित।",
+            "footer.copyrightAcademy": "© लॉर्ड साई शेयर मार्केट क्लासेस। सर्वाधिकार सुरक्षित।",
             "footer.copyrightMf": "© वैभव एस. पवार — एएमएफआई पंजीकृत म्यूचुअल फंड वितरक (ARN: 280789)। सर्वाधिकार सुरक्षित।"
         }
     };

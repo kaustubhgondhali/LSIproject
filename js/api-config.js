@@ -15,7 +15,7 @@
         // same domain (reverse proxy) or set window.LSI_API_BASE_OVERRIDE before this script.
         API_BASE: explicit || (isLocal ? "http://localhost:8080/api" : "/api"),
         RAZORPAY_CHECKOUT_JS: "https://checkout.razorpay.com/v1/checkout.js",
-        BRAND_NAME: "Lord Sai Investment & Share Market Academy",
+        BRAND_NAME: "Lord Sai Share Market Classes",
         BRAND_LOGO: "img/logo.png",
         BRAND_COLOR: "#0F9F90"
     };

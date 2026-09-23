@@ -1,4 +1,4 @@
-# Lord Sai Investment & Share Market Academy
+# Lord Sai Share Market Classes
 
 Full-stack platform: the existing static website (HTML/CSS/JS) plus a **Spring Boot + MySQL** backend
 that powers course sales (demo or Razorpay), student accounts, a secure video learning portal, admin-managed

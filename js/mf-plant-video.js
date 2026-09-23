@@ -1,5 +1,5 @@
 /**
- * LORD SAI INVESTMENT & SHARE MARKET ACADEMY
+ * LORD SAI SHARE MARKET CLASSES
  * MUTUAL FUND PAGES — "PLANT GROWING MONEY" VIDEO CONTROLLER (js/mf-plant-video.js)
  *
  * Lightweight, dependency-free controller for the Mutual Fund section

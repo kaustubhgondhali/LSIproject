@@ -1,5 +1,5 @@
 /**
- * LORD SAI INVESTMENT & SHARE MARKET ACADEMY
+ * LORD SAI SHARE MARKET CLASSES
  * WEBSITE MODE MANAGEMENT & PRESENTATION CONTROLLER (js/mode.js)
  * 
  * Manages two presentation and navigation modes:

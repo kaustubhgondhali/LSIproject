@@ -83,7 +83,7 @@ public class ExcelExporter {
             Row titleRow = sheet.createRow(r++);
             titleRow.setHeightInPoints(26);
             Cell titleCell = titleRow.createCell(0);
-            titleCell.setCellValue("Lord Sai Investment & Share Market Academy — " + table.title());
+            titleCell.setCellValue("Lord Sai Share Market Classes — " + table.title());
             titleCell.setCellStyle(titleStyle);
             for (int c = 1; c < cols; c++) {
                 titleRow.createCell(c).setCellStyle(titleStyle);

@@ -210,7 +210,7 @@ public class CertificateService {
         m.put("customBackground", background);            // null -> default Lord Sai design
         m.put("usingDefault", background == null);
         m.put("templateName", background == null ? CertificateDtos.DEFAULT_TEMPLATE_NAME : template.getName());
-        m.put("academyName", "Lord Sai Investment & Share Market Academy");
+        m.put("academyName", "Lord Sai Share Market Classes");
         m.put("signatoryName", "Vaibhav S. Pawar");
         m.put("signatoryTitle", "Founder & Lead Educator");
         m.put("supportEmail", properties.support().email());

@@ -130,7 +130,7 @@ public class AcadCommunicationSender {
 
     private static String whatsAppText(AcadCommunicationLog row) {
         String subject = row.getSubject() == null || row.getSubject().isBlank() ? "" : "*" + row.getSubject() + "*\n\n";
-        return subject + (row.getBody() == null ? "" : row.getBody()) + "\n\n— Lord Sai Investment & Share Market Academy";
+        return subject + (row.getBody() == null ? "" : row.getBody()) + "\n\n— Lord Sai Share Market Classes";
     }
 
     static String contentTypeOf(String filename) {

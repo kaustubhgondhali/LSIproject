@@ -1,5 +1,5 @@
 /* ==========================================================================
-   LORD SAI INVESTMENT & SHARE MARKET ACADEMY
+   LORD SAI SHARE MARKET CLASSES
    GLOBAL DESIGN SYSTEM & BRANDING STYLESHEET
    Brand Colors:
      - Primary Blue: #0077B6
@@ -5648,9 +5648,100 @@ body.mode-mutual-fund .lang-btn.active {
     }
 }
 
+/* Certificate particulars shown under the ISO / MSME marks. Kept to a single
+   narrow column so the wording reads like the certificate it is quoting. */
+.lsi-accred-details {
+    max-width: 760px;
+    margin: 20px auto 0;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    text-align: center;
+}
+
+.lsi-accred-details p {
+    margin: 0;
+}
+
+.lsi-accred-details p + p {
+    margin-top: 12px;
+}
+
+.lsi-accred-address {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.7;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #E2E8F0;
+}
+
+.lsi-accred-statement,
+.lsi-accred-scope-label {
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: var(--lsi-gray-400);
+}
+
+.lsi-accred-standard {
+    display: inline-block;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.12em;
+    color: #FFFFFF;
+    background: rgba(0, 119, 182, 0.18);
+    border: 1px solid rgba(0, 180, 216, 0.45);
+    border-radius: 999px;
+    padding: 6px 22px;
+}
+
+.lsi-accred-scope {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #FFFFFF;
+}
+
+.lsi-accred-scope-note {
+    display: block;
+    margin-top: 4px;
+    font-weight: 500;
+    font-size: 0.8rem;
+    letter-spacing: 0.03em;
+    text-transform: none;
+    color: var(--lsi-gray-400);
+}
+
 @media (max-width: 575.98px) {
     .lsi-accred-row { gap: 14px 20px; }
     .lsi-accred-title { font-size: 1rem; letter-spacing: 0.07em; }
     .lsi-accred-card { padding: 6px 12px; min-height: 62px; }
     .lsi-accred-card img { height: 44px; }
+    .lsi-accred-details { margin-top: 16px; padding-top: 16px; }
+    .lsi-accred-details p + p { margin-top: 10px; }
+    .lsi-accred-address { font-size: 0.76rem; letter-spacing: 0.03em; }
+    .lsi-accred-statement,
+    .lsi-accred-scope-label { font-size: 0.76rem; }
+    .lsi-accred-standard { font-size: 0.9rem; padding: 5px 16px; letter-spacing: 0.1em; }
+    .lsi-accred-scope { font-size: 0.82rem; }
+    .lsi-accred-scope-note { font-size: 0.74rem; }
+    /* Let the address wrap to the screen instead of keeping the printed break. */
+    .lsi-accred-break { display: none; }
+}
+
+/* ==========================================================================
+   SINGLE-LINE HEADING
+   Keeps a heading on one line at every width by scaling the type to the
+   viewport instead of letting it wrap. Declared last and with !important so
+   it beats the `.display-4, .display-5 { font-size: 2rem !important }`
+   small-screen override further up this file.
+   ========================================================================== */
+.lsi-oneline-heading {
+    white-space: nowrap;
+    font-size: clamp(0.8rem, 4vw, 2.2rem) !important;
+    line-height: 1.25;
 }

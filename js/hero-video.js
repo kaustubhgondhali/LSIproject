@@ -1,5 +1,5 @@
 /**
- * LORD SAI INVESTMENT & SHARE MARKET ACADEMY
+ * LORD SAI SHARE MARKET CLASSES
  * HOME HERO BACKGROUND VIDEO CONTROLLER (js/hero-video.js)
  *
  * Lightweight, dependency-free controller for the Academy hero background

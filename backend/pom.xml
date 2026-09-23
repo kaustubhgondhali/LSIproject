@@ -15,7 +15,7 @@
     <artifactId>lsi-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>lsi-backend</name>
-    <description>Lord Sai Investment &amp; Share Market Academy — Backend API</description>
+    <description>Lord Sai Share Market Classes — Backend API</description>
 
     <properties>
         <java.version>21</java.version>

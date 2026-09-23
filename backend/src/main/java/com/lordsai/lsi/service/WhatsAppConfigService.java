@@ -168,7 +168,7 @@ public class WhatsAppConfigService {
         if (!whatsApp.isConfigured()) {
             throw new ApiException(HttpStatus.BAD_REQUEST, WhatsAppMessageService.NOT_CONFIGURED_ADMIN);
         }
-        WhatsAppDelivery d = whatsApp.sendText(req.mobile(), req.message().trim() + "\n\n— Test message from Lord Sai Investment & Share Market Academy");
+        WhatsAppDelivery d = whatsApp.sendText(req.mobile(), req.message().trim() + "\n\n— Test message from Lord Sai Share Market Classes");
         String masked = "***" + req.mobile().replaceAll("\\D", "").replaceAll("^.*(\\d{4})$", "$1");
         auditService.record(actor, d.sent() ? "WHATSAPP_TEST_SENT" : "WHATSAPP_TEST_FAILED", "WhatsAppConfig", null,
                 "Test message to " + masked + (d.sent() ? " via " + d.provider() : " — " + d.reason()), ip);

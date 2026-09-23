@@ -17,7 +17,7 @@
     <title th:text="'Invoice ' + ${invoiceNumber}">Invoice</title>
     <style>
         @page { size: A4; margin: 16mm 14mm 18mm 14mm;
-            @bottom-center { content: "Lord Sai Investment &amp; Share Market Academy  ·  Page " counter(page) " of " counter(pages); font-family: 'Noto Sans'; font-size: 8pt; color: #64748b; } }
+            @bottom-center { content: "Lord Sai Share Market Classes  ·  Page " counter(page) " of " counter(pages); font-family: 'Noto Sans'; font-size: 8pt; color: #64748b; } }
         * { box-sizing: border-box; }
         body { font-family: 'Noto Sans', 'Segoe UI', Arial, sans-serif; font-size: 10pt; color: #0f172a; margin: 0; background: #ffffff; }
         .brand-bar { border-bottom: 3px solid #0B5FA5; padding-bottom: 10px; }
@@ -64,9 +64,9 @@
 <table class="brand-bar" style="width:100%; border-collapse:collapse;">
     <tr>
         <td style="width:58%;">
-            <img th:src="${logoDataUri}" alt="Lord Sai Investment &amp; Share Market Academy" class="logo"/>
+            <img th:src="${logoDataUri}" alt="Lord Sai Share Market Classes" class="logo"/>
             <div class="company">
-                <strong>Lord Sai Investment &amp; Share Market Academy</strong><br/>
+                <strong>Lord Sai Share Market Classes</strong><br/>
                 Shreeraj Nagar Apartment, Kamtha Road, Near Dr. Gade Hospital, Uran, Navi Mumbai, Raigad, Maharashtra – 400707, India.<br/>
                 <span th:text="${supportEmail}">info@lordsaiinvestment.com</span> · <span th:text="${supportPhone}">+91 99202 54354</span>
             </div>

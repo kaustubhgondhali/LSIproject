@@ -1,6 +1,6 @@
 /* ==========================================================================
    Unified Ultra-Wide Cinematic Frame Animation — Academy Page
-   LORD SAI INVESTMENT & SHARE MARKET ACADEMY
+   LORD SAI SHARE MARKET CLASSES
 
    Single Canvas Architecture:
      - 100% Seamless panoramic composite rendered directly onto #scrollFrameCanvas.

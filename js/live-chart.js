@@ -1,5 +1,5 @@
 /**
- * LORD SAI INVESTMENT & SHARE MARKET ACADEMY
+ * LORD SAI SHARE MARKET CLASSES
  * LiveCandlestickBackground - Reusable Stock Market Candlestick Background Engine
  * 
  * Features:
