@@ -53,6 +53,7 @@
             "nav.investments": "Investments",
             "nav.sipTab": "SIP",
             "nav.swpTab": "SWP",
+            "nav.sipCalculatorTab": "SIP Calculator",
             "nav.sip": "SIP (Systematic Investment Plan)",
             "nav.swp": "SWP (Systematic Withdrawal Plan)",
             "nav.mfDist": "Mutual Fund Distribution",
@@ -96,8 +97,8 @@
             "gateway.academyCta": "CLICK TO ENTER ACADEMY",
             "gateway.mfBadge": "Mutual Fund Distribution",
             "gateway.mfTitle": "Mutual Fund Distribution Services",
-            "gateway.mfName": "Vaibhav S. Pawar",
-            "gateway.founderName": "Vaibhav S. Pawar",
+            "gateway.mfName": "VAIBHAV S. PAWAR",
+            "gateway.founderName": "VAIBHAV S. PAWAR",
             "gateway.mfReg": "AMFI Registered Mutual Fund Distributor • ARN: 280789",
             "gateway.mfDesc": "Professional, transparent, and goal-aligned mutual fund distribution helping individuals and families across Uran & Navi Mumbai build sustainable compounding wealth.",
             "gateway.mfP1Title": "Systematic Investment Plans (SIP)",
@@ -119,7 +120,7 @@
             "hero.academyCta2": "Book Strategy Session",
             "hero.mfBadge": "AMFI Registered MFD • ARN: 280789",
             "hero.mfTitle": "Build Generational Compounding Wealth",
-            "hero.mfSub": "Disciplined SIP investments, SWP retirement cashflows, and goal-aligned mutual fund portfolios guided by Vaibhav S. Pawar in Uran & Navi Mumbai.",
+            "hero.mfSub": "Disciplined SIP investments, SWP retirement cashflows, and goal-aligned mutual fund portfolios guided by VAIBHAV S. PAWAR in Uran & Navi Mumbai.",
             "hero.mfCta1": "Start Systematic SIP",
             "hero.mfCta2": "Open NJ E-Wealth Account",
 
@@ -207,9 +208,9 @@
             "about.academyTitle": "About Lord Sai Share Market Classes",
             "about.academyDesc": "A premier stock market learning institution in Uran, dedicated to removing gambling mindset and replacing it with probabilistic mathematics and emotional resilience.",
             "about.mfMission": "Mutual Fund Distribution Services",
-            "about.mfTitle": "About Mutual Fund Services — Vaibhav S. Pawar",
+            "about.mfTitle": "About Mutual Fund Services — VAIBHAV S. PAWAR",
             "about.mfDesc": "Committed to delivering disciplined, transparent, and goal-linked wealth solutions for families in Uran and across Navi Mumbai.",
-            "founder.name": "Vaibhav S. Pawar",
+            "founder.name": "VAIBHAV S. PAWAR",
             "founder.role": "Founder, Lead Mentor & AMFI Registered MFD",
             "founder.cert": "NISM Series VIII Certified • AMFI ARN-280789",
             "founder.quote": "Financial independence is not born of market predictions; it is forged by mathematical discipline and continuous patience.",
@@ -317,14 +318,14 @@
 
             // Footer
             "footer.brandTitleAcademy": "Lord Sai Share Market Classes",
-            "footer.brandTitleMf": "Mutual Fund Distribution Services — Vaibhav S. Pawar",
+            "footer.brandTitleMf": "Mutual Fund Distribution Services — VAIBHAV S. PAWAR",
             "footer.ecoLabel": "Distribution Ecosystem Partner",
             "footer.quickLinks": "Quick Links",
             "footer.contact": "Contact",
             "footer.disclaimer": "Disclaimer: Stock market education and training are designed for educational purposes only. Past performance does not guarantee future results.",
             "footer.amfiDisclaimer": "AMFI Disclaimer: Mutual Fund investments are subject to market risks, read all scheme related documents carefully. Past performance is not an indicator of future returns. ARN-280789.",
             "footer.copyrightAcademy": "© Lord Sai Share Market Classes. All Rights Reserved.",
-            "footer.copyrightMf": "© Vaibhav S. Pawar — AMFI Registered Mutual Fund Distributor (ARN: 280789). All Rights Reserved."
+            "footer.copyrightMf": "© VAIBHAV S. PAWAR — AMFI Registered Mutual Fund Distributor (ARN: 280789). All Rights Reserved."
         },
 
         mr: {
@@ -365,6 +366,7 @@
             "nav.investments": "गुंतवणूक",
             "nav.sipTab": "SIP",
             "nav.swpTab": "SWP",
+            "nav.sipCalculatorTab": "SIP कॅल्क्युलेटर",
             "nav.sip": "SIP (सिस्टिमॅटिक इन्व्हेस्टमेंट प्लॅन)",
             "nav.swp": "SWP (सिस्टिमॅटिक विथड्रॉल प्लॅन)",
             "nav.mfDist": "म्युच्युअल फंड वितरण",
@@ -677,6 +679,7 @@
             "nav.investments": "निवेश",
             "nav.sipTab": "SIP",
             "nav.swpTab": "SWP",
+            "nav.sipCalculatorTab": "SIP कैलकुलेटर",
             "nav.sip": "SIP (सिस्टमैटिक इन्वेस्टमेंट प्लान)",
             "nav.swp": "SWP (सिस्टमैटिक विथड्रॉल प्लान)",
             "nav.mfDist": "म्यूचुअल फंड वितरण",

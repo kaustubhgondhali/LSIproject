@@ -5767,14 +5767,48 @@ body.mode-mutual-fund .lang-btn.active {
 }
 
 /* ==========================================================================
-   SINGLE-LINE HEADING
-   Keeps a heading on one line at every width by scaling the type to the
-   viewport instead of letting it wrap. Declared last and with !important so
-   it beats the `.display-4, .display-5 { font-size: 2rem !important }`
-   small-screen override further up this file.
+   FINAL CTA BAND - SINGLE-LINE HEADING
+   Keeps the pre-footer CTA title on one line from 992px up, the same way
+   courses.html already does it with .cta-conversion-box/.cta-conversion-title:
+   let the box use the full container width, hold the paragraph at its
+   original 800px measure, and scale the title so the longest one still fits.
+   Below 992px the title wraps exactly as before, so it stays readable on
+   phones and tablets where one line would mean unreadably small type.
+   Declared last and with !important so it beats the
+   `.display-4, .display-5 { font-size: 2rem !important }` override above.
    ========================================================================== */
-.lsi-oneline-heading {
-    white-space: nowrap;
-    font-size: clamp(0.8rem, 4vw, 2.2rem) !important;
-    line-height: 1.25;
+.lsi-cta-box {
+    max-width: 800px;
+}
+
+@media (min-width: 992px) {
+    .lsi-cta-box {
+        max-width: 100% !important;
+    }
+
+    /* Body copy keeps its original measure; only the heading uses the extra room. */
+    .lsi-cta-box p {
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .lsi-oneline-heading {
+        white-space: nowrap !important;
+        font-size: clamp(2rem, 3.1vw, 2.8rem) !important;
+        line-height: 1.25;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   .mf-brand-cta only: from 1400px up the NJ / Lord Sai brandmarks are pulled
+   out of the flow and parked in this band's left and right gutters, so the
+   single-line heading above must stay inside the centre channel between them
+   or it collides with the NJ mark. Cap the title to the channel width, which
+   is roughly 63% of the viewport at its tightest (~1600px).
+   -------------------------------------------------------------------------- */
+@media (min-width: 1400px) {
+    .mf-brand-cta .lsi-oneline-heading {
+        font-size: min(2.2vw, 2.8rem) !important;
+    }
 }

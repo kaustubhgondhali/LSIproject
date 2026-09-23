@@ -25,7 +25,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Template Stylesheet -->
-    <link href="css/style.css?v=20260923d" rel="stylesheet">
+    <link href="css/style.css?v=20260923f" rel="stylesheet">
 </head>
 
 <body>
@@ -111,6 +111,7 @@
                     <!-- Independent SIP & SWP Navigation Tabs (Mutual Fund Mode Only) -->
                     <a href="sip.html" class="nav-item nav-link mode-mf-only" data-i18n="nav.sipTab">SIP</a>
                     <a href="swp.html" class="nav-item nav-link mode-mf-only" data-i18n="nav.swpTab">SWP</a>
+                    <a href="sip.html#calculator" class="nav-item nav-link mode-mf-only" data-i18n="nav.sipCalculatorTab">SIP Calculator</a>
 
                     <!-- Insurance Dropdown (Mutual Fund Mode Only) -->
                     <div class="nav-item dropdown mode-mf-only">
@@ -454,9 +455,9 @@
             <canvas class="mf-live-wave-canvas"></canvas>
         </div>
         <div class="container text-center py-4">
-            <div class="mx-auto" style="max-width: 800px;">
+            <div class="mx-auto lsi-cta-box" style="max-width: 800px;">
                 <span class="badge bg-primary text-uppercase mb-3 px-3 py-1">Inquire & Collect</span>
-                <h2 class="display-5 fw-bold text-white mb-3">Collect Study Kits at Our Uran Center</h2>
+                <h2 class="display-5 fw-bold text-white mb-3 lsi-oneline-heading">Collect Study Kits at Our Uran Center</h2>
                 <p class="text-light fs-5 mb-4" style="line-height: 1.8; opacity: 0.9;">
                     Visit Lord Sai Academy at Shreeraj Nagar Apartment, Kamtha Road, Near Dr. Gade Hospital, Uran, Navi Mumbai, Raigad, Maharashtra – 400707, India to collect hardcopy journals and study materials.
                 </p>
@@ -594,7 +595,8 @@
                     <div class="d-flex align-items-center gap-2 mb-3">
                         <img src="img/lord-sai-logo.png" alt="LORD SAI Logo" style="height: 48px; background: #fff; padding: 2px 6px; border-radius: 6px;">
                         <div>
-                            <div class="footer-brand-title">Lord&nbsp;Sai Share Market Academy</div>
+                            <div class="footer-brand-title mode-academy-only">Lord&nbsp;Sai<br>Share Market Academy</div>
+                            <div class="footer-brand-title mode-mf-only">Lord Sai Investment</div>
                         </div>
                     </div>
                     <div class="footer-brand-sub mb-3">
@@ -769,7 +771,7 @@
     <script src="js/checkout.js"></script>
 
     <!-- Multilingual Engine -->
-    <script src="js/translations.js"></script>
+    <script src="js/translations.js?v=20260923-caps"></script>
     <script src="js/lang.js"></script>
     <script src="js/mode.js"></script>
     <script src="js/main.js"></script>

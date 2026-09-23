@@ -1824,7 +1824,7 @@
             el("blogFormContentPreview").innerHTML = "";
             el("blogFormSiteInput").value = "ACADEMY";
             el("blogFormStatusInput").value = "DRAFT";
-            el("blogFormAuthorInput").value = "Mentor Vaibhav Pawar";
+            el("blogFormAuthorInput").value = "Mentor VAIBHAV PAWAR";
             el("blogFormTagsInput").value = "";
             el("blogFormImagePath").value = "";
             el("blogFormSeoTitle").value = "";
