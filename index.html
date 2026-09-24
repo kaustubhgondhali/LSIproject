@@ -796,12 +796,18 @@
                 height: 40px !important;
                 flex-shrink: 0 !important;
             }
+            /* Same look as desktop, scaled down: the white badge spans the card
+               width and the logo fills it at its natural proportions (capped at
+               the tablet badge size so it never grows past the 576px layout). */
             .gateway-academy-logo-badge {
-                height: 44px;
-                padding: 3px 6px;
+                width: 100%;
+                max-width: 386px;
+                padding: 6px 12px;
+                border-radius: 10px;
             }
             .gateway-academy-logo-badge img {
-                height: 38px;
+                width: 100%;
+                height: auto;
             }
             .gateway-emblem-badge {
                 gap: 10px;
@@ -868,11 +874,7 @@
                 height: 34px !important;
             }
             .gateway-academy-logo-badge {
-                height: 38px;
-                padding: 2px 4px;
-            }
-            .gateway-academy-logo-badge img {
-                height: 26px;
+                padding: 5px 10px;
             }
             .gateway-emblem-badge {
                 gap: 8px;
@@ -908,7 +910,7 @@
             <div class="row gx-0 align-items-center">
                 <div class="col-lg-7 text-start">
                     <div class="d-flex flex-wrap align-items-center gap-3">
-                        <span class="badge bg-primary"><i class="fas fa-map-marker-alt me-1"></i> Shreeraj Nagar Apartment, Kamtha Road, Near Dr. Gade Hospital, Uran, Navi Mumbai, Raigad, Maharashtra – 400707, India.</span>
+                        <span class="badge bg-primary"><i class="fas fa-map-marker-alt me-1"></i> Shreeraj Nagar Apartment, Kamtha Road, Near Dr. Gade Hospital, Uran, Navi Mumbai, Raigad, Maharashtra – 400702, India.</span>
                         <a href="tel:9920254354" class="text-light small text-decoration-none"><i class="fas fa-phone-alt text-info me-1"></i> 9920 254 354</a>
                         <a href="mailto:lordsai.academy@gmail.com" class="text-light small text-decoration-none"><i class="fas fa-envelope text-info me-1"></i> lordsai.academy@gmail.com</a>
                     </div>
@@ -1233,7 +1235,7 @@
                 <div class="row g-3 align-items-center text-muted small">
                     <div class="col-md-4 text-md-start">
                         <strong>Lord Sai Investment & Share Market Academy</strong><br>
-                        Shreeraj Nagar Apartment, Kamtha Road, Near Dr. Gade Hospital, Uran, Navi Mumbai, Raigad, Maharashtra – 400707, India.
+                        Shreeraj Nagar Apartment, Kamtha Road, Near Dr. Gade Hospital, Uran, Navi Mumbai, Raigad, Maharashtra – 400702, India.
                     </div>
                     <div class="col-md-4 text-center">
                         <a href="tel:9920254354" class="text-decoration-none text-dark fw-bold me-3"><i class="fas fa-phone-alt text-primary me-1"></i> 9920 254 354</a>

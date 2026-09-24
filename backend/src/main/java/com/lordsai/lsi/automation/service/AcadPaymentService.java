@@ -43,7 +43,7 @@ public class AcadPaymentService {
 
     public static final String ACADEMY_NAME = "LORD SAI INVESTMENT AND SHARE MARKET ACADEMY";
     public static final String ACADEMY_TAGLINE = "Learn • Invest • Grow Together";
-    public static final String ACADEMY_ADDRESS = "Shreeraj Nagar Apartment, Kamtha Road, Near Dr. Gade Hospital, Uran, Navi Mumbai, Raigad, Maharashtra – 400707, India.";
+    public static final String ACADEMY_ADDRESS = "Shreeraj Nagar Apartment, Kamtha Road, Near Dr. Gade Hospital, Uran, Navi Mumbai, Raigad, Maharashtra – 400702, India.";
     public static final String ACADEMY_EMAIL = "lordsai.academy@gmail.com";
     public static final String ACADEMY_PHONE = "9920254354";
     public static final String SIGNATORY = "Vaibhav S. Pawar, Proprietor";

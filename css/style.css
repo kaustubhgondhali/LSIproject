@@ -1448,6 +1448,12 @@ body.mode-mutual-fund .calc-brand-name {
     line-height: 1.3;
 }
 
+/* Share Market Academy footer: centre "Lord Sai" over "Share Market Academy"
+   next to the logo (the Mutual Fund title is left as it was). */
+.footer-brand-title:not(.mode-mf-only) {
+    text-align: center;
+}
+
 .footer-brand-sub {
     font-size: 12.5px;
     color: var(--lsi-green);
@@ -3274,6 +3280,15 @@ body.mode-academy .trading-bg-district {
   background-size: 320px auto !important;
   background-repeat: no-repeat !important;
   position: relative;
+}
+
+/* contact.html: no decorative corner image (skyline / handshake) under the map
+   in either mode; the section stays plain white. */
+body.mode-academy .trading-bg-district.contact-no-bg-art,
+html.mode-academy .trading-bg-district.contact-no-bg-art,
+body.mode-mutual-fund .mf-bg-visual--contact.contact-no-bg-art,
+html.mode-mutual-fund .mf-bg-visual--contact.contact-no-bg-art {
+  background-image: none !important;
 }
 
 /* -------------------------------------------------------------------------
@@ -6039,6 +6054,37 @@ body.mode-mutual-fund .lang-btn.active {
 @media (min-width: 1400px) {
     .mf-brand-cta .lsi-oneline-heading {
         font-size: min(2.2vw, 2.8rem) !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   contact.html (Mutual Fund mode) hero title: keep "Connect With VAIBHAV
+   PAWAR" on one line on phones, as it is on desktop. At the 2rem phone size
+   the name split onto a second line, so below 768px the title shrinks with
+   the viewport just enough to fit its container.
+   -------------------------------------------------------------------------- */
+@media (max-width: 767.98px) {
+    .contact-mf-hero-title {
+        white-space: nowrap;
+        font-size: min(calc(1.475rem + 2.7vw), 2.3rem) !important;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .contact-mf-hero-title {
+        font-size: min(6.4vw, 2rem) !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Share Market headings that break after "Lord Sai" on phones (<br class=
+   "d-sm-none">). At the 2rem phone size "Share Market Academy" needs ~323px,
+   so on phones narrower than ~360px it would split again; ease the size down
+   there only. From 360px up this still resolves to the usual 2rem.
+   -------------------------------------------------------------------------- */
+@media (max-width: 575.98px) {
+    .lsi-name-break-title {
+        font-size: min(8.9vw, 2rem) !important;
     }
 }
 
