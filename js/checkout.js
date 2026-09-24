@@ -199,15 +199,20 @@
         banner.classList.remove("d-none");
     }
 
+    /** Alerts are not page text, so ask the language engine for the translation directly. */
+    function tr(text) {
+        return window.LSI_Lang && typeof window.LSI_Lang.t === "function" ? window.LSI_Lang.t(text) : text;
+    }
+
     function openModal(product) {
         selected = product;
         if (!selected) {
-            alert("This product is not available for online purchase right now. Please contact the academy.");
+            alert(tr("This product is not available for online purchase right now. Please contact the academy."));
             return;
         }
         if (selected.productType === "COURSE" && isShareMarketCourse(selected.courseCode, selected.productName)) {
             if (!isShareMarketPurchaseEnabled()) {
-                alert("Purchase is currently unavailable for this course. Please contact the academy.");
+                alert(tr("Purchase is currently unavailable for this course. Please contact the academy."));
                 return;
             }
         }

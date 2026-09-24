@@ -3257,12 +3257,12 @@ html.mode-academy #learning-approach {
   position: relative;
 }
 
-/* 8. HOME: Academy Welcome Intro (trading-visual-bull-market.png)
-   Subject: Bull Market Momentum in top-right margin of light intro section */
+/* 8. HOME: Academy Welcome Intro — plain light section; the top-right corner
+   image (trading-visual-bull-market.png) was removed at the owner's request. */
 body.mode-academy #academy-about-intro,
 html.mode-academy #academy-about-intro {
   background-color: #F8FAFC !important;
-  background-image: url('../img/trading-visual-bull-market.png') !important;
+  background-image: none !important;
   background-position: right 20px top 20px !important;
   background-size: 300px auto !important;
   background-repeat: no-repeat !important;
