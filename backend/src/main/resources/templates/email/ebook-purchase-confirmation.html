@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<!-- Sent once after a VERIFIED ebook payment (new student account). Lord Sai blue branding. -->
+<body>
+<div th:replace="~{email/layout :: wrapper('Ebook Purchase Confirmed', ~{::content})}">
+    <div th:fragment="content">
+        <p style="margin:0 0 14px;font-size:15px;line-height:1.6;">Dear <strong th:text="${name}">Student</strong>,</p>
+        <p style="margin:0 0 18px;font-size:15px;line-height:1.6;">
+            Thank you for your purchase. Your payment has been verified and the ebook
+            <strong th:text="${productName}">the ebook</strong> has been added to your Lord Sai Student Portal account.
+        </p>
+
+        <div th:replace="~{email/purchase-fragments :: summary}"></div>
+        <div th:replace="~{email/purchase-fragments :: credentials}"></div>
+        <div th:replace="~{email/purchase-fragments :: access('Your purchased ebook is available only inside your authenticated Lord Sai Student Portal account. Direct access to the protected ebook file is not permitted.')}"></div>
+
+        <p style="margin:18px 0 0;font-size:14px;line-height:1.6;color:#334155;">
+            Open <em>My Ebooks</em> in the portal to read it any time. Happy reading!
+        </p>
+    </div>
+</div>
+</body>
+</html>

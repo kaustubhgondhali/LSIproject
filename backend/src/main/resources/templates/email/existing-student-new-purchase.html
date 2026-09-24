@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<!-- Sent when a student who ALREADY has an account buys another product. No new account, no new Student ID. -->
+<body>
+<div th:replace="~{email/layout :: wrapper('New Purchase Added To Your Existing Student Account', ~{::content})}">
+    <div th:fragment="content">
+        <p style="margin:0 0 14px;font-size:15px;line-height:1.6;">Dear <strong th:text="${name}">Student</strong>,</p>
+        <p style="margin:0 0 14px;font-size:15px;line-height:1.6;">
+            You already have a Lord Sai Student Portal account, so no new account has been created.
+            Your new purchase has been added to your existing account.
+        </p>
+        <p style="margin:0 0 18px;font-size:15px;line-height:1.6;">
+            Your payment for the <span th:text="${#strings.toLowerCase(productType)}">course</span>
+            <strong th:text="${productName}">product</strong> has been verified. Everything you purchased earlier remains available.
+        </p>
+
+        <div th:replace="~{email/purchase-fragments :: summary}"></div>
+        <div th:replace="~{email/purchase-fragments :: credentials}"></div>
+        <div th:replace="~{email/purchase-fragments :: access(${accessMessage})}"></div>
+    </div>
+</div>
+</body>
+</html>

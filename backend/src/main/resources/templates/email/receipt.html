@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+<div th:replace="~{email/layout :: wrapper('Fee receipt', ~{::content})}">
+    <div th:fragment="content">
+        <p style="margin:0 0 14px;font-size:15px;line-height:1.6;">Dear <strong th:text="${name}">Student</strong>,</p>
+        <p style="margin:0 0 18px;font-size:15px;line-height:1.6;">
+            Thank you for your payment. Your fee receipt from <span th:text="${receipt.academyName}">LSI</span> is below.
+        </p>
+
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;margin:0 0 18px;">
+            <tr><td style="padding:14px 18px;font-size:14px;line-height:1.9;">
+                <div><span style="color:#64748b;">Receipt No.:</span> <strong th:text="${receipt.receiptNo}">LSR/2026/0001</strong></div>
+                <div><span style="color:#64748b;">Date:</span> <span th:text="${paymentDateText}">01-01-2026</span></div>
+                <div><span style="color:#64748b;">Student ID:</span> <strong th:text="${receipt.studentCode}">LSA/2026/0001</strong></div>
+                <div><span style="color:#64748b;">Student Name:</span> <span th:text="${receipt.studentName}">Name</span></div>
+                <div><span style="color:#64748b;">Course:</span> <span th:text="${receipt.courseName}">Course</span></div>
+                <div><span style="color:#64748b;">Batch / Class:</span> <span th:text="${receipt.batchName} + (${receipt.batchSchedule} != null ? ' (' + ${receipt.batchSchedule} + ')' : '')">Batch</span></div>
+                <div><span style="color:#64748b;">Payment Mode:</span> <span th:text="${receipt.paymentMode}">CASH</span>
+                    <span th:if="${receipt.referenceNo != null}" th:text="' · Ref ' + ${receipt.referenceNo}"></span></div>
+            </td></tr>
+        </table>
+
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:0 0 14px;font-size:14px;">
+            <tr style="background:#e2e8f0;"><td style="padding:8px 12px;border:1px solid #cbd5e1;"><strong>Particulars</strong></td><td style="padding:8px 12px;border:1px solid #cbd5e1;text-align:right;"><strong>Amount (₹)</strong></td></tr>
+            <tr><td style="padding:8px 12px;border:1px solid #cbd5e1;">Course Fee</td><td style="padding:8px 12px;border:1px solid #cbd5e1;text-align:right;" th:text="${#numbers.formatDecimal(receipt.totalFee, 1, 'COMMA', 2, 'POINT')}">10,000.00</td></tr>
+            <tr><td style="padding:8px 12px;border:1px solid #cbd5e1;">Amount Paid (this receipt)</td><td style="padding:8px 12px;border:1px solid #cbd5e1;text-align:right;" th:text="${#numbers.formatDecimal(receipt.amountPaid, 1, 'COMMA', 2, 'POINT')}">5,000.00</td></tr>
+            <tr><td style="padding:8px 12px;border:1px solid #cbd5e1;">Total Paid to Date</td><td style="padding:8px 12px;border:1px solid #cbd5e1;text-align:right;" th:text="${#numbers.formatDecimal(receipt.totalPaid, 1, 'COMMA', 2, 'POINT')}">5,000.00</td></tr>
+            <tr><td style="padding:8px 12px;border:1px solid #cbd5e1;"><strong>Balance Amount</strong></td><td style="padding:8px 12px;border:1px solid #cbd5e1;text-align:right;"><strong th:text="${#numbers.formatDecimal(receipt.balance, 1, 'COMMA', 2, 'POINT')}">5,000.00</strong></td></tr>
+        </table>
+        <p style="margin:0 0 18px;font-size:13px;color:#334155;"><strong>Amount in Words:</strong> <span th:text="${receipt.amountInWords}">Rupees Five Thousand Only</span></p>
+
+        <p style="margin:0 0 6px;font-size:13px;color:#64748b;line-height:1.6;" th:text="${receipt.academyAddress}">Address</p>
+        <p style="margin:0;font-size:14px;line-height:1.6;color:#334155;">
+            Thank you for being a part of our academy!<br>
+            <span th:text="${receipt.signatory}">Proprietor</span>
+        </p>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Student LMS | Lord Sai Share Market Classes</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/lms.css" rel="stylesheet">
+</head>
+<body class="lms-app">
+    <div id="capture-protection-overlay" aria-hidden="true"><div class="capture-protection-blackout"></div></div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="js/api-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>LSI_Auth.requireAuth('student');</script>
+    <script src="js/student-protect.js?v=20260919"></script>
+
+    <header class="lms-topbar">
+        <button class="lms-menu-btn" id="lmsMenuBtn" aria-label="Menu"><i class="fas fa-bars"></i></button>
+        <a href="home.html" class="lms-brand" title="Main website">
+            <img src="img/lord-sai-logo.png" alt="Lord Sai">
+            <div><div class="name">LORD SAI</div><div class="sub">Student Learning</div></div>
+        </a>
+        <div class="lms-search">
+            <i class="fas fa-search"></i>
+            <input type="search" id="lmsSearch" placeholder="Search your courses, lessons and resources..." autocomplete="off">
+            <div class="lms-search-results" id="lmsSearchResults"></div>
+        </div>
+        <div class="lms-user">
+            <div class="meta"><strong id="topName">Student</strong><small id="topStudentId">—</small></div>
+            <div class="lms-avatar" id="topAvatar">S</div>
+        </div>
+    </header>
+
+    <div class="lms-backdrop" id="lmsBackdrop"></div>
+
+    <aside class="lms-sidebar" id="lmsSidebar">
+        <nav class="lms-nav">
+            <div class="lms-nav-label">Learn</div>
+            <a href="#dashboard" data-view="dashboard" class="active"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="#learning" data-view="learning"><i class="fas fa-play-circle"></i> My Courses <span class="count" id="navCourseCount"></span></a>
+            <a href="#ebooks" data-view="ebooks"><i class="fas fa-book"></i> My Ebooks <span class="count" id="navEbookCount"></span></a>
+            <a href="#invoices" data-view="invoices"><i class="fas fa-file-invoice"></i> My Invoices</a>
+            <a href="#discover" data-view="discover"><i class="fas fa-compass"></i> Discover</a>
+            <a href="#progress" data-view="progress"><i class="fas fa-chart-pie"></i> Progress</a>
+            <a href="#exams" data-view="exams"><i class="fas fa-file-signature"></i> My Exams <span class="count" id="navExamCount"></span></a>
+            <a href="#certificates" data-view="certificates"><i class="fas fa-award"></i> Certificates <span class="count" id="navCertCount"></span></a>
+            <div class="lms-nav-label">Support</div>
+            <a href="#resources" data-view="resources"><i class="fas fa-file-pdf"></i> Resources</a>
+            <a href="#doubts" data-view="doubts"><i class="fas fa-comments"></i> Doubt Desk <span class="count" id="navDoubtCount"></span></a>
+            <div class="lms-nav-label">Account</div>
+            <a href="#profile" data-view="profile"><i class="fas fa-user"></i> Profile</a>
+            <a href="#settings" data-view="settings"><i class="fas fa-cog"></i> Settings</a>
+            <a href="#" class="danger" onclick="LSI_Auth.logout(); return false;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </aside>
+
+    <main class="lms-main">
+
+        <section class="lms-view active" id="view-dashboard">
+            <h1 class="lms-page-title">Welcome back, <span id="dashName">Student</span> 👋</h1>
+            <p class="lms-page-sub">Continue your learning journey.</p>
+
+            <div class="lms-section-title" style="margin-top:0">Continue Learning <a href="#learning" data-view="learning">View all courses</a></div>
+            <div id="continueCard"><div class="lms-card lms-empty"><span class="spinner-border spinner-border-sm"></span></div></div>
+
+            <div class="lms-section-title">Your Progress</div>
+            <div class="lms-stats">
+                <div class="lms-card lms-stat"><div class="ico"><i class="fas fa-book-open"></i></div><div><div class="val" id="statCourses">—</div><div class="lbl">Enrolled courses</div></div></div>
+                <div class="lms-card lms-stat"><div class="ico"><i class="fas fa-check-double"></i></div><div><div class="val" id="statLessons">—</div><div class="lbl">Lessons completed</div></div></div>
+                <div class="lms-card lms-stat"><div class="ico"><i class="fas fa-question-circle"></i></div><div><div class="val" id="statDoubts">—</div><div class="lbl">Open doubts</div></div></div>
+            </div>
+
+            <div class="row g-3 mt-1">
+                <div class="col-lg-12">
+                    <div class="lms-section-title">Doubt Desk <a href="#doubts" data-view="doubts">Open Doubt Desk</a></div>
+                    <div class="lms-card" id="dashDoubts"><div class="lms-empty">Loading…</div></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="lms-view" id="view-learning">
+            <h1 class="lms-page-title">My Courses</h1>
+            <p class="lms-page-sub">All the courses you have purchased or been enrolled in.</p>
+            <div class="lms-grid" id="learningGrid"></div>
+        </section>
+
+        <section class="lms-view" id="view-ebooks">
+            <h1 class="lms-page-title">My Ebooks</h1>
+            <p class="lms-page-sub">Purchased ebooks open inside the portal. Files are protected — they are streamed only to your logged-in account.</p>
+            <div class="lms-grid" id="ebooksGrid"><div class="lms-card lms-empty" style="grid-column:1/-1"><span class="spinner-border spinner-border-sm"></span></div></div>
+        </section>
+
+        <section class="lms-view" id="view-invoices">
+            <h1 class="lms-page-title">My Invoices</h1>
+            <p class="lms-page-sub">Every purchase on this account — courses and ebooks — with its Lord Sai invoice.</p>
+            <div class="lms-card" id="invoicesBody"><div class="lms-empty">Loading…</div></div>
+        </section>
+
+        <section class="lms-view" id="view-discover">
+            <h1 class="lms-page-title">Discover Courses</h1>
+            <p class="lms-page-sub">Courses currently open for enrollment at the academy.</p>
+            <div class="lms-grid" id="discoverGrid"></div>
+        </section>
+
+        <section class="lms-view" id="view-progress">
+            <h1 class="lms-page-title">Progress</h1>
+            <p class="lms-page-sub">Module-by-module completion for every course.</p>
+            <div id="progressBody"></div>
+        </section>
+
+        <section class="lms-view" id="view-exams">
+            <h1 class="lms-page-title">My Exams</h1>
+            <p class="lms-page-sub">Complete a course, apply for its final exam, and attempt the MCQ exam in the scheduled window. Pass to earn your certificate.</p>
+            <div id="examsBody"><div class="lms-card lms-empty"><span class="spinner-border spinner-border-sm"></span></div></div>
+        </section>
+
+        <section class="lms-view" id="view-exam-take">
+            <div id="examPaperBody"></div>
+        </section>
+
+        <section class="lms-view" id="view-certificates">
+            <h1 class="lms-page-title">Certificates</h1>
+            <p class="lms-page-sub">A course completion certificate is issued when you pass the final exam of a completed course.</p>
+            <div id="certificatesBody"><div class="lms-card lms-empty"><span class="spinner-border spinner-border-sm"></span></div></div>
+            <div id="certificatePrint" class="d-none"></div>
+        </section>
+
+        <section class="lms-view" id="view-resources">
+            <h1 class="lms-page-title">Resources</h1>
+            <p class="lms-page-sub">Handouts and PDFs from your enrolled courses. They open inside the portal with your Student ID watermark.</p>
+            <div class="lms-card" id="resourcesBody"><div class="lms-empty">Loading…</div></div>
+        </section>
+
+        <section class="lms-view" id="view-doubts">
+            <h1 class="lms-page-title">Doubt Desk</h1>
+            <p class="lms-page-sub">Ask the mentor a question; replies appear here and the status moves Open → In progress → Resolved.</p>
+            <div class="row g-3">
+                <div class="col-lg-5">
+                    <div class="lms-card pad lms-form">
+                        <strong class="d-block mb-3"><i class="fas fa-paper-plane me-2" style="color:var(--lms-primary)"></i>Ask a new doubt</strong>
+                        <form id="newDoubtForm">
+                            <div class="mb-2"><label>Course</label><select class="form-select form-select-sm" id="doubtCourse"><option value="">General (no specific course)</option></select></div>
+                            <div class="mb-2"><label>Title</label><input type="text" class="form-control form-control-sm" id="doubtTitle" placeholder="e.g. Confusion about stop-loss placement" maxlength="200" required></div>
+                            <div class="mb-3"><label>Describe your doubt</label><textarea class="form-control form-control-sm" id="doubtDescription" rows="5" required></textarea></div>
+                            <div class="alert alert-danger py-2 px-3 small d-none" id="doubtError"></div>
+                            <button type="submit" class="lms-btn primary" id="doubtSubmitBtn"><i class="fas fa-paper-plane"></i> Submit</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="lms-card" id="doubtsList"><div class="lms-empty">Loading…</div></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="lms-view" id="view-profile">
+            <h1 class="lms-page-title">Profile</h1>
+            <p class="lms-page-sub">Your academy record. Contact the academy office to change name or email.</p>
+            <div class="row g-3">
+                <div class="col-lg-5"><div class="lms-card pad" id="profileCard"></div></div>
+                <div class="col-lg-7"><div class="lms-card pad" id="profileCourses"></div></div>
+            </div>
+        </section>
+
+        <section class="lms-view" id="view-settings">
+            <h1 class="lms-page-title">Settings</h1>
+            <p class="lms-page-sub">Security and session options.</p>
+            <div class="row g-3">
+                <div class="col-lg-5">
+                    <div class="lms-card pad lms-form">
+                        <strong class="d-block mb-3"><i class="fas fa-key me-2" style="color:var(--lms-primary)"></i>Change password</strong>
+                        <form id="changePasswordForm">
+                            <div class="mb-2"><label>Current password</label><input type="password" class="form-control form-control-sm" id="cpCurrent" required autocomplete="current-password"></div>
+                            <div class="mb-2"><label>New password</label><input type="password" class="form-control form-control-sm" id="cpNew" required minlength="8" autocomplete="new-password"><div class="form-text">8–72 characters with at least one letter and one number.</div></div>
+                            <div class="mb-3"><label>Confirm new password</label><input type="password" class="form-control form-control-sm" id="cpConfirm" required autocomplete="new-password"></div>
+                            <div class="alert alert-danger py-2 px-3 small d-none" id="cpError"></div>
+                            <button type="submit" class="lms-btn primary">Update password</button>
+                            <div class="form-text mt-2">You will be signed out everywhere after changing it.</div>
+                        </form>
+                    </div>
+                    <div class="lms-card pad lms-form mt-3">
+                        <strong class="d-block mb-1"><i class="fas fa-id-badge me-2" style="color:var(--lms-primary)"></i>Change User ID</strong>
+                        <p class="text-muted small mb-3">Your User ID is the Student ID you sign in with. Your courses, invoices and progress are not affected.</p>
+                        <form id="changeUserIdForm" autocomplete="off">
+                            <div class="mb-2"><label>Current User ID</label><input type="text" class="form-control form-control-sm" id="cuCurrent" required maxlength="20" placeholder="e.g. LSI-2026-00001"></div>
+                            <div class="mb-2"><label>New User ID</label><input type="text" class="form-control form-control-sm" id="cuNew" required minlength="4" maxlength="20" pattern="[A-Za-z0-9][A-Za-z0-9._-]{3,19}" title="4-20 characters: letters, numbers, dot, underscore or hyphen"><div class="form-text">4–20 characters: letters, numbers, dot, underscore or hyphen.</div></div>
+                            <div class="mb-2"><label>Confirm new User ID</label><input type="text" class="form-control form-control-sm" id="cuConfirm" required maxlength="20"></div>
+                            <div class="mb-3"><label>Current password</label><input type="password" class="form-control form-control-sm" id="cuPassword" required autocomplete="current-password"></div>
+                            <div class="alert alert-danger py-2 px-3 small d-none" id="cuError"></div>
+                            <div class="d-flex flex-wrap gap-2">
+                                <button type="submit" class="lms-btn primary">Update User ID</button>
+                                <button type="reset" class="lms-btn ghost">Cancel</button>
+                            </div>
+                            <div class="form-text mt-2">You stay signed in. Log in with the new User ID (or your email) next time.</div>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="lms-card pad">
+                        <strong class="d-block mb-2"><i class="fas fa-shield-alt me-2" style="color:var(--lms-primary)"></i>Session</strong>
+                        <p class="text-muted small mb-3">You can sign in with your valid Student ID and password from any trusted device. Use log out here only if you want to end this session.</p>
+                        <button type="button" class="lms-btn ghost" onclick="LSI_Auth.logout()"><i class="fas fa-sign-out-alt"></i> Log out of this device</button>
+                        <hr>
+                        <strong class="d-block mb-2"><i class="fas fa-headset me-2" style="color:var(--lms-primary)"></i>Need help?</strong>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="https://wa.me/919920254354" target="_blank" class="lms-btn ghost"><i class="fab fa-whatsapp text-success"></i> WhatsApp</a>
+                            <a href="tel:9920254354" class="lms-btn ghost"><i class="fas fa-phone-alt"></i> 9920 254 354</a>
+                            <a href="mailto:lordsai.academy@gmail.com" class="lms-btn ghost"><i class="fas fa-envelope"></i> Email</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+
+    <div class="modal fade" id="examApplyModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 14px;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-file-signature me-2" style="color:var(--lms-primary)"></i>Exam Application</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 lms-form">
+                    <p class="text-muted small mb-3">Your details are taken from your student account. Submit to apply for the final exam of this course.</p>
+                    <form id="examApplyForm">
+                        <input type="hidden" id="examApplyCourseId">
+                        <div class="mb-2"><label>Student Name</label><input type="text" class="form-control form-control-sm" id="examApplyName" readonly></div>
+                        <div class="mb-2"><label>Student ID</label><input type="text" class="form-control form-control-sm" id="examApplyStudentId" readonly></div>
+                        <div class="mb-2"><label>Course</label><input type="text" class="form-control form-control-sm" id="examApplyCourse" readonly></div>
+                        <div class="mb-2"><label>Registered Email</label><input type="text" class="form-control form-control-sm" id="examApplyEmail" readonly></div>
+                        <div class="mb-3"><label>Course Completion</label><input type="text" class="form-control form-control-sm" id="examApplyCompletion" readonly></div>
+                        <div class="alert alert-danger py-2 px-3 small d-none" id="examApplyError"></div>
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="lms-btn ghost" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="lms-btn primary" id="examApplySubmit"><i class="fas fa-paper-plane"></i> Apply for Exam</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="doubtThreadModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 14px;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="doubtThreadTitle">Doubt</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div id="doubtThreadBody"></div>
+                    <form id="doubtReplyForm" class="mt-3 d-flex gap-2 lms-form">
+                        <input type="hidden" id="doubtReplyId">
+                        <input type="text" class="form-control form-control-sm" id="doubtReplyText" placeholder="Add a follow-up message…" maxlength="5000" required>
+                        <button type="submit" class="lms-btn primary sm">Send</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="ebookReaderModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen-lg-down modal-xl modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 14px; height: 92vh;">
+                <div class="modal-header border-0 pb-2">
+                    <div>
+                        <h5 class="modal-title fw-bold" id="ebookReaderTitle">Ebook</h5>
+                        <small class="text-muted" id="ebookReaderMeta"></small>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0 position-relative" style="background:#0f172a;">
+                    <div class="lms-empty text-white" id="ebookReaderLoading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><span class="spinner-border spinner-border-sm me-2"></span> Opening your ebook…</div>
+                    <iframe id="ebookReaderFrame" title="Ebook" style="width:100%;height:100%;border:0;display:none;"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/student-dashboard.js?v=20260919"></script>
+</body>
+</html>

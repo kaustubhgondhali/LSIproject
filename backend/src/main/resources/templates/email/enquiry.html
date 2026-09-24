@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+<div th:replace="~{email/layout :: wrapper('New website enquiry', ~{::content})}">
+    <div th:fragment="content">
+        <p style="margin:0 0 14px;font-size:15px;line-height:1.6;">
+            A visitor submitted the <strong th:text="${site}">Share Market Academy</strong> contact form.
+            Reply to this email to answer them directly.
+        </p>
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;margin:0 0 18px;">
+            <tr><td style="padding:14px 18px;font-size:14px;line-height:1.9;">
+                <div><span style="color:#64748b;">Name:</span> <strong th:text="${visitorName}">Name</strong></div>
+                <div><span style="color:#64748b;">Email:</span> <a th:href="'mailto:' + ${visitorEmail}" th:text="${visitorEmail}" style="color:#0f9f90;">email</a></div>
+                <div th:if="${visitorPhone != null}"><span style="color:#64748b;">Phone:</span> <a th:href="'tel:' + ${visitorPhone}" th:text="${visitorPhone}" style="color:#0f9f90;">phone</a></div>
+                <div><span style="color:#64748b;">Interested in:</span> <span th:text="${subject}">Subject</span></div>
+                <div><span style="color:#64748b;">Received:</span> <span th:text="${receivedAt}">now</span></div>
+            </td></tr>
+        </table>
+        <p style="margin:0 0 6px;font-size:13px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.3px;">Message</p>
+        <p style="margin:0 0 18px;font-size:15px;line-height:1.7;white-space:pre-line;" th:text="${message}">Message</p>
+        <p style="margin:0;font-size:12px;color:#94a3b8;">Sent automatically by the LSI website email system.</p>
+    </div>
+</div>
+</body>
+</html>

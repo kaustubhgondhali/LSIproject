@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Master Admin Dashboard | Lord Sai Share Market Classes</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <style>
+        body { background: #f1f5f9; font-family: 'Inter', sans-serif; }
+        .adm-layout { display: flex; min-height: 100vh; }
+        .adm-sidebar { width: 250px; background: var(--lsi-navy, #0A1128); color: #fff; position: fixed; top: 0; bottom: 0; left: 0; overflow-y: auto; z-index: 1030; transition: transform .25s; }
+        .adm-sidebar .brand { padding: 20px 20px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .adm-sidebar .brand img { height: 40px; }
+        .adm-nav a { display: flex; align-items: center; gap: 12px; padding: 11px 20px; color: rgba(255,255,255,0.75); text-decoration: none; font-size: 14px; font-weight: 500; border-left: 3px solid transparent; }
+        .adm-nav a:hover { color: #fff; background: rgba(255,255,255,0.05); }
+        .adm-nav a.active { color: #fff; background: rgba(46,196,182,0.15); border-left-color: #2EC4B6; }
+        .adm-nav a i { width: 18px; text-align: center; }
+        .adm-nav .section-label { padding: 14px 20px 4px; font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+        .adm-main { margin-left: 250px; flex: 1; min-width: 0; }
+        .adm-topbar { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 12px 24px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 1020; }
+        .adm-content { padding: 24px; }
+        .adm-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,31,84,0.04); }
+        .stat-card { padding: 18px 20px; display: flex; align-items: center; gap: 14px; }
+        .stat-card .ico { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .stat-card .val { font-size: 22px; font-weight: 800; color: #0A1128; line-height: 1.1; }
+        .stat-card .lbl { font-size: 12px; color: #64748b; }
+        .view { display: none; } .view.active { display: block; }
+        .table thead th { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: #64748b; font-weight: 700; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
+        .table td { font-size: 13.5px; vertical-align: middle; }
+        .btn-xs { padding: 3px 10px; font-size: 12px; }
+        .search-results { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); max-height: 400px; overflow-y: auto; z-index: 1040; display: none; }
+        .search-results a { display: block; padding: 8px 14px; font-size: 13px; color: #0A1128; text-decoration: none; border-bottom: 1px solid #f1f5f9; }
+        .search-results a:hover { background: #f8fafc; }
+        .curr-module { border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+        .curr-module .head { background: #f8fafc; padding: 12px 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .curr-lesson { display: flex; align-items: center; gap: 10px; padding: 10px 16px 10px 40px; border-top: 1px solid #f1f5f9; flex-wrap: wrap; }
+        .curr-lesson .title { flex: 1; min-width: 200px; font-size: 13.5px; }
+        .badge-soft { background: rgba(46,196,182,0.12); color: #0F9F90; }
+        #toast-area { position: fixed; bottom: 20px; right: 20px; z-index: 2000; }
+        .adm-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,.45); z-index: 1025; display: none; }
+        @media (max-width: 991.98px) {
+            .adm-sidebar { transform: translateX(-100%); }
+            .adm-sidebar.open { transform: translateX(0); box-shadow: 0 0 40px rgba(0,0,0,.25); }
+            .adm-sidebar.open + .adm-backdrop { display: block; }
+            .adm-main { margin-left: 0; }
+        }
+        @media (max-width: 575.98px) {
+            .adm-topbar { padding: 10px 12px; gap: 10px; }
+            .adm-content { padding: 14px 12px; }
+            .stat-card { padding: 14px; }
+        }
+    </style>
+</head>
+<body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="js/api-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>LSI_Auth.requireAuth('admin');</script>
+
+    <div class="adm-layout">
+        <aside class="adm-sidebar" id="sidebar">
+            <div class="brand d-flex align-items-center gap-2">
+                <img src="img/lord-sai-logo.png" alt="Lord Sai">
+                <div>
+                    <div class="fw-bold" style="font-size:15px;letter-spacing:.5px;">LORD SAI</div>
+                    <div style="font-size:10px;color:#2EC4B6;text-transform:uppercase;letter-spacing:1px;">Master Admin</div>
+                </div>
+            </div>
+            <nav class="adm-nav py-2">
+                <a href="#dashboard" data-view="dashboard" class="active"><i class="fas fa-th-large"></i> Dashboard</a>
+                <div class="section-label">Academy</div>
+                <a href="#students" data-view="students"><i class="fas fa-user-graduate"></i> Students</a>
+                <a href="#courses" data-view="courses"><i class="fas fa-book"></i> Courses</a>
+                <a href="#ebooks" data-view="ebooks"><i class="fas fa-tablet-alt"></i> Ebooks</a>
+                <a href="#curriculum" data-view="curriculum"><i class="fas fa-layer-group"></i> Modules &amp; Lessons</a>
+                <a href="#enrollments" data-view="enrollments"><i class="fas fa-id-card"></i> Enrollments</a>
+                <a href="#exam-applications" data-view="exam-applications"><i class="fas fa-file-signature"></i> Exam Applications <span class="badge bg-warning text-dark ms-1 d-none" id="navPendingExamApps">0</span></a>
+                <a href="#exams" data-view="exams"><i class="fas fa-question-circle"></i> Exams</a>
+                <a href="#exam-results" data-view="exam-results"><i class="fas fa-poll"></i> Exam Results</a>
+                <a href="#certificates" data-view="certificates"><i class="fas fa-award"></i> Certificates</a>
+                <a href="#mentoring" data-view="mentoring"><i class="fas fa-comments"></i> Doubt Desk</a>
+                <div class="section-label">Business</div>
+                <a href="#payments" data-view="payments"><i class="fas fa-rupee-sign"></i> Payments</a>
+                <a href="#invoices" data-view="invoices"><i class="fas fa-file-invoice"></i> Invoices</a>
+                <a href="#gateway" data-view="gateway"><i class="fas fa-credit-card"></i> Payment Gateway</a>
+                <a href="#reviews" data-view="reviews"><i class="fas fa-star"></i> Testimonials <span class="badge bg-warning text-dark ms-1 d-none" id="navPendingReviews">0</span></a>
+                <a href="#stories" data-view="stories"><i class="fas fa-video"></i> Success Stories</a>
+                <a href="#mf-slider" data-view="mf-slider"><i class="fas fa-images"></i> MF Homepage Slider</a>
+                <div class="section-label">Blog</div>
+                <a href="#blogs" data-view="blogs"><i class="fas fa-newspaper"></i> All Blogs</a>
+                <a href="#blog-form" data-view="blog-form" onclick="Admin.openBlogForm(); return false;"><i class="fas fa-plus-circle"></i> Add Blog</a>
+                <a href="#blog-categories" data-view="blog-categories"><i class="fas fa-tags"></i> Categories</a>
+                <div class="section-label">System</div>
+                <a href="#audit" data-view="audit"><i class="fas fa-history"></i> Audit Logs</a>
+                <a href="#email" data-view="email"><i class="fas fa-envelope"></i> Email Settings</a>
+                <a href="#whatsapp" data-view="whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp Settings</a>
+                <a href="#settings" data-view="settings"><i class="fas fa-cog"></i> Settings</a>
+                <a href="#" onclick="LSI_Auth.logout(); return false;" class="text-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </nav>
+        </aside>
+        <div class="adm-backdrop" id="sidebarBackdrop"></div>
+
+        <div class="adm-main">
+            <div class="adm-topbar">
+                <button class="btn btn-light d-lg-none" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+                <div class="position-relative flex-grow-1" style="max-width: 520px;">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                        <input type="search" class="form-control border-start-0" id="globalSearch" placeholder="Search student name, ID, email, course or payment ID...">
+                    </div>
+                    <div class="search-results" id="searchResults"></div>
+                </div>
+                <div class="ms-auto d-flex align-items-center gap-3">
+                    <a href="index.html" class="btn btn-sm btn-outline-primary rounded-pill d-none d-md-inline-block"><i class="fas fa-external-link-alt me-1"></i> View Site</a>
+                    <div class="text-end d-none d-md-block">
+                        <small class="text-muted d-block" style="font-size:11px;">ADMINISTRATOR</small>
+                        <strong id="adminName" style="font-size:14px;">Admin</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="adm-content">
+                <section class="view active" id="view-dashboard">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="fw-bold mb-0">Dashboard</h4>
+                        <button class="btn btn-sm btn-light" onclick="Admin.loadDashboard()"><i class="fas fa-sync-alt me-1"></i> Refresh</button>
+                    </div>
+                    <div class="adm-card p-3 mb-3" id="paymentStatusCard"></div>
+                    <div class="alert alert-warning d-none align-items-center gap-2 mb-3" id="pendingReviewsAlert"></div>
+                    <div class="row g-3 mb-4" id="statCards"></div>
+                    <div class="row g-3">
+                        <div class="col-lg-6"><div class="adm-card p-3"><h6 class="fw-bold mb-3">Recent Enrollments</h6>
+                            <div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Student</th><th>Course</th><th>Source</th><th>Date</th></tr></thead><tbody id="recentEnrollments"></tbody></table></div></div></div>
+                        <div class="col-lg-6"><div class="adm-card p-3"><h6 class="fw-bold mb-3">Recent Payments</h6>
+                            <div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Order</th><th>Customer</th><th>Amount</th><th>Status</th></tr></thead><tbody id="recentPayments"></tbody></table></div></div></div>
+                    </div>
+                </section>
+
+                <section class="view" id="view-students">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <h4 class="fw-bold mb-0">Students</h4>
+                        <div class="d-flex gap-2">
+                            <select class="form-select form-select-sm" id="studentStatusFilter" style="width:auto;">
+                                <option value="">All statuses</option><option value="ACTIVE">Active</option><option value="PENDING_SETUP">Pending setup</option><option value="DISABLED">Disabled</option>
+                            </select>
+                            <input type="search" class="form-control form-control-sm" id="studentSearch" placeholder="Search name / email / mobile" style="width:240px;">
+                            <button class="btn btn-sm btn-primary" onclick="Admin.openStudentForm()"><i class="fas fa-plus me-1"></i> Add Student</button>
+                        </div>
+                    </div>
+                    <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0">
+                        <thead><tr><th>Student ID</th><th>Name</th><th>Email</th><th>Mobile</th><th>Courses</th><th>Status</th><th>Last Login</th><th></th></tr></thead>
+                        <tbody id="studentsBody"></tbody></table></div>
+                        <div class="p-2 border-top d-flex justify-content-between align-items-center"><small class="text-muted" id="studentsCount"></small><div id="studentsPager"></div></div>
+                    </div>
+                </section>
+
+                <section class="view" id="view-student-detail">
+                    <button class="btn btn-sm btn-light mb-3" onclick="Admin.show('students')"><i class="fas fa-arrow-left me-1"></i> Back to Students</button>
+                    <div id="studentDetail"></div>
+                </section>
+
+                <section class="view" id="view-courses">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="fw-bold mb-0">Courses</h4>
+                        <button class="btn btn-sm btn-primary" onclick="Admin.openCourseForm()"><i class="fas fa-plus me-1"></i> Add Course</button>
+                    </div>
+
+                    <!-- Share Market Course Purchase Toggle -->
+                    <div class="adm-card p-3 mb-3 border-0 shadow-sm" style="border-radius:12px; border-left: 4px solid #0F9F90 !important;">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary" style="width:42px;height:42px;font-size:18px;flex-shrink:0;">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </div>
+                                <div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="fw-bold" style="font-size:15px;">Share Market Course Purchase</span>
+                                        <span class="badge bg-success" id="shareMarketPurchaseBadge" style="font-size:11px;letter-spacing:0.5px;">ON</span>
+                                    </div>
+                                    <small class="text-muted d-block">Controls whether visitors can purchase the Share Market course on the website.</small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center flex-wrap gap-2">
+                                <a href="courses.html" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3" id="adminPreviewCourseLink">
+                                    <i class="fas fa-external-link-alt me-1"></i> Preview Course Page
+                                </a>
+                                <div class="form-check form-switch m-0 ms-2" style="font-size:1.35rem;">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="shareMarketPurchaseSwitch" checked style="cursor:pointer;" title="Toggle Share Market Course Purchase" onchange="window.LSI_setPurchaseSetting ? window.LSI_setPurchaseSetting(this.checked) : null">
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" id="btnToggleShareMarketPurchase" style="min-width:85px;" onclick="window.LSI_togglePurchaseSetting ? window.LSI_togglePurchaseSetting() : null">
+                                    <span id="btnToggleShareMarketPurchaseText">Turn OFF</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0">
+                        <thead><tr><th>Course</th><th>Code</th><th>Price</th><th>Modules / Lessons</th><th>Students</th><th>Status</th><th>Actions</th></tr></thead>
+                        <tbody id="coursesBody"></tbody></table></div></div>
+                </section>
+
+                <section class="view" id="view-ebooks">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <div><h4 class="fw-bold mb-0">Ebooks</h4><small class="text-muted">Sold on store.html through Razorpay; readable only inside the Student Portal.</small></div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-light" onclick="Admin.exportReport('ebooks','xlsx')"><i class="fas fa-file-excel me-1"></i> Excel</button>
+                            <button class="btn btn-sm btn-primary" onclick="Admin.openEbookForm()"><i class="fas fa-plus me-1"></i> Add Ebook</button>
+                        </div>
+                    </div>
+                    <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0">
+                        <thead><tr><th>Ebook</th><th>Code</th><th>Price</th><th>Status</th><th>Purchases</th><th>Created</th><th>Updated</th><th>Actions</th></tr></thead>
+                        <tbody id="ebooksBody"></tbody></table></div></div>
+                </section>
+
+                <section class="view" id="view-curriculum">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <h4 class="fw-bold mb-0">Modules &amp; Lessons</h4>
+                        <div class="d-flex gap-2 align-items-center">
+                            <select class="form-select form-select-sm" id="curriculumCourse" style="min-width:260px;"></select>
+                            <button class="btn btn-sm btn-primary" id="addModuleBtn"><i class="fas fa-plus me-1"></i> Add Module</button>
+                        </div>
+                    </div>
+                    <div id="curriculumBody"><div class="text-muted">Select a course.</div></div>
+                </section>
+
+                <section class="view" id="view-enrollments">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <h4 class="fw-bold mb-0">Enrollments</h4>
+                        <div class="d-flex gap-2">
+                            <select class="form-select form-select-sm" id="enrollCourseFilter" style="width:auto;"><option value="">All courses</option></select>
+                            <button class="btn btn-sm btn-primary" onclick="Admin.openManualEnroll()"><i class="fas fa-user-plus me-1"></i> Enroll Student Manually</button>
+                        </div>
+                    </div>
+                    <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0">
+                        <thead><tr><th>Student</th><th>Course</th><th>Status</th><th>Source</th><th>Progress</th><th>Enrolled</th><th>Expiry</th><th></th></tr></thead>
+                        <tbody id="enrollmentsBody"></tbody></table></div>
+                        <div class="p-2 border-top d-flex justify-content-between align-items-center"><small class="text-muted" id="enrollmentsCount"></small><div id="enrollmentsPager"></div></div>
+                    </div>
+                </section>
+
+                <section class="view" id="view-exam-applications">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <div><h4 class="fw-bold mb-0">Exam Applications</h4><small class="text-muted">Students who completed a course and applied for its final exam. Approve, schedule the exam window, or reject.</small></div>
+                        <div class="d-flex flex-wrap gap-2 align-items-center">
+                            <select class="form-select form-select-sm" id="exAppStatus" style="width:auto;"><option value="">All statuses</option><option value="PENDING">Pending</option><option value="APPROVED">Approved</option><option value="SCHEDULED">Scheduled</option><option value="COMPLETED">Completed</option><option value="REJECTED">Rejected</option></select>
+                            <select class="form-select form-select-sm" id="exAppCourse" style="width:auto;"><option value="">All courses</option></select>
+                            <input type="search" class="form-control form-control-sm" id="exAppSearch" placeholder="Student name / email" style="width:220px;">
+                            <button class="btn btn-sm btn-light" onclick="Admin.loadExamApplications(0)"><i class="fas fa-sync-alt me-1"></i> Refresh</button>
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-3" id="exAppCounters"></div>
+                    <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0">
+                        <thead><tr><th>ID</th><th>Student</th><th>Email</th><th>Course</th><th>Applied</th><th>Application Status</th><th>Exam / Schedule</th><th>Exam Status</th><th>Actions</th></tr></thead>
+                        <tbody id="examAppsBody"></tbody></table></div>
+                        <div class="p-2 border-top d-flex justify-content-between align-items-center"><small class="text-muted" id="examAppsCount"></small><div id="examAppsPager"></div></div>
+                    </div>
+                </section>
+                <section class="view" id="view-exams">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <div><h4 class="fw-bold mb-0">Exams</h4><small class="text-muted">MCQ exams per course: total marks, passing marks, attempt limit and questions. Activate an exam before scheduling it.</small></div>
+                        <div class="d-flex gap-2 align-items-center">
+                            <select class="form-select form-select-sm" id="examCourseFilter" style="width:auto;"><option value="">All courses</option></select>
+                            <button class="btn btn-sm btn-primary" onclick="Admin.openExamForm()"><i class="fas fa-plus me-1"></i> Create Exam</button>
+                        </div>
+                    </div>
+                    <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0">
+                        <thead><tr><th>Exam</th><th>Course</th><th>Total</th><th>Passing</th><th>Max Attempts</th><th>Duration</th><th>Questions</th><th>Status</th><th>Applications / Attempts</th><th>Actions</th></tr></thead>
+                        <tbody id="examsBody"></tbody></table></div></div>
+                    <div class="adm-card mt-3 d-none" id="examQuestionsPanel">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-3 border-bottom">
+                            <div><strong id="examQuestionsTitle">Questions</strong><br><small class="text-muted" id="examQuestionsMeta"></small></div>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-primary" id="examAddQuestionBtn"><i class="fas fa-plus me-1"></i> Add Question</button>
+                                <button class="btn btn-sm btn-light" onclick="Admin.closeExamQuestions()"><i class="fas fa-times me-1"></i> Close</button>
+                            </div>
+                        </div>
+                        <div id="examQuestionsBody"></div>
+                    </div>
+                </section>
+                <section class="view" id="view-exam-results">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <div><h4 class="fw-bold mb-0">Exam Results</h4><small class="text-muted">Every submitted attempt, scored by the server. Results are final; certificates are issued automatically on a pass.</small></div>
+                        <div class="d-flex flex-wrap gap-2 align-items-center">
+                            <select class="form-select form-select-sm" id="exResCourse" style="width:auto;"><option value="">All courses</option></select>
+                            <select class="form-select form-select-sm" id="exResExam" style="width:auto;"><option value="">All exams</option></select>
+                            <select class="form-select form-select-sm" id="exResPassed" style="width:auto;"><option value="">Pass &amp; fail</option><option value="true">Passed</option><option value="false">Failed</option></select>
+                            <input type="search" class="form-control form-control-sm" id="exResSearch" placeholder="Student name / email" style="width:220px;">
+                            <button class="btn btn-sm btn-light" onclick="Admin.loadExamResults(0)"><i class="fas fa-sync-alt me-1"></i> Refresh</button>
+                        </div>
+                    </div>
+                    <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0">
+                        <thead><tr><th>Student</th><th>Student ID</th><th>Course</th><th>Exam</th><th>Attempt</th><th>Score</th><th>Total</th><th>Passing</th><th>Result</th><th>Submitted</th><th>Certificate</th></tr></thead>
+                        <tbody id="examResultsBody"></tbody></table></div>
+                        <div class="p-2 border-top d-flex justify-content-between align-items-center"><small class="text-muted" id="examResultsCount"></small><div id="examResultsPager"></div></div>
+                    </div>
+                </section>
+                <section class="view" id="view-certificates">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <div><h4 class="fw-bold mb-0">Certificates</h4><small class="text-muted">Certificate design used for new certificates, and every certificate issued to a student who passed the exam.</small></div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-light" onclick="Admin.previewCertificateTemplate()"><i class="fas fa-eye me-1"></i> Preview Current Design</button>
+                            <button class="btn btn-sm btn-primary" onclick="Admin.openCertificateTemplateForm()"><i class="fas fa-upload me-1"></i> Upload Template</button>
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-lg-5">
+                            <div class="adm-card p-3 h-100" id="certTemplateStatus"><div class="text-muted">Loading…</div></div>
+                        </div>
+                        <div class="col-lg-7">
+                            <div class="adm-card h-100"><div class="table-responsive"><table class="table table-hover mb-0">
+                                <thead><tr><th>Template</th><th>File</th><th>Uploaded</th><th>Issued with</th><th>Status</th><th>Actions</th></tr></thead>
+                                <tbody id="certTemplatesBody"></tbody></table></div></div>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                        <strong>Issued Certificates</strong>
+                        <div class="d-flex gap-2 align-items-center">
+                            <select class="form-select form-select-sm" id="certCourse" style="width:auto;"><option value="">All courses</option></select>
+                            <input type="search" class="form-control form-control-sm" id="certSearch" placeholder="Certificate no / student / ID" style="width:240px;">
+                        </div>
+                    </div>
+                    <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0">
+                        <thead><tr><th>Certificate No.</th><th>Student</th><th>Student ID</th><th>Course</th><th>Exam</th><th>Score</th><th>Issued</th><th>Design</th><th>Actions</th></tr></thead>
+                        <tbody id="certificatesBody"></tbody></table></div>
+                        <div class="p-2 border-top d-flex justify-content-between align-items-center"><small class="text-muted" id="certificatesCount"></small><div id="certificatesPager"></div></div>
+                    </div>
+                </section>
+                <section class="view" id="view-payments">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <h4 class="fw-bold mb-0">Payments</h4>
+                        <div class="btn-group btn-group-sm" id="paymentFilters">
+                            <button class="btn btn-outline-secondary active" data-status="">All</button>
+                            <button class="btn btn-outline-success" data-status="SUCCESS">Success</button>
+                            <button class="btn btn-outline-warning" data-status="CREATED">Pending</button>
+                            <button class="btn btn-outline-danger" data-status="FAILED">Failed</button>
+                            <button class="btn btn-outline-dark" data-status="REFUNDED">Refunded</button>
+                        </div>
+                    </div>
+                    <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0">
+                        <thead><tr><th>Order Ref</th><th>Customer</th><th>Email</th><th>Product</th><th>Type</th><th>Invoice</th><th>Amount</th><th>Mode</th><th>Method</th><th>Razorpay Order</th><th>Razorpay Payment</th><th>Status</th><th>Date</th></tr></thead>
+                        <tbody id="paymentsBody"></tbody></table></div>
+                        <div class="p-2 border-top d-flex justify-content-between align-items-center"><small class="text-muted" id="paymentsCount"></small><div id="paymentsPager"></div></div>
+                    </div>
+                </section>
+
+                <section class="view" id="view-invoices">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <div><h4 class="fw-bold mb-0">Invoices</h4><small class="text-muted">One Lord Sai invoice per successful purchase — courses and ebooks.</small></div>
+                        <div class="d-flex flex-wrap gap-2 align-items-center">
+                            <select class="form-select form-select-sm" id="invProduct" style="width:auto;"><option value="">All products</option><option value="COURSE">Courses</option><option value="EBOOK">Ebooks</option></select>
+                            <select class="form-select form-select-sm" id="invStatus" style="width:auto;"><option value="">All statuses</option><option value="SUCCESS">Paid</option><option value="REFUNDED">Refunded</option><option value="FAILED">Failed</option></select>
+                            <input type="date" class="form-control form-control-sm" id="invFrom" style="width:auto;" title="From">
+                            <input type="date" class="form-control form-control-sm" id="invTo" style="width:auto;" title="To">
+                            <input type="search" class="form-control form-control-sm" id="invSearch" placeholder="Invoice no / student / product / txn" style="width:240px;">
+                            <button class="btn btn-sm btn-light" onclick="Admin.printReport('invoices')"><i class="fas fa-print me-1"></i> Print</button>
+                            <button class="btn btn-sm btn-light" onclick="Admin.exportReport('invoices','pdf')"><i class="fas fa-file-pdf me-1"></i> PDF</button>
+                            <button class="btn btn-sm btn-light" onclick="Admin.exportReport('invoices','xlsx')"><i class="fas fa-file-excel me-1"></i> Excel</button>
+                        </div>
+                    </div>
+                    <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0">
+                        <thead><tr><th>Invoice No.</th><th>Student</th><th>Student ID</th><th>Product</th><th>Type</th><th>Amount</th><th>Status</th><th>Payment ID</th><th>Purchase date</th><th>Emailed</th><th>Actions</th></tr></thead>
+                        <tbody id="invoicesBody"></tbody></table></div>
+                        <div class="p-2 border-top d-flex justify-content-between align-items-center"><small class="text-muted" id="invoicesCount"></small><div id="invoicesPager"></div></div>
+                    </div>
+                </section>
+
+                <section class="view" id="view-gateway">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <h4 class="fw-bold mb-0">Payment Gateway — Razorpay</h4>
+                        <button class="btn btn-sm btn-light" onclick="Admin.loadGateway()"><i class="fas fa-sync-alt me-1"></i> Refresh</button>
+                    </div>
+
+                    <div class="adm-card p-4 mb-3" id="gatewayStatusCard"><div class="text-muted">Loading…</div></div>
+
+                    <div class="row g-3">
+                        <div class="col-lg-6">
+                            <div class="adm-card p-4">
+                                <h6 class="fw-bold mb-1" id="gatewayFormTitle">Configure Razorpay</h6>
+                                <p class="text-muted small mb-3">Keys are in Razorpay Dashboard → Settings → API Keys. Use <code>rzp_test_</code> keys first; switch to <code>rzp_live_</code> keys only when you intend to charge real money.</p>
+                                <form id="gatewayForm">
+                                    <div class="mb-2"><label class="form-label small fw-bold">Razorpay Key ID</label><input type="text" class="form-control" id="gwKeyId" placeholder="rzp_test_XXXXXXXXXXXXXX" required autocomplete="off"></div>
+                                    <div class="mb-2"><label class="form-label small fw-bold">Razorpay Key Secret</label><input type="password" class="form-control" id="gwKeySecret" placeholder="Enter key secret" autocomplete="new-password"><div class="form-text" id="gwKeySecretHelp">Required the first time. Leave blank later to keep the saved secret.</div></div>
+                                    <div class="mb-2"><label class="form-label small fw-bold">Webhook Secret <span class="text-muted fw-normal">(optional)</span></label><input type="password" class="form-control" id="gwWebhookSecret" placeholder="Razorpay Dashboard → Webhooks" autocomplete="new-password"><div class="form-text">Confirms payments server-to-server if a student closes the browser early. Leave blank to keep the saved value.</div></div>
+                                    <div class="mb-3"><label class="form-label small fw-bold">Currency</label><input type="text" class="form-control" id="gwCurrency" value="INR" maxlength="3" style="max-width:120px"></div>
+                                    <div class="alert alert-warning small py-2"><i class="fas fa-exclamation-triangle me-1"></i> Real payments will be enabled after saving valid Razorpay credentials. Students will be charged actual money through Razorpay.</div>
+                                    <div class="alert alert-danger small py-2 d-none" id="gwError"></div>
+                                    <button type="submit" class="btn btn-primary" id="gwSaveBtn"><i class="fas fa-save me-1"></i> <span id="gwSaveLabel">Save &amp; Enable Real Payments</span></button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="adm-card p-4 mb-3">
+                                <h6 class="fw-bold mb-2">Actions</h6>
+                                <div class="d-flex flex-wrap gap-2" id="gatewayActions"></div>
+                                <p class="text-muted small mt-3 mb-0">Disabling or removing Razorpay switches the website back to <strong>Demo Payment Mode</strong> immediately. Existing enrollments and payment history are never affected.</p>
+                            </div>
+                            <div class="adm-card p-4">
+                                <h6 class="fw-bold mb-2">How the mode is decided</h6>
+                                <ul class="small text-muted mb-0 ps-3">
+                                    <li>Razorpay configured, validated and enabled → <strong>REAL PAYMENT</strong>: students pay through Razorpay Checkout; demo payments are refused by the server.</li>
+                                    <li>No valid configuration → <strong>DEMO PAYMENT</strong>: students enroll without being charged; each transaction is recorded with mode <code>DEMO</code>.</li>
+                                    <li>Credentials are verified against Razorpay before real payments turn on. Secrets are encrypted in the database and never shown again.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
+                        <h6 class="fw-bold mb-0">Recent Transactions</h6>
+                        <a href="#payments" data-view="payments" class="small">All payments</a>
+                    </div>
+                    <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0">
+                        <thead><tr><th>Date &amp; Time</th><th>Student</th><th>Course</th><th>Amount</th><th>Mode</th><th>Status</th><th>Transaction</th><th>Razorpay Payment ID</th></tr></thead>
+                        <tbody id="gatewayTxBody"></tbody></table></div></div>
+                </section>
+
+                <section class="view" id="view-reviews">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <div>
+                            <h4 class="fw-bold mb-0">Reviews &amp; Testimonials</h4>
+                            <small class="text-muted">Visitor reviews submitted on the <a href="testimonials.html?mode=academy" target="_blank" rel="noopener">Share Market Academy</a> and <a href="testimonials.html?mode=mutual-fund" target="_blank" rel="noopener">Mutual Fund</a> testimonials pages, plus testimonials you add here. Only <strong>Approved</strong> entries are shown publicly, and only on their own website.</small>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <select class="form-select form-select-sm" id="reviewSiteFilter" style="width:auto;">
+                                <option value="">All Websites</option><option value="SHARE_MARKET">Share Market</option><option value="MUTUAL_FUND">Mutual Fund</option>
+                            </select>
+                            <select class="form-select form-select-sm" id="reviewStatusFilter" style="width:auto;">
+                                <option value="">All Statuses</option><option value="PENDING">Pending</option><option value="APPROVED">Approved</option><option value="DECLINED">Declined</option>
+                            </select>
+                            <button class="btn btn-sm btn-light" onclick="Admin.loadReviews(0)"><i class="fas fa-sync-alt me-1"></i> Refresh</button>
+                            <button class="btn btn-sm btn-primary" onclick="Admin.openReviewForm()"><i class="fas fa-plus me-1"></i> Add Testimonial</button>
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-3" id="reviewCountCards"></div>
+                    <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0 align-middle">
+                        <thead><tr><th>Name</th><th>Website</th><th>Rating</th><th>Course</th><th>Review</th><th>Status</th><th>Submitted</th><th>Actions</th></tr></thead>
+                        <tbody id="reviewsBody"></tbody></table></div>
+                        <div class="d-flex justify-content-between align-items-center p-3 border-top"><small class="text-muted" id="reviewsCount"></small><div id="reviewsPager"></div></div></div>
+                </section>
+
+                <section class="view" id="view-stories">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <div>
+                            <h4 class="fw-bold mb-0">Success Stories</h4>
+                            <small class="text-muted">Video stories shown on the public <a href="stories.html" target="_blank" rel="noopener">Success Stories</a> page. Categories are content labels only.</small>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <select class="form-select form-select-sm" id="storyCategoryFilter" style="width:auto;">
+                                <option value="">All categories</option><option value="STUDENTS">Students</option><option value="TEACHERS">Teachers</option><option value="PARENTS">Parents</option>
+                            </select>
+                            <button class="btn btn-sm btn-primary" onclick="Admin.openStoryForm()"><i class="fas fa-plus me-1"></i> Add Story</button>
+                        </div>
+                    </div>
+                    <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0 align-middle">
+                        <thead><tr><th style="width:56px">#</th><th>Story</th><th>Category</th><th>Video</th><th>Status</th><th>Updated</th><th>Actions</th></tr></thead>
+                        <tbody id="storiesBody"></tbody></table></div></div>
+                </section>
+
+                <section class="view" id="view-mentoring">
+                    <h4 class="fw-bold mb-3">Doubt Desk</h4>
+                    <div id="mentorDoubts">
+                        <div class="d-flex gap-2 mb-2">
+                            <select class="form-select form-select-sm" id="doubtStatusFilter" style="width:auto;"><option value="OPEN">Open</option><option value="IN_PROGRESS">In progress</option><option value="">All</option><option value="RESOLVED">Resolved</option></select>
+                        </div>
+                        <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0">
+                            <thead><tr><th>Date</th><th>Student</th><th>Course</th><th>Title</th><th>Replies</th><th>Status</th><th></th></tr></thead>
+                            <tbody id="doubtsBody"></tbody></table></div></div>
+                    </div>
+                </section>
+
+                <section class="view" id="view-mf-slider">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <div>
+                            <h4 class="fw-bold mb-0">Mutual Fund Homepage Slider</h4>
+                            <small class="text-muted">Controls the image slider on the <a href="home.html?mode=mutual-fund" target="_blank" rel="noopener">Mutual Fund homepage</a>. The Share Market homepage has its own slider and is not affected by this section.</small>
+                        </div>
+                        <button class="btn btn-sm btn-primary" onclick="Admin.openSliderForm()"><i class="fas fa-plus me-1"></i> Add Slider Image</button>
+                    </div>
+                    <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0 align-middle">
+                        <thead><tr><th style="width:56px">#</th><th>Preview</th><th>Title / Alt Text</th><th>Order</th><th>Status</th><th>Updated</th><th>Actions</th></tr></thead>
+                        <tbody id="sliderBody"></tbody></table></div>
+                        <div class="p-3 text-muted small border-top">Only <strong>Active</strong> images appear on the homepage, in the order shown above. Deactivating an image hides it without deleting it.</div>
+                    </div>
+                </section>
+
+                <section class="view" id="view-blogs">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <div>
+                            <h4 class="fw-bold mb-0">Blog Management</h4>
+                            <small class="text-muted">Manage articles for Share Market Academy and Mutual Fund websites.</small>
+                        </div>
+                        <button class="btn btn-sm btn-primary" onclick="Admin.openBlogForm()"><i class="fas fa-plus me-1"></i> Add Blog</button>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="adm-card p-3 mb-3">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-md-3">
+                                <label class="form-label small text-muted mb-1">Website</label>
+                                <select class="form-select form-select-sm" id="blogSiteFilter">
+                                    <option value="">All Websites</option>
+                                    <option value="ACADEMY">Share Market</option>
+                                    <option value="MUTUAL_FUND">Mutual Fund</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small text-muted mb-1">Category</label>
+                                <select class="form-select form-select-sm" id="blogCategoryFilter">
+                                    <option value="">All Categories</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small text-muted mb-1">Status</label>
+                                <select class="form-select form-select-sm" id="blogStatusFilter">
+                                    <option value="">All Statuses</option>
+                                    <option value="PUBLISHED">Published</option>
+                                    <option value="DRAFT">Draft</option>
+                                    <option value="UNPUBLISHED">Unpublished</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted mb-1">Search</label>
+                                <div class="input-group input-group-sm">
+                                    <input type="search" class="form-control" id="blogSearchInput" placeholder="Search title, author, tags...">
+                                    <button class="btn btn-outline-secondary" type="button" id="blogSearchBtn"><i class="fas fa-search"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Blogs Table -->
+                    <div class="adm-card">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0 align-middle">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 70px;">Image</th>
+                                        <th>Blog Title</th>
+                                        <th>Website</th>
+                                        <th>Category</th>
+                                        <th>Status</th>
+                                        <th>Author</th>
+                                        <th>Published</th>
+                                        <th>Updated</th>
+                                        <th class="text-end" style="width: 170px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="blogsBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="p-2 border-top d-flex justify-content-between align-items-center">
+                            <small class="text-muted" id="blogsCount"></small>
+                            <div id="blogsPager"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="view" id="view-blog-form">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <button class="btn btn-sm btn-light" onclick="Admin.show('blogs')"><i class="fas fa-arrow-left me-1"></i> Back to Blogs</button>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="blogSaveDraftBtn"><i class="fas fa-save me-1"></i> Save Draft</button>
+                            <button type="button" class="btn btn-sm btn-success" id="blogPublishBtn"><i class="fas fa-paper-plane me-1"></i> Publish</button>
+                        </div>
+                    </div>
+
+                    <div class="adm-card p-4">
+                        <h5 class="fw-bold mb-3" id="blogFormTitle">Create New Blog</h5>
+                        <form id="blogDetailForm">
+                            <input type="hidden" id="blogFormId">
+                            <div class="row g-3">
+                                <!-- Left Column: Main Article Body -->
+                                <div class="col-lg-8">
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold">Blog Title <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="blogFormTitleInput" placeholder="Enter article title..." required maxlength="255">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold">Slug / URL Identifier <span class="text-danger">*</span></label>
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text bg-light text-muted">/blog/</span>
+                                            <input type="text" class="form-control font-monospace" id="blogFormSlugInput" placeholder="auto-generated-from-title" required maxlength="280">
+                                        </div>
+                                        <div class="form-text">Used for public article links. Lowercase, numbers and hyphens only.</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold">Short Description / Excerpt <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" id="blogFormExcerptInput" rows="3" placeholder="A concise 1-2 sentence summary displayed on cards..." required maxlength="1000"></textarea>
+                                    </div>
+
+                                    <!-- Content Editor with formatting toolbar -->
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <label class="form-label small fw-bold mb-0">Article Content <span class="text-danger">*</span></label>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <button type="button" class="btn btn-outline-secondary active" id="blogEditorModeWrite">Write</button>
+                                                <button type="button" class="btn btn-outline-secondary" id="blogEditorModePreview">Preview</button>
+                                            </div>
+                                        </div>
+                                        <!-- Editor Toolbar -->
+                                        <div class="btn-toolbar p-1 bg-light border border-bottom-0 rounded-top" id="blogEditorToolbar">
+                                            <div class="btn-group btn-group-sm me-2 mb-1">
+                                                <button type="button" class="btn btn-white border" data-cmd="h2" title="Heading 2"><strong>H2</strong></button>
+                                                <button type="button" class="btn btn-white border" data-cmd="h3" title="Heading 3"><strong>H3</strong></button>
+                                                <button type="button" class="btn btn-white border" data-cmd="p" title="Paragraph"><strong>P</strong></button>
+                                            </div>
+                                            <div class="btn-group btn-group-sm me-2 mb-1">
+                                                <button type="button" class="btn btn-white border" data-cmd="bold" title="Bold"><i class="fas fa-bold"></i></button>
+                                                <button type="button" class="btn btn-white border" data-cmd="italic" title="Italic"><i class="fas fa-italic"></i></button>
+                                                <button type="button" class="btn btn-white border" data-cmd="underline" title="Underline"><i class="fas fa-underline"></i></button>
+                                            </div>
+                                            <div class="btn-group btn-group-sm me-2 mb-1">
+                                                <button type="button" class="btn btn-white border" data-cmd="ul" title="Bullet List"><i class="fas fa-list-ul"></i></button>
+                                                <button type="button" class="btn btn-white border" data-cmd="ol" title="Numbered List"><i class="fas fa-list-ol"></i></button>
+                                                <button type="button" class="btn btn-white border" data-cmd="quote" title="Blockquote"><i class="fas fa-quote-left"></i></button>
+                                            </div>
+                                            <div class="btn-group btn-group-sm mb-1">
+                                                <button type="button" class="btn btn-white border" data-cmd="link" title="Insert Link"><i class="fas fa-link"></i></button>
+                                                <button type="button" class="btn btn-white border" data-cmd="img" title="Insert Image Tag"><i class="fas fa-image"></i></button>
+                                            </div>
+                                        </div>
+                                        <textarea class="form-control rounded-0 rounded-bottom font-monospace" id="blogFormContentInput" rows="14" placeholder="Write HTML/rich content here..." style="font-size: 13px;" required></textarea>
+                                        <div class="p-3 border rounded-bottom bg-white d-none" id="blogFormContentPreview" style="min-height: 280px; max-height: 500px; overflow-y: auto;"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Right Column: Meta, Category, Image, SEO -->
+                                <div class="col-lg-4">
+                                    <div class="p-3 bg-light rounded-3 mb-3 border">
+                                        <h6 class="fw-bold mb-3">Publishing Target</h6>
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-bold">Website / Experience <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="blogFormSiteInput" required>
+                                                <option value="ACADEMY">Share Market Academy</option>
+                                                <option value="MUTUAL_FUND">Mutual Fund Distribution</option>
+                                            </select>
+                                            <div class="form-text">This blog will appear strictly on this website.</div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-bold">Category <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="blogFormCategoryInput" required></select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-bold">Status</label>
+                                            <select class="form-select" id="blogFormStatusInput">
+                                                <option value="DRAFT">Draft</option>
+                                                <option value="PUBLISHED">Published</option>
+                                                <option value="UNPUBLISHED">Unpublished</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-bold">Author</label>
+                                            <input type="text" class="form-control" id="blogFormAuthorInput" placeholder="Mentor VAIBHAV PAWAR" value="Lord Sai Team" maxlength="150">
+                                        </div>
+                                        <div class="mb-0">
+                                            <label class="form-label small fw-bold">Tags</label>
+                                            <input type="text" class="form-control" id="blogFormTagsInput" placeholder="e.g. Technical Analysis, Basics" maxlength="500">
+                                            <div class="form-text">Comma-separated tags.</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Featured Image Box -->
+                                    <div class="p-3 bg-light rounded-3 mb-3 border">
+                                        <h6 class="fw-bold mb-2">Featured Image</h6>
+                                        <input type="hidden" id="blogFormImagePath">
+                                        <div class="mb-2 text-center p-2 bg-white rounded border" id="blogImagePreviewBox" style="min-height: 120px; display: flex; align-items: center; justify-content: center;">
+                                            <span class="text-muted small">No image uploaded</span>
+                                        </div>
+                                        <input type="file" class="form-control form-control-sm mb-2" id="blogFormImageFile" accept="image/jpeg,image/png,image/webp">
+                                        <button type="button" class="btn btn-sm btn-outline-danger w-100 d-none" id="blogFormImageRemoveBtn"><i class="fas fa-trash me-1"></i> Remove Image</button>
+                                    </div>
+
+                                    <!-- SEO Accordion -->
+                                    <div class="accordion" id="blogSeoAccordion">
+                                        <div class="accordion-item border rounded-3 overflow-hidden">
+                                            <h2 class="accordion-header">
+                                                <button class="accordion-button collapsed py-2 px-3 small fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#blogSeoCollapse">
+                                                    <i class="fas fa-search me-2 text-primary"></i> SEO Meta Information (Optional)
+                                                </button>
+                                            </h2>
+                                            <div id="blogSeoCollapse" class="accordion-collapse collapse" data-bs-parent="#blogSeoAccordion">
+                                                <div class="accordion-body p-3 bg-light small">
+                                                    <div class="mb-2">
+                                                        <label class="form-label small fw-bold">SEO Title</label>
+                                                        <input type="text" class="form-control form-control-sm" id="blogFormSeoTitle" placeholder="Custom browser tab / title tag" maxlength="255">
+                                                    </div>
+                                                    <div class="mb-2">
+                                                        <label class="form-label small fw-bold">SEO Description</label>
+                                                        <textarea class="form-control form-control-sm" id="blogFormSeoDesc" rows="2" placeholder="Meta description for search engines..." maxlength="500"></textarea>
+                                                    </div>
+                                                    <div class="mb-0">
+                                                        <label class="form-label small fw-bold">SEO Keywords</label>
+                                                        <input type="text" class="form-control form-control-sm" id="blogFormSeoKeywords" placeholder="stock market, trading, sip" maxlength="500">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <section class="view" id="view-blog-categories">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <div>
+                            <h4 class="fw-bold mb-0">Blog Categories</h4>
+                            <small class="text-muted">Manage website-specific categories for articles.</small>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <select class="form-select form-select-sm" id="catSiteFilter" style="width:auto;">
+                                <option value="">All Websites</option>
+                                <option value="ACADEMY">Share Market</option>
+                                <option value="MUTUAL_FUND">Mutual Fund</option>
+                            </select>
+                            <button class="btn btn-sm btn-primary" onclick="Admin.openCategoryForm()"><i class="fas fa-plus me-1"></i> Add Category</button>
+                        </div>
+                    </div>
+
+                    <div class="adm-card">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0 align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Category Name</th>
+                                        <th>Slug</th>
+                                        <th>Website</th>
+                                        <th>Description</th>
+                                        <th>Order</th>
+                                        <th>Status</th>
+                                        <th>Articles</th>
+                                        <th class="text-end" style="width: 140px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="categoriesBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="view" id="view-audit">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="fw-bold mb-0">Audit Logs</h4>
+                        <button class="btn btn-sm btn-light" onclick="Admin.loadAudit(0)"><i class="fas fa-sync-alt me-1"></i> Refresh</button>
+                    </div>
+                    <div class="adm-card"><div class="table-responsive"><table class="table table-sm mb-0">
+                        <thead><tr><th>Time</th><th>Who</th><th>Action</th><th>Entity</th><th>Description</th><th>IP</th></tr></thead>
+                        <tbody id="auditBody"></tbody></table></div>
+                        <div class="p-2 border-top d-flex justify-content-between align-items-center"><small class="text-muted" id="auditCount"></small><div id="auditPager"></div></div>
+                    </div>
+                </section>
+
+                <section class="view" id="view-email">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <h4 class="fw-bold mb-0">Email Settings</h4>
+                        <button class="btn btn-sm btn-light" onclick="Admin.loadEmailSettings()"><i class="fas fa-sync-alt me-1"></i> Refresh</button>
+                    </div>
+
+                    <div class="adm-card p-4 mb-3" id="emailStatusCard"><div class="text-muted">Loading…</div></div>
+
+                    <!-- Gmail via Google OAuth 2.0. Google performs the sign-in; this application never
+                         sees a Google password or App Password, and never holds a token in the browser. -->
+                    <div class="adm-card p-4 mb-3" id="emGoogleCard"><div class="text-muted">Loading…</div></div>
+
+                    <!-- Domain Deliverability Diagnostics Card -->
+                    <div class="adm-card p-4 mb-3" id="emDomainCard">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                            <h6 class="fw-bold mb-0"><i class="fas fa-shield-alt text-primary me-2"></i>Domain Deliverability &amp; Authentication (SPF / DKIM / DMARC / MX)</h6>
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="emCheckDnsBtn"><i class="fas fa-search me-1"></i> Verify Domain DNS</button>
+                        </div>
+                        <p class="text-muted small mb-2">Checks whether your sending domain has the DNS records required by Gmail, Yahoo, and Microsoft to protect against spoofing and ensure inbox deliverability.</p>
+                        <div id="emDnsResults" class="small mt-2"><span class="text-muted">Click <strong>Verify Domain DNS</strong> to query SPF, DKIM, DMARC, and MX records.</span></div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-lg-7">
+                            <div class="adm-card p-4">
+                                <h6 class="fw-bold mb-1" id="emailFormTitle">Configure SMTP</h6>
+                                <p class="text-muted small mb-3" id="emFormHelp">Enter the academy's email address and click <strong>Auto Configure Email</strong> — the provider, SMTP host, port, security and username are filled in for you. Only the provider credential (App Password) has to come from you.</p>
+                                <div class="alert alert-success small py-2 d-none" id="emOauthNotice"><i class="fab fa-google me-1"></i> This academy sends through a <strong>connected Google account</strong>. The SMTP fields below are not used and are kept only as a fallback — they become editable again if you disconnect Google.</div>
+                                <form id="emailForm" autocomplete="off">
+                                    <div class="row g-2">
+                                        <div class="em-smtp-only col-md-4"><label class="form-label small fw-bold">Email Provider</label>
+                                            <select class="form-select" id="emProvider"><option value="AUTO">Auto Detect</option></select></div>
+                                        <div class="em-smtp-only col-md-8"><label class="form-label small fw-bold">Sender Email</label>
+                                            <div class="input-group"><input type="email" class="form-control" id="emSenderEmail" placeholder="lordsai.academy@gmail.com" maxlength="190" required>
+                                                <button class="btn btn-primary" type="button" id="emAutoBtn"><i class="fas fa-magic me-1"></i> <span id="emAutoLabel">Auto Configure Email</span></button></div>
+                                            <div class="form-text">The email address is the starting point — everything standard is detected from it.</div></div>
+                                        <div class="col-12 d-none" id="emDetect"></div>
+                                        <div class="col-md-6"><label class="form-label small fw-bold">Sender Name</label><input type="text" class="form-control" id="emSenderName" placeholder="Lord Sai Academy" maxlength="100" required></div>
+                                        <div class="col-md-6"><label class="form-label small fw-bold">Reply-To Email</label><input type="email" class="form-control" id="emReplyTo" placeholder="support@lordsaiinvestment.com" maxlength="190"><div class="form-text">Where recipient replies go (optional).</div></div>
+                                        <div class="col-md-6"><label class="form-label small fw-bold">Verified Sending Domain</label><input type="text" class="form-control" id="emSendingDomain" placeholder="lordsaiinvestment.com" maxlength="190"><div class="form-text">Your custom domain for SPF/DKIM alignment.</div></div>
+                                        <div class="col-md-6"><label class="form-label small fw-bold">DKIM Selector</label><input type="text" class="form-control" id="emDkimSelector" placeholder="default (or s1, k1, resend)" maxlength="100"><div class="form-text">Selector name provided by your mail service.</div></div>
+                                        <div class="em-smtp-only col-md-6"><label class="form-label small fw-bold">Encryption / Security</label>
+                                            <select class="form-select" id="emSecurity">
+                                                <option value="STARTTLS">STARTTLS (port 587)</option>
+                                                <option value="SSL_TLS">SSL/TLS (port 465)</option>
+                                                <option value="NONE">None (local relay only)</option>
+                                            </select></div>
+                                        <div class="em-smtp-only col-md-6"><label class="form-label small fw-bold">SMTP Host</label><input type="text" class="form-control" id="emHost" placeholder="filled by Auto Configure" maxlength="255" required></div>
+                                        <div class="em-smtp-only col-md-4"><label class="form-label small fw-bold">SMTP Port</label><input type="number" class="form-control" id="emPort" value="587" min="1" max="65535" required></div>
+                                        <div class="em-smtp-only col-md-8"><label class="form-label small fw-bold">SMTP Username</label><input type="text" class="form-control" id="emUsername" placeholder="usually the full email address" maxlength="190" autocomplete="off"><div class="form-text" id="emUsernameHelp">Filled automatically for mailbox providers; leave blank only for relays without authentication.</div></div>
+                                        <div class="col-12 d-none" id="emCredWarning"><div class="alert alert-danger small py-2 mb-0"><i class="fas fa-key me-1"></i> <strong>The saved SMTP credential can no longer be decrypted</strong> (the server's encryption secret changed since it was stored). It cannot be recovered — enter the credential again below and click <strong>Save Email Settings</strong>. The rest of the configuration is unaffected.</div></div>
+                                        <div class="em-smtp-only col-md-6"><label class="form-label small fw-bold" id="emPasswordLabel">SMTP Credential / App Password</label>
+                                            <div class="d-none align-items-center gap-2 mb-1" id="emSavedCred"><span class="badge bg-success"><i class="fas fa-lock me-1"></i> <span id="emSavedCredText">Saved securely</span></span><button type="button" class="btn btn-link btn-sm p-0" id="emReplaceCred">Replace credential</button></div>
+                                            <div class="input-group" id="emPasswordGroup"><input type="password" class="form-control" id="emPassword" placeholder="paste the App Password / SMTP key" maxlength="200" autocomplete="new-password"><button class="btn btn-outline-secondary" type="button" id="emTogglePw" title="Show / hide"><i class="fas fa-eye"></i></button><button class="btn btn-outline-primary d-none" type="button" id="emGenerateBtn" title="Step-by-step help for creating a Google App Password"><i class="fab fa-google me-1"></i> Generate</button></div>
+                                            <div class="form-text" id="emPasswordHelp">Your email provider credential / App Password may be required for authenticated sending. For security reasons this application cannot generate or retrieve it — it is stored encrypted and never shown again.</div></div>
+                                        <div class="col-md-6"><label class="form-label small fw-bold">Test Recipient Email</label><input type="email" class="form-control" id="emTestRecipient" placeholder="where the test email is delivered" maxlength="190"></div>
+                                        <div class="col-md-6 d-flex align-items-end"><div class="form-check form-switch mb-2"><input class="form-check-input" type="checkbox" role="switch" id="emEnabled"><label class="form-check-label fw-bold small" for="emEnabled">Enable Email Sending</label></div></div>
+                                    </div>
+                                    <div class="alert alert-danger small py-2 d-none mt-3" id="emError"></div>
+                                    <div class="d-flex flex-wrap gap-2 mt-3">
+                                        <button type="button" class="btn btn-outline-primary em-smtp-only" id="emConnBtn"><i class="fas fa-plug me-1"></i> <span id="emConnLabel">Test SMTP Connection</span></button>
+                                        <button type="submit" class="btn btn-primary" id="emSaveBtn"><i class="fas fa-save me-1"></i> Save Email Settings</button>
+                                        <button type="button" class="btn btn-outline-success" id="emTestBtn"><i class="fas fa-paper-plane me-1"></i> <span id="emTestLabel">Send Test Email</span></button>
+                                        <button type="button" class="btn btn-outline-danger ms-auto d-none" id="emRemoveBtn"><i class="fas fa-trash me-1"></i> Remove Configuration</button>
+                                    </div>
+                                    <div class="small mt-2 d-none" id="emConnResult"></div>
+                                    <div class="small mt-2 d-none" id="emTestResult"></div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="adm-card p-4 mb-3">
+                                <h6 class="fw-bold mb-2">Gmail — the recommended way</h6>
+                                <ol class="small text-muted mb-3 ps-3">
+                                    <li>Click <strong>Connect Google Account</strong>.</li>
+                                    <li>Sign in at Google and press <strong>Allow</strong>. Google does the sign-in — this panel never sees your Google password, and no App Password is needed.</li>
+                                    <li>You are returned here and the account shows as connected.</li>
+                                    <li>Switch on <strong>Enable Email Sending</strong>, then <strong>Send Test Email</strong>.</li>
+                                </ol>
+                                <p class="small text-muted mb-3">The permission granted is <em>send only</em> (<code>gmail.send</code>) — this application cannot read, search or delete your mail. The authorization is stored encrypted on the server and can be withdrawn at any time with <strong>Disconnect Google Account</strong>.</p>
+
+                                <h6 class="fw-bold mb-2">SMTP — other providers &amp; fallback</h6>
+                                <ol class="small text-muted mb-3 ps-3">
+                                    <li>Enter the sender email and click <strong>Auto Configure Email</strong>.</li>
+                                    <li>The provider is detected from the address (Microsoft 365, Yahoo, Zoho…) or, for your own domain, from its mail (MX) records — host, port, security and username fill in.</li>
+                                    <li>Paste the provider credential / App Password (never generated here).</li>
+                                    <li><strong>Test SMTP Connection</strong> → <strong>Save Email Settings</strong> → <strong>Send Test Email</strong>.</li>
+                                </ol>
+                                <h6 class="fw-bold mb-2">How sending is decided</h6>
+                                <ul class="small text-muted mb-0 ps-3">
+                                    <li>A connected Google account with <strong>Enable Email Sending</strong> on → all system emails and website enquiries go out through Gmail.</li>
+                                    <li>No Google account, but SMTP saved and enabled → they go through that SMTP server instead.</li>
+                                    <li>Saved but disabled → nothing is sent; emails are written to the server log instead.</li>
+                                    <li>Nothing saved → the server environment (<code>MAIL_ENABLED</code>, <code>MAIL_HOST</code>…) is used if configured.</li>
+                                    <li>Tests use the values on screen even before saving, so you can verify first.</li>
+                                    <li>The SMTP credential and the Google authorization are both encrypted in the database and never shown again.</li>
+                                </ul>
+                            </div>
+                            <div class="adm-card p-4">
+                                <h6 class="fw-bold mb-2">Login credentials by email</h6>
+                                <p class="small text-muted mb-2">When adding a student you can tick <strong>Send login credentials by email</strong>: the account is activated and a secure, time-limited single-use password setup link is emailed to the student. Plaintext passwords are never generated or stored.</p>
+                                <p class="small text-muted mb-0">On any student page, <strong>Send Login Credentials</strong> issues and emails a fresh password setup link (valid for 48 hours). Existing passwords are never transmitted in plaintext.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="view" id="view-whatsapp">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <div><h4 class="fw-bold mb-0"><i class="fab fa-whatsapp text-success me-2"></i>WhatsApp Settings</h4><small class="text-muted">One central configuration. Used by invoice-on-WhatsApp and by Automation Admin → Email &amp; WhatsApp. The access token is stored encrypted and never shown again.</small></div>
+                        <button class="btn btn-sm btn-light" onclick="Admin.loadWhatsAppSettings()"><i class="fas fa-sync-alt me-1"></i> Refresh</button>
+                    </div>
+                    <div class="adm-card p-4 mb-3" id="waStatusCard"><div class="text-muted">Loading…</div></div>
+                    <div class="row g-3">
+                        <div class="col-lg-6">
+                            <div class="adm-card p-4">
+                                <h6 class="fw-bold mb-1" id="waFormTitle">Configure WhatsApp</h6>
+                                <p class="text-muted small mb-3">From Meta Business → WhatsApp → API Setup: the <strong>Phone Number ID</strong> (a numeric ID, not the phone number) and a permanent <strong>System User access token</strong> with the <code>whatsapp_business_messaging</code> permission.</p>
+                                <form id="whatsappForm" autocomplete="off">
+                                    <div class="mb-2"><label class="form-label small fw-bold">Provider</label><select class="form-select" id="waProvider"><option value="META_CLOUD">WhatsApp Business Cloud API (Meta)</option></select></div>
+                                    <div class="mb-2"><label class="form-label small fw-bold">Access Token</label><input type="password" class="form-control" id="waToken" placeholder="Paste the access token" autocomplete="new-password"><div class="form-text" id="waTokenHelp">Required the first time. Never shown again after saving.</div></div>
+                                    <div class="mb-2"><label class="form-label small fw-bold">Phone Number ID</label><input type="text" class="form-control" id="waPhoneId" placeholder="e.g. 123456789012345" required inputmode="numeric" pattern="[0-9]+"></div>
+                                    <div class="mb-3"><label class="form-label small fw-bold">WhatsApp Business Account ID <span class="text-muted fw-normal">(optional)</span></label><input type="text" class="form-control" id="waBusinessId" placeholder="e.g. 98765432100000" inputmode="numeric" pattern="[0-9]*"></div>
+                                    <div class="alert alert-danger small py-2 d-none" id="waError"></div>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <button type="submit" class="btn btn-primary" id="waSaveBtn"><i class="fas fa-save me-1"></i> <span id="waSaveLabel">Save WhatsApp Settings</span></button>
+                                        <button type="button" class="btn btn-outline-secondary" id="waTestConnBtn"><i class="fas fa-plug me-1"></i> Test WhatsApp Connection</button>
+                                    </div>
+                                    <div class="form-text mt-2">Saving verifies the credentials with the provider first; nothing is enabled until they are accepted.</div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="adm-card p-4 mb-3">
+                                <h6 class="fw-bold mb-2">Actions</h6>
+                                <div class="d-flex flex-wrap gap-2" id="waActions"></div>
+                                <p class="text-muted small mt-3 mb-0">Disabling WhatsApp stops every WhatsApp send in the system (invoices and Automation Admin) until it is enabled again. Email is not affected.</p>
+                            </div>
+                            <div class="adm-card p-4">
+                                <h6 class="fw-bold mb-1">Send a Test WhatsApp</h6>
+                                <p class="text-muted small mb-3">Uses the configuration above. The number is not saved anywhere. Meta only delivers free-form messages to numbers that have messaged this business in the last 24 hours (or test numbers added in Meta).</p>
+                                <form id="whatsappTestForm" autocomplete="off">
+                                    <div class="mb-2"><label class="form-label small fw-bold">Test recipient WhatsApp number</label><input type="text" class="form-control" id="waTestMobile" placeholder="10-digit Indian number or with country code, e.g. 919876543210" required></div>
+                                    <div class="mb-3"><label class="form-label small fw-bold">Test message</label><textarea class="form-control" id="waTestMessage" rows="2" maxlength="1000" required>Hello! This is a test message from Lord Sai Share Market Classes.</textarea></div>
+                                    <div class="alert alert-danger small py-2 d-none" id="waTestError"></div>
+                                    <button type="submit" class="btn btn-success btn-sm" id="waTestSendBtn"><i class="fab fa-whatsapp me-1"></i> Send Test WhatsApp</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="view" id="view-settings">
+                    <h4 class="fw-bold mb-3">Settings</h4>
+                    <div class="row g-3">
+                        <div class="col-lg-5"><div class="adm-card p-4">
+                            <h6 class="fw-bold mb-3">Account Settings</h6>
+                            <form id="changeUserIdForm" class="mb-4">
+                                <div class="mb-2"><label class="form-label small fw-bold">Current User ID</label><input class="form-control" id="adminCurrentUserId" readonly></div>
+                                <div class="mb-2"><label class="form-label small fw-bold">New User ID</label><input class="form-control" id="adminNewUserId" required minlength="4" maxlength="20" pattern="[A-Za-z0-9][A-Za-z0-9._-]{3,19}"></div>
+                                <div class="mb-3"><label class="form-label small fw-bold">Current password</label><input type="password" class="form-control" id="adminUserIdPassword" required></div>
+                                <button class="btn btn-primary btn-sm" type="submit">Change User ID</button>
+                            </form>
+                            <h6 class="fw-bold mb-3">Change My Password</h6>
+                            <form id="changePasswordForm">
+                                <div class="mb-2"><label class="form-label small fw-bold">Current password</label><input type="password" class="form-control" id="cpCurrent" required></div>
+                                <div class="mb-2"><label class="form-label small fw-bold">New password</label><input type="password" class="form-control" id="cpNew" required minlength="8"></div>
+                                <div class="mb-3"><label class="form-label small fw-bold">Confirm new password</label><input type="password" class="form-control" id="cpConfirm" required></div>
+                                <button class="btn btn-primary btn-sm" type="submit">Update Password</button>
+                                <div class="form-text mt-2">Changing the password logs you out everywhere.</div>
+                            </form>
+                        </div></div>
+                        <div class="col-lg-7">
+                            <div class="adm-card p-4 mb-3" style="border-left: 4px solid #0F9F90 !important;">
+                                <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                                    <h6 class="fw-bold mb-0">Share Market Course Purchase</h6>
+                                    <a href="courses.html" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3" id="settingsPreviewCourseLink">
+                                        <i class="fas fa-external-link-alt me-1"></i> Preview Course Page
+                                    </a>
+                                </div>
+                                <p class="small text-muted mb-3">Enable or disable the public Buy / Purchase option for the Share Market course. When disabled, the course and curriculum remain fully visible to visitors with purchase marked unavailable.</p>
+                                <div class="d-flex align-items-center justify-content-between p-3 rounded bg-light border">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="fas fa-shopping-cart text-primary"></i>
+                                        <div>
+                                            <div class="fw-bold small">Share Market Course Purchase</div>
+                                            <small class="text-muted">Current status: <span id="settingsShareMarketStatusText" class="text-success fw-bold">Enabled</span></small>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="form-check form-switch m-0" style="font-size: 1.25rem;">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="settingsShareMarketPurchaseSwitch" checked style="cursor:pointer;" title="Toggle Share Market Course Purchase" onchange="window.LSI_setPurchaseSetting ? window.LSI_setPurchaseSetting(this.checked) : null">
+                                        </div>
+                                        <span class="badge bg-success" id="settingsShareMarketPurchaseBadge">ON</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="adm-card p-4">
+                                <h6 class="fw-bold mb-3">Configuration</h6>
+                                <p class="small text-muted mb-2">Database and JWT settings are supplied through environment variables on the server (see <code>backend/.env.example</code>) and are intentionally not editable here. Razorpay keys are managed under <a href="#gateway" data-view="gateway">Payment Gateway</a>, SMTP under <a href="#email" data-view="email">Email Settings</a> and WhatsApp under <a href="#whatsapp" data-view="whatsapp">WhatsApp Settings</a>.</p>
+                                <div class="small"><strong>API base:</strong> <code id="settingsApiBase"></code></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Google App Password helper. Google generates the password; this only guides the admin and
+         hands the pasted value to the existing credential field. Nothing is stored here. -->
+    <div class="modal fade" id="gappModal" tabindex="-1" aria-hidden="true" aria-labelledby="gappTitle">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow-lg" style="border-radius:14px;">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, var(--lsi-navy, #0A1128), #23365c); border-radius:14px 14px 0 0;">
+                    <h5 class="modal-title fw-bold text-white" id="gappTitle"><i class="fab fa-google me-2"></i>Generate Google App Password</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="alert alert-info small py-2">
+                        <i class="fas fa-info-circle me-1"></i> The App Password is created by <strong>Google</strong>, not by this application. Follow the steps below, then paste the result here.
+                    </div>
+                    <ol class="small ps-3 mb-3" style="line-height:1.9">
+                        <li>Open Google App Passwords.</li>
+                        <li>Sign in to the Gmail account used for SMTP<span id="gappAccountHint"></span>.</li>
+                        <li>Create a new App Password (choose <strong>Mail</strong> if asked for an app).</li>
+                        <li>Copy the generated 16-character App Password.</li>
+                        <li>Return to this window and paste it below.</li>
+                    </ol>
+                    <a class="btn btn-primary w-100 mb-3" id="gappOpenBtn" href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener noreferrer">
+                        <i class="fas fa-external-link-alt me-1"></i> Open Google App Passwords
+                    </a>
+                    <div class="alert alert-warning small py-2">
+                        <i class="fas fa-shield-alt me-1"></i> App Passwords need 2-Step Verification switched on. This window never asks for, sees or stores your Google account password.
+                    </div>
+                    <label class="form-label small fw-bold" for="gappInput">Paste your App Password</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="gappInput" placeholder="e.g. abcd efgh ijkl mnop" maxlength="60" autocomplete="off" autocapitalize="off" spellcheck="false">
+                        <button class="btn btn-outline-secondary" type="button" id="gappToggle" title="Show / hide"><i class="fas fa-eye"></i></button>
+                    </div>
+                    <div class="form-text" id="gappHint">Spaces are ignored — paste it exactly as Google shows it.</div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal" id="gappCancel">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="gappSave" disabled><i class="fas fa-check me-1"></i> Save &amp; Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="formModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" id="formModalDialog">
+            <div class="modal-content border-0 shadow-lg" style="border-radius:16px;">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, var(--lsi-navy), var(--lsi-blue)); border-radius:16px 16px 0 0;">
+                    <h5 class="modal-title fw-bold text-white" id="formModalTitle">Form</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formModalForm">
+                    <div class="modal-body p-4" id="formModalBody"></div>
+                    <div class="modal-footer border-0 pt-0 flex-column align-items-stretch">
+                        <div class="alert alert-danger py-2 px-3 small d-none mb-2" id="formModalError"></div>
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary" id="formModalSubmit">Save</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg" style="border-radius:16px;">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, var(--lsi-navy), var(--lsi-blue)); border-radius:16px 16px 0 0;">
+                    <h5 class="modal-title fw-bold text-white"><i class="fas fa-star text-warning me-2"></i>Review Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4" id="reviewModalBody"></div>
+                <div class="modal-footer border-0 pt-0 d-flex justify-content-between flex-wrap gap-2">
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-danger btn-sm" id="reviewDeleteBtn"><i class="fas fa-trash me-1"></i> Delete</button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="reviewEditBtn"><i class="fas fa-edit me-1"></i> Edit</button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="reviewPhotoBtn"><i class="fas fa-image me-1"></i> Photo</button>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-outline-warning" id="reviewDeclineBtn"><i class="fas fa-times me-1"></i> Decline Review</button>
+                        <button type="button" class="btn btn-success" id="reviewAcceptBtn"><i class="fas fa-check me-1"></i> Accept Review</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-area"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/admin-dashboard.js?v=20260923-caps"></script>
+</body>
+</html>

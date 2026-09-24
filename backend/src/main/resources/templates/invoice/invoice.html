@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<!--
+  Centralized Lord Sai invoice. ONE template for every digital product (course, ebook, future
+  products). Rendered by PdfRenderer to the attached / downloadable PDF and also served inline
+  as the print view, so the design is identical everywhere.
+
+  Every value below is injected by InvoiceService — nothing customer- or product-specific is
+  hardcoded. Thymeleaf expressions carry the placeholders the specification lists as
+  invoiceNumber, studentName, total etc.
+
+  Markup must stay well-formed XHTML (self-closed void tags, no HTML entities other than &amp;)
+  because the PDF renderer parses it as XML.
+-->
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="'Invoice ' + ${invoiceNumber}">Invoice</title>
+    <style>
+        @page { size: A4; margin: 16mm 14mm 18mm 14mm;
+            @bottom-center { content: "Lord Sai Share Market Classes  ·  Page " counter(page) " of " counter(pages); font-family: 'Noto Sans'; font-size: 8pt; color: #64748b; } }
+        * { box-sizing: border-box; }
+        body { font-family: 'Noto Sans', 'Segoe UI', Arial, sans-serif; font-size: 10pt; color: #0f172a; margin: 0; background: #ffffff; }
+        .brand-bar { border-bottom: 3px solid #0B5FA5; padding-bottom: 10px; }
+        .brand-bar td { vertical-align: middle; }
+        .logo { height: 54px; }
+        .doc-title { font-size: 26pt; font-weight: 700; color: #0A1128; letter-spacing: 2px; text-align: right; line-height: 1; }
+        .doc-sub { font-size: 9pt; color: #0B5FA5; font-weight: 700; text-align: right; letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
+        .company { font-size: 8.5pt; color: #475569; line-height: 1.5; margin-top: 6px; }
+        .company strong { color: #0A1128; font-size: 10pt; }
+        .meta { width: 100%; margin-top: 16px; border-collapse: collapse; }
+        .meta td { vertical-align: top; padding: 0; }
+        .box { border: 1px solid #dbe4ee; border-radius: 6px; padding: 10px 12px; }
+        .box h4 { margin: 0 0 6px; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 1px; color: #0B5FA5; }
+        .box .line { line-height: 1.6; font-size: 9.5pt; }
+        .box .line span { color: #64748b; display: inline-block; min-width: 92px; }
+        .kv { width: 100%; border-collapse: collapse; }
+        .kv td { padding: 4px 8px; font-size: 9.5pt; border-bottom: 1px solid #eef2f7; }
+        .kv td:first-child { color: #64748b; width: 46%; }
+        .kv td:last-child { font-weight: 700; color: #0A1128; text-align: right; }
+        table.items { width: 100%; border-collapse: collapse; margin-top: 18px; }
+        table.items th { background: #0B5FA5; color: #ffffff; font-size: 8.5pt; text-transform: uppercase; letter-spacing: .6px; padding: 8px 10px; text-align: left; }
+        table.items td { padding: 9px 10px; border-bottom: 1px solid #e2e8f0; font-size: 9.5pt; vertical-align: top; }
+        table.items .num, table.items th.num { text-align: right; white-space: nowrap; }
+        table.items .desc small { display: block; color: #64748b; font-size: 8.5pt; margin-top: 2px; }
+        .totals { width: 100%; margin-top: 10px; border-collapse: collapse; }
+        .totals td { padding: 0; vertical-align: top; }
+        .sum { width: 100%; border-collapse: collapse; }
+        .sum td { padding: 5px 10px; font-size: 9.5pt; }
+        .sum td:first-child { color: #475569; text-align: right; }
+        .sum td:last-child { text-align: right; font-weight: 700; white-space: nowrap; width: 120px; }
+        .sum tr.grand td { background: #0A1128; color: #ffffff; font-size: 11.5pt; padding: 8px 10px; }
+        .sum tr.grand td:first-child { color: #cbd5e1; }
+        .status { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 8.5pt; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
+        .status.paid { background: #dcfce7; color: #15803d; }
+        .status.other { background: #fee2e2; color: #b91c1c; }
+        .notes { margin-top: 22px; border-top: 1px solid #e2e8f0; padding-top: 10px; font-size: 8.5pt; color: #475569; line-height: 1.6; }
+        .notes h5 { margin: 0 0 4px; font-size: 9pt; color: #0A1128; text-transform: uppercase; letter-spacing: 1px; }
+        .footer { margin-top: 18px; text-align: center; font-size: 8.5pt; color: #64748b; line-height: 1.6; }
+        .footer strong { color: #0B5FA5; }
+        .access { margin-top: 10px; background: #eff6ff; border-left: 4px solid #0B5FA5; padding: 8px 10px; font-size: 8.5pt; color: #1e3a8a; line-height: 1.5; }
+    </style>
+</head>
+<body>
+<table class="brand-bar" style="width:100%; border-collapse:collapse;">
+    <tr>
+        <td style="width:58%;">
+            <img th:src="${logoDataUri}" alt="Lord Sai Share Market Classes" class="logo"/>
+            <div class="company">
+                <strong>Lord Sai Share Market Classes</strong><br/>
+                Shreeraj Nagar Apartment, Kamtha Road, Near Dr. Gade Hospital, Uran, Navi Mumbai, Raigad, Maharashtra – 400707, India.<br/>
+                <span th:text="${supportEmail}">info@lordsaiinvestment.com</span> · <span th:text="${supportPhone}">+91 99202 54354</span>
+            </div>
+        </td>
+        <td style="width:42%;">
+            <div class="doc-title">INVOICE</div>
+            <div class="doc-sub" th:text="${productType} + ' purchase'">Course purchase</div>
+            <table class="kv" style="margin-top:10px;">
+                <tr><td>Invoice No.</td><td th:text="${invoiceNumber}">LSI-INV-2026-000001</td></tr>
+                <tr><td>Invoice Date</td><td th:text="${invoiceDate}">17 Sep 2026</td></tr>
+                <tr><td>Purchase Date</td><td th:text="${purchaseDate}">17 Sep 2026, 10:32 AM</td></tr>
+                <tr><td>Payment Status</td><td><span th:class="'status ' + (${paymentStatus} == 'SUCCESS' ? 'paid' : 'other')" th:text="${paymentStatusLabel}">PAID</span></td></tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+<table class="meta">
+    <tr>
+        <td style="width:50%; padding-right:8px;">
+            <div class="box">
+                <h4>Billed To</h4>
+                <div class="line"><span>Name</span><strong th:text="${studentName}">Student Name</strong></div>
+                <div class="line"><span>Student ID</span><strong th:text="${studentId}">LSI-2026-00001</strong></div>
+                <div class="line"><span>Email</span><span style="min-width:0;color:#0f172a" th:text="${studentEmail}">student@example.com</span></div>
+                <div class="line"><span>Mobile</span><span style="min-width:0;color:#0f172a" th:text="${studentPhone}">9876543210</span></div>
+            </div>
+        </td>
+        <td style="width:50%; padding-left:8px;">
+            <div class="box">
+                <h4>Payment Details</h4>
+                <div class="line"><span>Method</span><span style="min-width:0;color:#0f172a" th:text="${paymentMethod}">Razorpay</span></div>
+                <div class="line"><span>Transaction ID</span><span style="min-width:0;color:#0f172a" th:text="${transactionId}">pay_XXXX</span></div>
+                <div class="line"><span>Order Ref.</span><span style="min-width:0;color:#0f172a" th:text="${orderRef}">LSI-ORD-…</span></div>
+                <div class="line"><span>Currency</span><span style="min-width:0;color:#0f172a" th:text="${currency}">INR</span></div>
+            </div>
+        </td>
+    </tr>
+</table>
+
+<table class="items">
+    <thead>
+    <tr>
+        <th style="width:6%;">#</th>
+        <th>Description</th>
+        <th style="width:12%;">Type</th>
+        <th class="num" style="width:8%;">Qty</th>
+        <th class="num" style="width:16%;">Unit Price</th>
+        <th class="num" style="width:16%;">Amount</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>1</td>
+        <td class="desc"><strong th:text="${productName}">Product</strong><small th:text="${productDescription}">Digital product — Lord Sai Student Portal access</small></td>
+        <td th:text="${productType}">Course</td>
+        <td class="num" th:text="${quantity}">1</td>
+        <td class="num" th:text="${unitPrice}">₹ 9,999.00</td>
+        <td class="num" th:text="${subtotal}">₹ 9,999.00</td>
+    </tr>
+    </tbody>
+</table>
+
+<table class="totals">
+    <tr>
+        <td style="width:55%; padding-right:12px;">
+            <div class="access">
+                <strong>Access condition.</strong> Your purchase is available only inside the official Lord Sai Student Portal after
+                login with your Student ID. Direct access to protected course or ebook files is not permitted.
+            </div>
+        </td>
+        <td style="width:45%;">
+            <table class="sum">
+                <tr><td>Subtotal</td><td th:text="${subtotal}">₹ 9,999.00</td></tr>
+                <tr><td>Discount</td><td th:text="'- ' + ${discount}">- ₹ 0.00</td></tr>
+                <tr><td>Tax</td><td th:text="${tax}">₹ 0.00</td></tr>
+                <tr class="grand"><td>Total Paid</td><td th:text="${total}">₹ 9,999.00</td></tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+<div class="notes">
+    <h5>Notes &amp; Terms</h5>
+    <div th:text="${notes}">This is a computer-generated invoice for a digital product and does not require a signature.</div>
+    <div>Digital products are delivered to the Student Portal account of the email address above. Refunds are governed by the academy's policy communicated at purchase.</div>
+    <div>For any query about this invoice, write to <span th:text="${supportEmail}">info@lordsaiinvestment.com</span> quoting the invoice number.</div>
+</div>
+
+<div class="footer">
+    <strong>Thank you for learning with Lord Sai.</strong><br/>
+    Learn · Invest · Grow Together — <span th:text="${portalUrl}">https://…/student-login.html</span>
+</div>
+</body>
+</html>
