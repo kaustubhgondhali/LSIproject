@@ -3968,6 +3968,173 @@ html.mode-mutual-fund .mf-bg-visual--contact.contact-no-bg-art {
     .swpproof-card, .swpproof-card:hover, .swpproof-card:focus-within { transition: none; transform: none; }
 }
 
+/* SWP page: Bajaj Finserv Multi Asset brochure spotlight (swp.html #swp-brochure)
+   and the reusable brochure button (.swpbro-btn), used again in the
+   .swpbro-strip inside #swp-management. Amber button on navy/white so it is
+   the one warm accent in each block. */
+.swpbro {
+    position: relative; display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px;
+    padding: 28px 20px; border-radius: var(--lsi-radius-lg); overflow: hidden; color: #fff;
+    background:
+        radial-gradient(circle at 90% 10%, rgba(255, 255, 255, .12) 0, rgba(255, 255, 255, 0) 45%),
+        linear-gradient(135deg, #001F54 0%, #0F4C81 55%, #0284C7 100%);
+    box-shadow: var(--lsi-shadow-lg);
+}
+.swpbro-content { min-width: 0; }
+.swpbro-ribbon {
+    display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .4px; text-transform: uppercase;
+    color: #FFD166; background: rgba(245, 179, 1, .14); border: 1px solid rgba(245, 179, 1, .45);
+    border-radius: 999px; padding: 4px 12px; margin-bottom: 14px;
+}
+.swpbro-title { color: #fff; font-weight: 800; font-size: min(calc(1.3rem + .9vw), 2rem); line-height: 1.25; letter-spacing: -.3px; margin: 0 0 12px; }
+.swpbro-lead { color: rgba(255, 255, 255, .88); font-size: .98rem; line-height: 1.65; margin: 0 0 20px; max-width: 660px; }
+.swpbro-lead strong { color: #fff; }
+.swpbro-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 18px; }
+.swpbro-stat {
+    min-width: 0; padding: 12px; border-radius: var(--lsi-radius-md);
+    background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .18);
+}
+.swpbro-stat strong { display: block; font-size: 1.45rem; font-weight: 800; line-height: 1.15; letter-spacing: -.3px; color: #FFD166; white-space: nowrap; }
+.swpbro-stat span { display: block; margin-top: 4px; font-size: .78rem; line-height: 1.35; color: rgba(255, 255, 255, .85); }
+.swpbro-points { list-style: none; padding: 0; margin: 0 0 22px; display: grid; gap: 8px; }
+.swpbro-points li { display: flex; gap: 10px; font-size: .92rem; line-height: 1.5; color: rgba(255, 255, 255, .92); }
+.swpbro-points i { flex: 0 0 auto; margin-top: 4px; color: #34D399; }
+.swpbro-action { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
+.swpbro-trust { font-size: .8rem; color: rgba(255, 255, 255, .78); }
+.swpbro-note {
+    grid-column: 1 / -1; margin: 0; padding-top: 14px; border-top: 1px solid rgba(255, 255, 255, .15);
+    font-size: .72rem; line-height: 1.55; color: rgba(255, 255, 255, .72);
+}
+
+/* The brochure button: PDF badge, two-line label, arrow, and a slow shine. */
+.swpbro-btn {
+    position: relative; isolation: isolate; overflow: hidden;
+    display: inline-flex; align-items: center; gap: 12px; max-width: 100%;
+    padding: 8px 10px 8px 8px; border-radius: 999px; text-align: left; text-decoration: none;
+    color: #1A1204; background: linear-gradient(135deg, #FFD166 0%, #F5B301 45%, #F97316 100%);
+    box-shadow: 0 10px 24px rgba(249, 115, 22, .35), inset 0 1px 0 rgba(255, 255, 255, .5);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+.swpbro-btn:hover, .swpbro-btn:focus {
+    color: #1A1204; transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgba(249, 115, 22, .45), inset 0 1px 0 rgba(255, 255, 255, .5);
+}
+.swpbro-btn:focus-visible { outline: 3px solid #FFD166; outline-offset: 3px; }
+.swpbro-btn > span { position: relative; z-index: 1; }
+.swpbro-btn::after {
+    content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 35%; z-index: 0; pointer-events: none;
+    background: linear-gradient(100deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, .55) 50%, rgba(255, 255, 255, 0) 100%);
+    transform: translateX(-150%) skewX(-20deg);
+    animation: swpbro-shine 5s ease-in-out 1.5s infinite;
+}
+@keyframes swpbro-shine {
+    0%, 55% { transform: translateX(-150%) skewX(-20deg); }
+    85%, 100% { transform: translateX(420%) skewX(-20deg); }
+}
+.swpbro-btn-icon {
+    flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; border-radius: 50%; background: #fff; color: #DC2626; font-size: 1.25rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .15);
+}
+/* Colour set on the parts, not the <a>: MF mode recolours every non-.btn link teal. */
+.swpbro-btn-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; color: #1A1204; }
+.swpbro-btn-main { font-size: 1rem; font-weight: 800; }
+.swpbro-btn-sub { margin-top: 3px; font-size: .74rem; font-weight: 600; opacity: .82; }
+.swpbro-btn-arrow {
+    flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; margin-left: auto; border-radius: 50%; background: rgba(26, 18, 4, .12); color: #1A1204; font-size: .85rem;
+    transition: transform .2s ease;
+}
+.swpbro-btn:hover .swpbro-btn-arrow, .swpbro-btn:focus .swpbro-btn-arrow { transform: translateX(3px); }
+
+/* Brochure preview tile (CSS drawing of the PDF, using its 31-Aug-2026 asset mix). */
+.swpbro-doc {
+    display: block; width: 100%; max-width: 280px; margin: 0 auto; overflow: hidden;
+    background: #fff; color: #0F172A; border-radius: 14px; text-decoration: none;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, .35); transform: rotate(2.5deg); transition: transform .3s ease;
+}
+.swpbro-doc:hover { color: #0F172A; transform: rotate(0deg) translateY(-4px); }
+.swpbro-doc-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 14px;
+    background: #0B5DA8; color: #fff; font-size: .66rem; font-weight: 700; letter-spacing: .4px; text-transform: uppercase;
+}
+.swpbro-doc-pdf { flex: 0 0 auto; padding: 2px 8px; border-radius: 999px; background: #DC2626; white-space: nowrap; }
+.swpbro-doc-body { display: block; padding: 16px 16px 14px; }
+.swpbro-doc-name { display: block; margin-bottom: 14px; font-size: 1rem; font-weight: 800; line-height: 1.25; color: #0B3B6F; }
+.swpbro-donut {
+    position: relative; display: flex; align-items: center; justify-content: center;
+    width: 132px; height: 132px; margin: 0 auto 14px; border-radius: 50%;
+    background: conic-gradient(#0F9F90 0 71.9%, #F5B301 0 85.6%, #94A3B8 0 87.3%, #1E3A8A 0 100%);
+}
+.swpbro-donut::before { content: ""; position: absolute; inset: 22px; border-radius: 50%; background: #fff; }
+.swpbro-donut > span { position: relative; font-size: .72rem; font-weight: 700; line-height: 1.2; text-align: center; color: #334155; }
+.swpbro-legend { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; font-size: .7rem; color: #334155; }
+.swpbro-legend > span { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.swpbro-legend i { flex: 0 0 auto; width: 10px; height: 10px; border-radius: 2px; }
+.swpbro-k-eq { background: #0F9F90; }
+.swpbro-k-gold { background: #F5B301; }
+.swpbro-k-silver { background: #94A3B8; }
+.swpbro-k-debt { background: #1E3A8A; }
+.swpbro-doc-foot { display: block; margin-top: 12px; padding-top: 10px; border-top: 1px dashed #CBD5E1; font-size: .68rem; color: #64748B; text-align: center; }
+
+/* Second placement: slim proof strip under the three withdrawal rules. */
+.swpbro-strip {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 14px 16px; padding: 18px;
+    border-radius: var(--lsi-radius-md); border: 1px solid #F5D48A; border-left: 4px solid #F5B301;
+    background: linear-gradient(135deg, #FFF8E6 0%, #FFFFFF 70%);
+}
+.swpbro-strip-icon {
+    flex: 0 0 auto; display: flex; align-items: center; justify-content: center;
+    width: 48px; height: 48px; border-radius: 12px; background: rgba(2, 132, 199, .12); color: #0284C7; font-size: 1.25rem;
+}
+.swpbro-strip-text { flex: 1 1 220px; min-width: 0; }
+.swpbro-strip-kicker { display: block; margin-bottom: 4px; font-size: .72rem; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; color: #B45309; }
+.swpbro-strip-text p { font-size: .92rem; line-height: 1.6; color: var(--lsi-gray-600); }
+.swpbro-strip-text strong { color: var(--lsi-gray-800); }
+.swpbro-strip .swpbro-btn { flex: 0 0 auto; }
+.swpbro-strip .swpbro-btn:focus-visible { outline-color: #0369A1; }
+
+@media (min-width: 992px) {
+    .swpbro { grid-template-columns: minmax(0, 1fr) 280px; gap: 40px; align-items: center; padding: 40px 44px; }
+}
+/* Tablets: the strip's button wraps below the text, so line it up with the text (icon 48 + gap 16). */
+@media (min-width: 576px) and (max-width: 991.98px) {
+    .swpbro-strip .swpbro-btn { margin-left: 64px; }
+}
+/* Phones: stats as rows (number left, label right); full-width button. */
+@media (max-width: 575.98px) {
+    .swpbro-stats { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+    .swpbro-stat { display: flex; align-items: center; gap: 12px; padding: 10px 12px; }
+    .swpbro-stat strong { flex: 0 0 96px; font-size: 1.3rem; }
+    .swpbro-stat span { margin-top: 0; }
+    .swpbro-strip { padding: 14px 12px; }
+    .swpbro-strip-icon { display: none; }
+    /* Full-width button with no arrow chip, so each label line fits on one row. */
+    .swpbro-action .swpbro-btn, .swpbro-strip .swpbro-btn { width: 100%; }
+    .swpbro-btn { gap: 10px; padding-right: 14px; }
+    .swpbro-btn-icon { width: 38px; height: 38px; font-size: 1.05rem; }
+    .swpbro-btn-main { font-size: .92rem; }
+    .swpbro-btn-arrow { display: none; }
+}
+/* Small phones: one-line ribbon; the strip (inside a padded card) drops the PDF badge. */
+@media (max-width: 400px) {
+    .swpbro-ribbon { font-size: .64rem; letter-spacing: .1px; padding: 4px 10px; }
+    .swpbro-strip .swpbro-btn { padding-left: 16px; }
+    .swpbro-strip .swpbro-btn-icon { display: none; }
+}
+/* 320px phones: if a label must wrap, split it evenly. */
+@media (max-width: 340px) {
+    .swpbro-btn-main, .swpbro-btn-sub { text-wrap: balance; }
+}
+@media (max-width: 375px) {
+    .swpbro { padding: 24px 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .swpbro-btn::after { animation: none; display: none; }
+    .swpbro-btn, .swpbro-btn:hover, .swpbro-btn:focus, .swpbro-doc, .swpbro-doc:hover { transition: none; transform: none; }
+    .swpbro-btn:hover .swpbro-btn-arrow, .swpbro-btn:focus .swpbro-btn-arrow { transform: none; }
+}
+
 .swpcase-sources { font-size: .8rem; color: var(--lsi-gray-600); }
 .swpcase-sources ul { padding-left: 1.1rem; margin-bottom: .75rem; }
 .swpcase-sources li { margin-bottom: 4px; }

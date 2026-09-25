@@ -46,7 +46,7 @@
      * exactly, and a MutationObserver translates text that scripts add later.
      * Mark anything that must stay English with translate="no" or .notranslate.
      * ===================================================================== */
-    const I18N_VERSION = "20260924c";
+    const I18N_VERSION = "20260925a";
     const SKIP_TAGS = new Set(["SCRIPT", "STYLE", "NOSCRIPT", "TEMPLATE", "CODE", "PRE", "TEXTAREA",
         "CANVAS", "IFRAME", "OBJECT", "EMBED", "VIDEO", "AUDIO", "MATH", "HEAD"]);
     const INLINE_TAGS = new Set(["A", "ABBR", "B", "BDI", "BDO", "BR", "CITE", "DFN", "EM", "I", "KBD",

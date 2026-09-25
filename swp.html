@@ -26,7 +26,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Template Stylesheet -->
-    <link href="css/style.css?v=20260924l" rel="stylesheet">
+    <link href="css/style.css?v=20260925a" rel="stylesheet">
 </head>
 
 <body>
@@ -402,6 +402,65 @@
             </div>
 
             <!-- =================================================================
+                 SECTION 1C: FUND-HOUSE BROCHURE SPOTLIGHT (opens the PDF)
+                 Figures from docs/bajaj-finserv-multi-asset-swp-brochure.pdf
+                 (data as on 31-Aug-2026); styles: .swpbro-* in style.css.
+                 The same .swpbro-btn is used again in #swp-management.
+                 ================================================================= -->
+            <div class="swpbro mb-5" id="swp-brochure">
+                <div class="swpbro-content">
+                    <span class="swpbro-ribbon"><i class="fas fa-star me-1"></i> New &middot; Fund-house brochure &middot; Sep 2026</span>
+                    <h3 class="swpbro-title">&#8377;1 Crore Paid &#8377;62,500 Every Month &mdash; and Is Still Worth &#8377;1.06 Crore</h3>
+                    <p class="swpbro-lead">A real SWP illustration from <strong>Bajaj Finserv Multi Asset Allocation Fund</strong>, calculated on actual NAVs from June 2024 to August 2026. One fund spreads your money across equity, debt, gold, silver and InvITs, so your monthly income does not depend on a single market.</p>
+
+                    <div class="swpbro-stats">
+                        <div class="swpbro-stat"><strong>&#8377;62,500</strong><span>paid every month (7.5% a year)</span></div>
+                        <div class="swpbro-stat"><strong>&#8377;1.06 Cr</strong><span>still invested on 31 Aug 2026</span></div>
+                        <div class="swpbro-stat"><strong>10.14%</strong><span>IRR on the whole plan</span></div>
+                    </div>
+
+                    <ul class="swpbro-points">
+                        <li><i class="fas fa-check-circle" aria-hidden="true"></i><span>Every withdrawal month by month, with the STCG / LTCG split</span></li>
+                        <li><i class="fas fa-check-circle" aria-hidden="true"></i><span>How the fund divides money between equity, gold, silver and debt</span></li>
+                        <li><i class="fas fa-check-circle" aria-hidden="true"></i><span>Taxed like an equity fund: long-term rate after just 1 year</span></li>
+                    </ul>
+
+                    <div class="swpbro-action">
+                        <a href="docs/bajaj-finserv-multi-asset-swp-brochure.pdf" target="_blank" rel="noopener noreferrer" class="swpbro-btn" title="Bajaj Finserv Multi Asset Allocation Fund: brochure with a &#8377;1 Cr SWP illustration, Jun 2024 &ndash; Aug 2026 (PDF, 6 pages)">
+                            <span class="swpbro-btn-icon" aria-hidden="true"><i class="fas fa-file-pdf"></i></span>
+                            <span class="swpbro-btn-text">
+                                <span class="swpbro-btn-main">View the &#8377;1 Cr SWP Brochure</span>
+                                <span class="swpbro-btn-sub">Bajaj Finserv &middot; Free PDF &middot; 6 pages</span>
+                            </span>
+                            <span class="swpbro-btn-arrow" aria-hidden="true"><i class="fas fa-arrow-right"></i></span>
+                        </a>
+                        <span class="swpbro-trust"><i class="fas fa-lock me-1" aria-hidden="true"></i> Free &middot; opens in a new tab &middot; no sign-up</span>
+                    </div>
+                </div>
+
+                <!-- Brochure preview (decorative; the button above is the accessible link) -->
+                <a class="swpbro-doc" href="docs/bajaj-finserv-multi-asset-swp-brochure.pdf" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true">
+                    <span class="swpbro-doc-head">
+                        <span translate="no">Multi Asset Allocation Fund</span>
+                        <span class="swpbro-doc-pdf"><i class="fas fa-file-pdf me-1"></i>PDF &middot; 6 pages</span>
+                    </span>
+                    <span class="swpbro-doc-body">
+                        <span class="swpbro-doc-name" translate="no">Bajaj Finserv Multi Asset Allocation Fund</span>
+                        <span class="swpbro-donut"><span>Asset<br>mix</span></span>
+                        <span class="swpbro-legend">
+                            <span><i class="swpbro-k-eq"></i>Net equity 71.9%</span>
+                            <span><i class="swpbro-k-gold"></i>Gold 13.7%</span>
+                            <span><i class="swpbro-k-debt"></i>Debt &amp; cash 12.7%</span>
+                            <span><i class="swpbro-k-silver"></i>Silver 1.7%</span>
+                        </span>
+                        <span class="swpbro-doc-foot">As on 31 Aug 2026</span>
+                    </span>
+                </a>
+
+                <p class="swpbro-note">Sample SWP illustration published by Bajaj Finserv Asset Management Ltd. using past NAVs of the Regular Plan (Growth option), shared for investor education only; not a recommendation of the scheme. STT and stamp duty are ignored in the illustration. Past performance may or may not be sustained in future. Mutual Fund investments are subject to market risks, read all scheme related documents carefully.</p>
+            </div>
+
+            <!-- =================================================================
                  SECTION 2: HOW SWP WORKS (4-STEP MECHANISM)
                  ================================================================= -->
             <div class="p-4 p-lg-5 bg-white rounded-3 border shadow-sm mb-5" id="swp-works">
@@ -542,6 +601,23 @@
                             <p class="text-muted small mb-0">Maintain 6 to 12 months of living expenses in a liquid fund. In the rare event of a severe prolonged bear market, cash can be drawn from the buffer without selling equity units.</p>
                         </div>
                     </div>
+                </div>
+
+                <!-- Proof for the "Hybrid Asset Allocation" rule: same brochure button as #swp-brochure -->
+                <div class="swpbro-strip mt-4">
+                    <div class="swpbro-strip-icon" aria-hidden="true"><i class="fas fa-layer-group"></i></div>
+                    <div class="swpbro-strip-text">
+                        <span class="swpbro-strip-kicker">See this rule in action</span>
+                        <p class="mb-0"><strong>Can a multi-asset fund really carry an SWP?</strong> A real &#8377;1 crore illustration: &#8377;62,500 withdrawn every month since July 2024, and still &#8377;1.06 crore invested on 31 August 2026.</p>
+                    </div>
+                    <a href="docs/bajaj-finserv-multi-asset-swp-brochure.pdf" target="_blank" rel="noopener noreferrer" class="swpbro-btn" title="Bajaj Finserv Multi Asset Allocation Fund: brochure with a &#8377;1 Cr SWP illustration, Jun 2024 &ndash; Aug 2026 (PDF, 6 pages)">
+                        <span class="swpbro-btn-icon" aria-hidden="true"><i class="fas fa-file-pdf"></i></span>
+                        <span class="swpbro-btn-text">
+                            <span class="swpbro-btn-main">View the &#8377;1 Cr SWP Brochure</span>
+                            <span class="swpbro-btn-sub">Bajaj Finserv &middot; Free PDF &middot; 6 pages</span>
+                        </span>
+                        <span class="swpbro-btn-arrow" aria-hidden="true"><i class="fas fa-arrow-right"></i></span>
+                    </a>
                 </div>
             </div>
 
@@ -1290,7 +1366,7 @@
     <script src="js/api-config.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/translations.js?v=20260923-caps"></script>
-    <script src="js/lang.js?v=20260924-i18n2"></script>
+    <script src="js/lang.js?v=20260925a"></script>
     <script src="js/mode.js"></script>
     <script src="js/offerings-data.js"></script>
     <script src="js/main.js"></script>

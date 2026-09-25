@@ -81,6 +81,41 @@
         "Illustrations published by the respective fund houses using historical NAVs, shared for investor education only; not a recommendation of any scheme. Past performance may or may not be sustained in future. Mutual Fund investments are subject to market risks, read all scheme related documents carefully.": [
             "संबंधित फंड हाउस द्वारा ऐतिहासिक NAV के आधार पर प्रकाशित उदाहरण, केवल निवेशक शिक्षा के लिए साझा किए गए हैं; यह किसी योजना की सिफारिश नहीं है। पिछला प्रदर्शन भविष्य में बना रह भी सकता है और नहीं भी। म्यूचुअल फंड निवेश बाजार जोखिमों के अधीन हैं, योजना से संबंधित सभी दस्तावेज ध्यान से पढ़ें।",
             "संबंधित फंड हाऊसेसनी ऐतिहासिक NAV वापरून प्रकाशित केलेली उदाहरणे, केवळ गुंतवणूकदार शिक्षणासाठी दिली आहेत; ही कोणत्याही योजनेची शिफारस नाही. मागील कामगिरी भविष्यात टिकेलच असे नाही. म्युच्युअल फंड गुंतवणूक बाजारातील जोखमींच्या अधीन असते, योजनेशी संबंधित सर्व कागदपत्रे काळजीपूर्वक वाचा."],
+
+        /* Bajaj Finserv Multi Asset brochure: spotlight (#swp-brochure) and strip in #swp-management */
+        "New · Fund-house brochure · Sep {#}": ["नया · फंड हाउस ब्रोशर · सितंबर {#}", "नवीन · फंड हाउस ब्रोशर · सप्टेंबर {#}"],
+        "₹{#} Crore Paid ₹{#} Every Month — and Is Still Worth ₹{#} Crore": [
+            "₹{#} करोड़ से हर महीने ₹{#} मिले — और फिर भी ₹{#} करोड़ निवेशित हैं",
+            "₹{#} कोटींमधून दर महिन्याला ₹{#} मिळाले — आणि तरीही ₹{#} कोटी गुंतवलेले आहेत"],
+        "A real SWP illustration from <0>Bajaj Finserv Multi Asset Allocation Fund</0>, calculated on actual NAVs from June {#} to August {#}. One fund spreads your money across equity, debt, gold, silver and InvITs, so your monthly income does not depend on a single market.": [
+            "<0>Bajaj Finserv Multi Asset Allocation Fund</0> का एक वास्तविक SWP उदाहरण, जो जून {#} से अगस्त {#} तक के वास्तविक NAV पर आधारित है। एक ही फंड आपका पैसा इक्विटी, डेट, सोना, चांदी और InvITs में बांटता है, ताकि आपकी मासिक आय किसी एक बाजार पर निर्भर न रहे।",
+            "<0>Bajaj Finserv Multi Asset Allocation Fund</0> चे एक प्रत्यक्ष SWP उदाहरण, जून {#} ते ऑगस्ट {#} या काळातील प्रत्यक्ष NAV वर आधारित. एकच फंड तुमचे पैसे इक्विटी, डेट, सोने, चांदी आणि InvITs मध्ये विभागतो, त्यामुळे तुमचे मासिक उत्पन्न एकाच बाजारावर अवलंबून राहत नाही."],
+        "paid every month ({#}% a year)": ["हर महीने भुगतान (सालाना {#}%)", "दर महिन्याला मिळाले (वार्षिक {#}%)"],
+        "still invested on {#} Aug {#}": ["{#} अगस्त {#} को भी निवेशित", "{#} ऑगस्ट {#} रोजीही गुंतवलेले"],
+        "IRR on the whole plan": ["पूरे प्लान पर IRR", "संपूर्ण प्लॅनवरील IRR"],
+        "Every withdrawal month by month, with the STCG / LTCG split": ["महीने-दर-महीने हर निकासी, STCG / LTCG के बंटवारे के साथ", "महिन्यागणिक प्रत्येक काढलेली रक्कम, STCG / LTCG विभागणीसह"],
+        "How the fund divides money between equity, gold, silver and debt": ["फंड पैसा इक्विटी, सोना, चांदी और डेट में कैसे बांटता है", "फंड पैसे इक्विटी, सोने, चांदी आणि डेटमध्ये कसे विभागतो"],
+        "Taxed like an equity fund: long-term rate after just {#} year": ["इक्विटी फंड की तरह टैक्स: सिर्फ {#} साल बाद लॉन्ग-टर्म दर", "इक्विटी फंडाप्रमाणे कर: फक्त {#} वर्षानंतर दीर्घकालीन दर"],
+        "View the ₹{#} Cr SWP Brochure": ["₹{#} करोड़ SWP ब्रोशर देखें", "₹{#} कोटी SWP ब्रोशर पाहा"],
+        "Bajaj Finserv · Free PDF · {#} pages": ["Bajaj Finserv · मुफ्त PDF · {#} पेज", "Bajaj Finserv · मोफत PDF · {#} पाने"],
+        "Bajaj Finserv Multi Asset Allocation Fund: brochure with a ₹{#} Cr SWP illustration, Jun {#} – Aug {#} (PDF, {#} pages)": [
+            "Bajaj Finserv Multi Asset Allocation Fund: ₹{#} करोड़ के SWP उदाहरण वाला ब्रोशर, जून {#} – अगस्त {#} (PDF, {#} पेज)",
+            "Bajaj Finserv Multi Asset Allocation Fund: ₹{#} कोटी SWP उदाहरणासह ब्रोशर, जून {#} – ऑगस्ट {#} (PDF, {#} पाने)"],
+        "Free · opens in a new tab · no sign-up": ["मुफ्त · नए टैब में खुलता है · साइन-अप की जरूरत नहीं", "मोफत · नवीन टॅबमध्ये उघडते · साइन-अप आवश्यक नाही"],
+        "PDF · {#} pages": ["PDF · {#} पेज", "PDF · {#} पाने"],
+        "Asset<0/>mix": ["एसेट<0/>मिक्स", "ॲसेट<0/>मिक्स"],
+        "Net equity {#}%": ["नेट इक्विटी {#}%", "नेट इक्विटी {#}%"],
+        "Gold {#}%": ["सोना {#}%", "सोने {#}%"],
+        "Debt & cash {#}%": ["डेट और नकद {#}%", "डेट व रोख {#}%"],
+        "Silver {#}%": ["चांदी {#}%", "चांदी {#}%"],
+        "As on {#} Aug {#}": ["{#} अगस्त {#} तक", "{#} ऑगस्ट {#} रोजी"],
+        "Sample SWP illustration published by Bajaj Finserv Asset Management Ltd. using past NAVs of the Regular Plan (Growth option), shared for investor education only; not a recommendation of the scheme. STT and stamp duty are ignored in the illustration. Past performance may or may not be sustained in future. Mutual Fund investments are subject to market risks, read all scheme related documents carefully.": [
+            "Bajaj Finserv Asset Management Ltd. द्वारा रेगुलर प्लान (ग्रोथ ऑप्शन) के पिछले NAV के आधार पर प्रकाशित नमूना SWP उदाहरण, केवल निवेशक शिक्षा के लिए साझा किया गया है; यह योजना की सिफारिश नहीं है। उदाहरण में STT और स्टांप ड्यूटी शामिल नहीं की गई है। पिछला प्रदर्शन भविष्य में बना रह भी सकता है और नहीं भी। म्यूचुअल फंड निवेश बाजार जोखिमों के अधीन हैं, योजना से संबंधित सभी दस्तावेज ध्यान से पढ़ें।",
+            "Bajaj Finserv Asset Management Ltd. ने रेग्युलर प्लॅनच्या (ग्रोथ ऑप्शन) मागील NAV वापरून प्रकाशित केलेले नमुना SWP उदाहरण, केवळ गुंतवणूकदार शिक्षणासाठी दिले आहे; ही योजनेची शिफारस नाही. उदाहरणात STT आणि स्टॅम्प ड्युटी विचारात घेतलेली नाही. मागील कामगिरी भविष्यात टिकेलच असे नाही. म्युच्युअल फंड गुंतवणूक बाजारातील जोखमींच्या अधीन असते, योजनेशी संबंधित सर्व कागदपत्रे काळजीपूर्वक वाचा."],
+        "See this rule in action": ["इस नियम को काम करते देखें", "हा नियम प्रत्यक्षात पाहा"],
+        "<0>Can a multi-asset fund really carry an SWP?</0> A real ₹{#} crore illustration: ₹{#} withdrawn every month since July {#}, and still ₹{#} crore invested on {#} August {#}.": [
+            "<0>क्या एक मल्टी-एसेट फंड सच में SWP संभाल सकता है?</0> ₹{#1} करोड़ का एक वास्तविक उदाहरण: जुलाई {#3} से हर महीने ₹{#2} की निकासी, और {#5} अगस्त {#6} को भी ₹{#4} करोड़ निवेशित।",
+            "<0>मल्टी-ॲसेट फंड खरोखर SWP पेलू शकतो का?</0> ₹{#1} कोटींचे एक प्रत्यक्ष उदाहरण: जुलै {#3} पासून दर महिन्याला ₹{#2} काढले, आणि तरीही {#5} ऑगस्ट {#6} रोजी ₹{#4} कोटी गुंतवलेले."],
         "Financial Planning Principles": ["वित्तीय नियोजन के सिद्धांत", "आर्थिक नियोजनाची तत्त्वे"],
         "Corpus Longevity & Prudent Withdrawal Rules": ["कॉर्पस की दीर्घायु और विवेकपूर्ण निकासी के नियम", "कॉर्पसचे दीर्घायुष्य आणि विवेकी पैसे काढण्याचे नियम"],
         "To ensure your accumulated capital sustains your entire retirement or cash-flow horizon, follow these three golden rules:": [
