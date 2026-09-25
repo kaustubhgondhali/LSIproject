@@ -90,6 +90,22 @@ the access code and the e-book opens inside the Store page:
   change the book, replace that file with another PDF of the same name, or change `EBOOK_PDF`
   at the top of `js/ebook-access.js`. If the file is missing, the reader shows "The e-book file
   has not been added yet".
+- **Protection:** the reader draws each page as a picture (PDF.js), so it has no Download,
+  Print or Copy button. Once the book is unlocked, and only for the e-book:
+  - right-click, dragging, selecting and copying are blocked on the book, and so are Ctrl/Cmd + A
+    and C when aimed at it (typing fields elsewhere work as usual);
+  - while the book is on screen, Ctrl/Cmd + S, P and U, Ctrl+Shift+S (browser screenshot),
+    Ctrl+Shift+X, F12 and the developer-tools shortcuts are blocked;
+  - printing gives a "cannot be printed" notice instead of the book;
+  - the pages blur when the window or tab loses focus, when Print Screen is pressed, and while
+    the Windows / Command key is held (Win+PrtSc, Win+Shift+S, Cmd+Shift+3/4/5).
+
+  **No website can block screenshots or screen recording.** Phone screenshot buttons, the
+  Snipping Tool, recorders and cameras work outside the browser. Only an installed app can block
+  them, using Android's `FLAG_SECURE`. The PDF file itself is also still public at its address,
+  and the access code is visible in the page source.
+  When the site is opened from disk (file://), browsers do not let the protected reader load
+  the file, so the browser's own PDF viewer is used there, with its toolbar hidden.
 - **Cover image:** `img/lsi-ebook-cover.jpg` (the front panel of the printed wraparound cover,
   720 × 1022 px), shown on the Store e-book card. To change it, replace that file with a
   portrait image of the same shape.

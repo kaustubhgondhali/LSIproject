@@ -25,7 +25,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Template Stylesheet -->
-    <link href="css/style.css?v=20260925d" rel="stylesheet">
+    <link href="css/style.css?v=20260925e" rel="stylesheet">
 </head>
 
 <body>
@@ -327,7 +327,8 @@
                             </div>
                             <div id="lsiEbookGranted" class="d-none" tabindex="-1">
                                 <span class="lsi-ebook-granted"><i class="fas fa-check-circle me-1"></i>Access Granted ✓</span>
-                                <p class="text-muted small mt-3 mb-0">Your e-book is open below. Scroll inside the reader to turn the pages.</p>
+                                <p class="text-muted small mt-3 mb-2">Your e-book is open below. Scroll inside the reader to turn the pages.</p>
+                                <p class="lsi-ebook-protected small mb-0"><i class="fas fa-shield-alt me-1"></i>This e-book is protected: downloading, printing and copying are turned off. Please do not take screenshots or share it.</p>
                             </div>
                         </div>
                     </div>
@@ -336,9 +337,14 @@
                     <div class="lsi-ebook-viewer d-none" id="lsiEbookViewer">
                         <div class="lsi-ebook-viewer-bar">
                             <span class="fw-bold"><i class="fas fa-book-reader me-2"></i>E-Book</span>
-                            <a href="#" target="_blank" rel="noopener" class="lsi-ebook-newtab" id="lsiEbookNewTab"><i class="fas fa-external-link-alt me-1"></i>Open full screen</a>
+                            <button type="button" class="lsi-ebook-fullscreen" id="lsiEbookFullscreen" aria-pressed="false"><i class="fas fa-expand me-1"></i><span>Full screen</span></button>
                         </div>
-                        <div class="lsi-ebook-frame" id="lsiEbookFrame"></div>
+                        <div class="lsi-ebook-stage">
+                            <div class="lsi-ebook-frame" id="lsiEbookFrame"></div>
+                            <!-- Covers the blurred pages when the window loses focus (js/ebook-access.js) -->
+                            <button type="button" class="lsi-ebook-shield" id="lsiEbookShield"><i class="fas fa-lock"></i><span>Reading paused to protect this e-book. Click or tap here to continue.</span></button>
+                        </div>
+                        <p class="lsi-ebook-print-note">This e-book cannot be printed.</p>
                     </div>
                 </div>
             </div>
@@ -828,10 +834,10 @@
 
     <!-- Multilingual Engine -->
     <script src="js/translations.js?v=20260923-caps"></script>
-    <script src="js/lang.js?v=20260925f"></script>
+    <script src="js/lang.js?v=20260925h"></script>
     <script src="js/mode.js?v=20260925b"></script>
     <script src="js/main.js?v=20260925d"></script>
-    <script src="js/ebook-access.js"></script>
+    <script src="js/ebook-access.js?v=20260925d"></script>
 </body>
 
 </html>

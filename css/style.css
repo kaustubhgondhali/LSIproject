@@ -6493,16 +6493,52 @@ body.mode-mutual-fund .lang-btn.active {
     display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px;
     padding: 12px 20px; background: var(--lsi-navy, #001F54); color: #fff;
 }
-.lsi-ebook-viewer-bar .lsi-ebook-newtab { color: #FFD166; font-size: .875rem; font-weight: 600; text-decoration: none; }
-.lsi-ebook-viewer-bar .lsi-ebook-newtab:hover, .lsi-ebook-viewer-bar .lsi-ebook-newtab:focus { color: #FFE8A3; text-decoration: underline; }
+.lsi-ebook-fullscreen {
+    padding: 4px 0; border: 0; background: none; color: #FFD166;
+    font-size: .875rem; font-weight: 600; white-space: nowrap;
+}
+.lsi-ebook-fullscreen:hover, .lsi-ebook-fullscreen:focus-visible { color: #FFE8A3; text-decoration: underline; }
+.lsi-ebook-protected { color: #166534; }
+.lsi-ebook-stage { position: relative; }
 .lsi-ebook-frame { background: #525659; }
 .lsi-ebook-iframe { display: block; width: 100%; height: min(85vh, 1100px); border: 0; }
 .lsi-ebook-pages {
     display: flex; flex-direction: column; align-items: center; gap: 8px;
     max-height: 80vh; overflow-y: auto; padding: 8px; -webkit-overflow-scrolling: touch;
 }
-.lsi-ebook-page { width: 100%; background: #fff; box-shadow: 0 2px 8px rgba(0, 0, 0, .35); }
+.lsi-ebook-page { width: 100%; max-width: 860px; background: #fff; box-shadow: 0 2px 8px rgba(0, 0, 0, .35); }
 .lsi-ebook-page canvas { display: block; width: 100%; height: auto; }
+
+/* Protection (js/ebook-access.js): no selecting, dragging or long-press saving of the pages */
+.lsi-ebook-viewer {
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+}
+.lsi-ebook-page canvas { -webkit-user-drag: none; }
+/* Blur shield: shown while the window or tab has lost focus, or after Print Screen */
+.lsi-ebook-shield {
+    display: none; position: absolute; inset: 0; z-index: 2; border: 0;
+    flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 24px;
+    background: rgba(0, 31, 84, .55); color: #fff; font-weight: 600; text-align: center;
+}
+.lsi-ebook-shield i { font-size: 2rem; }
+.lsi-ebook-shield span { max-width: 420px; }
+.lsi-ebook-viewer.is-shielded .lsi-ebook-shield { display: flex; }
+.lsi-ebook-viewer.is-shielded .lsi-ebook-frame { filter: blur(24px); }
+/* Full screen: the browser's full screen where allowed, otherwise the whole window */
+.lsi-ebook-viewer.is-expanded {
+    position: fixed; inset: 0; z-index: 2000; display: flex; flex-direction: column; background: #525659;
+}
+.lsi-ebook-viewer.is-expanded .lsi-ebook-stage { flex: 1 1 auto; min-height: 0; }
+.lsi-ebook-viewer.is-expanded .lsi-ebook-frame { height: 100%; }
+.lsi-ebook-viewer.is-expanded .lsi-ebook-pages { height: 100%; max-height: none; }
+.lsi-ebook-viewer.is-expanded .lsi-ebook-iframe { height: 100%; }
+html.lsi-ebook-expanded, html.lsi-ebook-expanded body { overflow: hidden; }
+/* Printing: a notice instead of the book */
+.lsi-ebook-print-note { display: none; }
+@media print {
+    .lsi-ebook-viewer .lsi-ebook-stage { display: none !important; }
+    .lsi-ebook-viewer .lsi-ebook-print-note { display: block !important; margin: 0; padding: 16px 20px; font-weight: 700; }
+}
 .lsi-ebook-message {
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
     min-height: 220px; padding: 32px 20px; color: #E2E8F0; text-align: center;
