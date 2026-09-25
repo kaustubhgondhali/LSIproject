@@ -11,14 +11,15 @@
  *
  * Settings (edit below):
  *   whatsapp      - number that receives WhatsApp enquiries (country code + number, digits only)
- *   email         - inbox that receives the email copies, through FormSubmit (https://formsubmit.co).
- *                   No account or key: the FIRST enquiry sends an "Activate Form" email to this
- *                   inbox, and after that one click every enquiry is delivered. Once activated,
- *                   the random code from FormSubmit's email can replace the address here, so the
- *                   address is not visible in the page source.
- *   web3formsKey  - optional alternative to FormSubmit. When a Web3Forms access key is filled in
- *                   (free at https://web3forms.com: enter the owner's email and the key is emailed
- *                   there), emails go through Web3Forms instead. The key is made to be public.
+ *   web3formsKey  - RECOMMENDED. Web3Forms access key (free at https://web3forms.com: enter the
+ *                   owner's email and the key is emailed there; the key is made to be public).
+ *                   With it, emails are sent from anywhere the site runs: a page opened from the
+ *                   computer's disk, a local server, GitHub Pages or Hostinger, with no
+ *                   activation per website.
+ *   email         - used only while web3formsKey is empty: emails go through FormSubmit
+ *                   (https://formsubmit.co) to this inbox. The first enquiry from each website
+ *                   sends an "Activate Form" email that must be clicked once. FormSubmit may not
+ *                   work for pages opened from disk, and some networks block it.
  *
  * Usage (call directly inside the submit handler, or pop-up blockers stop WhatsApp opening):
  *   var sent = LSI_Enquiry.send({ subject, intro, fields: [[label, value], ...], messageLabel,
@@ -34,7 +35,7 @@
     var settings = {
         whatsapp: "919920254354",
         email: "lordsai.academy@gmail.com",
-        web3formsKey: "YOUR_WEB3FORMS_ACCESS_KEY"
+        web3formsKey: "af024220-77f0-4dfc-9170-32b57f848158"
     };
 
     var FORMSUBMIT_URL = "https://formsubmit.co/ajax/";

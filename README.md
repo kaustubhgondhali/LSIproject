@@ -52,24 +52,29 @@ The website has no server. These forms reach the owner in two ways at once:
    if the visitor never sends the WhatsApp message. When the email goes through, the form adds
    "A copy has also been emailed to us".
 
-**Email setup: one click, no account or key ([FormSubmit](https://formsubmit.co)):**
+**Email setup (recommended, works everywhere): Web3Forms key, 2 minutes, free up to 250 emails a month**
 
-1. Put the site online and submit any enquiry form once, for example a test enquiry.
-2. FormSubmit sends an **"Activate Form"** email to `lordsai.academy@gmail.com`. Open it and
-   click the button. Check Spam/Promotions if it is not in the inbox.
-3. From then on, every enquiry arrives as an email. The enquiry that triggered the activation
-   may not be delivered itself, so send one more test enquiry after activating.
+1. Open <https://web3forms.com>, enter `lordsai.academy@gmail.com` and click
+   **Create Access Key**.
+2. The key arrives in that inbox (check Spam). It looks like `a1b2c3d4-e5f6-...`.
+3. Paste it into `web3formsKey:` in `js/enquiry.js`:
+   ```js
+   web3formsKey: "a1b2c3d4-e5f6-...",
+   ```
+4. Upload the site again (push to GitHub, or upload `js/enquiry.js` to Hostinger).
 
-Optional:
+**Status:** the key for `lordsai.academy@gmail.com` is set (25 Sep 2026). Repeat the steps above
+only to change the receiving inbox.
 
-- **Hide the address:** after activation, FormSubmit's email includes a random code. Paste that
-  code in place of the address in `email:` in `js/enquiry.js`, so the address is not visible
-  in the page source.
-- **Use Web3Forms instead:** some networks block formsubmit.co (for example some VPN or
-  ad-blocking DNS filters), so emails from visitors on those networks do not go through, though
-  WhatsApp still works. To avoid this, get a free access key at <https://web3forms.com> by
-  entering the owner's email; the key arrives in that inbox. Paste it into `web3formsKey:` in
-  `js/enquiry.js`. When a key is filled in, emails go through Web3Forms instead of FormSubmit.
+The same key works on every copy of the site: a page opened by double-clicking the HTML file on a
+computer, VS Code Live Server, GitHub Pages and Hostinger. There is no activation per website.
+The key is designed to be public, so it is safe in the website's code.
+
+**Fallback while no key is set: FormSubmit.** Emails go to `email:` in `js/enquiry.js`
+through [FormSubmit](https://formsubmit.co). The first enquiry from each website sends an
+**"Activate Form"** email to that inbox, which must be clicked once. It may not work for
+pages opened from disk, and some networks block formsubmit.co (for example some VPN or
+ad-blocking DNS filters). WhatsApp works in every case.
 
 If an email does not arrive, open the browser console (F12). A line starting with
 `[LSI_Enquiry]` gives the reason. To change the WhatsApp number, edit `whatsapp` in the same
@@ -85,6 +90,9 @@ the access code and the e-book opens inside the Store page:
   change the book, replace that file with another PDF of the same name, or change `EBOOK_PDF`
   at the top of `js/ebook-access.js`. If the file is missing, the reader shows "The e-book file
   has not been added yet".
+- **Cover image:** `img/lsi-ebook-cover.jpg` (the front panel of the printed wraparound cover,
+  720 × 1022 px), shown on the Store e-book card. To change it, replace that file with a
+  portrait image of the same shape.
 - To change the code, edit `ACCESS_CODE` in `js/ebook-access.js`.
 
 On computers the browser's own PDF viewer is used. On phones and tablets the pages are drawn
