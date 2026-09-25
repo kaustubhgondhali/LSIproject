@@ -25,7 +25,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Template Stylesheet -->
-    <link href="css/style.css?v=20260924l" rel="stylesheet">
+    <link href="css/style.css?v=20260925b" rel="stylesheet">
 </head>
 
 <body>
@@ -58,7 +58,6 @@
                         <span class="mode-academy-only"><i class="fas fa-th-large me-1"></i> Invest & Wealth Manager</span>
                     </a>
                     <a href="https://wa.me/919920254354" target="_blank" class="btn btn-sm btn-outline-light rounded-pill py-1 px-3 me-3" data-i18n="topbar.whatsapp"><i class="fab fa-whatsapp text-success me-1"></i> WhatsApp Support</a>
-                    <a href="student-login.html" class="text-light small mode-academy-only" data-i18n="topbar.studentLogin"><i class="fas fa-user-lock text-info me-1"></i> Student Login</a>
                 </div>
             </div>
         </div>
@@ -134,7 +133,6 @@
                     <a href="blog.html" class="nav-item nav-link" data-i18n="nav.blog">Blog</a>
                     <a href="store.html" class="nav-item nav-link mode-academy-only" data-i18n="nav.store">Store</a>
                     <a href="contact.html" class="nav-item nav-link active" data-i18n="nav.contact">Contact</a>
-                    <a href="student-login.html" class="nav-item nav-link d-lg-none mode-academy-only" data-i18n="nav.studentLogin">Student Login</a>
                 </div>
                 <div class="ms-lg-3 my-2 my-lg-0">
                     <a href="#enquiry-section" class="btn btn-enquire" data-i18n="nav.enquireNow">
@@ -324,10 +322,8 @@
                                 <i class="fas fa-paper-plane me-2"></i> Submit Inquiry
                             </button>
 
-                            <!-- Client-Side Feedback Alert (Backend-ready) -->
-                            <div class="alert alert-success d-none mt-3 mb-0" id="contactSuccessMsg" role="alert">
-                                <i class="fas fa-check-circle me-1"></i> Thank you for reaching out! For the fastest response, please message us on <a href="https://wa.me/919920254354" target="_blank" rel="noopener" class="alert-link">WhatsApp (+91 99202 54354)</a> or call us during working hours.
-                            </div>
+                            <!-- Shown once WhatsApp has opened (text set by the script at the end of the page) -->
+                            <div class="alert alert-success d-none mt-3 mb-0" id="contactSuccessMsg" role="status"></div>
                         </form>
                     </div>
                 </div>
@@ -571,10 +567,6 @@
                         Stock Market Education | Trading | Investment | Financial Planning | Insurance
                     </div>
 
-                    <div class="lsi-footer-admin-links d-flex flex-wrap gap-2 mode-academy-only">
-                        <a href="student-login.html?portal=automation" class="lsi-footer-admin-btn lsi-automation-link" title="Academy office: students, fees, receipts, attendance"><i class="fas fa-robot me-1"></i> Automation Admin</a>
-                        <a href="student-login.html?portal=admin" class="lsi-footer-admin-btn lsi-admin-link" title="Administrator login"><i class="fas fa-user-shield me-1"></i> Admin</a>
-                    </div>
                 </div>
 
                 <!-- Quick Links -->
@@ -663,7 +655,6 @@
     <div class="container-fluid copyright py-3">
         <div class="container text-center">
             <span>&copy; Lord Sai Investment & Share Market Academy (Class). All Rights Reserved.</span>
-            <a href="student-login.html" class="btn btn-sm btn-outline-info rounded-pill px-3 ms-3 lsi-student-link mode-academy-only" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
         </div>
     </div>
     <!-- Copyright End -->
@@ -690,14 +681,16 @@
     <script src="js/live-chart.js"></script>
 
     <!-- Template Javascript & Contact Form Validation -->
-    <script src="js/api-config.js"></script>
-    <script src="js/auth.js"></script>
+    <!-- Enquiry and review forms: sent to the owner on WhatsApp and by email (js/enquiry.js) -->
+    <script src="js/enquiry.js?v=20260925b"></script>
     <script src="js/translations.js?v=20260923-caps"></script>
-    <script src="js/lang.js?v=20260924-i18n2"></script>
-    <script src="js/mode.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/lang.js?v=20260925f"></script>
+    <script src="js/mode.js?v=20260925b"></script>
+    <script src="js/main.js?v=20260925d"></script>
     <script>
-        // Client-side Contact Form Validation & Backend-ready Handler
+        // Contact form: client-side validation, then sent to the owner on WhatsApp and by email
+        // (js/enquiry.js). WhatsApp opens with the enquiry typed in for the visitor to send, and an
+        // email copy goes out in the background.
         document.addEventListener('DOMContentLoaded', function() {
             var contactForm = document.getElementById('lsiContactForm');
             if (contactForm) {
@@ -707,46 +700,28 @@
 
                     if (!contactForm.checkValidity()) {
                         contactForm.classList.add('was-validated');
-                    } else {
-                        contactForm.classList.remove('was-validated');
-                        var successMsg = document.getElementById('contactSuccessMsg');
-                        var submitBtn = contactForm.querySelector('button[type="submit"]');
-                        var errorMsg = document.getElementById('contactErrorMsg');
-                        if (!errorMsg) {
-                            errorMsg = document.createElement('div');
-                            errorMsg.id = 'contactErrorMsg';
-                            errorMsg.className = 'alert alert-warning d-none mt-3 mb-0';
-                            errorMsg.setAttribute('role', 'alert');
-                            successMsg.parentNode.insertBefore(errorMsg, successMsg);
-                        }
-                        errorMsg.classList.add('d-none');
-                        var val = function (id) { var f = document.getElementById(id); return f ? f.value.trim() : ''; };
-                        var payload = {
-                            name: val('contactName'), email: val('contactEmail'), phone: val('contactPhone'),
-                            subject: val('contactCourse'), message: val('contactMessage'),
-                            site: (window.LSI_Mode && LSI_Mode.getMode && LSI_Mode.getMode() === 'mutual-fund') ? 'Mutual Fund' : 'Share Market Academy'
-                        };
-                        var originalBtn = submitBtn ? submitBtn.innerHTML : '';
-                        if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Sending...'; }
-                        // Delivered through the backend email system (Main Admin > Email Settings); no credentials in the browser.
-                        var apiBase = (window.LSI_CONFIG && LSI_CONFIG.API_BASE) || '/api';
-                        fetch(apiBase + '/public/enquiry', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-                            .then(function (r) { return r.json().catch(function () { return { success: false }; }); })
-                            .then(function (res) {
-                                if (res && res.success) {
-                                    if (successMsg) successMsg.classList.remove('d-none');
-                                    contactForm.reset();
-                                } else {
-                                    errorMsg.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i> ' + ((res && res.message) || 'Your message could not be sent right now.') + ' You can also reach us on <a href="https://wa.me/919920254354" target="_blank" rel="noopener" class="alert-link">WhatsApp (+91 99202 54354)</a>.';
-                                    errorMsg.classList.remove('d-none');
-                                }
-                            })
-                            .catch(function () {
-                                errorMsg.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i> We could not reach the server. Please message us on <a href="https://wa.me/919920254354" target="_blank" rel="noopener" class="alert-link">WhatsApp (+91 99202 54354)</a> or call us.';
-                                errorMsg.classList.remove('d-none');
-                            })
-                            .finally(function () { if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalBtn; } });
+                        return;
                     }
+                    contactForm.classList.remove('was-validated');
+                    if (!window.LSI_Enquiry) { window.open('https://wa.me/919920254354', '_blank'); return; }
+                    var val = function (id) { var f = document.getElementById(id); return f ? f.value.trim() : ''; };
+                    var sent = LSI_Enquiry.send({
+                        subject: 'New enquiry from ' + val('contactName') + ' (' + val('contactCourse') + ')',
+                        fields: [
+                            ['Name', val('contactName')],
+                            ['Phone', val('contactPhone')],
+                            ['Email', val('contactEmail')],
+                            ['Interested in', val('contactCourse')]
+                        ],
+                        messageLabel: 'Message / learning goals',
+                        message: val('contactMessage'),
+                        source: 'Sent from the Contact page form',
+                        replyTo: val('contactEmail')
+                    });
+                    var note = document.getElementById('contactSuccessMsg');
+                    note.innerHTML = LSI_Enquiry.sentNote(sent.url);
+                    note.classList.remove('d-none');
+                    sent.emailed.then(function (ok) { if (ok) note.insertAdjacentHTML('beforeend', LSI_Enquiry.emailNote()); });
                 }, false);
             }
         });

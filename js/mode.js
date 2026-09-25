@@ -27,7 +27,7 @@
                     this.activeMode = "mutual-fund";
                     return "mutual-fund";
                 }
-                if (path.endsWith("courses.html") || path.endsWith("student-login.html") || path.endsWith("set-password.html") || path.endsWith("student-dashboard.html") || path.endsWith("admin-dashboard.html") || path.endsWith("automation-admin.html")) {
+                if (path.endsWith("courses.html")) {
                     this.activeMode = "academy";
                     return "academy";
                 }
@@ -230,7 +230,7 @@
                         return;
                     }
                     // Never append mutual-fund mode to dedicated academy pages
-                    if (currentMode === "mutual-fund" && (path.endsWith("courses.html") || path.endsWith("student-login.html") || path.endsWith("set-password.html") || path.endsWith("student-dashboard.html"))) {
+                    if (currentMode === "mutual-fund" && path.endsWith("courses.html")) {
                         return;
                     }
                     if (path === "index.html") {

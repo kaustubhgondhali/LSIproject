@@ -25,7 +25,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Template Stylesheet -->
-    <link href="css/style.css?v=20260924l" rel="stylesheet">
+    <link href="css/style.css?v=20260925b" rel="stylesheet">
 </head>
 
 <body>
@@ -58,7 +58,6 @@
                         <span class="mode-academy-only"><i class="fas fa-th-large me-1"></i> Invest & Wealth Manager</span>
                     </a>
                     <a href="https://wa.me/919920254354" target="_blank" class="btn btn-sm btn-outline-light rounded-pill py-1 px-3 me-3" data-i18n="topbar.whatsapp"><i class="fab fa-whatsapp text-success me-1"></i> WhatsApp Support</a>
-                    <a href="student-login.html" class="text-light small mode-academy-only" data-i18n="topbar.studentLogin"><i class="fas fa-user-lock text-info me-1"></i> Student Login</a>
                 </div>
             </div>
         </div>
@@ -134,7 +133,6 @@
                     <a href="blog.html" class="nav-item nav-link" data-i18n="nav.blog">Blog</a>
                     <a href="store.html" class="nav-item nav-link mode-academy-only" data-i18n="nav.store">Store</a>
                     <a href="contact.html" class="nav-item nav-link" data-i18n="nav.contact">Contact</a>
-                    <a href="student-login.html" class="nav-item nav-link d-lg-none mode-academy-only" data-i18n="nav.studentLogin">Student Login</a>
                 </div>
                 <div class="ms-lg-3 my-2 my-lg-0">
                     <button type="button" class="btn btn-enquire" data-bs-toggle="modal" data-bs-target="#demoModal" data-i18n="nav.enquireNow">
@@ -299,19 +297,6 @@
                         </p>
                     </div>
                 </div>
-            </div>
-
-            <!-- Visitor reviews (approved by admin) — loaded from the API, scoped to the current website (Share Market Academy / Mutual Fund) -->
-            <div class="d-none mt-5" id="visitorReviews">
-                <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
-                    <div>
-                        <span class="badge-brand-blue mb-2 text-uppercase mode-academy-only">Student Feedback</span>
-                        <span class="badge-brand-green mb-2 text-uppercase mode-mf-only">Investor Feedback</span>
-                        <h3 class="fw-bold mb-0 mode-academy-only">Approved Share Market Academy Reviews</h3>
-                        <h3 class="fw-bold mb-0 mode-mf-only">Approved Mutual Fund Investor Reviews</h3>
-                    </div>
-                </div>
-                <div class="row g-4" id="visitorReviewsGrid"></div>
             </div>
 
             <!-- Add Your Review CTA (shown on both the Share Market Academy and Mutual Fund websites) -->
@@ -596,10 +581,6 @@
                         Stock Market Education | Trading | Investment | Financial Planning | Insurance
                     </div>
 
-                    <div class="lsi-footer-admin-links d-flex flex-wrap gap-2 mode-academy-only">
-                        <a href="student-login.html?portal=automation" class="lsi-footer-admin-btn lsi-automation-link" title="Academy office: students, fees, receipts, attendance"><i class="fas fa-robot me-1"></i> Automation Admin</a>
-                        <a href="student-login.html?portal=admin" class="lsi-footer-admin-btn lsi-admin-link" title="Administrator login"><i class="fas fa-user-shield me-1"></i> Admin</a>
-                    </div>
                 </div>
 
                 <!-- Quick Links -->
@@ -688,7 +669,6 @@
     <div class="container-fluid copyright py-3">
         <div class="container text-center">
             <span>&copy; Lord Sai Investment & Share Market Academy (Class). All Rights Reserved.</span>
-            <a href="student-login.html" class="btn btn-sm btn-outline-info rounded-pill px-3 ms-3 lsi-student-link mode-academy-only" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
         </div>
     </div>
     <!-- Copyright End -->
@@ -760,14 +740,6 @@
                                     <div class="invalid-feedback"></div>
                                     <div class="form-text text-end" id="reviewCount">0 / 1000</div>
                                 </div>
-                                <div class="col-12">
-                                    <label for="reviewPhoto" class="form-label fw-bold small text-muted">Profile Photo <span class="fw-normal">(optional, JPG/PNG/WebP up to 5 MB)</span></label>
-                                    <div class="d-flex align-items-center gap-3">
-                                        <input type="file" class="form-control" id="reviewPhoto" name="photo" accept="image/jpeg,image/png,image/webp">
-                                        <img id="reviewPhotoPreview" class="d-none rounded-circle border" alt="Preview" style="width:56px;height:56px;object-fit:cover;flex-shrink:0;">
-                                    </div>
-                                    <div class="invalid-feedback"></div>
-                                </div>
                             </div>
                             <div class="alert alert-danger small py-2 mt-3 d-none" id="reviewFormError" role="alert" tabindex="-1"></div>
                             <button type="submit" class="btn btn-primary rounded-pill w-100 py-2 mt-3" id="reviewSubmitBtn">
@@ -779,8 +751,10 @@
                     <div class="text-center py-4 d-none" id="reviewSuccess" tabindex="-1">
                         <div class="lsi-review-success-icon mx-auto mb-3"><i class="fas fa-check"></i></div>
                         <h4 class="fw-bold mb-2">Thank you for sharing your experience!</h4>
-                        <p class="text-muted mb-1">Your review has been submitted successfully</p>
-                        <p class="text-muted mb-4">and is awaiting approval by our team.</p>
+                        <p class="text-muted mb-1">WhatsApp has opened with your review.</p>
+                        <p class="text-muted mb-3">Please tap <strong>Send</strong> in WhatsApp so it reaches our team for approval.</p>
+                        <p class="small mb-3">WhatsApp didn't open? <a href="https://wa.me/919920254354" id="reviewWhatsAppLink" target="_blank" rel="noopener">Tap here</a>.</p>
+                        <p class="small text-success mb-4 d-none" id="reviewEmailNote"><i class="fas fa-envelope me-1"></i> A copy has also been emailed to us.</p>
                         <button type="button" class="btn btn-outline-primary rounded-pill px-4" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
@@ -846,16 +820,15 @@
     <!-- Live Stock Market Candlestick Chart Engine -->
     <script src="js/live-chart.js"></script>
 
-    <!-- Authentication Engine -->
-    <script src="js/api-config.js"></script>
-    <script src="js/auth.js"></script>
+    <!-- Enquiry and review forms: sent to the owner on WhatsApp and by email (js/enquiry.js) -->
+    <script src="js/enquiry.js?v=20260925b"></script>
 
     <!-- Multilingual Engine -->
     <script src="js/translations.js?v=20260923-caps"></script>
-    <script src="js/lang.js?v=20260924-i18n2"></script>
-    <script src="js/mode.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/reviews.js"></script>
+    <script src="js/lang.js?v=20260925f"></script>
+    <script src="js/mode.js?v=20260925b"></script>
+    <script src="js/main.js?v=20260925d"></script>
+    <script src="js/reviews.js?v=20260925d"></script>
 </body>
 
 </html>

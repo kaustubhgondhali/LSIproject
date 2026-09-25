@@ -1,17 +1,16 @@
 /**
  * LORD SAI — VISITOR REVIEWS (js/reviews.js)
- * Loads approved reviews for the current website (Academy / Mutual Fund) into the
- * testimonials page and handles the "Add Your Review" form. Submissions are stored as
- * PENDING on the server and only appear after an admin approves them.
+ * Handles the "Add Your Review" form on the testimonials page. The website has no server, so
+ * a submitted review opens WhatsApp with the review typed in a chat to the owner (the visitor
+ * taps Send) and also emails it to the owner (js/enquiry.js); the owner decides which reviews
+ * to publish.
  *
- * Requires: js/api-config.js, js/mode.js (optional), Bootstrap 5.
+ * Requires: js/enquiry.js, js/mode.js (optional), Bootstrap 5.
  */
 (function (window, document) {
     "use strict";
 
-    var API = (window.LSI_CONFIG && window.LSI_CONFIG.API_BASE) || "/api";
-    var MIN_LEN = 20, MAX_LEN = 1000, MAX_PHOTO_MB = 5;
-    var PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
+    var MIN_LEN = 20, MAX_LEN = 1000;
 
     function el(id) { return document.getElementById(id); }
     function esc(s) {
@@ -22,55 +21,6 @@
     function site() {
         var mode = window.LSI_Mode && typeof window.LSI_Mode.getMode === "function" ? window.LSI_Mode.getMode() : "academy";
         return (mode === "mutual-fund" || mode === "mf") ? "MUTUAL_FUND" : "SHARE_MARKET";
-    }
-    function mediaUrl(p) { return p && p.indexOf("images/") === 0 ? API + "/public/" + p : p; }
-    function stars(n) {
-        var out = "";
-        for (var i = 1; i <= 5; i++) out += '<i class="' + (i <= n ? "fas" : "far") + ' fa-star"></i>';
-        return '<span class="lsi-review-stars" aria-label="' + n + ' out of 5 stars">' + out + '</span>';
-    }
-    function initials(name) {
-        return (name || "").split(/\s+/).filter(Boolean).slice(0, 2).map(function (w) { return w.charAt(0).toUpperCase(); }).join("") || "?";
-    }
-    function fmtDate(iso) {
-        if (!iso) return "";
-        try { return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }); } catch (e) { return ""; }
-    }
-
-    // ---- Approved reviews grid --------------------------------------------------------------
-
-    function card(r) {
-        var isMf = site() === "MUTUAL_FUND";
-        var borderClass = isMf ? "border-success" : "border-primary";
-        var badgeColor = isMf ? "text-success" : "text-primary";
-        var avatar = r.profileImagePath
-            ? '<img src="' + esc(mediaUrl(r.profileImagePath)) + '" alt="" class="lsi-review-avatar">'
-            : '<div class="trust-icon me-3 lsi-review-initials ' + (isMf ? 'icon-green' : '') + '">' + esc(initials(r.fullName)) + '</div>';
-        return '<div class="col-lg-4 col-md-6">' +
-            '<div class="card p-4 h-100 shadow-sm border-start border-4 ' + borderClass + ' lsi-review-card">' +
-            '<div class="d-flex align-items-center mb-3">' + avatar +
-            '<div class="flex-grow-1 min-w-0"><h6 class="fw-bold mb-0 text-dark text-truncate">' + esc(r.fullName) + '</h6>' +
-            (r.course ? '<small class="' + badgeColor + ' fw-bold d-block text-truncate">' + esc(r.course) + '</small>' : "") +
-            '</div></div>' +
-            '<div class="d-flex justify-content-between align-items-center mb-2">' + stars(r.rating) +
-            '<small class="text-muted">' + esc(fmtDate(r.approvedAt)) + '</small></div>' +
-            '<p class="text-muted small mb-0" style="line-height: 1.8;">"' + esc(r.reviewText) + '"</p>' +
-            '</div></div>';
-    }
-
-    function loadApproved() {
-        var grid = el("visitorReviewsGrid"), wrap = el("visitorReviews");
-        if (!grid || !wrap) return;
-        fetch(API + "/public/reviews?site=" + site()).then(function (r) { return r.json(); }).then(function (res) {
-            var list = (res && res.success && Array.isArray(res.data)) ? res.data : [];
-            if (!list.length) {
-                grid.innerHTML = '<div class="col-12"><div class="lsi-review-empty text-center text-muted py-4">' +
-                    '<i class="far fa-comment-dots fa-2x mb-2 d-block opacity-50"></i>Be the first to share your experience.</div></div>';
-            } else {
-                grid.innerHTML = list.map(card).join("");
-            }
-            wrap.classList.remove("d-none");
-        }).catch(function () { /* backend offline: section stays hidden, static testimonials remain */ });
     }
 
     // ---- Add Your Review form ---------------------------------------------------------------
@@ -88,12 +38,6 @@
         el("reviewRatingLabel").textContent = (hover || rating) ? labels[hover || rating] : "Select a rating";
     }
 
-    function showError(msg) {
-        var e = el("reviewFormError");
-        e.innerHTML = msg;
-        e.classList.remove("d-none");
-        e.focus && e.focus();
-    }
     function clearErrors() {
         el("reviewFormError").classList.add("d-none");
         document.querySelectorAll("#reviewForm .is-invalid").forEach(function (i) { i.classList.remove("is-invalid"); });
@@ -116,48 +60,35 @@
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { invalid("reviewEmail", "Please enter a valid email address."); ok = false; }
         if (rating < 1 || rating > 5) { el("reviewStars").classList.add("is-invalid"); el("reviewRatingLabel").textContent = "Please select a star rating."; ok = false; }
         if (text.length < MIN_LEN || text.length > MAX_LEN) { invalid("reviewText", "Your review must be between " + MIN_LEN + " and " + MAX_LEN + " characters."); ok = false; }
-        var photo = el("reviewPhoto").files[0];
-        if (photo) {
-            if (PHOTO_TYPES.indexOf(photo.type) < 0) { invalid("reviewPhoto", "Please choose a JPG, PNG or WebP image."); ok = false; }
-            else if (photo.size > MAX_PHOTO_MB * 1024 * 1024) { invalid("reviewPhoto", "Photo must be smaller than " + MAX_PHOTO_MB + " MB."); ok = false; }
-        }
         return ok;
     }
 
     function submit(e) {
         e.preventDefault();
         if (!validate()) return;
-        var btn = el("reviewSubmitBtn");
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Submitting…';
+        if (!window.LSI_Enquiry) { window.open("https://wa.me/919920254354", "_blank"); return; }
 
-        var fd = new FormData();
-        fd.append("site", site());
-        fd.append("fullName", el("reviewName").value.trim());
-        fd.append("email", el("reviewEmail").value.trim());
-        fd.append("course", el("reviewCourse").value.trim());
-        fd.append("rating", String(rating));
-        fd.append("reviewText", el("reviewText").value.trim());
-        var photo = el("reviewPhoto").files[0];
-        if (photo) fd.append("photo", photo);
-
-        fetch(API + "/public/reviews", { method: "POST", body: fd })
-            .then(function (r) { return r.json().then(function (j) { j.status = r.status; return j; }); })
-            .then(function (res) {
-                if (res.success) {
-                    el("reviewFormWrap").classList.add("d-none");
-                    el("reviewSuccess").classList.remove("d-none");
-                    el("reviewSuccess").focus && el("reviewSuccess").focus();
-                } else {
-                    var msg = res.errors ? Object.keys(res.errors).map(function (k) { return esc(res.errors[k]); }).join("<br>") : esc(res.message || "Something went wrong. Please try again.");
-                    if (res.errors) Object.keys(res.errors).forEach(function (k) {
-                        invalid({ fullName: "reviewName", email: "reviewEmail", course: "reviewCourse", reviewText: "reviewText" }[k], res.errors[k]);
-                    });
-                    showError(msg);
-                }
-            })
-            .catch(function () { showError("We could not reach the server. Please check your connection and try again."); })
-            .then(function () { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i> Submit Review'; });
+        var stars = new Array(rating + 1).join("★") + new Array(6 - rating).join("☆");
+        var sent = window.LSI_Enquiry.send({
+            subject: "New review from " + el("reviewName").value.trim() + " (" + rating + "/5)",
+            intro: "Hello " + window.LSI_Enquiry.websiteName() + ", here is my review from your website.",
+            fields: [
+                ["Name", el("reviewName").value],
+                ["Email", el("reviewEmail").value],
+                ["Rating", rating + "/5 " + stars],
+                ["Course / service", el("reviewCourse").value]
+            ],
+            messageLabel: "Review",
+            message: el("reviewText").value,
+            source: "Sent from the Add Your Review form",
+            replyTo: el("reviewEmail").value
+        });
+        el("reviewWhatsAppLink").href = sent.url;
+        el("reviewEmailNote").classList.add("d-none");
+        sent.emailed.then(function (ok) { if (ok) el("reviewEmailNote").classList.remove("d-none"); });
+        el("reviewFormWrap").classList.add("d-none");
+        el("reviewSuccess").classList.remove("d-none");
+        el("reviewSuccess").focus && el("reviewSuccess").focus();
     }
 
     function resetForm() {
@@ -168,7 +99,6 @@
         clearErrors();
         el("reviewStars").classList.remove("is-invalid");
         el("reviewCount").textContent = "0 / " + MAX_LEN;
-        el("reviewPhotoPreview").classList.add("d-none");
         el("reviewFormWrap").classList.remove("d-none");
         el("reviewSuccess").classList.add("d-none");
     }
@@ -236,7 +166,6 @@
     }
 
     function init() {
-        loadApproved();
         adaptModalToMode();
         var form = el("reviewForm");
         if (!form) return;
@@ -256,17 +185,10 @@
             });
         });
 
-        el("reviewPhoto").addEventListener("change", function () {
-            var f = this.files[0], img = el("reviewPhotoPreview");
-            if (f && PHOTO_TYPES.indexOf(f.type) >= 0 && f.size <= MAX_PHOTO_MB * 1024 * 1024) {
-                img.src = URL.createObjectURL(f); img.classList.remove("d-none");
-            } else { img.classList.add("d-none"); }
-        });
-
         form.addEventListener("submit", submit);
         var modal = el("addReviewModal");
         if (modal) {
-            modal.addEventListener("hidden.bs.modal", function () { if (!el("reviewSuccess").classList.contains("d-none")) loadApproved(); resetForm(); });
+            modal.addEventListener("hidden.bs.modal", resetForm);
             modal.addEventListener("show.bs.modal", adaptModalToMode);
             modal.addEventListener("shown.bs.modal", function () { el("reviewName").focus(); });
         }

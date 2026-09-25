@@ -26,7 +26,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Template Stylesheet -->
-    <link href="css/style.css?v=20260924l" rel="stylesheet">
+    <link href="css/style.css?v=20260925b" rel="stylesheet">
 </head>
 
 <body>
@@ -59,7 +59,6 @@
                         <span class="mode-academy-only"><i class="fas fa-th-large me-1"></i> Invest & Wealth Manager</span>
                     </a>
                     <a href="https://wa.me/919920254354" target="_blank" class="btn btn-sm btn-outline-light rounded-pill py-1 px-3 me-3" data-i18n="topbar.whatsapp"><i class="fab fa-whatsapp text-success me-1"></i> WhatsApp Support</a>
-                    <a href="student-login.html" class="text-light small mode-academy-only" data-i18n="topbar.studentLogin"><i class="fas fa-user-lock text-info me-1"></i> Student Login</a>
                 </div>
             </div>
         </div>
@@ -135,7 +134,6 @@
                     <a href="blog.html" class="nav-item nav-link" data-i18n="nav.blog">Blog</a>
                     <a href="store.html" class="nav-item nav-link mode-academy-only" data-i18n="nav.store">Store</a>
                     <a href="contact.html" class="nav-item nav-link" data-i18n="nav.contact">Contact</a>
-                    <a href="student-login.html" class="nav-item nav-link d-lg-none mode-academy-only" data-i18n="nav.studentLogin">Student Login</a>
                 </div>
                 <div class="ms-lg-3 my-2 my-lg-0">
                     <button type="button" class="btn btn-enquire" data-bs-toggle="modal" data-bs-target="#demoModal" data-i18n="nav.enquireNow">
@@ -761,10 +759,6 @@
                         Stock Market Education | Trading | Investment | Financial Planning | Insurance
                     </div>
 
-                    <div class="lsi-footer-admin-links d-flex flex-wrap gap-2 mode-academy-only">
-                        <a href="student-login.html?portal=automation" class="lsi-footer-admin-btn lsi-automation-link" title="Academy office: students, fees, receipts, attendance"><i class="fas fa-robot me-1"></i> Automation Admin</a>
-                        <a href="student-login.html?portal=admin" class="lsi-footer-admin-btn lsi-admin-link" title="Administrator login"><i class="fas fa-user-shield me-1"></i> Admin</a>
-                    </div>
                 </div>
 
                 <!-- Quick Links -->
@@ -853,7 +847,6 @@
     <div class="container-fluid copyright py-3">
         <div class="container text-center">
             <span>&copy; Lord Sai Investment & Share Market Academy (Class). All Rights Reserved.</span>
-            <a href="student-login.html" class="btn btn-sm btn-outline-info rounded-pill px-3 ms-3 lsi-student-link mode-academy-only" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
         </div>
     </div>
     <!-- Copyright End -->
@@ -947,15 +940,14 @@
     <!-- Live Stock Market Candlestick Chart Engine -->
     <script src="js/live-chart.js"></script>
 
-    <!-- Authentication Engine -->
-    <script src="js/api-config.js"></script>
-    <script src="js/auth.js"></script>
+    <!-- Enquiry and review forms: sent to the owner on WhatsApp and by email (js/enquiry.js) -->
+    <script src="js/enquiry.js?v=20260925b"></script>
 
     <!-- Multilingual Engine -->
     <script src="js/translations.js?v=20260923-caps"></script>
-    <script src="js/lang.js?v=20260924-i18n2"></script>
-    <script src="js/mode.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/lang.js?v=20260925f"></script>
+    <script src="js/mode.js?v=20260925b"></script>
+    <script src="js/main.js?v=20260925d"></script>
 
     <!-- Student Stories Filter & Video Modal Controller -->
     <script>
@@ -983,27 +975,7 @@
                 }
             });
 
-            // ---- Success Stories (admin-managed, only PUBLISHED stories are returned) ----
-            var apiBase = (window.LSI_CONFIG && LSI_CONFIG.API_BASE) || "/api";
-            function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
-            function mediaUrl(p) { return p && p.indexOf("images/") === 0 ? apiBase + "/public/" + p : p; }
-
-            function storyCard(s) {
-                var attrs = s.videoType === "UPLOAD"
-                    ? 'data-video-src="' + esc(apiBase + "/public/stories/" + s.id + "/video") + '"'
-                    : 'data-video-url="' + esc(s.videoUrl || "") + '"';
-                var thumb = s.thumbnailPath ? '<img src="' + esc(mediaUrl(s.thumbnailPath)) + '" alt="' + esc(s.title) + '" class="video-pure-img" loading="lazy">'
-                    : '<div class="video-pure-img d-flex align-items-center justify-content-center bg-dark text-white-50" style="min-height:220px"><i class="fas fa-video fa-3x"></i></div>';
-                return '<div class="col-lg-4 col-md-6 story-item" data-story-category="' + esc(s.category) + '">' +
-                    '<div class="video-story-item">' +
-                    '<div class="video-pure-card" data-bs-toggle="modal" data-bs-target="#studentVideoModal" ' + attrs + ' data-video-title="' + esc(s.title) + '" data-video-caption="' + esc(s.description || "") + '" role="button" aria-label="Play ' + esc(s.title) + '">' +
-                    '<div class="video-pure-thumb">' + thumb + '<div class="video-pure-overlay"><div class="video-pure-play-btn"><i class="fas fa-play"></i></div></div></div></div>' +
-                    '<div class="video-reviewer-info"><h6 class="video-reviewer-name">' + esc(s.personName || s.title) + '</h6>' +
-                    '<small class="video-reviewer-location">' + esc(s.location || "") + '</small>' +
-                    '<span class="badge rounded-pill bg-light text-primary border ms-2 align-middle" style="font-size:.65rem">' + esc(s.category.charAt(0) + s.category.slice(1).toLowerCase()) + '</span></div>' +
-                    '</div></div>';
-            }
-
+            // ---- Success Stories: filter the static story cards by category ----
             function applyStoryFilter() {
                 var f = $('.story-filter-btn.active').data('story-filter') || 'ALL';
                 var visible = 0;
@@ -1022,14 +994,6 @@
                 $(this).addClass('active');
                 applyStoryFilter();
             });
-
-            // Replace the static cards with the admin-managed list. If the backend is not
-            // reachable the static cards stay, so the page never appears broken.
-            fetch(apiBase + "/public/stories").then(function (r) { return r.json(); }).then(function (res) {
-                if (!res || !res.success || !Array.isArray(res.data)) return;
-                $('#storiesGrid').html(res.data.map(storyCard).join(""));
-                applyStoryFilter();
-            }).catch(function () { /* offline: keep static fallback */ });
 
             // Video Modal Controller (YouTube embed or self-hosted upload)
             $('#studentVideoModal').on('show.bs.modal', function (event) {

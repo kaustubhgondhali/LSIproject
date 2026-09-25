@@ -119,22 +119,20 @@
         "Tell us about your learning or investment experience ({#}–{#} characters)": ["अपने सीखने या निवेश के अनुभव के बारे में बताएं ({#}–{#} वर्ण)", "तुमच्या शिकण्याच्या किंवा गुंतवणुकीच्या अनुभवाबद्दल सांगा ({#}–{#} वर्ण)"],
         "Profile Photo <0>(optional, JPG/PNG/WebP up to {#} MB)</0>": ["प्रोफाइल फोटो <0>(वैकल्पिक, JPG/PNG/WebP, अधिकतम {#} MB)</0>", "प्रोफाइल फोटो <0>(ऐच्छिक, JPG/PNG/WebP, कमाल {#} MB)</0>"],
         "Submit Review": ["समीक्षा भेजें", "आढावा पाठवा"],
-        "Submitting…": ["भेजा जा रहा है…", "पाठवत आहे…"],
         "By submitting you agree that your name, rating, course and review may be shown on this website once approved.": [
             "सबमिट करके आप सहमति देते हैं कि स्वीकृति के बाद आपका नाम, रेटिंग, कोर्स और समीक्षा इस वेबसाइट पर दिखाई जा सकती है।",
             "सबमिट करून तुम्ही मान्य करता की मंजुरीनंतर तुमचे नाव, रेटिंग, कोर्स आणि आढावा या वेबसाइटवर दाखवला जाऊ शकतो."],
         "Thank you for sharing your experience!": ["अपना अनुभव साझा करने के लिए धन्यवाद!", "तुमचा अनुभव सांगितल्याबद्दल धन्यवाद!"],
-        "Your review has been submitted successfully": ["आपकी समीक्षा सफलतापूर्वक भेज दी गई है", "तुमचा आढावा यशस्वीरीत्या पाठवला गेला आहे"],
-        "and is awaiting approval by our team.": ["और हमारी टीम की स्वीकृति की प्रतीक्षा में है।", "आणि त्याला आमच्या टीमच्या मंजुरीची प्रतीक्षा आहे."],
+        "WhatsApp has opened with your review.": ["आपकी समीक्षा के साथ WhatsApp खुल गया है।", "तुमच्या आढाव्यासह WhatsApp उघडले आहे."],
+        "Please tap <0>Send</0> in WhatsApp so it reaches our team for approval.": [
+            "कृपया WhatsApp में <0>भेजें</0> दबाएँ, ताकि यह स्वीकृति के लिए हमारी टीम तक पहुँचे।",
+            "कृपया WhatsApp मध्ये <0>पाठवा</0> दाबा, म्हणजे तो मंजुरीसाठी आमच्या टीमपर्यंत पोहोचेल."],
+        "WhatsApp didn't open? <0>Tap here</0>.": ["WhatsApp नहीं खुला? <0>यहाँ टैप करें</0>।", "WhatsApp उघडले नाही? <0>येथे टॅप करा</0>."],
         "Please select a star rating.": ["कृपया स्टार रेटिंग चुनें।", "कृपया स्टार रेटिंग निवडा."],
         "Please enter your full name.": ["कृपया अपना पूरा नाम दर्ज करें।", "कृपया तुमचे पूर्ण नाव लिहा."],
         "Please enter a valid email address.": ["कृपया मान्य ईमेल पता दर्ज करें।", "कृपया वैध ईमेल पत्ता लिहा."],
         "Your review must be between {#} and {#} characters.": ["आपकी समीक्षा {#} से {#} वर्णों के बीच होनी चाहिए।", "तुमचा आढावा {#} ते {#} वर्णांच्या दरम्यान असावा."],
         "Please choose a JPG, PNG or WebP image.": ["कृपया JPG, PNG या WebP इमेज चुनें।", "कृपया JPG, PNG किंवा WebP इमेज निवडा."],
         "Photo must be smaller than {#} MB.": ["फोटो {#} MB से छोटी होनी चाहिए।", "फोटो {#} MB पेक्षा लहान असावा."],
-        "Something went wrong. Please try again.": ["कुछ गलत हो गया। कृपया फिर से प्रयास करें।", "काहीतरी चुकले. कृपया पुन्हा प्रयत्न करा."],
-        "We could not reach the server. Please check your connection and try again.": [
-            "सर्वर से संपर्क नहीं हो सका। कृपया अपना कनेक्शन जांचें और फिर से प्रयास करें।",
-            "सर्व्हरशी संपर्क होऊ शकला नाही. कृपया तुमचे कनेक्शन तपासा आणि पुन्हा प्रयत्न करा."]
     });
 })(window);

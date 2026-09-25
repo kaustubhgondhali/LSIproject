@@ -72,8 +72,21 @@
         "Student Learning Journey": ["छात्र की सीखने की यात्रा", "विद्यार्थ्याचा शिकण्याचा प्रवास"],
         "This story's video has not been added yet. Please check back soon.": ["इस कहानी का वीडियो अभी जोड़ा नहीं गया है। कृपया जल्द ही फिर देखें।", "या कथेचा व्हिडिओ अद्याप जोडलेला नाही. कृपया लवकरच पुन्हा पाहा."],
 
-        /* Static sample video card (shown until the backend returns stories) */
+        /* Static video story cards (stories.html) */
         "Rahul Sharma": ["राहुल शर्मा", "राहुल शर्मा"],
-        "From Pune, Maharashtra": ["पुणे, महाराष्ट्र से", "पुणे, महाराष्ट्र येथून"]
+        "From Pune, Maharashtra": ["पुणे, महाराष्ट्र से", "पुणे, महाराष्ट्र येथून"],
+
+        /* Static video story cards (stories.html) */
+        "Pooja Deshmukh": ["पूजा देशमुख", "पूजा देशमुख"],
+        "From Uran, Navi Mumbai": ["उरण, नवी मुंबई से", "उरण, नवी मुंबई येथून"],
+        "Anand Kulkarni": ["आनंद कुलकर्णी", "आनंद कुलकर्णी"],
+        "From Panvel, Maharashtra": ["पनवेल, महाराष्ट्र से", "पनवेल, महाराष्ट्र येथून"],
+        "Swapnil Patil": ["स्वप्निल पाटिल", "स्वप्निल पाटील"],
+        "From Alibaug, Raigad": ["अलीबाग, रायगढ़ से", "अलिबाग, रायगड येथून"],
+        "Sneha Shinde": ["स्नेहा शिंदे", "स्नेहा शिंदे"],
+        "From Navi Mumbai, Maharashtra": ["नवी मुंबई, महाराष्ट्र से", "नवी मुंबई, महाराष्ट्र येथून"],
+        "Amit Kadam": ["अमित कदम", "अमित कदम"],
+        "From Thane, Mumbai": ["ठाणे, मुंबई से", "ठाणे, मुंबई येथून"],
+        "No stories published in this category yet.": ["इस श्रेणी में अभी कोई कहानी प्रकाशित नहीं हुई है।", "या श्रेणीत अद्याप कोणतीही कथा प्रकाशित झालेली नाही."],
     });
 })(window);

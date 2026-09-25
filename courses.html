@@ -25,7 +25,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Template Stylesheet -->
-    <link href="css/style.css?v=20260924l" rel="stylesheet">
+    <link href="css/style.css?v=20260925b" rel="stylesheet">
 
     <style>
         .program-advantages-header {
@@ -50,45 +50,7 @@
                 white-space: nowrap;
             }
         }
-
-        /* Share Market Course Purchase Disabled State */
-        .lsi-purchase-disabled #pricingDisabledNotice {
-            display: block !important;
-        }
-        .lsi-purchase-disabled #coursePricingCard {
-            border-color: #cbd5e1 !important;
-            background-color: #fcfcfd !important;
-        }
     </style>
-    <script>
-    (function () {
-        var KEY = "shareMarketCoursePurchaseEnabled";
-        try {
-            var m = /[?&]purchase=([^&#]*)/i.exec(window.location.search);
-            if (m) {
-                var p = decodeURIComponent(m[1]).toLowerCase();
-                if (p === "off" || p === "false" || p === "0" || p === "disabled") {
-                    localStorage.setItem(KEY, "false");
-                    sessionStorage.setItem(KEY, "false");
-                    document.cookie = KEY + "=false; path=/; max-age=31536000; SameSite=Lax";
-                } else if (p === "on" || p === "true" || p === "1" || p === "enabled") {
-                    localStorage.setItem(KEY, "true");
-                    sessionStorage.setItem(KEY, "true");
-                    document.cookie = KEY + "=true; path=/; max-age=31536000; SameSite=Lax";
-                }
-            }
-            var v = localStorage.getItem(KEY);
-            if (v === "false") {
-                document.documentElement.classList.add("lsi-purchase-disabled");
-            } else {
-                var c = document.cookie.match(/(?:^|;\s*)shareMarketCoursePurchaseEnabled=(true|false)(?:;|$)/);
-                if (c && c[1] === "false") {
-                    document.documentElement.classList.add("lsi-purchase-disabled");
-                }
-            }
-        } catch (e) {}
-    })();
-    </script>
     <!-- Certificate of Completion sample (scoped to this page) -->
     <style>
         .certdoc-stage {
@@ -178,7 +140,6 @@
                         <i class="fas fa-th-large me-1"></i> Invest & Wealth Manager
                     </a>
                     <a href="https://wa.me/919920254354" target="_blank" class="btn btn-sm btn-outline-light rounded-pill py-1 px-3 me-3" data-i18n="topbar.whatsapp"><i class="fab fa-whatsapp text-success me-1"></i> WhatsApp Support</a>
-                    <a href="student-login.html" class="text-light small" data-i18n="topbar.studentLogin"><i class="fas fa-user-lock text-info me-1"></i> Student Login</a>
                 </div>
             </div>
         </div>
@@ -251,7 +212,6 @@
                     <a href="blog.html" class="nav-item nav-link" data-i18n="nav.blog">Blog</a>
                     <a href="store.html" class="nav-item nav-link mode-academy-only" data-i18n="nav.store">Store</a>
                     <a href="contact.html" class="nav-item nav-link" data-i18n="nav.contact">Contact</a>
-                    <a href="student-login.html" class="nav-item nav-link d-lg-none" data-i18n="nav.studentLogin">Student Login</a>
                 </div>
                 <div class="ms-lg-3 my-2 my-lg-0">
                     <button type="button" class="btn btn-enquire" data-bs-toggle="modal" data-bs-target="#demoModal" data-i18n="nav.enquireNow">
@@ -949,15 +909,6 @@
                             <span class="badge bg-success px-3 py-2 rounded-pill font-monospace" id="pricingBadge">All-Inclusive Master Course</span>
                         </div>
 
-                        <!-- Admissions Closed Alert Banner (Toggled when purchase is OFF) -->
-                        <div class="alert alert-warning py-3 px-3 mb-4 rounded-3 border-warning fw-bold d-none" id="pricingDisabledNotice" style="border-width:2px;">
-                            <div class="d-flex align-items-center justify-content-center gap-2 text-dark">
-                                <i class="fas fa-lock text-warning fs-5"></i>
-                                <span class="fs-6">Online Admissions & Course Purchase Currently Unavailable</span>
-                            </div>
-                            <div class="small fw-normal text-muted mt-1 text-center">New batch admissions are temporarily closed. Interested students may enquire via WhatsApp or Phone to be notified for the next batch dates.</div>
-                        </div>
-
                         <div class="mb-4">
                             <span class="text-uppercase text-muted fw-bold small d-block mb-1">Flagship Coaching Program</span>
                             <h3 class="fw-bold text-dark mb-2">Share Market Education & Training</h3>
@@ -998,9 +949,9 @@
                         </div>
 
                         <!-- Action Button -->
-                        <button type="button" class="btn btn-buy-course-red btn-lg rounded-pill w-100 py-3 fw-bold shadow lsi-buy-course" data-course-code="SMET-MASTER" id="pricingBuyBtn">
-                            <i class="fas fa-shopping-cart me-2"></i> Buy Course — <span class="lsi-course-price">₹9,999</span>
-                        </button>
+                        <div class="lsi-course-soon" role="note" id="pricingSoonNotice">
+                            <i class="fas fa-store" aria-hidden="true"></i><span>This course will be available soon in our Store.</span>
+                        </div>
                         <button type="button" class="btn btn-outline-primary rounded-pill w-100 py-2 mt-2" data-bs-toggle="modal" data-bs-target="#demoModal">
                             <i class="fas fa-question-circle me-2"></i> Ask a Question First
                         </button>
@@ -1039,9 +990,9 @@
                     Start your structured learning journey with <strong>Share Market Education & Training</strong> at Lord Sai Academy in Uran. Build skills and risk discipline that stay with you forever.
                 </p>
                 <div class="d-flex flex-wrap justify-content-center gap-3">
-                    <button type="button" class="btn btn-buy-course-red btn-lg px-5 shadow lsi-buy-course" data-course-code="SMET-MASTER" id="footerBuyBtn">
-                        <i class="fas fa-shopping-cart me-2"></i> Buy Course — <span class="lsi-course-price">₹9,999</span>
-                    </button>
+                    <div class="lsi-course-soon lsi-course-soon--dark" role="note" id="footerSoonNotice">
+                        <i class="fas fa-store" aria-hidden="true"></i><span>This course will be available soon in our Store.</span>
+                    </div>
                     <a href="https://wa.me/919920254354?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20know%20about%20the%20next%20batch%20dates" target="_blank" class="btn btn-outline-light btn-lg rounded-pill px-4">
                         <i class="fab fa-whatsapp text-success me-2"></i> Check Next Batch Dates
                     </a>
@@ -1172,10 +1123,6 @@
                         Stock Market Education | Trading | Insurance
                     </div>
 
-                    <div class="lsi-footer-admin-links d-flex flex-wrap gap-2 mode-academy-only">
-                        <a href="student-login.html?portal=automation" class="lsi-footer-admin-btn lsi-automation-link" title="Academy office: students, fees, receipts, attendance"><i class="fas fa-robot me-1"></i> Automation Admin</a>
-                        <a href="student-login.html?portal=admin" class="lsi-footer-admin-btn lsi-admin-link" title="Administrator login"><i class="fas fa-user-shield me-1"></i> Admin</a>
-                    </div>
                 </div>
 
                 <!-- Quick Links -->
@@ -1264,7 +1211,6 @@
     <div class="container-fluid copyright py-3">
         <div class="container text-center">
             <span data-i18n="footer.copyrightAcademy">&copy; Lord Sai Share Market Classes. All Rights Reserved.</span>
-            <a href="student-login.html" class="btn btn-sm btn-outline-info rounded-pill px-3 ms-3 lsi-student-link mode-academy-only" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
         </div>
     </div>
     <!-- Copyright End -->
@@ -1277,129 +1223,6 @@
 
     <!-- Back to Top -->
     <a href="#" class="back-to-top"><i class="fa fa-arrow-up"></i></a>
-
-    <!-- Course Purchase Modal (Razorpay checkout) -->
-    <div class="modal fade" id="purchaseModal" tabindex="-1" aria-labelledby="purchaseModalLabel" aria-hidden="true" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
-                <div class="modal-header text-white" style="background: linear-gradient(135deg, var(--lsi-navy), var(--lsi-blue)); border-radius: 16px 16px 0 0;">
-                    <div>
-                        <h5 class="modal-title fw-bold text-white" id="purchaseModalLabel">Buy Course</h5>
-                        <small class="text-light opacity-75">Secure payment via Razorpay · Instant Student Portal access</small>
-                    </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-4">
-
-                    <!-- Step 1: details -->
-                    <div id="purchaseStepDetails">
-                        <div class="row g-4">
-                            <div class="col-md-7">
-                                <h6 class="fw-bold text-dark mb-3"><i class="fas fa-user-edit text-primary me-2"></i> Your Details</h6>
-                                <form id="purchaseForm" novalidate>
-                                    <div class="mb-3">
-                                        <label class="form-label small fw-bold text-muted">Full Name *</label>
-                                        <input type="text" class="form-control" id="purchaseName" placeholder="As it should appear on your certificate" maxlength="150" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label small fw-bold text-muted">Email Address *</label>
-                                        <input type="email" class="form-control" id="purchaseEmail" placeholder="you@example.com" maxlength="190" required>
-                                        <div class="form-text">Your Student ID and password setup link will be sent here.</div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label small fw-bold text-muted">Mobile Number *</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text">+91</span>
-                                            <input type="tel" class="form-control" id="purchaseMobile" placeholder="10-digit mobile" maxlength="10" pattern="[6-9][0-9]{9}" required>
-                                        </div>
-                                    </div>
-                                    <!-- Mode banner: filled by checkout.js from GET /api/payments/mode -->
-                                    <div class="alert py-2 px-3 small d-none" id="purchaseModeBanner"></div>
-                                    <div class="alert alert-danger py-2 px-3 small d-none" id="purchaseError"></div>
-                                    <button type="submit" class="btn btn-primary rounded-pill w-100 py-2 fw-bold" id="purchasePayBtn">
-                                        <span id="purchasePayText"><i class="fas fa-lock me-2"></i> Pay Now — <span id="purchasePayAmount">₹9,999</span></span>
-                                        <span id="purchasePaySpinner" class="d-none"><span class="spinner-border spinner-border-sm me-2"></span> Preparing secure checkout...</span>
-                                    </button>
-                                    <p class="text-muted text-center mt-3 mb-0" style="font-size: 11px;" id="purchaseFootnote">
-                                        <i class="fas fa-shield-alt me-1"></i> Payments are processed by Razorpay. We never see or store your card details.
-                                    </p>
-                                </form>
-                            </div>
-                            <div class="col-md-5">
-                                <div class="p-3 bg-light rounded-3 border h-100">
-                                    <h6 class="fw-bold text-dark mb-3"><i class="fas fa-receipt text-primary me-2"></i> Order Summary</h6>
-                                    <div class="small text-muted" id="purchaseProductLabel">Course</div>
-                                    <div class="fw-bold text-dark mb-3" id="purchaseCourseName">Share Market Education &amp; Training</div>
-                                    <div class="d-flex justify-content-between small mb-1"><span class="text-muted">List price</span><span class="text-decoration-line-through" id="purchaseListPrice">₹14,999</span></div>
-                                    <div class="d-flex justify-content-between mb-3 pt-2 border-top"><strong>Total</strong><strong class="text-primary fs-5" id="purchaseTotal">₹9,999</strong></div>
-                                    <ul class="list-unstyled small text-muted mb-0" id="purchaseBenefits">
-                                        <li class="mb-1"><i class="fas fa-check text-success me-1"></i> Lifetime access to lesson videos</li>
-                                        <li class="mb-1"><i class="fas fa-check text-success me-1"></i> Module handouts &amp; PDFs</li>
-                                        <li class="mb-1"><i class="fas fa-check text-success me-1"></i> Trade journal with mentor review</li>
-                                        <li><i class="fas fa-check text-success me-1"></i> Doubt desk support</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Step 2: verifying -->
-                    <div id="purchaseStepVerifying" class="d-none text-center py-5">
-                        <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;"></div>
-                        <h5 class="fw-bold text-dark">Verifying your payment...</h5>
-                        <p class="text-muted mb-0">Please do not close this window.</p>
-                    </div>
-
-                    <!-- Step 3: success -->
-                    <div id="purchaseStepSuccess" class="d-none text-center py-3">
-                        <div class="trust-icon icon-green mx-auto mb-3" style="width: 72px; height: 72px; font-size: 32px;"><i class="fas fa-check"></i></div>
-                        <h4 class="fw-bold text-dark mb-1">Payment Successful</h4>
-                        <p class="text-muted mb-4" id="purchaseSuccessMessage"></p>
-                        <div class="p-3 bg-light rounded-3 border text-start mx-auto mb-4" style="max-width: 420px;">
-                            <div class="d-flex justify-content-between small mb-2"><span class="text-muted" id="successProductLabel">Course</span><strong id="successCourse"></strong></div>
-                            <div class="d-flex justify-content-between small mb-2"><span class="text-muted" id="successAccessLabel">Enrollment</span><span class="badge bg-success">Active</span></div>
-                            <div class="d-flex justify-content-between small mb-2"><span class="text-muted">Student ID</span><strong class="font-monospace" id="successStudentId"></strong></div>
-                            <div class="d-flex justify-content-between small mb-2"><span class="text-muted">Invoice No.</span><strong class="font-monospace" id="successInvoice"></strong></div>
-                            <div class="d-flex justify-content-between small mb-2"><span class="text-muted">Order Ref</span><span class="font-monospace" id="successOrderRef"></span></div>
-                            <div class="d-flex justify-content-between small"><span class="text-muted" id="successEmailLabel">Email sent to</span><strong id="successEmail"></strong></div>
-                        </div>
-
-                        <!-- Shown only when the setup email could not be delivered. Never contains
-                             the setup token or a password — it just re-triggers the email. -->
-                        <div class="alert alert-warning text-start mx-auto mb-4 d-none" id="successEmailWarning" style="max-width: 420px;">
-                            <strong><i class="fas fa-exclamation-triangle me-1"></i> We could not email your account details.</strong>
-                            <p class="small mb-2 mt-1">Your enrollment is safe and your Student ID above is permanent. Send the setup email again, or contact the academy.</p>
-                            <button type="button" class="btn btn-sm btn-warning rounded-pill px-3" id="successResendBtn">
-                                <i class="fas fa-paper-plane me-1"></i> Resend setup email
-                            </button>
-                            <div class="small mt-2 d-none" id="successResendResult"></div>
-                        </div>
-
-                        <a href="student-login.html" class="btn btn-primary rounded-pill px-5 py-2 fw-bold"><i class="fas fa-user-graduate me-2"></i> Go to Student Portal</a>
-                        <p class="text-muted small mt-3 mb-0" id="successHint"></p>
-                    </div>
-
-                    <!-- Step 4b: cancelled by the student -->
-                    <div id="purchaseStepCancelled" class="d-none text-center py-3">
-                        <div class="trust-icon mx-auto mb-3" style="width: 72px; height: 72px; font-size: 32px; background: rgba(245,158,11,0.15); color: #B45309;"><i class="fas fa-hand-paper"></i></div>
-                        <h4 class="fw-bold text-dark mb-1">Payment Cancelled</h4>
-                        <p class="text-muted mb-1">Your payment was cancelled. No course enrollment was created and nothing was charged.</p>
-                        <p class="text-muted mb-4">You can try again whenever you're ready.</p>
-                        <button type="button" class="btn btn-primary rounded-pill px-4" id="purchaseCancelRetryBtn"><i class="fas fa-redo me-1"></i> Try Again</button>
-                    </div>
-
-                    <!-- Step 4: failure -->
-                    <div id="purchaseStepFailed" class="d-none text-center py-3">
-                        <div class="trust-icon mx-auto mb-3" style="width: 72px; height: 72px; font-size: 32px; background: rgba(220,53,69,0.12); color: #dc3545;"><i class="fas fa-times"></i></div>
-                        <h4 class="fw-bold text-dark mb-1">Payment Not Completed</h4>
-                        <p class="text-muted mb-4" id="purchaseFailedMessage"></p>
-                        <button type="button" class="btn btn-outline-primary rounded-pill px-4" id="purchaseRetryBtn">Try Again</button>
-                        <a href="https://wa.me/919920254354" target="_blank" class="btn btn-success rounded-pill px-4 ms-2"><i class="fab fa-whatsapp me-1"></i> Contact Academy</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Demo / Registration Modal -->
     <div class="modal fade" id="demoModal" tabindex="-1" aria-labelledby="demoModalLabel" aria-hidden="true">
@@ -1454,216 +1277,14 @@
     <!-- Live Stock Market Candlestick Chart Engine -->
     <script src="js/live-chart.js"></script>
 
-    <!-- Authentication Engine -->
-    <script src="js/api-config.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/checkout.js?v=20260924-i18n"></script>
-
-    <!-- Share Market Course Purchase State Controller (Frontend Setting) -->
-    <script>
-    (function () {
-        var KEY = "shareMarketCoursePurchaseEnabled";
-        var CHANNEL_NAME = "lsi_purchase_channel";
-
-        function getParam(name) {
-            try {
-                var m = new RegExp('[?&]' + name + '=([^&#]*)', 'i').exec(window.location.search);
-                return m ? decodeURIComponent(m[1]) : null;
-            } catch (e) { return null; }
-        }
-
-        function isPurchaseEnabled() {
-            // 1. URL parameter override
-            var p = getParam("purchase");
-            if (p) {
-                var pLower = p.toLowerCase();
-                if (pLower === "off" || pLower === "false" || pLower === "0" || pLower === "disabled") {
-                    try { localStorage.setItem(KEY, "false"); } catch (e) {}
-                    try { sessionStorage.setItem(KEY, "false"); } catch (e) {}
-                    try { document.cookie = KEY + "=false; path=/; max-age=31536000; SameSite=Lax"; } catch (e) {}
-                    return false;
-                }
-                if (pLower === "on" || pLower === "true" || pLower === "1" || pLower === "enabled") {
-                    try { localStorage.setItem(KEY, "true"); } catch (e) {}
-                    try { sessionStorage.setItem(KEY, "true"); } catch (e) {}
-                    try { document.cookie = KEY + "=true; path=/; max-age=31536000; SameSite=Lax"; } catch (e) {}
-                    return true;
-                }
-            }
-
-            // 2. LocalStorage
-            try {
-                var val = localStorage.getItem(KEY);
-                if (val === "false") return false;
-                if (val === "true") return true;
-            } catch (e) {}
-
-            // 3. Cookie (handles cross-port on same host)
-            try {
-                var m = document.cookie.match(new RegExp('(?:^|;\\s*)' + KEY + '=(true|false)(?:;|$)'));
-                if (m) return m[1] !== "false";
-            } catch (e) {}
-
-            // 4. SessionStorage
-            try {
-                var sVal = sessionStorage.getItem(KEY);
-                if (sVal === "false") return false;
-                if (sVal === "true") return true;
-            } catch (e) {}
-
-            return true;
-        }
-
-        function updateUI() {
-            var enabled = isPurchaseEnabled();
-
-            // Toggle document-level CSS class
-            if (!enabled) {
-                document.documentElement.classList.add("lsi-purchase-disabled");
-            } else {
-                document.documentElement.classList.remove("lsi-purchase-disabled");
-            }
-
-            // 1. Section 6 Pricing Card Notice & Appearance
-            var card = document.getElementById("coursePricingCard");
-            var notice = document.getElementById("pricingDisabledNotice");
-            var badge = document.getElementById("pricingBadge");
-            var accessBadge = document.getElementById("pricingAccessBadge");
-            var headerBadge = document.getElementById("pricingHeaderBadge");
-
-            if (notice) {
-                if (!enabled) notice.classList.remove("d-none");
-                else notice.classList.add("d-none");
-            }
-            if (badge) {
-                if (!enabled) {
-                    badge.className = "badge bg-secondary px-3 py-2 rounded-pill font-monospace";
-                    badge.innerHTML = '<i class="fas fa-lock me-1"></i> Admissions Closed';
-                } else {
-                    badge.className = "badge bg-success px-3 py-2 rounded-pill font-monospace";
-                    badge.innerHTML = 'All-Inclusive Master Course';
-                }
-            }
-            if (accessBadge) {
-                if (!enabled) {
-                    accessBadge.className = "badge bg-secondary px-3 py-2 rounded-pill";
-                    accessBadge.innerHTML = '<i class="fas fa-lock me-1"></i> Admissions Paused';
-                } else {
-                    accessBadge.className = "badge bg-primary px-3 py-2 rounded-pill";
-                    accessBadge.innerHTML = '<i class="fas fa-shield-alt me-1"></i> Complete Access';
-                }
-            }
-            if (headerBadge) {
-                if (!enabled) {
-                    headerBadge.innerText = "Admissions Currently Closed";
-                } else {
-                    headerBadge.innerText = "Invest In Your Knowledge";
-                }
-            }
-            if (card) {
-                if (!enabled) {
-                    card.style.borderColor = "#94a3b8";
-                    card.style.backgroundColor = "#fafbfc";
-                } else {
-                    card.style.borderColor = "";
-                    card.style.backgroundColor = "";
-                }
-            }
-
-            // 2. Buy Course Buttons (Section 6, Section 7, and any .lsi-buy-course)
-            document.querySelectorAll(".lsi-buy-course").forEach(function (btn) {
-                var code = btn.getAttribute("data-course-code");
-                if (!code || code === "SMET-MASTER" || code.indexOf("SMET") !== -1) {
-                    if (!btn._lsiOriginalHtml) {
-                        btn._lsiOriginalHtml = btn.innerHTML;
-                        btn._lsiOriginalClass = btn.className;
-                    }
-                    if (!enabled) {
-                        btn.disabled = true;
-                        btn.setAttribute("aria-disabled", "true");
-                        btn.classList.add("disabled");
-                        btn.classList.remove("btn-buy-course-red");
-                        btn.classList.add("btn-secondary");
-                        btn.style.cursor = "not-allowed";
-                        btn.style.opacity = "0.85";
-                        if (btn.id === "footerBuyBtn") {
-                            btn.innerHTML = '<i class="fas fa-ban me-2"></i> Admissions Closed (Purchase Disabled)';
-                        } else {
-                            btn.innerHTML = '<i class="fas fa-ban me-2"></i> Admissions Currently Closed (Purchase Disabled)';
-                        }
-                    } else if (btn._lsiOriginalHtml) {
-                        btn.disabled = false;
-                        btn.removeAttribute("aria-disabled");
-                        btn.className = btn._lsiOriginalClass;
-                        btn.style.cursor = "";
-                        btn.style.opacity = "";
-                        btn.innerHTML = btn._lsiOriginalHtml;
-                    }
-                }
-            });
-
-            // 3. Navigation & Anchor Buttons pointing to #pricing
-            var heroBtn = document.getElementById("heroEnrollBtn");
-            if (heroBtn) {
-                if (!enabled) {
-                    heroBtn.className = "btn btn-outline-light btn-lg px-5 shadow";
-                    heroBtn.innerHTML = '<i class="fas fa-info-circle me-2"></i> View Course (Admissions Closed)';
-                } else {
-                    heroBtn.className = "btn btn-enquire btn-lg px-5 shadow";
-                    heroBtn.innerHTML = '<i class="fas fa-graduation-cap me-2"></i> Enroll Now — ₹9,999';
-                }
-            }
-
-            var currBtn = document.getElementById("curriculumEnrollBtn");
-            if (currBtn) {
-                if (!enabled) {
-                    currBtn.className = "btn btn-secondary rounded-pill btn-lg px-5 shadow-sm";
-                    currBtn.innerHTML = '<i class="fas fa-info-circle me-2"></i> View Course Details (Admissions Closed)';
-                } else {
-                    currBtn.className = "btn btn-primary rounded-pill btn-lg px-5 shadow-sm";
-                    currBtn.innerHTML = '<i class="fas fa-arrow-down me-2"></i> View Enrollment Fee & Details (₹9,999)';
-                }
-            }
-
-            var overBtn = document.getElementById("overviewEnrollBtn");
-            if (overBtn) {
-                if (!enabled) {
-                    overBtn.className = "btn btn-secondary rounded-pill w-100 py-2 fw-bold";
-                    overBtn.innerHTML = '<i class="fas fa-info-circle me-1"></i> Check Course Details';
-                } else {
-                    overBtn.className = "btn btn-primary rounded-pill w-100 py-2 fw-bold";
-                    overBtn.innerHTML = '<i class="fas fa-arrow-down me-1"></i> Check Course Fee & Enroll';
-                }
-            }
-        }
-
-        updateUI();
-        if (document.readyState === "loading") {
-            document.addEventListener("DOMContentLoaded", updateUI);
-        }
-        window.addEventListener("load", updateUI);
-        window.addEventListener("storage", function (e) {
-            if (e.key === KEY) updateUI();
-        });
-        try {
-            if (typeof BroadcastChannel !== "undefined") {
-                var bc = new BroadcastChannel(CHANNEL_NAME);
-                bc.onmessage = function (ev) {
-                    if (ev.data && ev.data.key === KEY) updateUI();
-                };
-            }
-        } catch (e) {}
-
-        window.LSI_updateCourseUI = updateUI;
-        window.LSI_isPurchaseEnabled = isPurchaseEnabled;
-    })();
-    </script>
+    <!-- Enquiry and review forms: sent to the owner on WhatsApp and by email (js/enquiry.js) -->
+    <script src="js/enquiry.js?v=20260925b"></script>
 
     <!-- Template Javascript -->
     <script src="js/translations.js?v=20260923-caps"></script>
-    <script src="js/lang.js?v=20260924-i18n2"></script>
-    <script src="js/mode.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/lang.js?v=20260925f"></script>
+    <script src="js/mode.js?v=20260925b"></script>
+    <script src="js/main.js?v=20260925d"></script>
 </body>
 
 </html>

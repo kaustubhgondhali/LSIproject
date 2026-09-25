@@ -343,75 +343,6 @@
         "Student Video Review": ["छात्र वीडियो समीक्षा", "विद्यार्थ्याचा व्हिडिओ अभिप्राय"],
         "Registering...": ["पंजीकरण हो रहा है...", "नोंदणी होत आहे..."],
         "Request Noted": ["अनुरोध दर्ज किया गया", "विनंती नोंदवली"],
-        "<0/> <1>Thank you!</1> To confirm your free strategy session seat, please message us on <2>WhatsApp (+{#} {#} {#})</2> or call us — our mentor team will share the joining link.": [
-            "<0/> <1>धन्यवाद!</1> अपने मुफ्त स्ट्रेटेजी सेशन की सीट पक्की करने के लिए कृपया हमें <2>व्हाट्सएप (+{#} {#} {#})</2> पर संदेश भेजें या कॉल करें — हमारी मेंटर टीम जॉइनिंग लिंक साझा करेगी।",
-            "<0/> <1>धन्यवाद!</1> तुमच्या मोफत स्ट्रॅटेजी सेशनची जागा निश्चित करण्यासाठी कृपया आम्हाला <2>व्हॉट्सॲप (+{#} {#} {#})</2> वर संदेश पाठवा किंवा कॉल करा — आमची मार्गदर्शक टीम जॉइनिंग लिंक पाठवेल."],
-
-        /* ---------- Course purchase modal (courses & store) ---------- */
-        "Buy Course": ["कोर्स खरीदें", "कोर्स खरेदी करा"],
-        "Buy Ebook": ["ईबुक खरीदें", "ईबुक खरेदी करा"],
-        "Ebook": ["ईबुक", "ईबुक"],
-        "Secure payment via Razorpay · Instant Student Portal access": ["Razorpay द्वारा सुरक्षित भुगतान · छात्र पोर्टल तक तुरंत पहुंच", "Razorpay द्वारे सुरक्षित पेमेंट · विद्यार्थी पोर्टलवर त्वरित प्रवेश"],
-        "Your Details": ["आपका विवरण", "तुमची माहिती"],
-        "Your Student ID and password setup link will be sent here.": ["आपकी छात्र आईडी और पासवर्ड सेटअप लिंक यहीं भेजी जाएगी।", "तुमचा विद्यार्थी आयडी आणि पासवर्ड सेटअप लिंक येथे पाठवली जाईल."],
-        "<0/> Pay Now — <1>₹{#}</1>": ["<0/> अभी भुगतान करें — <1>₹{#}</1>", "<0/> आता पेमेंट करा — <1>₹{#}</1>"],
-        "<0/> Complete Demo Payment — <1>₹{#}</1>": ["<0/> डेमो भुगतान पूरा करें — <1>₹{#}</1>", "<0/> डेमो पेमेंट पूर्ण करा — <1>₹{#}</1>"],
-        "Preparing secure checkout...": ["सुरक्षित चेकआउट तैयार हो रहा है...", "सुरक्षित चेकआउट तयार होत आहे..."],
-        "Payments are processed by Razorpay. We never see or store your card details.": [
-            "भुगतान Razorpay द्वारा प्रोसेस किए जाते हैं। हम आपके कार्ड का विवरण न कभी देखते हैं, न सहेजते हैं।",
-            "पेमेंट Razorpay द्वारे प्रक्रिया केले जातात. आम्ही तुमच्या कार्डचा तपशील कधीही पाहत नाही किंवा साठवत नाही."],
-        "<0><1/> Secure payment powered by Razorpay.</0><2/>UPI, cards, net banking and wallets accepted.": [
-            "<0><1/> Razorpay द्वारा संचालित सुरक्षित भुगतान।</0><2/>UPI, कार्ड, नेट बैंकिंग और वॉलेट स्वीकार किए जाते हैं।",
-            "<0><1/> Razorpay द्वारे सुरक्षित पेमेंट.</0><2/>UPI, कार्ड, नेट बँकिंग आणि वॉलेट स्वीकारले जातात."],
-        "Payment gateway is temporarily unavailable. Please try again.": ["पेमेंट गेटवे अस्थायी रूप से उपलब्ध नहीं है। कृपया फिर से प्रयास करें।", "पेमेंट गेटवे तात्पुरते उपलब्ध नाही. कृपया पुन्हा प्रयत्न करा."],
-        "Demo Payment Mode": ["डेमो भुगतान मोड", "डेमो पेमेंट मोड"],
-        "No real money will be charged. Your enrollment and login email will be created exactly as in a real purchase.": [
-            "कोई वास्तविक राशि नहीं ली जाएगी। आपका नामांकन और लॉगिन ईमेल बिल्कुल असली खरीद की तरह बनाया जाएगा।",
-            "कोणतीही खरी रक्कम आकारली जाणार नाही. तुमची नोंदणी आणि लॉगिन ईमेल प्रत्यक्ष खरेदीप्रमाणेच तयार होईल."],
-        "Admissions Currently Closed (Purchase Disabled)": ["प्रवेश फिलहाल बंद हैं (खरीद बंद)", "प्रवेश सध्या बंद आहेत (खरेदी बंद)"],
-        "Order Summary": ["ऑर्डर सारांश", "ऑर्डर सारांश"],
-        "List price": ["सूची मूल्य", "मूळ किंमत"],
-        "Total": ["कुल", "एकूण"],
-        "Lifetime access to lesson videos": ["पाठ वीडियो तक आजीवन पहुंच", "धड्यांच्या व्हिडिओंना आजीवन प्रवेश"],
-        "Module handouts & PDFs": ["मॉड्यूल हैंडआउट्स और PDF", "मॉड्यूल हँडआउट्स आणि PDF"],
-        "Trade journal with mentor review": ["मेंटर समीक्षा के साथ ट्रेड जर्नल", "मार्गदर्शकांच्या पुनरावलोकनासह ट्रेड जर्नल"],
-        "Doubt desk support": ["शंका समाधान सहायता", "शंका निरसन सहाय्य"],
-        "Verifying your payment...": ["आपके भुगतान का सत्यापन हो रहा है...", "तुमच्या पेमेंटची पडताळणी होत आहे..."],
-        "Please do not close this window.": ["कृपया इस विंडो को बंद न करें।", "कृपया ही विंडो बंद करू नका."],
-        "Payment Successful": ["भुगतान सफल", "पेमेंट यशस्वी"],
-        "Demo Payment Successful": ["डेमो भुगतान सफल", "डेमो पेमेंट यशस्वी"],
-        "Enrollment": ["नामांकन", "प्रवेश नोंदणी"],
-        "Ebook access": ["ईबुक एक्सेस", "ईबुक प्रवेश"],
-        "Active": ["सक्रिय", "सक्रिय"],
-        "Student ID": ["छात्र आईडी", "विद्यार्थी आयडी"],
-        "Invoice No.": ["इनवॉइस नं.", "इन्व्हॉइस क्र."],
-        "Order Ref": ["ऑर्डर संदर्भ", "ऑर्डर संदर्भ"],
-        "Email sent to": ["ईमेल भेजा गया", "ईमेल पाठवला"],
-        "Registered email": ["पंजीकृत ईमेल", "नोंदणीकृत ईमेल"],
-        "We could not email your account details.": ["हम आपके खाते का विवरण ईमेल नहीं कर सके।", "आम्ही तुमच्या खात्याचा तपशील ईमेल करू शकलो नाही."],
-        "Go to Student Portal": ["छात्र पोर्टल पर जाएं", "विद्यार्थी पोर्टलवर जा"],
-        "Payment Cancelled": ["भुगतान रद्द", "पेमेंट रद्द"],
-        "Your payment was cancelled. No course enrollment was created and nothing was charged.": [
-            "आपका भुगतान रद्द कर दिया गया। कोई कोर्स नामांकन नहीं हुआ और कोई राशि नहीं ली गई।",
-            "तुमचे पेमेंट रद्द झाले. कोणतीही कोर्स नोंदणी झाली नाही आणि कोणतीही रक्कम आकारली गेली नाही."],
-        "You can try again whenever you're ready.": ["जब भी आप तैयार हों, दोबारा प्रयास कर सकते हैं।", "तुम्ही तयार असाल तेव्हा पुन्हा प्रयत्न करू शकता."],
-        "Try Again": ["फिर से प्रयास करें", "पुन्हा प्रयत्न करा"],
-        "Payment Not Completed": ["भुगतान पूरा नहीं हुआ", "पेमेंट पूर्ण झाले नाही"],
-        "Your purchase is active.": ["आपकी खरीद सक्रिय है।", "तुमची खरेदी सक्रिय आहे."],
-        "The payment mode has just changed. Please click Pay Now again.": ["भुगतान मोड अभी बदल गया है। कृपया फिर से 'अभी भुगतान करें' पर क्लिक करें।", "पेमेंट मोड नुकताच बदलला आहे. कृपया पुन्हा 'आता पेमेंट करा' वर क्लिक करा."],
-        "The demo payment could not be completed.": ["डेमो भुगतान पूरा नहीं हो सका।", "डेमो पेमेंट पूर्ण होऊ शकले नाही."],
-        "We could not verify this payment.": ["हम इस भुगतान का सत्यापन नहीं कर सके।", "आम्ही या पेमेंटची पडताळणी करू शकलो नाही."],
-        "Sending…": ["भेजा जा रहा है…", "पाठवत आहे…"],
-        "Setup email sent.": ["सेटअप ईमेल भेज दिया गया।", "सेटअप ईमेल पाठवला."],
-        "Could not send the email.": ["ईमेल नहीं भेजा जा सका।", "ईमेल पाठवता आला नाही."],
-        "This product is not available for online purchase right now. Please contact the academy.": [
-            "यह उत्पाद अभी ऑनलाइन खरीद के लिए उपलब्ध नहीं है। कृपया एकेडमी से संपर्क करें।",
-            "हे उत्पादन सध्या ऑनलाइन खरेदीसाठी उपलब्ध नाही. कृपया अकॅडमीशी संपर्क साधा."],
-        "Purchase is currently unavailable for this course. Please contact the academy.": [
-            "इस कोर्स की खरीद अभी उपलब्ध नहीं है। कृपया एकेडमी से संपर्क करें।",
-            "या कोर्सची खरेदी सध्या उपलब्ध नाही. कृपया अकॅडमीशी संपर्क साधा."],
-        "No ebooks are on sale right now. Please check back soon.": ["अभी कोई ईबुक बिक्री के लिए उपलब्ध नहीं है। कृपया जल्द ही फिर देखें।", "सध्या कोणतेही ईबुक विक्रीसाठी उपलब्ध नाही. कृपया लवकरच पुन्हा पाहा."],
-        "Readable only inside your Student Portal after login.": ["लॉगिन के बाद केवल आपके छात्र पोर्टल में पढ़ी जा सकती है।", "लॉगिननंतर फक्त तुमच्या विद्यार्थी पोर्टलमध्ये वाचता येईल."],
 
         /* ---------- SIP / SWP shared education content (home, sip, investments) ---------- */
         "Build wealth step by step with disciplined regular investments, rupee-cost averaging, and long-term compounding.": [
@@ -665,6 +596,12 @@
         "Academy Portal": ["एकेडमी पोर्टल", "अकॅडमी पोर्टल"],
         "Academy Mode": ["एकेडमी मोड", "अकॅडमी मोड"],
         "Mutual Fund Distribution": ["म्यूचुअल फंड वितरण", "म्युच्युअल फंड वितरण"],
-        "Mutual Fund Mode": ["म्यूचुअल फंड मोड", "म्युच्युअल फंड मोड"]
+        "Mutual Fund Mode": ["म्यूचुअल फंड मोड", "म्युच्युअल फंड मोड"],
+
+        /* Enquiry pop-up (js/main.js), Contact page and review forms: notes once sent (js/enquiry.js) */
+        "A copy has also been emailed to us.": ["इसकी एक प्रति हमें ईमेल से भी भेज दी गई है।", "याची एक प्रत आम्हाला ईमेलनेही पाठवली आहे."],
+        "<0/> <1>Almost done!</1> WhatsApp has opened with your enquiry. Please tap <2>Send</2> there so it reaches us. WhatsApp didn't open? <3>Tap here</3>.": [
+            "<0/> <1>बस एक कदम बाकी!</1> आपकी पूछताछ के साथ WhatsApp खुल गया है। कृपया वहाँ <2>भेजें</2> दबाएँ, ताकि यह हम तक पहुँचे। WhatsApp नहीं खुला? <3>यहाँ टैप करें</3>।",
+            "<0/> <1>फक्त एक पाऊल बाकी!</1> तुमच्या चौकशीसह WhatsApp उघडले आहे. कृपया तिथे <2>पाठवा</2> दाबा, म्हणजे ती आमच्यापर्यंत पोहोचेल. WhatsApp उघडले नाही? <3>येथे टॅप करा</3>."],
     });
 })(window);

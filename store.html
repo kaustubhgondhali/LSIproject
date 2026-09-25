@@ -25,7 +25,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Template Stylesheet -->
-    <link href="css/style.css?v=20260924l" rel="stylesheet">
+    <link href="css/style.css?v=20260925b" rel="stylesheet">
 </head>
 
 <body>
@@ -58,7 +58,6 @@
                         <span class="mode-academy-only"><i class="fas fa-th-large me-1"></i> Invest & Wealth Manager</span>
                     </a>
                     <a href="https://wa.me/919920254354" target="_blank" class="btn btn-sm btn-outline-light rounded-pill py-1 px-3 me-3" data-i18n="topbar.whatsapp"><i class="fab fa-whatsapp text-success me-1"></i> WhatsApp Support</a>
-                    <a href="student-login.html" class="text-light small mode-academy-only" data-i18n="topbar.studentLogin"><i class="fas fa-user-lock text-info me-1"></i> Student Login</a>
                 </div>
             </div>
         </div>
@@ -134,7 +133,6 @@
                     <a href="blog.html" class="nav-item nav-link" data-i18n="nav.blog">Blog</a>
                     <a href="store.html" class="nav-item nav-link active mode-academy-only" data-i18n="nav.store">Store</a>
                     <a href="contact.html" class="nav-item nav-link" data-i18n="nav.contact">Contact</a>
-                    <a href="student-login.html" class="nav-item nav-link d-lg-none mode-academy-only" data-i18n="nav.studentLogin">Student Login</a>
                 </div>
                 <div class="ms-lg-3 my-2 my-lg-0">
                     <button type="button" class="btn btn-enquire" data-bs-toggle="modal" data-bs-target="#demoModal" data-i18n="nav.enquireNow">
@@ -198,7 +196,7 @@
             <div class="d-flex flex-wrap justify-content-center gap-2">
                 <a href="#books" class="btn btn-sm btn-outline-primary rounded-pill">1. Books</a>
                 <!-- Share Market Academy store sections -->
-                <a href="#ebooks" class="btn btn-sm btn-primary rounded-pill mode-academy-only">Ebooks — Buy Online</a>
+                <a href="#ebooks" class="btn btn-sm btn-primary rounded-pill mode-academy-only"><i class="fas fa-key me-1"></i> E-Book Access</a>
                 <a href="#learning-material" class="btn btn-sm btn-outline-primary rounded-pill mode-academy-only">2. Learning Material</a>
                 <a href="#course-kits" class="btn btn-sm btn-outline-primary rounded-pill mode-academy-only">3. Courses / Products</a>
                 <!-- Mutual Fund store sections -->
@@ -290,18 +288,60 @@
                 </div>
             </div>
 
-            <!-- CATEGORY 1B: EBOOKS (admin-managed, purchasable; delivered inside the Student Portal) -->
+            <!-- CATEGORY 1B: E-BOOK (opened on this page with an access code; js/ebook-access.js) -->
             <div class="mb-5 pb-4 border-bottom mode-academy-only" id="ebooks">
                 <div class="d-flex align-items-center gap-3 mb-4">
                     <div class="trust-icon"><i class="fas fa-tablet-alt"></i></div>
                     <div>
                         <span class="badge bg-primary">Digital Ebooks</span>
-                        <h3 class="fw-bold mb-0 text-dark">Buy &amp; Read in the Student Portal</h3>
+                        <h3 class="fw-bold mb-0 text-dark">Read Online with Your Access Code</h3>
                     </div>
                 </div>
-                <p class="text-muted small mb-4">Pay securely with Razorpay. The ebook is added to your Lord Sai Student Portal account (the same account as your courses) and your invoice is emailed as a PDF. Ebook files are never shared as direct download links.</p>
-                <div class="row g-4" id="lsiEbookCatalog">
-                    <div class="col-12 text-muted small"><span class="spinner-border spinner-border-sm me-2"></span>Loading ebooks…</div>
+                <p class="text-muted small mb-4">Enter the access code given to you by Lord Sai Share Market Academy to open the e-book right here on this page.</p>
+
+                <div class="card shadow-sm border bg-white lsi-ebook-access" id="lsiEbookCard">
+                    <div class="row g-0">
+                        <!-- Product -->
+                        <div class="col-md-5 col-lg-4 lsi-ebook-product">
+                            <div class="lsi-ebook-cover" aria-hidden="true">
+                                <i class="fas fa-book-open"></i>
+                                <span>E-Book</span>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="badge bg-primary mb-2">Digital Product</span>
+                                <h5 class="fw-bold text-dark mb-1">Share Market Course E&#8209;Book</h5>
+                                <p class="text-muted small mb-0">Share market learning e-book from Lord Sai Share Market Academy. Read it on this page on desktop or mobile.</p>
+                            </div>
+                        </div>
+
+                        <!-- Access code -->
+                        <div class="col-md-7 col-lg-8 lsi-ebook-gate">
+                            <div id="lsiEbookLocked">
+                                <h6 class="fw-bold text-dark mb-1"><i class="fas fa-key text-primary me-2"></i>E-Book Access</h6>
+                                <p class="text-muted small mb-3">Enter your access code to access the E-book.</p>
+                                <form id="lsiEbookForm" class="lsi-ebook-form" novalidate autocomplete="off">
+                                    <label for="lsiEbookCode" class="visually-hidden">Access code</label>
+                                    <input type="text" class="form-control" id="lsiEbookCode" placeholder="Enter Access Code" maxlength="40" autocapitalize="characters" spellcheck="false" aria-describedby="lsiEbookError">
+                                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold"><i class="fas fa-unlock-alt me-2"></i>Access E-Book</button>
+                                </form>
+                                <div class="lsi-ebook-error d-none" id="lsiEbookError" role="alert"><i class="fas fa-exclamation-circle me-1"></i>Invalid access code. Please enter a valid code.</div>
+                                <p class="text-muted small mt-3 mb-0">Don't have a code? <a href="#" data-bs-toggle="modal" data-bs-target="#demoModal">Ask the academy desk</a>.</p>
+                            </div>
+                            <div id="lsiEbookGranted" class="d-none" tabindex="-1">
+                                <span class="lsi-ebook-granted"><i class="fas fa-check-circle me-1"></i>Access Granted ✓</span>
+                                <p class="text-muted small mt-3 mb-0">Your e-book is open below. Scroll inside the reader to turn the pages.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reader: filled after the right code is entered -->
+                    <div class="lsi-ebook-viewer d-none" id="lsiEbookViewer">
+                        <div class="lsi-ebook-viewer-bar">
+                            <span class="fw-bold"><i class="fas fa-book-reader me-2"></i>E-Book</span>
+                            <a href="#" target="_blank" rel="noopener" class="lsi-ebook-newtab" id="lsiEbookNewTab"><i class="fas fa-external-link-alt me-1"></i>Open full screen</a>
+                        </div>
+                        <div class="lsi-ebook-frame" id="lsiEbookFrame"></div>
+                    </div>
                 </div>
             </div>
 
@@ -619,10 +659,6 @@
                         Systematic Investment Plans | SWP | Wealth Planning
                     </div>
 
-                    <div class="lsi-footer-admin-links d-flex flex-wrap gap-2 mode-academy-only">
-                        <a href="student-login.html?portal=automation" class="lsi-footer-admin-btn lsi-automation-link" title="Academy office: students, fees, receipts, attendance"><i class="fas fa-robot me-1"></i> Automation Admin</a>
-                        <a href="student-login.html?portal=admin" class="lsi-footer-admin-btn lsi-admin-link" title="Administrator login"><i class="fas fa-user-shield me-1"></i> Admin</a>
-                    </div>
                 </div>
 
                 <!-- Quick Links -->
@@ -713,7 +749,6 @@
         <div class="container text-center">
             <span class="mode-academy-only" data-i18n="footer.copyrightAcademy">&copy; Lord Sai Share Market Classes. All Rights Reserved.</span>
             <span class="mode-mf-only" data-i18n="footer.copyrightMf">&copy; VAIBHAV S. PAWAR — AMFI Registered Mutual Fund Distributor (ARN: 280789). All Rights Reserved.</span>
-            <a href="student-login.html" class="btn btn-sm btn-outline-info rounded-pill px-3 ms-3 lsi-student-link mode-academy-only" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
         </div>
     </div>
     <!-- Copyright End -->
@@ -790,140 +825,15 @@
     <!-- Live Stock Market Candlestick Chart Engine -->
     <script src="js/live-chart.js"></script>
 
-    <!-- Authentication Engine -->
-    <script src="js/api-config.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/checkout.js?v=20260924-i18n"></script>
+    <!-- Enquiry and review forms: sent to the owner on WhatsApp and by email (js/enquiry.js) -->
+    <script src="js/enquiry.js?v=20260925b"></script>
 
     <!-- Multilingual Engine -->
     <script src="js/translations.js?v=20260923-caps"></script>
-    <script src="js/lang.js?v=20260924-i18n2"></script>
-    <script src="js/mode.js"></script>
-    <script src="js/main.js"></script>
-    <!-- Purchase Modal (Razorpay checkout) — shared with courses.html; driven by js/checkout.js -->
-    <div class="modal fade" id="purchaseModal" tabindex="-1" aria-labelledby="purchaseModalLabel" aria-hidden="true" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
-                <div class="modal-header text-white" style="background: linear-gradient(135deg, var(--lsi-navy), var(--lsi-blue)); border-radius: 16px 16px 0 0;">
-                    <div>
-                        <h5 class="modal-title fw-bold text-white" id="purchaseModalLabel">Buy Course</h5>
-                        <small class="text-light opacity-75">Secure payment via Razorpay · Instant Student Portal access</small>
-                    </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-4">
-
-                    <!-- Step 1: details -->
-                    <div id="purchaseStepDetails">
-                        <div class="row g-4">
-                            <div class="col-md-7">
-                                <h6 class="fw-bold text-dark mb-3"><i class="fas fa-user-edit text-primary me-2"></i> Your Details</h6>
-                                <form id="purchaseForm" novalidate>
-                                    <div class="mb-3">
-                                        <label class="form-label small fw-bold text-muted">Full Name *</label>
-                                        <input type="text" class="form-control" id="purchaseName" placeholder="As it should appear on your certificate" maxlength="150" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label small fw-bold text-muted">Email Address *</label>
-                                        <input type="email" class="form-control" id="purchaseEmail" placeholder="you@example.com" maxlength="190" required>
-                                        <div class="form-text">Your Student ID and password setup link will be sent here.</div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label small fw-bold text-muted">Mobile Number *</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text">+91</span>
-                                            <input type="tel" class="form-control" id="purchaseMobile" placeholder="10-digit mobile" maxlength="10" pattern="[6-9][0-9]{9}" required>
-                                        </div>
-                                    </div>
-                                    <!-- Mode banner: filled by checkout.js from GET /api/payments/mode -->
-                                    <div class="alert py-2 px-3 small d-none" id="purchaseModeBanner"></div>
-                                    <div class="alert alert-danger py-2 px-3 small d-none" id="purchaseError"></div>
-                                    <button type="submit" class="btn btn-primary rounded-pill w-100 py-2 fw-bold" id="purchasePayBtn">
-                                        <span id="purchasePayText"><i class="fas fa-lock me-2"></i> Pay Now — <span id="purchasePayAmount">₹9,999</span></span>
-                                        <span id="purchasePaySpinner" class="d-none"><span class="spinner-border spinner-border-sm me-2"></span> Preparing secure checkout...</span>
-                                    </button>
-                                    <p class="text-muted text-center mt-3 mb-0" style="font-size: 11px;" id="purchaseFootnote">
-                                        <i class="fas fa-shield-alt me-1"></i> Payments are processed by Razorpay. We never see or store your card details.
-                                    </p>
-                                </form>
-                            </div>
-                            <div class="col-md-5">
-                                <div class="p-3 bg-light rounded-3 border h-100">
-                                    <h6 class="fw-bold text-dark mb-3"><i class="fas fa-receipt text-primary me-2"></i> Order Summary</h6>
-                                    <div class="small text-muted" id="purchaseProductLabel">Course</div>
-                                    <div class="fw-bold text-dark mb-3" id="purchaseCourseName">Share Market Education &amp; Training</div>
-                                    <div class="d-flex justify-content-between small mb-1"><span class="text-muted">List price</span><span class="text-decoration-line-through" id="purchaseListPrice">₹14,999</span></div>
-                                    <div class="d-flex justify-content-between mb-3 pt-2 border-top"><strong>Total</strong><strong class="text-primary fs-5" id="purchaseTotal">₹9,999</strong></div>
-                                    <ul class="list-unstyled small text-muted mb-0" id="purchaseBenefits">
-                                        <li class="mb-1"><i class="fas fa-check text-success me-1"></i> Lifetime access to lesson videos</li>
-                                        <li class="mb-1"><i class="fas fa-check text-success me-1"></i> Module handouts &amp; PDFs</li>
-                                        <li class="mb-1"><i class="fas fa-check text-success me-1"></i> Trade journal with mentor review</li>
-                                        <li><i class="fas fa-check text-success me-1"></i> Doubt desk support</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Step 2: verifying -->
-                    <div id="purchaseStepVerifying" class="d-none text-center py-5">
-                        <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;"></div>
-                        <h5 class="fw-bold text-dark">Verifying your payment...</h5>
-                        <p class="text-muted mb-0">Please do not close this window.</p>
-                    </div>
-
-                    <!-- Step 3: success -->
-                    <div id="purchaseStepSuccess" class="d-none text-center py-3">
-                        <div class="trust-icon icon-green mx-auto mb-3" style="width: 72px; height: 72px; font-size: 32px;"><i class="fas fa-check"></i></div>
-                        <h4 class="fw-bold text-dark mb-1">Payment Successful</h4>
-                        <p class="text-muted mb-4" id="purchaseSuccessMessage"></p>
-                        <div class="p-3 bg-light rounded-3 border text-start mx-auto mb-4" style="max-width: 420px;">
-                            <div class="d-flex justify-content-between small mb-2"><span class="text-muted" id="successProductLabel">Course</span><strong id="successCourse"></strong></div>
-                            <div class="d-flex justify-content-between small mb-2"><span class="text-muted" id="successAccessLabel">Enrollment</span><span class="badge bg-success">Active</span></div>
-                            <div class="d-flex justify-content-between small mb-2"><span class="text-muted">Student ID</span><strong class="font-monospace" id="successStudentId"></strong></div>
-                            <div class="d-flex justify-content-between small mb-2"><span class="text-muted">Invoice No.</span><strong class="font-monospace" id="successInvoice"></strong></div>
-                            <div class="d-flex justify-content-between small mb-2"><span class="text-muted">Order Ref</span><span class="font-monospace" id="successOrderRef"></span></div>
-                            <div class="d-flex justify-content-between small"><span class="text-muted" id="successEmailLabel">Email sent to</span><strong id="successEmail"></strong></div>
-                        </div>
-
-                        <!-- Shown only when the setup email could not be delivered. Never contains
-                             the setup token or a password — it just re-triggers the email. -->
-                        <div class="alert alert-warning text-start mx-auto mb-4 d-none" id="successEmailWarning" style="max-width: 420px;">
-                            <strong><i class="fas fa-exclamation-triangle me-1"></i> We could not email your account details.</strong>
-                            <p class="small mb-2 mt-1">Your purchase is safe and your Student ID above is permanent. We can send a fresh account email with secure credentials and the invoice again.</p>
-                            <button type="button" class="btn btn-sm btn-warning rounded-pill px-3" id="successResendBtn">
-                                <i class="fas fa-paper-plane me-1"></i> Resend account email
-                            </button>
-                            <div class="small mt-2 d-none" id="successResendResult"></div>
-                        </div>
-
-                        <a href="student-login.html" class="btn btn-primary rounded-pill px-5 py-2 fw-bold"><i class="fas fa-user-graduate me-2"></i> Go to Student Portal</a>
-                        <p class="text-muted small mt-3 mb-0" id="successHint"></p>
-                    </div>
-
-                    <!-- Step 4b: cancelled by the student -->
-                    <div id="purchaseStepCancelled" class="d-none text-center py-3">
-                        <div class="trust-icon mx-auto mb-3" style="width: 72px; height: 72px; font-size: 32px; background: rgba(245,158,11,0.15); color: #B45309;"><i class="fas fa-hand-paper"></i></div>
-                        <h4 class="fw-bold text-dark mb-1">Payment Cancelled</h4>
-                        <p class="text-muted mb-1">Your payment was cancelled. No course enrollment was created and nothing was charged.</p>
-                        <p class="text-muted mb-4">You can try again whenever you're ready.</p>
-                        <button type="button" class="btn btn-primary rounded-pill px-4" id="purchaseCancelRetryBtn"><i class="fas fa-redo me-1"></i> Try Again</button>
-                    </div>
-
-                    <!-- Step 4: failure -->
-                    <div id="purchaseStepFailed" class="d-none text-center py-3">
-                        <div class="trust-icon mx-auto mb-3" style="width: 72px; height: 72px; font-size: 32px; background: rgba(220,53,69,0.12); color: #dc3545;"><i class="fas fa-times"></i></div>
-                        <h4 class="fw-bold text-dark mb-1">Payment Not Completed</h4>
-                        <p class="text-muted mb-4" id="purchaseFailedMessage"></p>
-                        <button type="button" class="btn btn-outline-primary rounded-pill px-4" id="purchaseRetryBtn">Try Again</button>
-                        <a href="https://wa.me/919920254354" target="_blank" class="btn btn-success rounded-pill px-4 ms-2"><i class="fab fa-whatsapp me-1"></i> Contact Academy</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
+    <script src="js/lang.js?v=20260925f"></script>
+    <script src="js/mode.js?v=20260925b"></script>
+    <script src="js/main.js?v=20260925d"></script>
+    <script src="js/ebook-access.js"></script>
 </body>
 
 </html>

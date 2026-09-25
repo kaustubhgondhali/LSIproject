@@ -9,9 +9,8 @@
  *   4. img/mf-hero-own-home.jpg
  *   5. img/mf-hero-financial-goals.jpg
  *
- * Dynamic fetching and swapping from /api/public/mutual-fund/slider-images has been disabled
- * so the homepage slider strictly uses the local Git-tracked project image files.
- * This eliminates network requests, backend dependencies, and any potential race conditions.
+ * The website has no server, so the slider uses only these local project image files:
+ * no network requests and no race conditions.
  *
  * The slider engine in js/main.js (initMfHeroSlider) handles autoplay, arrows, dots,
  * transitions, touch-swipe, and responsive layout across desktop, tablet, and mobile.

@@ -25,7 +25,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Template Stylesheet -->
-    <link href="css/style.css?v=20260924l" rel="stylesheet">
+    <link href="css/style.css?v=20260925b" rel="stylesheet">
 </head>
 
 <body>
@@ -58,7 +58,6 @@
                         <span class="mode-academy-only"><i class="fas fa-th-large me-1"></i> Invest & Wealth Manager</span>
                     </a>
                     <a href="https://wa.me/919920254354" target="_blank" class="btn btn-sm btn-outline-light rounded-pill py-1 px-3 me-3" data-i18n="topbar.whatsapp"><i class="fab fa-whatsapp text-success me-1"></i> WhatsApp Support</a>
-                    <a href="student-login.html" class="text-light small mode-academy-only" data-i18n="topbar.studentLogin"><i class="fas fa-user-lock text-info me-1"></i> Student Login</a>
                 </div>
             </div>
         </div>
@@ -134,7 +133,6 @@
                     <a href="blog.html" class="nav-item nav-link active" data-i18n="nav.blog">Blog</a>
                     <a href="store.html" class="nav-item nav-link mode-academy-only" data-i18n="nav.store">Store</a>
                     <a href="contact.html" class="nav-item nav-link" data-i18n="nav.contact">Contact</a>
-                    <a href="student-login.html" class="nav-item nav-link d-lg-none mode-academy-only" data-i18n="nav.studentLogin">Student Login</a>
                 </div>
                 <div class="ms-lg-3 my-2 my-lg-0">
                     <button type="button" class="btn btn-enquire" data-bs-toggle="modal" data-bs-target="#demoModal" data-i18n="nav.enquireNow">
@@ -202,11 +200,11 @@
             <div class="row g-3 justify-content-between align-items-center mb-5">
                 <div class="col-lg-8">
                     <div class="d-flex flex-wrap gap-2" id="publicBlogCategories">
-                        <button class="btn btn-sm btn-primary rounded-pill px-3">All Articles</button>
-                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3">Stock Market Basics</button>
-                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3">Technical Analysis</button>
-                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3">SIP & Compounding</button>
-                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3">Risk Management</button>
+                        <button class="btn btn-sm btn-primary rounded-pill px-3" data-blog-filter="all">All Articles</button>
+                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-blog-filter="basics">Stock Market Basics</button>
+                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-blog-filter="technical">Technical Analysis</button>
+                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-blog-filter="sip">SIP & Compounding</button>
+                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-blog-filter="risk">Risk Management</button>
                     </div>
                 </div>
                 <div class="col-lg-4">
@@ -245,7 +243,7 @@
 
             <div id="publicBlogArticlesWrapper">
             <!-- FEATURED ARTICLE: 1. STOCK MARKET: WHERE SHOULD A BEGINNER START? -->
-            <div class="card p-4 p-lg-5 mb-5 shadow-sm border-0 bg-white" style="border-radius: 16px;">
+            <div class="card p-4 p-lg-5 mb-5 shadow-sm border-0 bg-white" style="border-radius: 16px;" data-blog-topics="basics">
                 <div class="row g-4 align-items-center">
                     <div class="col-lg-6">
                         <img src="img/service-1.jpg" alt="Stock Market Basics Beginner" class="img-fluid rounded-3" style="width: 100%; max-height: 320px; object-fit: cover;">
@@ -272,7 +270,7 @@
             <div class="row g-4">
                 
                 <!-- Article 2: SIP vs Lump Sum -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-6" data-blog-topics="sip">
                     <div class="card h-100 shadow-sm border-0 bg-white overflow-hidden" style="border-radius: 12px;">
                         <img src="img/service-2.jpg" alt="SIP vs Lump Sum" class="img-fluid" style="height: 200px; object-fit: cover;">
                         <div class="p-4 d-flex flex-column flex-grow-1">
@@ -290,7 +288,7 @@
                 </div>
 
                 <!-- Article 3: What Is Risk Management in Trading? -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-6" data-blog-topics="risk">
                     <div class="card h-100 shadow-sm border-0 bg-white overflow-hidden" style="border-radius: 12px;">
                         <img src="img/service-3.jpg" alt="Risk Management in Trading" class="img-fluid" style="height: 200px; object-fit: cover;">
                         <div class="p-4 d-flex flex-column flex-grow-1">
@@ -308,7 +306,7 @@
                 </div>
 
                 <!-- Article 4: 5 Common Mistakes New Traders Make -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-6" data-blog-topics="basics risk">
                     <div class="card h-100 shadow-sm border-0 bg-white overflow-hidden" style="border-radius: 12px;">
                         <img src="img/service-4.jpg" alt="Common Trading Mistakes" class="img-fluid" style="height: 200px; object-fit: cover;">
                         <div class="p-4 d-flex flex-column flex-grow-1">
@@ -326,7 +324,7 @@
                 </div>
 
                 <!-- Article 5: How Does SWP Work? -->
-                <div class="col-lg-6 col-md-6">
+                <div class="col-lg-6 col-md-6" data-blog-topics="sip">
                     <div class="card h-100 shadow-sm border-0 bg-white overflow-hidden" style="border-radius: 12px;">
                         <div class="p-4 d-flex flex-column flex-grow-1">
                             <div class="d-flex justify-content-between mb-2">
@@ -343,7 +341,7 @@
                 </div>
 
                 <!-- Article 6: What Is Mutual Fund Diversification? -->
-                <div class="col-lg-6 col-md-6">
+                <div class="col-lg-6 col-md-6" data-blog-topics="sip">
                     <div class="card h-100 shadow-sm border-0 bg-white overflow-hidden" style="border-radius: 12px;">
                         <div class="p-4 d-flex flex-column flex-grow-1">
                             <div class="d-flex justify-content-between mb-2">
@@ -523,10 +521,6 @@
                         Stock Market Education | Trading | Investment | Financial Planning | Insurance
                     </div>
 
-                    <div class="lsi-footer-admin-links d-flex flex-wrap gap-2 mode-academy-only">
-                        <a href="student-login.html?portal=automation" class="lsi-footer-admin-btn lsi-automation-link" title="Academy office: students, fees, receipts, attendance"><i class="fas fa-robot me-1"></i> Automation Admin</a>
-                        <a href="student-login.html?portal=admin" class="lsi-footer-admin-btn lsi-admin-link" title="Administrator login"><i class="fas fa-user-shield me-1"></i> Admin</a>
-                    </div>
                 </div>
 
                 <!-- Quick Links -->
@@ -615,7 +609,6 @@
     <div class="container-fluid copyright py-3">
         <div class="container text-center">
             <span>&copy; Lord Sai Investment & Share Market Academy (Class). All Rights Reserved.</span>
-            <a href="student-login.html" class="btn btn-sm btn-outline-info rounded-pill px-3 ms-3 lsi-student-link mode-academy-only" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
         </div>
     </div>
     <!-- Copyright End -->
@@ -687,17 +680,16 @@
     <!-- Live Stock Market Candlestick Chart Engine -->
     <script src="js/live-chart.js"></script>
 
-    <!-- Authentication Engine -->
-    <script src="js/api-config.js"></script>
-    <script src="js/auth.js"></script>
+    <!-- Enquiry and review forms: sent to the owner on WhatsApp and by email (js/enquiry.js) -->
+    <script src="js/enquiry.js?v=20260925b"></script>
 
     <!-- Multilingual Engine -->
     <script src="js/translations.js?v=20260923-caps"></script>
-    <script src="js/lang.js?v=20260924-i18n2"></script>
-    <script src="js/mode.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/lang.js?v=20260925f"></script>
+    <script src="js/mode.js?v=20260925b"></script>
+    <script src="js/main.js?v=20260925d"></script>
     <!-- Dynamic Blog Integration Engine -->
-    <script src="js/blog.js"></script>
+    <script src="js/blog.js?v=20260925b"></script>
 </body>
 
 </html>

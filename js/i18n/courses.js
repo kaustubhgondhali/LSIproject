@@ -268,13 +268,7 @@
         "Share Market Education & Training (Full Master Course — ₹{#})": ["शेयर मार्केट शिक्षा और प्रशिक्षण (पूर्ण मास्टर कोर्स — ₹{#})", "शेअर मार्केट शिक्षण आणि प्रशिक्षण (संपूर्ण मास्टर कोर्स — ₹{#})"],
         "Submit Course Enrollment Inquiry": ["कोर्स नामांकन पूछताछ भेजें", "कोर्स प्रवेश चौकशी पाठवा"],
 
-        /* Admission-status labels written by the courses.html script */
-        "Admissions Closed": ["प्रवेश बंद", "प्रवेश बंद"],
-        "Admissions Paused": ["प्रवेश अस्थायी रूप से रुके हैं", "प्रवेश तात्पुरते थांबवले"],
-        "Admissions Currently Closed": ["प्रवेश फिलहाल बंद हैं", "प्रवेश सध्या बंद आहेत"],
-        "Admissions Closed (Purchase Disabled)": ["प्रवेश बंद (खरीद बंद)", "प्रवेश बंद (खरेदी बंद)"],
-        "View Course (Admissions Closed)": ["कोर्स देखें (प्रवेश बंद)", "कोर्स पाहा (प्रवेश बंद)"],
-        "View Course Details (Admissions Closed)": ["कोर्स का विवरण देखें (प्रवेश बंद)", "कोर्सचा तपशील पाहा (प्रवेश बंद)"],
-        "Check Course Details": ["कोर्स का विवरण देखें", "कोर्सचा तपशील पाहा"]
+        /* Buy buttons replaced by this notice (courses.html #pricingSoonNotice, #footerSoonNotice) */
+        "This course will be available soon in our Store.": ["यह कोर्स जल्द ही हमारे स्टोर में उपलब्ध होगा।", "हा कोर्स लवकरच आमच्या स्टोअरमध्ये उपलब्ध होईल."],
     });
 })(window);

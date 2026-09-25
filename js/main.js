@@ -254,28 +254,44 @@
     // ==========================================
     // 4. FREE DEMO REGISTRATION & LEAD MODAL
     // ==========================================
+    // Sent to the owner on WhatsApp and by email (js/enquiry.js): WhatsApp opens with the enquiry
+    // typed in for the visitor to send, and an email copy goes out in the background.
+    // The pop-up's fields have no ids, so they are read by type:
+    // name (text), phone (tel), email, programme (the select shown in this mode), message (textarea).
     $(document).on('submit', '#demoRegistrationForm, #webinarBannerForm, #contactInquiryForm', function(e) {
         e.preventDefault();
         var form = $(this);
-        var submitBtn = form.find('button[type="submit"]');
-        var originalText = submitBtn.html();
+        var field = function (sel) { var f = form.find(sel).first(); return f.length ? $.trim(f.val() || '') : ''; };
+        var file = (window.location.pathname.split('/').pop() || 'index.html').replace(/\.html?$/i, '');
+        var pageName = (file === 'index' || file === 'home') ? 'Home'
+            : /^(sip|swp)$/.test(file) ? file.toUpperCase()
+            : file.replace(/-/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
 
-        submitBtn.html('<i class="fas fa-spinner fa-spin me-2"></i> Registering...').prop('disabled', true);
+        form.find('.lsi-enquiry-result').remove();
+        if (!window.LSI_Enquiry) { window.open('https://wa.me/919920254354', '_blank'); return; }
 
-        setTimeout(function() {
-            submitBtn.html('<i class="fas fa-check-circle me-2"></i> Request Noted').removeClass('btn-primary').addClass('btn-success');
+        var name = field('input[type="text"]'), email = field('input[type="email"]');
+        var sent = window.LSI_Enquiry.send({
+            subject: 'New enquiry from ' + (name || 'a visitor') + ' (' + pageName + ' page)',
+            fields: [
+                ['Name', name],
+                ['Phone', field('input[type="tel"]')],
+                ['Email', email],
+                ['Interested in', field('select:visible') || field('select')]
+            ],
+            message: field('textarea'),
+            source: 'Sent from the ' + pageName + ' page enquiry form',
+            replyTo: email
+        });
+        var result = $('<div class="alert alert-success mt-3 shadow-sm lsi-enquiry-result" role="status"></div>')
+            .html(window.LSI_Enquiry.sentNote(sent.url));
+        form.append(result);
+        sent.emailed.then(function (ok) { if (ok) result.append(window.LSI_Enquiry.emailNote()); });
+    });
 
-            // NOTE: this form is frontend-only (no backend persistence or notification exists yet), so the
-            // message must not claim a seat was reserved. It directs the visitor to the real contact channel.
-            var successMsg = $('<div class="alert alert-success mt-3 shadow-sm"><i class="fas fa-check-circle me-2"></i> <strong>Thank you!</strong> To confirm your free strategy session seat, please message us on <a href="https://wa.me/919920254354?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20book%20a%20free%20strategy%20session" target="_blank" rel="noopener" class="alert-link">WhatsApp (+91 99202 54354)</a> or call us — our mentor team will share the joining link.</div>');
-            form.append(successMsg);
-
-            setTimeout(function() {
-                if ($('#demoModal').length > 0) {
-                    $('#demoModal').modal('hide');
-                }
-            }, 3000);
-        }, 1200);
+    // Reopening the pop-up shows a fresh form, not the last result.
+    $(document).on('hidden.bs.modal', '#demoModal', function () {
+        $(this).find('.lsi-enquiry-result').remove();
     });
 
     // ==========================================

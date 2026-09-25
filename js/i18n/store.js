@@ -55,11 +55,7 @@
             "नोकरदार व्यावसायिक आणि कुटुंबांसाठी लिहिलेले दीर्घकालीन इक्विटी गुंतवणूक आणि म्युच्युअल फंड चक्रवाढीचे हँडबुक."],
         "Inquire via Investment Desk": ["इन्वेस्टमेंट डेस्क से पूछताछ करें", "इन्व्हेस्टमेंट डेस्ककडे चौकशी करा"],
         "Digital Ebooks": ["डिजिटल ईबुक", "डिजिटल ईबुक"],
-        "Buy & Read in the Student Portal": ["छात्र पोर्टल में खरीदें और पढ़ें", "विद्यार्थी पोर्टलमध्ये खरेदी करा आणि वाचा"],
-        "Pay securely with Razorpay. The ebook is added to your Lord Sai Student Portal account (the same account as your courses) and your invoice is emailed as a PDF. Ebook files are never shared as direct download links.": [
-            "Razorpay से सुरक्षित भुगतान करें। ईबुक आपके लॉर्ड साई छात्र पोर्टल खाते (वही खाता जिसमें आपके कोर्स हैं) में जोड़ दी जाती है और आपका इनवॉइस PDF के रूप में ईमेल किया जाता है। ईबुक फाइलें कभी भी सीधे डाउनलोड लिंक के रूप में साझा नहीं की जातीं।",
-            "Razorpay द्वारे सुरक्षित पेमेंट करा. ईबुक तुमच्या लॉर्ड साई विद्यार्थी पोर्टल खात्यात (तुमच्या कोर्सचेच खाते) जोडले जाते आणि तुमचे इन्व्हॉइस PDF स्वरूपात ईमेल केले जाते. ईबुक फाइल्स कधीही थेट डाउनलोड लिंक म्हणून दिल्या जात नाहीत."],
-        "Share Market Course E-Book": ["शेयर मार्केट कोर्स ई-बुक", "शेअर मार्केट कोर्स ई-बुक"],
+        "Share Market Course E‑Book": ["शेयर मार्केट कोर्स ईबुक", "शेअर मार्केट कोर्स ईबुक"],
         "Learning Material & Worksheets": ["अध्ययन सामग्री और वर्कशीट", "अभ्यास साहित्य आणि वर्कशीट"],
         "Journaling": ["जर्नलिंग", "जर्नलिंग"],
         "LSI Physical Trade Journal Logbook": ["LSI प्रिंटेड ट्रेड जर्नल लॉगबुक", "LSI छापील ट्रेड जर्नल लॉगबुक"],
@@ -120,9 +116,35 @@
         "Complete Trader Classroom Study Kit": ["कम्प्लीट ट्रेडर क्लासरूम स्टडी किट", "संपूर्ण ट्रेडर क्लासरूम अभ्यास किट"],
         "Hardbound Trade Journal Logbook": ["हार्डबाउंड ट्रेड जर्नल लॉगबुक", "हार्डबाउंड ट्रेड जर्नल लॉगबुक"],
         "Submit Store Inquiry": ["स्टोर पूछताछ भेजें", "स्टोअर चौकशी पाठवा"],
-        "Your purchase is safe and your Student ID above is permanent. We can send a fresh account email with secure credentials and the invoice again.": [
-            "आपकी खरीद सुरक्षित है और ऊपर दी गई छात्र आईडी स्थायी है। हम सुरक्षित लॉगिन जानकारी और इनवॉइस के साथ नया खाता ईमेल फिर से भेज सकते हैं।",
-            "तुमची खरेदी सुरक्षित आहे आणि वरील विद्यार्थी आयडी कायमस्वरूपी आहे. आम्ही सुरक्षित लॉगिन माहिती आणि इन्व्हॉइससह नवीन खाते ईमेल पुन्हा पाठवू शकतो."],
-        "Resend account email": ["खाता ईमेल दोबारा भेजें", "खाते ईमेल पुन्हा पाठवा"]
+
+        /* E-book opened with an access code (store.html #ebooks, js/ebook-access.js) */
+        "E-Book Access": ["ईबुक एक्सेस", "ईबुक ॲक्सेस"],
+        "Read Online with Your Access Code": ["अपने एक्सेस कोड से ऑनलाइन पढ़ें", "तुमच्या ॲक्सेस कोडने ऑनलाइन वाचा"],
+        "Enter the access code given to you by Lord Sai Share Market Academy to open the e-book right here on this page.": [
+            "लॉर्ड साई शेयर मार्केट एकेडमी द्वारा दिया गया एक्सेस कोड दर्ज करें और ईबुक इसी पेज पर खोलें।",
+            "लॉर्ड साई शेअर मार्केट अकॅडमीने दिलेला ॲक्सेस कोड टाका आणि ईबुक याच पानावर उघडा."],
+        "E-Book": ["ईबुक", "ईबुक"],
+        "Digital Product": ["डिजिटल प्रोडक्ट", "डिजिटल प्रॉडक्ट"],
+        "Share market learning e-book from Lord Sai Share Market Academy. Read it on this page on desktop or mobile.": [
+            "लॉर्ड साई शेयर मार्केट एकेडमी की शेयर मार्केट सीखने की ईबुक। इसे इसी पेज पर डेस्कटॉप या मोबाइल पर पढ़ें।",
+            "लॉर्ड साई शेअर मार्केट अकॅडमीचे शेअर मार्केट शिकण्यासाठीचे ईबुक. ते याच पानावर डेस्कटॉप किंवा मोबाईलवर वाचा."],
+        "Enter your access code to access the E-book.": ["ईबुक देखने के लिए अपना एक्सेस कोड दर्ज करें।", "ईबुक पाहण्यासाठी तुमचा ॲक्सेस कोड टाका."],
+        "Enter Access Code": ["एक्सेस कोड दर्ज करें", "ॲक्सेस कोड टाका"],
+        "Access code": ["एक्सेस कोड", "ॲक्सेस कोड"],
+        "Access E-Book": ["ईबुक खोलें", "ईबुक उघडा"],
+        "Invalid access code. Please enter a valid code.": ["अमान्य एक्सेस कोड। कृपया सही कोड दर्ज करें।", "अवैध ॲक्सेस कोड. कृपया योग्य कोड टाका."],
+        "Don't have a code? <0>Ask the academy desk</0>.": ["कोड नहीं है? <0>एकेडमी डेस्क से पूछें</0>।", "कोड नाही? <0>अकॅडमी डेस्कला विचारा</0>."],
+        "Access Granted ✓": ["एक्सेस मिल गया ✓", "ॲक्सेस मिळाला ✓"],
+        "Your e-book is open below. Scroll inside the reader to turn the pages.": [
+            "आपकी ईबुक नीचे खुल गई है। पेज पलटने के लिए रीडर के अंदर स्क्रॉल करें।",
+            "तुमचे ईबुक खाली उघडले आहे. पाने उलटण्यासाठी रीडरमध्ये स्क्रोल करा."],
+        "Open full screen": ["फुल स्क्रीन में खोलें", "फुल स्क्रीनमध्ये उघडा"],
+        "Opening the e-book...": ["ईबुक खुल रही है...", "ईबुक उघडत आहे..."],
+        "The e-book file has not been added yet. Please check back soon or contact the academy desk.": [
+            "ईबुक फाइल अभी जोड़ी नहीं गई है। कृपया जल्द ही फिर देखें या एकेडमी डेस्क से संपर्क करें।",
+            "ईबुक फाइल अद्याप जोडलेली नाही. कृपया लवकरच पुन्हा पाहा किंवा अकॅडमी डेस्कशी संपर्क साधा."],
+        "The e-book could not be opened here. Please use “Open full screen” above.": [
+            "ईबुक यहां नहीं खुल सकी। कृपया ऊपर “फुल स्क्रीन में खोलें” का उपयोग करें।",
+            "ईबुक येथे उघडता आले नाही. कृपया वरील “फुल स्क्रीनमध्ये उघडा” वापरा."],
     });
 })(window);
