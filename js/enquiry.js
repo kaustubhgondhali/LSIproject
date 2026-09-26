@@ -11,15 +11,13 @@
  *
  * Settings (edit below):
  *   whatsapp      - number that receives WhatsApp enquiries (country code + number, digits only)
- *   web3formsKey  - RECOMMENDED. Web3Forms access key (free at https://web3forms.com: enter the
- *                   owner's email and the key is emailed there; the key is made to be public).
- *                   With it, emails are sent from anywhere the site runs: a page opened from the
- *                   computer's disk, a local server, GitHub Pages or Hostinger, with no
- *                   activation per website.
- *   email         - used only while web3formsKey is empty: emails go through FormSubmit
- *                   (https://formsubmit.co) to this inbox. The first enquiry from each website
- *                   sends an "Activate Form" email that must be clicked once. FormSubmit may not
- *                   work for pages opened from disk, and some networks block it.
+ *   email         - the inbox that receives the email copies, through FormSubmit
+ *                   (https://formsubmit.co). No account or key: the first enquiry sends an
+ *                   "Activate Form" email to this inbox, and after that one click every enquiry
+ *                   from every page is delivered. It needs the site to be opened from a web
+ *                   address (not from disk), and some networks block formsubmit.co.
+ *   web3formsKey  - optional. When a Web3Forms access key is filled in, emails go through
+ *                   Web3Forms instead, to the inbox the key was created with.
  *
  * Usage (call directly inside the submit handler, or pop-up blockers stop WhatsApp opening):
  *   var sent = LSI_Enquiry.send({ subject, intro, fields: [[label, value], ...], messageLabel,
@@ -35,7 +33,7 @@
     var settings = {
         whatsapp: "919920254354",
         email: "lordsai.academy@gmail.com",
-        web3formsKey: "af024220-77f0-4dfc-9170-32b57f848158"
+        web3formsKey: ""               // empty: emails go through FormSubmit to `email` above
     };
 
     var FORMSUBMIT_URL = "https://formsubmit.co/ajax/";
