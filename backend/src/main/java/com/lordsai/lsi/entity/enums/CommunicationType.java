@@ -8,6 +8,12 @@ public enum CommunicationType {
     INVOICE,
     ADMIN_INDIVIDUAL,
     ADMIN_BULK,
-    /** Automatic exam workflow emails: application received, exam scheduled, result, certificate. */
-    EXAM_NOTIFICATION
+    /** Legacy: emails of the former exam workflow. Kept so their communication-log history still loads. */
+    EXAM_NOTIFICATION,
+    /** Automation Admin: an academy payment receipt (PDF) sent by email / WhatsApp. */
+    FEE_RECEIPT,
+    /** Automation Admin > Pending Fees: a reminder that part of the course fee is still to be paid. */
+    FEE_REMINDER,
+    /** Course completion certificate: request approved (certificate available) or rejected. */
+    CERTIFICATE_NOTIFICATION
 }

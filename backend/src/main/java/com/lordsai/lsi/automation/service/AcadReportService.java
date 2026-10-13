@@ -39,7 +39,7 @@ public class AcadReportService {
         }
     }
 
-    public static final List<String> REPORTS = List.of("students", "batch-wise", "fee-collection", "outstanding",
+    public static final List<String> REPORTS = List.of("students", "batch-wise", "fee-collection", "outstanding", "pending-fees",
             "payment-history", "receipts", "attendance", "attendance-sessions", "low-attendance", "batches", "courses-master",
             "payment-modes", "session-types");
 
@@ -52,9 +52,12 @@ public class AcadReportService {
     private final AcadPaymentService paymentService;
     private final AcadAttendanceService attendanceService;
     private final AcadMasterService masterService;
+    private final AcadPendingFeesService pendingFeesService;
 
     public AcadReportService(AcadStudentRepository students, AcadRowMapper mapper, AcadPaymentService paymentService,
-                             AcadAttendanceService attendanceService, AcadMasterService masterService) {
+                             AcadAttendanceService attendanceService, AcadMasterService masterService,
+                             AcadPendingFeesService pendingFeesService) {
+        this.pendingFeesService = pendingFeesService;
         this.students = students;
         this.mapper = mapper;
         this.paymentService = paymentService;
@@ -75,6 +78,7 @@ public class AcadReportService {
             case "batch-wise" -> batchWise(f.batchId());
             case "fee-collection" -> feeCollection(f.batchId(), f.from(), f.to(), f.mode(), f.studentId());
             case "outstanding" -> outstanding(f.batchId(), f.courseId());
+            case "pending-fees" -> pendingFees(f.batchId(), f.courseId(), f.q(), f.paymentStatus());
             case "payment-history" -> paymentHistory(f.batchId(), f.from(), f.to(), f.mode(), f.studentId());
             case "receipts" -> receipts(f.from(), f.to(), f.q(), f.studentId());
             case "attendance", "attendance-sessions" -> attendance(f.batchId(), f.from(), f.to());
@@ -110,15 +114,17 @@ public class AcadReportService {
         List<List<Object>> out = new ArrayList<>();
         for (StudentRow r : rows) {
             out.add(List.of(r.studentId(), r.fullName(), n(r.batchName()), n(r.courseName()), n(r.admissionDate()), n(r.mobile()), n(r.email()),
-                    r.courseFee(), r.totalPaid(), r.balance(), r.paymentStatus(), pct(r.attendancePercent()), r.status()));
+                    r.courseFee(), r.discount(), r.netFee(), r.totalPaid(), r.balance(), r.paymentStatus(), pct(r.attendancePercent()), r.status()));
         }
         Map<String, Object> totals = new LinkedHashMap<>();
         totals.put("students", rows.size());
-        totals.put("fees", rows.stream().map(StudentRow::courseFee).reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add));
+        // "fees" is what the students have to pay (after their discounts).
+        totals.put("fees", rows.stream().map(StudentRow::netFee).reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add));
+        totals.put("discount", rows.stream().map(StudentRow::discount).reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add));
         totals.put("paid", rows.stream().map(StudentRow::totalPaid).reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add));
         totals.put("balance", rows.stream().map(StudentRow::balance).reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add));
         return new Table("Student Report", List.of("Student ID", "Name", "Batch", "Course", "Admission", "Mobile", "Email",
-                "Course Fee", "Paid", "Balance", "Payment Status", "Attendance %", "Status"), out, totals);
+                "Course Fee", "Discount", "Fee after Discount", "Paid", "Balance", "Payment Status", "Attendance %", "Status"), out, totals);
     }
 
     private Table batchWise(Long batchId) {
@@ -130,14 +136,29 @@ public class AcadReportService {
         List<StudentRow> rows = rows(batchId, courseId, AcadStudent.STATUS_ACTIVE, null).stream().filter(r -> r.balance().signum() > 0).toList();
         List<List<Object>> out = new ArrayList<>();
         for (StudentRow r : rows) {
-            out.add(List.of(r.studentId(), r.fullName(), n(r.batchName()), n(r.mobile()), r.courseFee(), r.totalPaid(), r.balance(),
-                    r.paymentStatus(), n(r.lastPaymentDate())));
+            out.add(List.of(r.studentId(), r.fullName(), n(r.batchName()), n(r.mobile()), r.courseFee(), r.discount(), r.netFee(),
+                    r.totalPaid(), r.balance(), r.paymentStatus(), n(r.lastPaymentDate())));
         }
         Map<String, Object> totals = new LinkedHashMap<>();
         totals.put("students", rows.size());
         totals.put("balance", rows.stream().map(StudentRow::balance).reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add));
-        return new Table("Outstanding Balance Report", List.of("Student ID", "Name", "Batch", "Mobile", "Course Fee", "Paid", "Balance",
-                "Status", "Last Payment"), out, totals);
+        return new Table("Outstanding Balance Report", List.of("Student ID", "Name", "Batch", "Mobile", "Course Fee", "Discount",
+                "Fee after Discount", "Paid", "Balance", "Status", "Last Payment"), out, totals);
+    }
+
+    /** Automation Admin > Pending Fees as a printable / downloadable table, with every contact detail. */
+    private Table pendingFees(Long batchId, Long courseId, String q, String paymentStatus) {
+        com.lordsai.lsi.automation.dto.AutomationDtos.PendingFees p = pendingFeesService.list(batchId, courseId, q, paymentStatus, null);
+        List<List<Object>> out = new ArrayList<>();
+        for (com.lordsai.lsi.automation.dto.AutomationDtos.PendingFeeRow r : p.rows()) {
+            out.add(List.of(r.studentId(), r.fullName(), n(r.mobile()), n(r.email()), n(r.address()), n(r.batchName()),
+                    r.courseFee(), r.discount(), r.netFee(), r.totalPaid(), r.balance(), n(r.lastPaymentDate())));
+        }
+        Map<String, Object> totals = new LinkedHashMap<>();
+        totals.put("students", p.students());
+        totals.put("balance", p.totalBalance());
+        return new Table("Pending Fees", List.of("Student ID", "Name", "Mobile", "Email", "Address", "Batch", "Course Fee", "Discount",
+                "Fee after Discount", "Paid", "Balance", "Last Payment"), out, totals);
     }
 
     private Table feeCollection(Long batchId, LocalDate from, LocalDate to, String mode, Long studentId) {

@@ -1,7 +1,9 @@
 package com.lordsai.lsi.automation.web;
 
 import com.lordsai.lsi.automation.dto.AutomationDtos.AttendanceSheet;
+import com.lordsai.lsi.automation.dto.AutomationDtos.DiscountRequest;
 import com.lordsai.lsi.automation.dto.AutomationDtos.FeeSummary;
+import com.lordsai.lsi.automation.dto.AutomationDtos.PendingFees;
 import com.lordsai.lsi.automation.dto.AutomationDtos.PaymentDto;
 import com.lordsai.lsi.automation.dto.AutomationDtos.ReceiptDto;
 import com.lordsai.lsi.automation.dto.AutomationDtos.RecordPaymentRequest;
@@ -10,10 +12,13 @@ import com.lordsai.lsi.automation.dto.AutomationDtos.SaveSessionRequest;
 import com.lordsai.lsi.automation.dto.AutomationDtos.SessionDto;
 import com.lordsai.lsi.automation.dto.AutomationDtos.UpdatePaymentRequest;
 import com.lordsai.lsi.automation.service.AcadAttendanceService;
+import com.lordsai.lsi.automation.service.AcadEbookAccessService;
 import com.lordsai.lsi.automation.service.AcadPaymentService;
+import com.lordsai.lsi.automation.service.AcadPendingFeesService;
 import com.lordsai.lsi.automation.service.AcadReportService;
 import com.lordsai.lsi.dto.ApiResponse;
 import com.lordsai.lsi.entity.User;
+import com.lordsai.lsi.entity.enums.CommunicationChannel;
 import com.lordsai.lsi.export.ExportTable;
 import com.lordsai.lsi.export.ReportExportService;
 import com.lordsai.lsi.service.LmsReportService;
@@ -52,11 +57,17 @@ public class AutomationLedgerController {
     private final com.lordsai.lsi.automation.service.AcadCommunicationService acadCommunicationService;
     private final ReportExportService exportService;
     private final UserService userService;
+    private final AcadPendingFeesService pendingFeesService;
+    private final AcadEbookAccessService ebookAccess;
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AutomationLedgerController.class);
 
     public AutomationLedgerController(AcadPaymentService paymentService, AcadAttendanceService attendanceService,
                                       AcadReportService reportService, LmsReportService lmsReportService,
                                       com.lordsai.lsi.automation.service.AcadCommunicationService acadCommunicationService,
-                                      ReportExportService exportService, UserService userService) {
+                                      ReportExportService exportService, UserService userService,
+                                      AcadPendingFeesService pendingFeesService, AcadEbookAccessService ebookAccess) {
+        this.pendingFeesService = pendingFeesService;
+        this.ebookAccess = ebookAccess;
         this.paymentService = paymentService;
         this.attendanceService = attendanceService;
         this.reportService = reportService;
@@ -72,6 +83,42 @@ public class AutomationLedgerController {
     @GetMapping("/students/{id}/fees")
     public ApiResponse<FeeSummary> fees(@PathVariable Long id) {
         return ApiResponse.ok(paymentService.feeSummary(id));
+    }
+
+    /** Gives or changes this student's discount; their receipts are refreshed to show it. */
+    @PutMapping("/students/{id}/discount")
+    public ApiResponse<FeeSummary> discount(@PathVariable Long id, @Valid @RequestBody DiscountRequest body, HttpServletRequest req) {
+        FeeSummary f = paymentService.setDiscount(id, body, actor(), RequestUtil.clientIp(req));
+        return ApiResponse.ok("Discount saved. Fee after discount: \u20b9" + f.netFee().stripTrailingZeros().toPlainString()
+                + ", balance \u20b9" + f.balance().stripTrailingZeros().toPlainString() + ".", f);
+    }
+
+    @DeleteMapping("/students/{id}/discount")
+    public ApiResponse<FeeSummary> removeDiscount(@PathVariable Long id, HttpServletRequest req) {
+        return ApiResponse.ok("Discount removed.", paymentService.removeDiscount(id, actor(), RequestUtil.clientIp(req)));
+    }
+
+    // ---- pending fees ------------------------------------------------------------------------
+
+    @GetMapping("/pending-fees")
+    public ApiResponse<PendingFees> pendingFees(@RequestParam(required = false) Long batchId,
+                                                @RequestParam(required = false) Long courseId,
+                                                @RequestParam(required = false) String q,
+                                                @RequestParam(required = false) String paymentStatus,
+                                                @RequestParam(required = false) String sort) {
+        return ApiResponse.ok(pendingFeesService.list(batchId, courseId, q, paymentStatus, sort));
+    }
+
+    public record ReminderRequest(CommunicationChannel channel) {
+    }
+
+    /** One fee reminder: email is sent now; WhatsApp returns the chat for the click to open. */
+    @PostMapping("/pending-fees/{studentId}/remind")
+    public ApiResponse<AcadPendingFeesService.ReminderResult> remind(@PathVariable Long studentId, @RequestBody ReminderRequest body,
+                                                                     HttpServletRequest req) {
+        AcadPendingFeesService.ReminderResult r = pendingFeesService.remind(studentId, body == null ? null : body.channel(), actor(),
+                RequestUtil.clientIp(req));
+        return ApiResponse.ok(r.message(), r);
     }
 
     @GetMapping("/payments")
@@ -91,7 +138,17 @@ public class AutomationLedgerController {
     @PostMapping("/payments")
     public ApiResponse<PaymentDto> record(@Valid @RequestBody RecordPaymentRequest body, HttpServletRequest req) {
         PaymentDto p = paymentService.record(body, actor(), RequestUtil.clientIp(req));
-        return ApiResponse.ok("Payment " + p.paymentNo() + " recorded. Receipt " + p.receiptNo() + " generated.", p);
+        // The first installment also makes the student's free ebook login. It runs after the payment is
+        // saved, and a problem with it never undoes the payment.
+        String ebookNote = null;
+        try {
+            ebookNote = ebookAccess.afterPayment(p.studentId(), actor(), RequestUtil.clientIp(req));
+        } catch (RuntimeException e) {
+            log.warn("[AUTOMATION] Ebook login after payment {} not made: {}", p.paymentNo(), e.getMessage());
+            ebookNote = "The ebook login was not made: " + e.getMessage();
+        }
+        return ApiResponse.ok("Payment " + p.paymentNo() + " recorded. Receipt " + p.receiptNo() + " generated."
+                + (ebookNote == null ? "" : " " + ebookNote), p);
     }
 
     @PutMapping("/payments/{id}")
@@ -192,6 +249,11 @@ public class AutomationLedgerController {
             return communicationsTable(p);
         }
         if (LmsReportService.knows(report)) {
+            // Online purchases / invoices / ebooks reports belong to the Main Admin panel only.
+            if (CurrentUser.require().role() != com.lordsai.lsi.entity.enums.Role.ADMIN) {
+                throw new com.lordsai.lsi.exception.ApiException(org.springframework.http.HttpStatus.FORBIDDEN,
+                        "Online purchase reports and invoices are available in the Main Admin panel only.");
+            }
             return lmsReportService.build(report, new LmsReportService.Query(p.productType(), p.courseId(), p.ebookId(),
                     p.status(), p.channel(), p.studentId(), p.from(), p.to(), p.q()));
         }

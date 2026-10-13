@@ -30,11 +30,17 @@ public class PdfRenderer {
 
     /** The Lord Sai BLUE logo (img/lord-sai-logo.png on the website), embedded as a data URI. */
     public static final String LOGO_RESOURCE = "/branding/lord-sai-logo.png";
+    /** Vaibhav S. Pawar's signature (transparent PNG) for fee receipts and invoices, embedded as a data URI. */
+    public static final String SIGNATURE_RESOURCE = "/branding/signature-vaibhav-pawar.png";
+    /** The academy's round stamp (transparent PNG) for the Automation Admin fee receipt, embedded as a data URI. */
+    public static final String STAMP_RESOURCE = "/branding/stamp-lord-sai.png";
     private static final String FONT_REGULAR = "/branding/fonts/NotoSans-Regular.ttf";
     private static final String FONT_BOLD = "/branding/fonts/NotoSans-Bold.ttf";
 
     private final SpringTemplateEngine templateEngine;
     private volatile String cachedLogoDataUri;
+    private volatile String cachedSignatureDataUri;
+    private volatile String cachedStampDataUri;
 
     public PdfRenderer(SpringTemplateEngine templateEngine) {
         this.templateEngine = templateEngine;
@@ -44,6 +50,8 @@ public class PdfRenderer {
     public String html(String template, Map<String, Object> model) {
         Map<String, Object> vars = new HashMap<>(model);
         vars.putIfAbsent("logoDataUri", logoDataUri());
+        vars.putIfAbsent("signatureDataUri", signatureDataUri());
+        vars.putIfAbsent("stampDataUri", stampDataUri());
         Context context = new Context();
         context.setVariables(vars);
         return templateEngine.process(template, context);
@@ -72,16 +80,34 @@ public class PdfRenderer {
 
     public String logoDataUri() {
         String cached = cachedLogoDataUri;
-        if (cached != null) {
-            return cached;
-        }
-        try (InputStream in = resource(LOGO_RESOURCE)) {
-            if (in == null) {
-                return "";
-            }
-            cached = "data:image/png;base64," + Base64.getEncoder().encodeToString(in.readAllBytes());
+        if (cached == null) {
+            cached = pngDataUri(LOGO_RESOURCE);
             cachedLogoDataUri = cached;
-            return cached;
+        }
+        return cached;
+    }
+
+    public String signatureDataUri() {
+        String cached = cachedSignatureDataUri;
+        if (cached == null) {
+            cached = pngDataUri(SIGNATURE_RESOURCE);
+            cachedSignatureDataUri = cached;
+        }
+        return cached;
+    }
+
+    public String stampDataUri() {
+        String cached = cachedStampDataUri;
+        if (cached == null) {
+            cached = pngDataUri(STAMP_RESOURCE);
+            cachedStampDataUri = cached;
+        }
+        return cached;
+    }
+
+    private String pngDataUri(String path) {
+        try (InputStream in = resource(path)) {
+            return in == null ? "" : "data:image/png;base64," + Base64.getEncoder().encodeToString(in.readAllBytes());
         } catch (IOException e) {
             return "";
         }

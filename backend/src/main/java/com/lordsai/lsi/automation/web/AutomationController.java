@@ -2,6 +2,9 @@ package com.lordsai.lsi.automation.web;
 
 import com.lordsai.lsi.automation.dto.AutomationDtos.BatchDto;
 import com.lordsai.lsi.automation.dto.AutomationDtos.CourseDto;
+import com.lordsai.lsi.automation.dto.AutomationDtos.CoursePriceRequest;
+import com.lordsai.lsi.automation.dto.AutomationDtos.EbookAccess;
+import com.lordsai.lsi.automation.service.AcadEbookAccessService;
 import com.lordsai.lsi.automation.dto.AutomationDtos.DashboardStats;
 import com.lordsai.lsi.automation.dto.AutomationDtos.ImportPayload;
 import com.lordsai.lsi.automation.dto.AutomationDtos.ImportResult;
@@ -23,12 +26,14 @@ import com.lordsai.lsi.automation.service.AcadSequenceService;
 import com.lordsai.lsi.automation.service.AcadStudentService;
 import com.lordsai.lsi.dto.ApiResponse;
 import com.lordsai.lsi.entity.User;
+import com.lordsai.lsi.exception.ApiException;
 import com.lordsai.lsi.security.CurrentUser;
 import com.lordsai.lsi.service.UserService;
 import com.lordsai.lsi.util.RequestUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -56,9 +61,12 @@ public class AutomationController {
     private final AcadImportService importService;
     private final AcadSequenceService sequenceService;
     private final UserService userService;
+    private final AcadEbookAccessService ebookAccess;
 
     public AutomationController(AcadDashboardService dashboard, AcadStudentService studentService, AcadMasterService master,
-                                AcadImportService importService, AcadSequenceService sequenceService, UserService userService) {
+                                AcadImportService importService, AcadSequenceService sequenceService, UserService userService,
+                                AcadEbookAccessService ebookAccess) {
+        this.ebookAccess = ebookAccess;
         this.dashboard = dashboard;
         this.studentService = studentService;
         this.master = master;
@@ -123,6 +131,43 @@ public class AutomationController {
                 studentService.setStatus(id, archived, actor(), RequestUtil.clientIp(req)));
     }
 
+    // ---- free ebook login (Student Panel, ebook only) ----------------------------------------------
+
+    @GetMapping("/students/{id}/ebook-access")
+    public ApiResponse<EbookAccess> ebookAccess(@PathVariable Long id) {
+        return ApiResponse.ok(ebookAccess.status(id));
+    }
+
+    @PostMapping("/students/{id}/ebook-access")
+    public ApiResponse<EbookAccess> createEbookLogin(@PathVariable Long id, HttpServletRequest req) {
+        EbookAccess a = ebookAccess.create(id, actor(), RequestUtil.clientIp(req));
+        return ApiResponse.ok(a.message(), a);
+    }
+
+    @PostMapping("/students/{id}/ebook-access/reset-password")
+    public ApiResponse<EbookAccess> resetEbookPassword(@PathVariable Long id, HttpServletRequest req) {
+        EbookAccess a = ebookAccess.resetPassword(id, actor(), RequestUtil.clientIp(req));
+        return ApiResponse.ok(a.message(), a);
+    }
+
+    @PostMapping("/students/{id}/ebook-access/reset-device")
+    public ApiResponse<EbookAccess> resetEbookDevice(@PathVariable Long id, HttpServletRequest req) {
+        EbookAccess a = ebookAccess.resetDevice(id, actor(), RequestUtil.clientIp(req));
+        return ApiResponse.ok(a.message(), a);
+    }
+
+    @PostMapping("/students/{id}/ebook-access/email")
+    public ApiResponse<EbookAccess> emailEbookLogin(@PathVariable Long id, HttpServletRequest req) {
+        EbookAccess a = ebookAccess.emailLogin(id, actor(), RequestUtil.clientIp(req));
+        return ApiResponse.ok(a.message(), a);
+    }
+
+    @PatchMapping("/students/{id}/ebook-access/blocked")
+    public ApiResponse<EbookAccess> blockEbook(@PathVariable Long id, @RequestParam boolean blocked, HttpServletRequest req) {
+        EbookAccess a = ebookAccess.setBlocked(id, blocked, actor(), RequestUtil.clientIp(req));
+        return ApiResponse.ok(a.message(), a);
+    }
+
     // ---- master data ------------------------------------------------------------------------
 
     @GetMapping("/batches")
@@ -158,6 +203,13 @@ public class AutomationController {
     @PutMapping("/courses/{id}")
     public ApiResponse<CourseDto> updateCourse(@PathVariable Long id, @Valid @RequestBody SaveCourseRequest body, HttpServletRequest req) {
         return ApiResponse.ok("Course updated.", master.saveCourse(id, body, actor(), RequestUtil.clientIp(req)));
+    }
+
+    /** Automation Admin > Course Price: the academy's own price (website prices are separate). */
+    @PatchMapping("/courses/{id}/price")
+    public ApiResponse<CourseDto> coursePrice(@PathVariable Long id, @Valid @RequestBody CoursePriceRequest body, HttpServletRequest req) {
+        return ApiResponse.ok("Course price saved. New admissions will use it.", master.setCoursePrice(id, body.price(), actor(),
+                RequestUtil.clientIp(req)));
     }
 
     @GetMapping("/master/{category}")
@@ -205,10 +257,20 @@ public class AutomationController {
     @PutMapping("/settings/student-id-sequence")
     public ApiResponse<StudentIdSeriesDto> updateStudentIdSequence(@Valid @RequestBody UpdateStudentIdSeriesRequest body,
                                                                    HttpServletRequest req) {
-        var info = sequenceService.setNextStudentNumber(body.nextNumber(), actor(), RequestUtil.clientIp(req));
+        String ip = RequestUtil.clientIp(req);
+        var info = body.nextStudentId() != null && !body.nextStudentId().isBlank()
+                ? sequenceService.setNextStudentId(body.nextStudentId(), actor(), ip)
+                : sequenceService.setNextStudentNumber(requireNextNumber(body), actor(), ip);
         return ApiResponse.ok("Student ID series updated. The next student created will be " + info.nextStudentId() + ".",
                 new StudentIdSeriesDto(info.year(), info.nextNumber(), info.nextStudentId(),
                         info.highestExistingNumber(), info.highestExistingStudentId()));
+    }
+
+    private static int requireNextNumber(UpdateStudentIdSeriesRequest body) {
+        if (body.nextNumber() == null) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Enter the next Student ID number.");
+        }
+        return body.nextNumber();
     }
 
     private User actor() {

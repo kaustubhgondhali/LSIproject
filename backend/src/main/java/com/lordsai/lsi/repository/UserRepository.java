@@ -32,7 +32,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
             where u.role = :role
               and (lower(u.fullName) like lower(concat('%', :term, '%'))
                    or lower(u.email) like lower(concat('%', :term, '%'))
-                   or u.mobile like concat('%', :term, '%'))
+                   or u.mobile like concat('%', :term, '%')
+                   or exists (select p.id from StudentProfile p where p.user = u
+                              and (lower(p.studentId) like lower(concat('%', :term, '%'))
+                                   or lower(p.loginId) like lower(concat('%', :term, '%')))))
             """)
     Page<User> searchByRole(@Param("role") Role role, @Param("term") String term, Pageable pageable);
 }

@@ -1,19 +1,17 @@
 package com.lordsai.lsi.service;
 
 import com.lordsai.lsi.config.AppProperties;
-import com.lordsai.lsi.dto.exam.CertificateDtos;
-import com.lordsai.lsi.dto.exam.CertificateDtos.AdminCertificate;
-import com.lordsai.lsi.dto.exam.CertificateDtos.MyCertificate;
+import com.lordsai.lsi.dto.certificate.CertificateDtos.AdminCertificate;
+import com.lordsai.lsi.dto.certificate.CertificateDtos.MyCertificate;
+import com.lordsai.lsi.dto.certificate.CertificateDtos.Verification;
 import com.lordsai.lsi.entity.Certificate;
+import com.lordsai.lsi.entity.CertificateRequest;
 import com.lordsai.lsi.entity.CertificateSequence;
-import com.lordsai.lsi.entity.CertificateTemplate;
-import com.lordsai.lsi.entity.ExamApplication;
-import com.lordsai.lsi.entity.ExamAttempt;
+import com.lordsai.lsi.entity.Enrollment;
 import com.lordsai.lsi.entity.StudentProfile;
 import com.lordsai.lsi.entity.User;
 import com.lordsai.lsi.exception.ApiException;
 import com.lordsai.lsi.exception.ResourceNotFoundException;
-import com.lordsai.lsi.export.PdfRenderer;
 import com.lordsai.lsi.repository.CertificateRepository;
 import com.lordsai.lsi.repository.CertificateSequenceRepository;
 import com.lordsai.lsi.repository.StudentProfileRepository;
@@ -26,54 +24,53 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 
 /**
- * Issues and serves course certificates. A certificate exists only because {@link ExamWorkflowService}
- * scored an attempt at or above the exam's configured passing marks — there is no other entry
- * point. The PDF is rendered from the ONE certificate template (default Lord Sai design, or the
- * admin's active uploaded background) by the same {@link PdfRenderer} the invoices use, stored under
- * the protected "certificates/" folder and streamed only to its owner or an admin.
+ * Issues and serves course completion certificates. A certificate is created only by
+ * {@link CertificateRequestService#approve} — i.e. a completed course, a student request and an
+ * admin approval; there is no exam and no other entry point. The PDF is drawn on the one master
+ * Lord Sai design by {@link CertificatePdfService}, stored under the protected "certificates/"
+ * folder and streamed only to its owner or an admin.
  */
 @Service
 public class CertificateService {
 
     private static final Logger log = LoggerFactory.getLogger(CertificateService.class);
-    public static final String TEMPLATE = "certificate/certificate";
     public static final String PREFIX = "LSI-CERT";
     private static final ZoneId INDIA = ZoneId.of("Asia/Kolkata");
-    private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.ENGLISH);
+    private static final DateTimeFormatter ISSUE_MONTH = DateTimeFormatter.ofPattern("MMM yyyy", Locale.ENGLISH);
+    private static final DateTimeFormatter LONG_DATE = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.ENGLISH);
+    private static final String CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O, 1/I lookalikes
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     private final CertificateRepository certificateRepository;
     private final CertificateSequenceRepository sequenceRepository;
-    private final CertificateTemplateService templateService;
     private final StudentProfileRepository studentProfileRepository;
-    private final PdfRenderer pdfRenderer;
+    private final CertificatePdfService pdfService;
     private final FileStorageService storage;
     private final AuditService auditService;
     private final AppProperties properties;
 
     public CertificateService(CertificateRepository certificateRepository,
                               CertificateSequenceRepository sequenceRepository,
-                              CertificateTemplateService templateService,
                               StudentProfileRepository studentProfileRepository,
-                              PdfRenderer pdfRenderer,
+                              CertificatePdfService pdfService,
                               FileStorageService storage,
                               AuditService auditService,
                               AppProperties properties) {
         this.certificateRepository = certificateRepository;
         this.sequenceRepository = sequenceRepository;
-        this.templateService = templateService;
         this.studentProfileRepository = studentProfileRepository;
-        this.pdfRenderer = pdfRenderer;
+        this.pdfService = pdfService;
         this.storage = storage;
         this.auditService = auditService;
         this.properties = properties;
@@ -82,53 +79,56 @@ public class CertificateService {
     // ---- issuing ---------------------------------------------------------------------------
 
     /**
-     * Issues the certificate for a PASSED attempt (idempotent per attempt). The caller has already
-     * established {@code attempt.isPassed()} from the exam's passing marks; this method re-checks it
-     * so a certificate can never exist for a failed or unfinished attempt.
+     * Generates the certificate for an approved request from the student's REAL registered details
+     * (the account's current name and Student ID, the enrollment's start / completion dates). Missing
+     * data stops generation with a clear message; nothing is ever filled in with defaults. A student
+     * who already holds a certificate for the course (issued earlier) gets that one, not a duplicate.
      */
     @Transactional(propagation = Propagation.MANDATORY)
-    public Certificate issueForPassedAttempt(ExamAttempt attempt) {
-        Optional<Certificate> existing = certificateRepository.findByAttemptId(attempt.getId());
+    public Certificate issueForRequest(CertificateRequest request, User approvedBy) {
+        User student = request.getStudent();
+        Optional<Certificate> existing = certificateRepository
+                .findFirstByStudentIdAndCourseIdOrderByIssuedAtDesc(student.getId(), request.getCourse().getId());
         if (existing.isPresent()) {
             return existing.get();
         }
-        if (!attempt.isFinished() || !attempt.isPassed() || attempt.getScore() < attempt.getPassingMarks()) {
-            throw new ApiException(HttpStatus.CONFLICT, "A certificate can only be issued for a passed exam attempt.");
+        Enrollment enrollment = request.getEnrollment();
+        String studentCode = studentProfileRepository.findByUserId(student.getId())
+                .map(StudentProfile::getStudentId).orElse(null);
+        // The name the student confirmed when applying (shown to the admin on the request); older
+        // requests without one fall back to the account name.
+        String name = blank(request.getStudentName()) ? student.getFullName() : request.getStudentName();
+        String courseName = request.getCourse().getCourseName();
+        List<String> missing = new java.util.ArrayList<>();
+        if (blank(name)) missing.add("student name");
+        if (blank(studentCode)) missing.add("Student ID");
+        if (blank(courseName)) missing.add("course name");
+        if (enrollment.getEnrolledAt() == null) missing.add("course start date");
+        if (enrollment.getCompletedAt() == null) missing.add("course completion date");
+        if (!missing.isEmpty()) {
+            throw new ApiException(HttpStatus.CONFLICT,
+                    "Certificate cannot be generated because required student/course information is missing: "
+                            + String.join(", ", missing) + ".");
         }
-        ExamApplication application = attempt.getApplication();
-        User student = attempt.getStudent();
-        StudentProfile profile = studentProfileRepository.findByUserId(student.getId()).orElse(null);
-        CertificateTemplate template = templateService.activeTemplate().orElse(null);
 
         Certificate c = new Certificate();
         c.setCertificateNumber(nextNumber());
         c.setStudent(student);
-        c.setCourse(application.getCourse());
-        c.setExam(attempt.getExam());
-        c.setAttempt(attempt);
-        c.setApplication(application);
-        c.setTemplate(template);
-        c.setStudentName(student.getFullName());
-        c.setStudentCode(profile == null ? null : profile.getStudentId());
-        c.setCourseName(application.getCourse().getCourseName());
-        c.setExamTitle(attempt.getExam().getTitle());
-        c.setScore(attempt.getScore());
-        c.setTotalMarks(attempt.getTotalMarks());
-        c.setPassingMarks(attempt.getPassingMarks());
-        c.setCourseCompletedAt(application.getCourseCompletedAt());
+        c.setCourse(request.getCourse());
+        c.setStudentName(name.trim());
+        c.setStudentCode(studentCode.trim());
+        c.setCourseName(courseName.trim());
+        c.setCourseStartedAt(enrollment.getEnrolledAt());
+        c.setCourseCompletedAt(enrollment.getCompletedAt());
+        c.setCoursePeriod(period(enrollment.getEnrolledAt(), enrollment.getCompletedAt()));
+        c.setVerificationCode(newVerificationCode());
         c.setIssuedAt(Instant.now());
         c = certificateRepository.save(c);
+        renderAndStore(c); // a failure here rolls the whole approval back: no certificate without its PDF
 
-        try {
-            renderAndStore(c);
-        } catch (RuntimeException e) {
-            // The certificate record is the source of truth; the PDF is regenerated on first download.
-            log.error("[CERTIFICATE] PDF generation failed for {}: {}", c.getCertificateNumber(), e.getMessage());
-        }
-        auditService.record(null, "CERTIFICATE_ISSUED", "Certificate", c.getId(),
+        auditService.record(approvedBy, "CERTIFICATE_ISSUED", "Certificate", c.getId(),
                 c.getCertificateNumber() + " for " + c.getStudentName() + " (" + c.getStudentCode() + ") — "
-                        + c.getCourseName() + " — score " + c.getScore() + "/" + c.getTotalMarks()
-                        + " — template: " + (template == null ? CertificateDtos.DEFAULT_TEMPLATE_NAME : template.getName()), null);
+                        + c.getCourseName() + " (" + c.getCoursePeriod() + ")", null);
         log.info("[CERTIFICATE] Issued {} to {} for {}", c.getCertificateNumber(), student.getEmail(), c.getCourseName());
         return c;
     }
@@ -142,38 +142,61 @@ public class CertificateService {
         return String.format("%s-%d-%06d", PREFIX, year, seq.getLastNumber());
     }
 
+    private String newVerificationCode() {
+        String code;
+        do {
+            StringBuilder sb = new StringBuilder(12);
+            for (int i = 0; i < 12; i++) {
+                sb.append(CODE_ALPHABET.charAt(RANDOM.nextInt(CODE_ALPHABET.length())));
+            }
+            code = sb.toString();
+        } while (certificateRepository.existsByVerificationCode(code));
+        return code;
+    }
+
+    /** "January to April 2026", "November 2025 to April 2026" or "April 2026" (same month). */
+    static String period(Instant start, Instant end) {
+        YearMonth from = YearMonth.from(start.atZone(INDIA));
+        YearMonth to = YearMonth.from(end.atZone(INDIA));
+        if (to.isBefore(from)) {
+            to = from;
+        }
+        String toText = month(to) + " " + to.getYear();
+        if (from.equals(to)) {
+            return toText;
+        }
+        return (from.getYear() == to.getYear() ? month(from) : month(from) + " " + from.getYear()) + " to " + toText;
+    }
+
+    private static String month(YearMonth ym) {
+        return ym.getMonth().getDisplayName(java.time.format.TextStyle.FULL, Locale.ENGLISH);
+    }
+
     // ---- PDF -------------------------------------------------------------------------------
 
-    /** The stored PDF; regenerated with the template recorded on the certificate if the file is missing. */
+    /**
+     * The stored PDF. Re-drawn when the file is missing, or when a legacy certificate still has no
+     * verification code (so the QR / public verify link can be created and printed).
+     */
     @Transactional
     public byte[] pdfBytes(Certificate certificate) {
-        if (certificate.getPdfPath() != null && storage.exists(certificate.getPdfPath())) {
+        boolean hasFile = certificate.getPdfPath() != null && storage.exists(certificate.getPdfPath());
+        if (hasFile && certificate.getVerificationCode() != null) {
             return storage.readBytes(certificate.getPdfPath());
         }
         return renderAndStore(certificate);
     }
 
-    /** Admin preview of what a certificate looks like with the currently active design (sample data). */
-    @Transactional(readOnly = true)
-    public byte[] previewPdf() {
-        CertificateTemplate template = templateService.activeTemplate().orElse(null);
-        Map<String, Object> m = baseModel(template);
-        m.put("certificateNumber", PREFIX + "-" + LocalDate.now(INDIA).getYear() + "-000000");
-        m.put("studentName", "Sample Student Name");
-        m.put("studentId", "LSI-" + LocalDate.now(INDIA).getYear() + "-00000");
-        m.put("courseName", "Share Market Education & Training");
-        m.put("examTitle", "Final Course Examination");
-        m.put("score", 45);
-        m.put("totalMarks", 50);
-        m.put("passingMarks", 30);
-        m.put("issueDate", DATE.format(LocalDate.now(INDIA)));
-        m.put("completionDate", DATE.format(LocalDate.now(INDIA)));
-        m.put("preview", true);
-        return pdfRenderer.pdf(TEMPLATE, m);
-    }
-
     private byte[] renderAndStore(Certificate c) {
-        byte[] pdf = pdfRenderer.pdf(TEMPLATE, model(c));
+        if (c.getVerificationCode() == null) { // certificates issued before QR verification existed
+            c.setVerificationCode(newVerificationCode());
+        }
+        if (c.getCoursePeriod() == null) {
+            Instant end = c.getCourseCompletedAt() != null ? c.getCourseCompletedAt() : c.getIssuedAt();
+            c.setCoursePeriod(period(c.getCourseStartedAt() != null ? c.getCourseStartedAt() : end, end));
+        }
+        byte[] pdf = pdfService.render(new CertificatePdfService.Content(c.getStudentName(), c.getStudentCode(),
+                c.getCourseName(), c.getCoursePeriod(), ISSUE_MONTH.format(c.getIssuedAt().atZone(INDIA)), verifyUrl(c)));
         String previous = c.getPdfPath();
         c.setPdfPath(storage.storeBytes(pdf, FileStorageService.Kind.CERTIFICATE, "pdf"));
         c.setPdfGeneratedAt(Instant.now());
@@ -184,39 +207,31 @@ public class CertificateService {
         return pdf;
     }
 
-    /** Every dynamic value the certificate template consumes. Never includes credentials. */
-    public Map<String, Object> model(Certificate c) {
-        // The design recorded at issue time; if that upload was removed, the default is used.
-        CertificateTemplate template = c.getTemplate();
-        Map<String, Object> m = baseModel(template);
-        m.put("certificateNumber", c.getCertificateNumber());
-        m.put("studentName", c.getStudentName());
-        m.put("studentId", c.getStudentCode() == null ? "—" : c.getStudentCode());
-        m.put("courseName", c.getCourseName());
-        m.put("examTitle", c.getExamTitle());
-        m.put("score", c.getScore());
-        m.put("totalMarks", c.getTotalMarks());
-        m.put("passingMarks", c.getPassingMarks());
-        m.put("issueDate", DATE.format(c.getIssuedAt().atZone(INDIA)));
-        m.put("completionDate", c.getCourseCompletedAt() == null ? DATE.format(c.getIssuedAt().atZone(INDIA))
-                : DATE.format(c.getCourseCompletedAt().atZone(INDIA)));
-        m.put("preview", false);
-        return m;
+    /** The QR target: the public verification page for this certificate's random code. */
+    public String verifyUrl(Certificate c) {
+        String base = properties.publicBaseUrl() == null ? "" : properties.publicBaseUrl().replaceAll("/+$", "");
+        return base + "/verify-certificate.html?c=" + c.getVerificationCode();
     }
 
-    private Map<String, Object> baseModel(CertificateTemplate template) {
-        Map<String, Object> m = new HashMap<>();
-        String background = templateService.imageDataUri(template);
-        m.put("customBackground", background);            // null -> default Lord Sai design
-        m.put("usingDefault", background == null);
-        m.put("templateName", background == null ? CertificateDtos.DEFAULT_TEMPLATE_NAME : template.getName());
-        m.put("academyName", "Lord Sai Share Market Classes");
-        m.put("signatoryName", "Vaibhav S. Pawar");
-        m.put("signatoryTitle", "Founder & Lead Educator");
-        m.put("supportEmail", properties.support().email());
-        m.put("supportPhone", properties.support().phone());
-        m.put("siteUrl", properties.publicBaseUrl());
-        return m;
+    /** Download name, e.g. "LSA-Certificate-Jostna-Mhatre.pdf" — letters, digits and hyphens only. */
+    public static String downloadName(Certificate c) {
+        String name = c.getStudentName() == null ? "" : c.getStudentName().trim()
+                .replaceAll("[^A-Za-z0-9]+", "-").replaceAll("(^-+|-+$)", "");
+        return "LSA-Certificate-" + (name.isEmpty() ? c.getCertificateNumber() : name) + ".pdf";
+    }
+
+    // ---- public verification ----------------------------------------------------------------
+
+    @Transactional(readOnly = true)
+    public Verification verify(String code) {
+        String clean = code == null ? "" : code.trim().toUpperCase(Locale.ROOT);
+        if (!clean.matches("[A-Z0-9]{6,40}")) {
+            return new Verification(false, null, null, null, null, null);
+        }
+        return certificateRepository.findByVerificationCode(clean)
+                .map(c -> new Verification(true, c.getCertificateNumber(), c.getStudentName(), c.getCourseName(),
+                        c.getCoursePeriod(), LONG_DATE.format(c.getIssuedAt().atZone(INDIA))))
+                .orElseGet(() -> new Verification(false, null, null, null, null, null));
     }
 
     // ---- lookup & ownership ----------------------------------------------------------------
@@ -251,18 +266,16 @@ public class CertificateService {
 
     public MyCertificate toMine(Certificate c) {
         return new MyCertificate(c.getId(), c.getCertificateNumber(), c.getCourse().getId(), c.getCourseName(),
-                c.getExamTitle(), c.getScore(), c.getTotalMarks(), c.getPassingMarks(), c.getIssuedAt(),
-                c.getCourseCompletedAt(), templateName(c));
+                c.getStudentName(), c.getStudentCode(), c.getCoursePeriod(), c.getIssuedAt(), c.getCourseCompletedAt());
     }
 
     public AdminCertificate toAdmin(Certificate c) {
         return new AdminCertificate(c.getId(), c.getCertificateNumber(), c.getStudent().getId(), c.getStudentCode(),
-                c.getStudentName(), c.getCourse().getId(), c.getCourseName(), c.getExam().getId(), c.getExamTitle(),
-                c.getAttempt().getId(), c.getAttempt().getAttemptNumber(), c.getScore(), c.getTotalMarks(),
-                c.getPassingMarks(), c.getIssuedAt(), templateName(c), c.getPdfPath() != null);
+                c.getStudentName(), c.getCourse().getId(), c.getCourseName(), c.getCoursePeriod(), c.getIssuedAt(),
+                c.getPdfPath() != null, c.getVerificationCode() == null ? null : verifyUrl(c));
     }
 
-    private static String templateName(Certificate c) {
-        return c.getTemplate() == null ? CertificateDtos.DEFAULT_TEMPLATE_NAME : c.getTemplate().getName();
+    private static boolean blank(String s) {
+        return s == null || s.isBlank();
     }
 }

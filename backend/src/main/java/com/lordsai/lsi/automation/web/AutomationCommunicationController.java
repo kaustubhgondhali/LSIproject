@@ -5,12 +5,16 @@ import com.lordsai.lsi.automation.dto.AcadCommunicationDtos.BatchProgress;
 import com.lordsai.lsi.automation.dto.AcadCommunicationDtos.ChannelStatus;
 import com.lordsai.lsi.automation.dto.AcadCommunicationDtos.CommunicationLogResponse;
 import com.lordsai.lsi.automation.dto.AcadCommunicationDtos.Recipient;
+import com.lordsai.lsi.automation.dto.AcadCommunicationDtos.ReceiptShareResult;
 import com.lordsai.lsi.automation.dto.AcadCommunicationDtos.RecipientFilter;
 import com.lordsai.lsi.automation.dto.AcadCommunicationDtos.SendPreview;
 import com.lordsai.lsi.automation.dto.AcadCommunicationDtos.SendRequest;
 import com.lordsai.lsi.automation.dto.AcadCommunicationDtos.SendResult;
+import com.lordsai.lsi.automation.dto.AcadCommunicationDtos.WhatsAppChatPreview;
 import com.lordsai.lsi.automation.service.AcadCommunicationService;
-import com.lordsai.lsi.communication.WhatsAppDelivery;
+import com.lordsai.lsi.automation.service.AcadReceiptPdfService;
+import com.lordsai.lsi.automation.service.AcadReceiptShareService;
+import com.lordsai.lsi.communication.WhatsAppChat;
 import com.lordsai.lsi.dto.ApiResponse;
 import com.lordsai.lsi.dto.invoice.InvoiceDtos.InvoiceResponse;
 import com.lordsai.lsi.email.EmailDelivery;
@@ -35,6 +39,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -59,18 +64,24 @@ import java.util.Map;
 @RequestMapping("/api/automation")
 public class AutomationCommunicationController {
 
+    /** Online-academy invoices are a Main Admin page; the Automation Admin (offline academy office) cannot open them. */
+    static final String MAIN_ADMIN_ONLY = "hasRole('ADMIN')";
+
     private static final ZoneId INDIA = ZoneId.of("Asia/Kolkata");
 
     private final AcadCommunicationService communicationService;
+    private final AcadReceiptShareService receiptShareService;
     private final InvoiceService invoiceService;
     private final PurchaseCommunicationService purchaseCommunication;
     private final UserService userService;
 
     public AutomationCommunicationController(AcadCommunicationService communicationService,
+                                             AcadReceiptShareService receiptShareService,
                                              InvoiceService invoiceService,
                                              PurchaseCommunicationService purchaseCommunication,
                                              UserService userService) {
         this.communicationService = communicationService;
+        this.receiptShareService = receiptShareService;
         this.invoiceService = invoiceService;
         this.purchaseCommunication = purchaseCommunication;
         this.userService = userService;
@@ -148,11 +159,64 @@ public class AutomationCommunicationController {
     @PostMapping("/communications/history/{id}/retry")
     public ApiResponse<CommunicationLogResponse> retry(@PathVariable Long id, HttpServletRequest req) {
         CommunicationLogResponse r = communicationService.retry(id, actor(), RequestUtil.clientIp(req));
-        return ApiResponse.ok(r.status() == CommunicationStatus.SENT ? "Message delivered." : "Retry failed: " + r.errorReason(), r);
+        return ApiResponse.ok(r.status() == CommunicationStatus.SENT ? "Message delivered."
+                : r.status() == CommunicationStatus.OPENED ? "WhatsApp chat ready — press Send in WhatsApp."
+                : "Retry failed: " + r.errorReason(), r);
     }
 
-    // ---- invoices ----------------------------------------------------------------------------
+    /** The office opened a prepared WhatsApp chat (from the list shown after sending). */
+    @PostMapping("/communications/history/{id}/opened")
+    public ApiResponse<CommunicationLogResponse> opened(@PathVariable Long id, HttpServletRequest req) {
+        CommunicationLogResponse r = communicationService.opened(id, actor(), RequestUtil.clientIp(req));
+        return ApiResponse.ok(r.status() == CommunicationStatus.OPENED ? "WhatsApp chat opened — press Send in WhatsApp."
+                : "WhatsApp could not be opened: " + r.errorReason(), r);
+    }
 
+    // ---- one-click payment receipt: WhatsApp + Email -------------------------------------------
+
+    /** The receipt's WhatsApp line, shown before sending and opened by the Send click (the picture is pasted with it). */
+    @GetMapping("/communications/receipts/{receiptId}/whatsapp")
+    public ApiResponse<WhatsAppChatPreview> receiptWhatsApp(@PathVariable Long receiptId) {
+        return ApiResponse.ok(receiptShareService.whatsappPreview(receiptId));
+    }
+
+    /** Emails the selected receipt and records the WhatsApp chat opened for it; the result carries each channel's own outcome. */
+    @PostMapping("/communications/receipts/{receiptId}/share")
+    public ApiResponse<ReceiptShareResult> shareReceipt(@PathVariable Long receiptId, HttpServletRequest req) {
+        ReceiptShareResult result = receiptShareService.share(receiptId, actor(), RequestUtil.clientIp(req));
+        return ApiResponse.ok(result.summary(), result);
+    }
+
+    /** The receipt PDF exactly as it is sent — for the admin to check before sending. Never cached. */
+    @GetMapping("/communications/receipts/{receiptId}/pdf")
+    public ResponseEntity<byte[]> receiptPdf(@PathVariable Long receiptId) {
+        AcadReceiptPdfService.ReceiptFile file = receiptShareService.pdf(receiptId);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.filename() + "\"")
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .header("X-Content-Type-Options", "nosniff")
+                .body(file.content());
+    }
+
+    /**
+     * The same receipt as a picture (PNG). The Send click copies it, and the office pastes it into the
+     * student's WhatsApp chat with Ctrl + V — WhatsApp's click to chat cannot attach files. Never cached.
+     */
+    @GetMapping("/communications/receipts/{receiptId}/image")
+    public ResponseEntity<byte[]> receiptImage(@PathVariable Long receiptId) {
+        AcadReceiptPdfService.ReceiptFile file = receiptShareService.picture(receiptId);
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_PNG)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.filename() + "\"")
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .header("X-Content-Type-Options", "nosniff")
+                .body(file.content());
+    }
+
+    // ---- invoices (Main Admin only: the online academy's invoices live in the Main Admin panel) -----
+
+    @PreAuthorize(MAIN_ADMIN_ONLY)
     @GetMapping("/invoices")
     public ApiResponse<Page<InvoiceResponse>> invoices(@RequestParam(required = false) ProductType productType,
                                                        @RequestParam(required = false) PaymentStatus status,
@@ -170,11 +234,13 @@ public class AutomationCommunicationController {
                 PageRequest.of(page, Math.min(Math.max(size, 1), 200))));
     }
 
+    @PreAuthorize(MAIN_ADMIN_ONLY)
     @GetMapping("/invoices/{id}")
     public ApiResponse<InvoiceResponse> invoice(@PathVariable Long id) {
         return ApiResponse.ok(invoiceService.toResponse(invoiceService.require(id)));
     }
 
+    @PreAuthorize(MAIN_ADMIN_ONLY)
     @GetMapping("/invoices/{id}/pdf")
     public ResponseEntity<byte[]> invoicePdf(@PathVariable Long id, @RequestParam(defaultValue = "false") boolean download) {
         Invoice invoice = invoiceService.require(id);
@@ -188,6 +254,7 @@ public class AutomationCommunicationController {
     }
 
     /** The same invoice design as printable HTML (used by the Print button). */
+    @PreAuthorize(MAIN_ADMIN_ONLY)
     @GetMapping("/invoices/{id}/print")
     public ResponseEntity<String> invoicePrint(@PathVariable Long id) {
         Invoice invoice = invoiceService.require(id);
@@ -197,6 +264,7 @@ public class AutomationCommunicationController {
                 .body(invoiceService.html(invoice));
     }
 
+    @PreAuthorize(MAIN_ADMIN_ONLY)
     @PostMapping("/invoices/{id}/resend-email")
     public ApiResponse<InvoiceResponse> resend(@PathVariable Long id, HttpServletRequest req) {
         Invoice invoice = invoiceService.require(id);
@@ -208,14 +276,13 @@ public class AutomationCommunicationController {
                 invoiceService.toResponse(invoiceService.require(id)));
     }
 
+    /** The invoice's WhatsApp chat (message + private PDF link) for the admin to open and send. */
+    @PreAuthorize(MAIN_ADMIN_ONLY)
     @PostMapping("/invoices/{id}/whatsapp")
-    public ApiResponse<InvoiceResponse> whatsapp(@PathVariable Long id, HttpServletRequest req) {
+    public ApiResponse<WhatsAppChat> whatsapp(@PathVariable Long id, HttpServletRequest req) {
         Invoice invoice = invoiceService.require(id);
-        WhatsAppDelivery d = purchaseCommunication.sendInvoiceWhatsApp(invoice, actor(), RequestUtil.clientIp(req));
-        if (!d.sent()) {
-            throw new ApiException(HttpStatus.BAD_GATEWAY, d.reason());
-        }
-        return ApiResponse.ok("Invoice " + invoice.getInvoiceNumber() + " sent on WhatsApp.", invoiceService.toResponse(invoice));
+        WhatsAppChat chat = purchaseCommunication.prepareInvoiceWhatsApp(invoice, actor(), RequestUtil.clientIp(req));
+        return ApiResponse.ok("WhatsApp chat ready for invoice " + invoice.getInvoiceNumber() + " — press Send in WhatsApp.", chat);
     }
 
     private User actor() {

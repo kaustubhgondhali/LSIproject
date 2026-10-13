@@ -56,6 +56,17 @@ public class AuthController {
         return ApiResponse.ok(authService.me(CurrentUser.require()));
     }
 
+    /**
+     * Cheap "is this login still valid?" check that open pages call every few seconds. Reaching it
+     * means the token was accepted; when it is not (for example the account signed in on another
+     * device or browser), the 401 explains why and the page logs itself out.
+     */
+    @GetMapping("/session")
+    public ApiResponse<Void> session() {
+        CurrentUser.require();
+        return ApiResponse.message("Session active.");
+    }
+
     @PostMapping("/forgot-password")
     public ApiResponse<Void> forgotPassword(@Valid @RequestBody ForgotPasswordRequest body,
                                             HttpServletRequest request) {
@@ -69,7 +80,7 @@ public class AuthController {
                                          HttpServletRequest request) {
         authService.resendSetupEmail(body.email(), RequestUtil.clientIp(request));
         return ApiResponse.message(
-                "If that email has an enrollment, we have re-sent the Student ID and password setup link.");
+                "If that email has an enrollment, we have re-sent your User ID and password setup link.");
     }
 
     @GetMapping("/token-check")

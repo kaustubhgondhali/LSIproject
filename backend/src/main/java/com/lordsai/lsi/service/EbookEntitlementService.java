@@ -1,5 +1,6 @@
 package com.lordsai.lsi.service;
 
+import com.lordsai.lsi.dto.ebook.EbookDtos.AcademyEbook;
 import com.lordsai.lsi.dto.ebook.EbookDtos.EntitlementResponse;
 import com.lordsai.lsi.dto.ebook.EbookDtos.MyEbook;
 import com.lordsai.lsi.email.EmailDelivery;
@@ -227,6 +228,58 @@ public class EbookEntitlementService {
         return toResponse(e);
     }
 
+    // ---- Automation Admin: an academy student's free ebook ----------------------------------------
+
+    /**
+     * Gives an academy student every ebook on sale, free (source ACADEMY): active, or blocked when the
+     * office has blocked their ebook access. An ebook they already have — bought or given — is left
+     * exactly as it is.
+     */
+    @Transactional
+    public List<AcademyEbook> grantAcademyEbooks(User student, boolean blocked, User actor, String ip) {
+        for (Ebook ebook : ebookService.activeEbooks()) {
+            if (entitlementRepository.existsByStudentIdAndEbookId(student.getId(), ebook.getId())) {
+                continue;
+            }
+            EbookEntitlement e = new EbookEntitlement();
+            e.setStudent(student);
+            e.setEbook(ebook);
+            e.setSource(EnrollmentSource.ACADEMY);
+            e.setStatus(blocked ? EntitlementStatus.REVOKED : EntitlementStatus.ACTIVE);
+            e.setGrantedAt(Instant.now());
+            e.setCreatedBy(actor);
+            e = entitlementRepository.save(e);
+            auditService.record(actor, "EBOOK_ENTITLEMENT_GRANTED", "EbookEntitlement", e.getId(),
+                    "Free academy ebook '" + ebook.getTitle() + "' for " + student.getEmail() + (blocked ? " (blocked)" : ""), ip);
+        }
+        return academyEbooks(student.getId());
+    }
+
+    /** Blocks or unblocks the ebooks the academy gave this student; an ebook they bought is never touched. */
+    @Transactional
+    public void setAcademyEbooksBlocked(User student, boolean blocked, User actor, String ip) {
+        for (EbookEntitlement e : entitlementRepository.findByStudentIdOrderByGrantedAtDesc(student.getId())) {
+            if (e.getSource() == EnrollmentSource.ACADEMY) {
+                EntitlementStatus old = e.getStatus();
+                e.setStatus(blocked ? EntitlementStatus.REVOKED : EntitlementStatus.ACTIVE);
+                entitlementRepository.save(e);
+                if (old != e.getStatus()) {
+                    auditService.record(actor, "EBOOK_ENTITLEMENT_STATUS_CHANGED", "EbookEntitlement", e.getId(),
+                            old + " -> " + e.getStatus() + " (academy ebook " + (blocked ? "blocked" : "unblocked") + " by the office)", ip);
+                }
+            }
+        }
+    }
+
+    /** Every ebook the student holds, however they got it. */
+    @Transactional(readOnly = true)
+    public List<AcademyEbook> academyEbooks(Long studentUserId) {
+        return entitlementRepository.findByStudentIdOrderByGrantedAtDesc(studentUserId).stream()
+                .map(e -> new AcademyEbook(e.getEbook().getId(), e.getEbook().getTitle(), e.getStatus(),
+                        e.getSource() == null ? null : e.getSource().name()))
+                .toList();
+    }
+
     @Transactional(readOnly = true)
     public List<EntitlementResponse> listForStudent(Long studentUserId) {
         return entitlementRepository.findByStudentIdOrderByGrantedAtDesc(studentUserId).stream().map(this::toResponse).toList();
@@ -245,7 +298,7 @@ public class EbookEntitlementService {
         return new MyEbook(e.getId(), b.getId(), b.getEbookCode(), b.getTitle(), b.getAuthor(), b.getShortDescription(),
                 b.getCategory(), b.getLanguage(), b.getCoverImagePath(), e.getStatus(), e.getGrantedAt(),
                 invoice == null ? null : invoice.getId(), invoice == null ? null : invoice.getInvoiceNumber(),
-                b.getPdfPath() != null);
+                b.getPdfPath() != null, e.getSource() == null ? null : e.getSource().name());
     }
 
     public EntitlementResponse toResponse(EbookEntitlement e) {

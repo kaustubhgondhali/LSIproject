@@ -45,6 +45,12 @@ public class AccountTokenService {
         return properties.publicBaseUrl().replaceAll("/+$", "") + "/set-password.html?token=" + raw;
     }
 
+    /** Removes every setup / reset link of an account that is being deleted. */
+    @Transactional
+    public void deleteAllFor(Long userId) {
+        tokenRepository.deleteByUserId(userId);
+    }
+
     @Transactional(readOnly = true)
     public Optional<AccountToken> findUsable(String rawToken) {
         if (rawToken == null || rawToken.isBlank()) {

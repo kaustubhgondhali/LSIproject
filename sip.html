@@ -26,7 +26,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Template Stylesheet -->
-    <link href="css/style.css?v=20260924l" rel="stylesheet">
+    <link href="css/style.css?v=20261012-nav" rel="stylesheet">
 </head>
 
 <body>
@@ -56,7 +56,6 @@
                         <i class="fas fa-th-large me-1"></i> Share Market Class
                     </a>
                     <a href="https://wa.me/919920254354" target="_blank" class="btn btn-sm btn-outline-light rounded-pill py-1 px-3 me-3" data-i18n="topbar.whatsapp"><i class="fab fa-whatsapp text-success me-1"></i> WhatsApp Support</a>
-                    <a href="student-login.html" class="text-light small mode-academy-only" data-i18n="topbar.studentLogin"><i class="fas fa-user-lock text-info me-1"></i> Student Login</a>
                 </div>
             </div>
         </div>
@@ -131,10 +130,10 @@
                     <a href="blog.html" class="nav-item nav-link" data-i18n="nav.blog">Blog</a>
                     <a href="store.html" class="nav-item nav-link mode-academy-only" data-i18n="nav.store">Store</a>
                     <a href="contact.html" class="nav-item nav-link" data-i18n="nav.contact">Contact</a>
-                    <a href="student-login.html" class="nav-item nav-link d-lg-none mode-academy-only" data-i18n="nav.studentLogin">Student Login</a>
                     <a href="index.html" class="nav-item nav-link text-warning fw-bold d-lg-none" title="Switch to Share Market Class" data-i18n="nav.switchBusiness"><i class="fas fa-th-large me-1"></i> Share Market Class</a>
                 </div>
-                <div class="ms-lg-3 my-2 my-lg-0">
+                <div class="ms-lg-3 my-2 my-lg-0 d-flex flex-wrap align-items-center gap-2">
+                    <a href="student-login.html" class="btn btn-student-login mode-academy-only" data-i18n="nav.studentLogin" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
                     <a href="https://p.njw.bz/33377" target="_blank" rel="noopener noreferrer" class="btn btn-success mode-mf-only rounded-pill px-3 py-2 fw-bold text-dark" style="background: #2EC4B6; border-color: #2EC4B6;" data-i18n="nav.openAccount">
                         <i class="fas fa-user-plus me-1"></i> Open SIP Account For Free
                     </a>
@@ -202,6 +201,7 @@
                 <a href="#sip-how" class="btn btn-sm btn-outline-primary rounded-pill">How It Works</a>
                 <a href="#sip-rca" class="btn btn-sm btn-outline-primary rounded-pill">Rupee-Cost Averaging</a>
                 <a href="#calculator" class="btn btn-sm btn-success rounded-pill px-3 text-dark fw-bold" style="background: #2EC4B6; border-color: #2EC4B6;"><i class="fas fa-calculator me-1"></i> SIP Calculator</a>
+                <a href="#sip-wealth-illustration" class="btn btn-sm btn-outline-primary rounded-pill"><i class="fas fa-table me-1"></i> Step-Up SIP Table</a>
                 <a href="#sip-faq" class="btn btn-sm btn-outline-primary rounded-pill">SIP FAQ</a>
                 <a href="swp.html" class="btn btn-sm rounded-pill text-white fw-bold" style="background-color: #0284C7; border-color: #0284C7;"><i class="fas fa-hand-holding-usd me-1"></i> Go to SWP Page</a>
                 <a href="docs/SIP-Sahi-Hai.pdf" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-danger rounded-pill fw-bold"><i class="fas fa-file-pdf me-1"></i> SIP Sahi Hai (PDF)</a>
@@ -1362,6 +1362,227 @@
     </section>
 
     <!-- =========================================================================
+         SECTION 4B: SIP WEALTH CREATION ILLUSTRATION (12% p.a., 10% annual step-up)
+         Figures from the Lord Sai "SIP Wealth Creation Illustration" chart, re-verified:
+         12% p.a. effective (monthly rate 1.12^(1/12) - 1), instalments at the start of each
+         month; the step-up plan raises the monthly SIP by 10% every year. Rounded to the rupee.
+         ========================================================================= -->
+    <section class="section-py bg-white border-bottom" id="sip-wealth-illustration">
+        <div class="container">
+            <style>
+                /* SIP Wealth Creation Illustration (this section only). Colours follow the page's
+                   Mutual Fund palette; the table scrolls sideways on phones with Years kept in view. */
+                #sip-wealth-illustration .sipill-card { background: #FFFFFF; border: 1px solid rgba(15, 159, 144, 0.25); border-radius: 18px; overflow: hidden; box-shadow: 0 14px 40px rgba(8, 65, 59, 0.10); }
+                #sip-wealth-illustration .sipill-head { background: linear-gradient(135deg, var(--lsi-dark) 0%, var(--lsi-navy) 100%); text-align: center; padding: 22px 20px 18px; }
+                #sip-wealth-illustration .sipill-brand { color: #FFFFFF; font-weight: 800; font-size: clamp(1.05rem, 2.2vw, 1.6rem); letter-spacing: 0.5px; text-transform: uppercase; margin: 0 0 6px; }
+                #sip-wealth-illustration .sipill-sub { color: rgba(255, 255, 255, 0.82); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; margin: 0; }
+                #sip-wealth-illustration .sipill-assume { display: grid; grid-template-columns: 1fr 1fr; }
+                #sip-wealth-illustration .sipill-chip { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 12px; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; text-align: center; }
+                #sip-wealth-illustration .sipill-chip-gold { background: #FCD34D; color: #78350F; }
+                #sip-wealth-illustration .sipill-chip-teal { background: #CCF3EE; color: #08413B; }
+                #sip-wealth-illustration .sipill-body { padding: 24px; }
+                #sip-wealth-illustration .sipill-pick { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--lsi-gray-600); text-align: center; margin-bottom: 10px; }
+                #sip-wealth-illustration .sipill-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 20px; }
+                #sip-wealth-illustration .sipill-tabs .nav-link { border: 1.5px solid rgba(15, 159, 144, 0.45); border-radius: 50px; padding: 8px 20px; font-weight: 700; color: #0B6B5F; background: #FFFFFF; transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease; }
+                #sip-wealth-illustration .sipill-tabs .nav-link:hover { background: var(--lsi-green-light); }
+                #sip-wealth-illustration .sipill-tabs .nav-link.active { background: #0E7C6E; border-color: #0E7C6E; color: #FFFFFF; box-shadow: 0 6px 16px rgba(14, 124, 110, 0.30); }
+                #sip-wealth-illustration .sipill-tabs .nav-link:focus-visible { outline: 3px solid #F59E0B; outline-offset: 2px; }
+                #sip-wealth-illustration .sipill-swipe { margin: -8px 0 12px; text-align: center; font-size: 0.8rem; font-weight: 600; color: #0B6B5F; }
+                #sip-wealth-illustration .sipill-caption { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; background: #0E7C6E; color: #FFFFFF; padding: 12px 18px; border-radius: 12px 12px 0 0; }
+                #sip-wealth-illustration .sipill-caption-amt { font-size: clamp(1.15rem, 2.4vw, 1.5rem); font-weight: 800; }
+                #sip-wealth-illustration .sipill-caption-note { font-size: 0.82rem; opacity: 0.9; }
+                #sip-wealth-illustration .sipill-scroll { border: 1px solid #D5E3E1; border-top: 0; border-radius: 0 0 12px 12px; }
+                #sip-wealth-illustration .sipill-table { min-width: 780px; font-size: 0.92rem; font-variant-numeric: tabular-nums; }
+                #sip-wealth-illustration .sipill-table th,
+                #sip-wealth-illustration .sipill-table td { text-align: right; padding: 10px 14px; white-space: nowrap; vertical-align: middle; border-color: #E2ECEA; background-color: #FFFFFF; }
+                #sip-wealth-illustration .sipill-table td { color: var(--lsi-gray-800); font-weight: 600; }
+                #sip-wealth-illustration .sipill-table .sipill-years { position: sticky; left: 0; z-index: 1; text-align: center; font-weight: 800; color: var(--lsi-navy); background-color: #F3F8F7; border-right: 1px solid #D5E3E1; }
+                #sip-wealth-illustration .sipill-groups th { text-align: center; color: #FFFFFF; font-size: 0.74rem; letter-spacing: 0.6px; text-transform: uppercase; }
+                #sip-wealth-illustration .sipill-groups .sipill-g-reg { background-color: var(--lsi-navy); }
+                #sip-wealth-illustration .sipill-groups .sipill-g-step { background-color: #0F9F90; }
+                #sip-wealth-illustration thead .sipill-years { color: #FFFFFF; background-color: var(--lsi-navy); }
+                #sip-wealth-illustration .sipill-cols th { white-space: normal; line-height: 1.3; font-size: 0.72rem; letter-spacing: 0.4px; text-transform: uppercase; color: var(--lsi-navy); background-color: #E6F4F2; }
+                #sip-wealth-illustration .sipill-cols th.sipill-step { background-color: #D5F2EE; }
+                #sip-wealth-illustration .sipill-table td.sipill-step { background-color: #F6FCFB; }
+                #sip-wealth-illustration .sipill-table .sipill-split { border-left: 2px solid #9AD8CF; }
+                #sip-wealth-illustration .sipill-table td.sipill-final { font-weight: 800; color: #0B6B5F; background-color: #E7F7F4; }
+                #sip-wealth-illustration .sipill-table tbody tr:hover td,
+                #sip-wealth-illustration .sipill-table tbody tr:hover th { background-color: #FFF8E6; }
+                #sip-wealth-illustration .sipill-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 24px; border-top: 1px solid #E2ECEA; background: #F8FBFB; }
+                #sip-wealth-illustration .sipill-sign { display: flex; flex-direction: column; gap: 2px; font-size: 0.85rem; color: var(--lsi-gray-700); }
+                #sip-wealth-illustration .sipill-sign strong { font-size: 1.05rem; letter-spacing: 0.5px; color: var(--lsi-navy); }
+                #sip-wealth-illustration .sipill-disclaimer { background: #FFFBEB; border-top: 1px solid #FDE68A; color: #78350F; font-size: 0.8rem; line-height: 1.6; padding: 14px 24px; }
+                #sip-wealth-illustration .sipill-disclaimer p { margin: 0; }
+                #sip-wealth-illustration .sipill-method { margin-top: 6px !important; color: #92400E; opacity: 0.85; font-size: 0.75rem; }
+                @media (max-width: 575.98px) {
+                    #sip-wealth-illustration .sipill-body { padding: 16px 12px; }
+                    #sip-wealth-illustration .sipill-assume { grid-template-columns: 1fr; }
+                    #sip-wealth-illustration .sipill-tabs .nav-link { padding: 7px 14px; font-size: 0.9rem; }
+                    #sip-wealth-illustration .sipill-foot,
+                    #sip-wealth-illustration .sipill-disclaimer { padding-left: 16px; padding-right: 16px; }
+                }
+            </style>
+
+            <div class="text-center mx-auto pb-4" style="max-width: 820px;">
+                <span class="badge-brand-green mb-2 text-uppercase fw-bold"><i class="fas fa-table me-1"></i> SIP Wealth Creation Illustration</span>
+                <h2 class="display-6 fw-bold mb-3">Regular SIP vs 10% Annual Step&#8209;Up SIP</h2>
+                <p class="text-muted mb-0">Estimated values for monthly SIPs of ₹2,000 to ₹20,000 over 5 to 30 years at an assumed 12% p.a. &mdash; with and without increasing the SIP by 10% every year.</p>
+            </div>
+
+            <div class="sipill-card">
+                <div class="sipill-head">
+                    <h3 class="sipill-brand">Lord Sai Investment and Share Market Academy</h3>
+                    <p class="sipill-sub">AMFI Registered Mutual Fund Distributor &bull; SIP Wealth Creation Illustration</p>
+                </div>
+                <div class="sipill-assume">
+                    <span class="sipill-chip sipill-chip-gold"><i class="fas fa-percentage"></i> Value assumed: 12% p.a.</span>
+                    <span class="sipill-chip sipill-chip-teal"><i class="fas fa-level-up-alt"></i> SIP annual step-up: 10%</span>
+                </div>
+
+                <div class="sipill-body">
+                    <p class="sipill-pick" id="sipillPickLabel">Choose a monthly SIP amount</p>
+                    <div class="nav sipill-tabs" role="tablist" aria-labelledby="sipillPickLabel">
+                            <button type="button" class="nav-link" id="sipill-tab-2000" data-bs-toggle="pill" data-bs-target="#sipill-2000" role="tab" aria-controls="sipill-2000" aria-selected="false">₹2,000</button>
+                            <button type="button" class="nav-link active" id="sipill-tab-5000" data-bs-toggle="pill" data-bs-target="#sipill-5000" role="tab" aria-controls="sipill-5000" aria-selected="true">₹5,000</button>
+                            <button type="button" class="nav-link" id="sipill-tab-10000" data-bs-toggle="pill" data-bs-target="#sipill-10000" role="tab" aria-controls="sipill-10000" aria-selected="false">₹10,000</button>
+                            <button type="button" class="nav-link" id="sipill-tab-15000" data-bs-toggle="pill" data-bs-target="#sipill-15000" role="tab" aria-controls="sipill-15000" aria-selected="false">₹15,000</button>
+                            <button type="button" class="nav-link" id="sipill-tab-20000" data-bs-toggle="pill" data-bs-target="#sipill-20000" role="tab" aria-controls="sipill-20000" aria-selected="false">₹20,000</button>
+                    </div>
+                    <p class="sipill-swipe d-md-none"><i class="fas fa-arrows-alt-h me-1"></i> Swipe the table sideways to see the step-up columns</p>
+                    <div class="tab-content">
+                            <div class="tab-pane fade" id="sipill-2000" role="tabpanel" aria-labelledby="sipill-tab-2000" tabindex="0">
+                                <div class="sipill-caption">
+                                    <span class="sipill-caption-amt" id="sipill-cap-2000">Monthly SIP ₹2,000</span>
+                                    <span class="sipill-caption-note">Step-up plan: the monthly SIP rises 10% every year</span>
+                                </div>
+                                <div class="table-responsive sipill-scroll">
+                                    <table class="table sipill-table mb-0" aria-labelledby="sipill-cap-2000">
+                                        <thead>
+                                            <tr class="sipill-groups"><th scope="col" rowspan="2" class="sipill-years">Years</th><th scope="colgroup" colspan="3" class="sipill-g-reg">Regular SIP</th><th scope="colgroup" colspan="3" class="sipill-g-step sipill-split">With 10% Annual Step-Up</th></tr>
+                                            <tr class="sipill-cols"><th scope="col">Invested Amount</th><th scope="col">Estimated Returns</th><th scope="col">Total Value</th><th scope="col" class="sipill-step sipill-split">Invested Amount</th><th scope="col" class="sipill-step">Estimated Returns</th><th scope="col" class="sipill-step sipill-final">Estimated Future Value</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><th scope="row" class="sipill-years">5</th><td>₹1,20,000</td><td>₹42,207</td><td>₹1,62,207</td><td class="sipill-step sipill-split">₹1,46,522</td><td class="sipill-step">₹47,313</td><td class="sipill-step sipill-final">₹1,93,836</td></tr>
+                                            <tr><th scope="row" class="sipill-years">10</th><td>₹2,40,000</td><td>₹2,08,072</td><td>₹4,48,072</td><td class="sipill-step sipill-split">₹3,82,498</td><td class="sipill-step">₹2,71,282</td><td class="sipill-step sipill-final">₹6,53,780</td></tr>
+                                            <tr><th scope="row" class="sipill-years">15</th><td>₹3,60,000</td><td>₹5,91,863</td><td>₹9,51,863</td><td class="sipill-step sipill-split">₹7,62,540</td><td class="sipill-step">₹8,92,404</td><td class="sipill-step sipill-final">₹16,54,944</td></tr>
+                                            <tr><th scope="row" class="sipill-years">20</th><td>₹4,80,000</td><td>₹13,59,715</td><td>₹18,39,715</td><td class="sipill-step sipill-split">₹13,74,600</td><td class="sipill-step">₹23,51,677</td><td class="sipill-step sipill-final">₹37,26,277</td></tr>
+                                            <tr><th scope="row" class="sipill-years">25</th><td>₹6,00,000</td><td>₹28,04,413</td><td>₹34,04,413</td><td class="sipill-step sipill-split">₹23,60,329</td><td class="sipill-step">₹55,10,674</td><td class="sipill-step sipill-final">₹78,71,004</td></tr>
+                                            <tr><th scope="row" class="sipill-years">30</th><td>₹7,20,000</td><td>₹54,41,946</td><td>₹61,61,946</td><td class="sipill-step sipill-split">₹39,47,857</td><td class="sipill-step">₹1,20,23,696</td><td class="sipill-step sipill-final">₹1,59,71,553</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade show active" id="sipill-5000" role="tabpanel" aria-labelledby="sipill-tab-5000" tabindex="0">
+                                <div class="sipill-caption">
+                                    <span class="sipill-caption-amt" id="sipill-cap-5000">Monthly SIP ₹5,000</span>
+                                    <span class="sipill-caption-note">Step-up plan: the monthly SIP rises 10% every year</span>
+                                </div>
+                                <div class="table-responsive sipill-scroll">
+                                    <table class="table sipill-table mb-0" aria-labelledby="sipill-cap-5000">
+                                        <thead>
+                                            <tr class="sipill-groups"><th scope="col" rowspan="2" class="sipill-years">Years</th><th scope="colgroup" colspan="3" class="sipill-g-reg">Regular SIP</th><th scope="colgroup" colspan="3" class="sipill-g-step sipill-split">With 10% Annual Step-Up</th></tr>
+                                            <tr class="sipill-cols"><th scope="col">Invested Amount</th><th scope="col">Estimated Returns</th><th scope="col">Total Value</th><th scope="col" class="sipill-step sipill-split">Invested Amount</th><th scope="col" class="sipill-step">Estimated Returns</th><th scope="col" class="sipill-step sipill-final">Estimated Future Value</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><th scope="row" class="sipill-years">5</th><td>₹3,00,000</td><td>₹1,05,518</td><td>₹4,05,518</td><td class="sipill-step sipill-split">₹3,66,306</td><td class="sipill-step">₹1,18,284</td><td class="sipill-step sipill-final">₹4,84,590</td></tr>
+                                            <tr><th scope="row" class="sipill-years">10</th><td>₹6,00,000</td><td>₹5,20,179</td><td>₹11,20,179</td><td class="sipill-step sipill-split">₹9,56,245</td><td class="sipill-step">₹6,78,204</td><td class="sipill-step sipill-final">₹16,34,449</td></tr>
+                                            <tr><th scope="row" class="sipill-years">15</th><td>₹9,00,000</td><td>₹14,79,657</td><td>₹23,79,657</td><td class="sipill-step sipill-split">₹19,06,349</td><td class="sipill-step">₹22,31,010</td><td class="sipill-step sipill-final">₹41,37,359</td></tr>
+                                            <tr><th scope="row" class="sipill-years">20</th><td>₹12,00,000</td><td>₹33,99,287</td><td>₹45,99,287</td><td class="sipill-step sipill-split">₹34,36,500</td><td class="sipill-step">₹58,79,192</td><td class="sipill-step sipill-final">₹93,15,692</td></tr>
+                                            <tr><th scope="row" class="sipill-years">25</th><td>₹15,00,000</td><td>₹70,11,033</td><td>₹85,11,033</td><td class="sipill-step sipill-split">₹59,00,824</td><td class="sipill-step">₹1,37,76,685</td><td class="sipill-step sipill-final">₹1,96,77,509</td></tr>
+                                            <tr><th scope="row" class="sipill-years">30</th><td>₹18,00,000</td><td>₹1,36,04,866</td><td>₹1,54,04,866</td><td class="sipill-step sipill-split">₹98,69,641</td><td class="sipill-step">₹3,00,59,240</td><td class="sipill-step sipill-final">₹3,99,28,881</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="sipill-10000" role="tabpanel" aria-labelledby="sipill-tab-10000" tabindex="0">
+                                <div class="sipill-caption">
+                                    <span class="sipill-caption-amt" id="sipill-cap-10000">Monthly SIP ₹10,000</span>
+                                    <span class="sipill-caption-note">Step-up plan: the monthly SIP rises 10% every year</span>
+                                </div>
+                                <div class="table-responsive sipill-scroll">
+                                    <table class="table sipill-table mb-0" aria-labelledby="sipill-cap-10000">
+                                        <thead>
+                                            <tr class="sipill-groups"><th scope="col" rowspan="2" class="sipill-years">Years</th><th scope="colgroup" colspan="3" class="sipill-g-reg">Regular SIP</th><th scope="colgroup" colspan="3" class="sipill-g-step sipill-split">With 10% Annual Step-Up</th></tr>
+                                            <tr class="sipill-cols"><th scope="col">Invested Amount</th><th scope="col">Estimated Returns</th><th scope="col">Total Value</th><th scope="col" class="sipill-step sipill-split">Invested Amount</th><th scope="col" class="sipill-step">Estimated Returns</th><th scope="col" class="sipill-step sipill-final">Estimated Future Value</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><th scope="row" class="sipill-years">5</th><td>₹6,00,000</td><td>₹2,11,036</td><td>₹8,11,036</td><td class="sipill-step sipill-split">₹7,32,612</td><td class="sipill-step">₹2,36,567</td><td class="sipill-step sipill-final">₹9,69,179</td></tr>
+                                            <tr><th scope="row" class="sipill-years">10</th><td>₹12,00,000</td><td>₹10,40,359</td><td>₹22,40,359</td><td class="sipill-step sipill-split">₹19,12,491</td><td class="sipill-step">₹13,56,408</td><td class="sipill-step sipill-final">₹32,68,898</td></tr>
+                                            <tr><th scope="row" class="sipill-years">15</th><td>₹18,00,000</td><td>₹29,59,314</td><td>₹47,59,314</td><td class="sipill-step sipill-split">₹38,12,698</td><td class="sipill-step">₹44,62,020</td><td class="sipill-step sipill-final">₹82,74,718</td></tr>
+                                            <tr><th scope="row" class="sipill-years">20</th><td>₹24,00,000</td><td>₹67,98,574</td><td>₹91,98,574</td><td class="sipill-step sipill-split">₹68,73,000</td><td class="sipill-step">₹1,17,58,383</td><td class="sipill-step sipill-final">₹1,86,31,383</td></tr>
+                                            <tr><th scope="row" class="sipill-years">25</th><td>₹30,00,000</td><td>₹1,40,22,066</td><td>₹1,70,22,066</td><td class="sipill-step sipill-split">₹1,18,01,647</td><td class="sipill-step">₹2,75,53,371</td><td class="sipill-step sipill-final">₹3,93,55,018</td></tr>
+                                            <tr><th scope="row" class="sipill-years">30</th><td>₹36,00,000</td><td>₹2,72,09,732</td><td>₹3,08,09,732</td><td class="sipill-step sipill-split">₹1,97,39,283</td><td class="sipill-step">₹6,01,18,480</td><td class="sipill-step sipill-final">₹7,98,57,763</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="sipill-15000" role="tabpanel" aria-labelledby="sipill-tab-15000" tabindex="0">
+                                <div class="sipill-caption">
+                                    <span class="sipill-caption-amt" id="sipill-cap-15000">Monthly SIP ₹15,000</span>
+                                    <span class="sipill-caption-note">Step-up plan: the monthly SIP rises 10% every year</span>
+                                </div>
+                                <div class="table-responsive sipill-scroll">
+                                    <table class="table sipill-table mb-0" aria-labelledby="sipill-cap-15000">
+                                        <thead>
+                                            <tr class="sipill-groups"><th scope="col" rowspan="2" class="sipill-years">Years</th><th scope="colgroup" colspan="3" class="sipill-g-reg">Regular SIP</th><th scope="colgroup" colspan="3" class="sipill-g-step sipill-split">With 10% Annual Step-Up</th></tr>
+                                            <tr class="sipill-cols"><th scope="col">Invested Amount</th><th scope="col">Estimated Returns</th><th scope="col">Total Value</th><th scope="col" class="sipill-step sipill-split">Invested Amount</th><th scope="col" class="sipill-step">Estimated Returns</th><th scope="col" class="sipill-step sipill-final">Estimated Future Value</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><th scope="row" class="sipill-years">5</th><td>₹9,00,000</td><td>₹3,16,554</td><td>₹12,16,554</td><td class="sipill-step sipill-split">₹10,98,918</td><td class="sipill-step">₹3,54,851</td><td class="sipill-step sipill-final">₹14,53,769</td></tr>
+                                            <tr><th scope="row" class="sipill-years">10</th><td>₹18,00,000</td><td>₹15,60,538</td><td>₹33,60,538</td><td class="sipill-step sipill-split">₹28,68,736</td><td class="sipill-step">₹20,34,611</td><td class="sipill-step sipill-final">₹49,03,348</td></tr>
+                                            <tr><th scope="row" class="sipill-years">15</th><td>₹27,00,000</td><td>₹44,38,971</td><td>₹71,38,971</td><td class="sipill-step sipill-split">₹57,19,047</td><td class="sipill-step">₹66,93,030</td><td class="sipill-step sipill-final">₹1,24,12,077</td></tr>
+                                            <tr><th scope="row" class="sipill-years">20</th><td>₹36,00,000</td><td>₹1,01,97,860</td><td>₹1,37,97,860</td><td class="sipill-step sipill-split">₹1,03,09,500</td><td class="sipill-step">₹1,76,37,575</td><td class="sipill-step sipill-final">₹2,79,47,075</td></tr>
+                                            <tr><th scope="row" class="sipill-years">25</th><td>₹45,00,000</td><td>₹2,10,33,099</td><td>₹2,55,33,099</td><td class="sipill-step sipill-split">₹1,77,02,471</td><td class="sipill-step">₹4,13,30,056</td><td class="sipill-step sipill-final">₹5,90,32,527</td></tr>
+                                            <tr><th scope="row" class="sipill-years">30</th><td>₹54,00,000</td><td>₹4,08,14,598</td><td>₹4,62,14,598</td><td class="sipill-step sipill-split">₹2,96,08,924</td><td class="sipill-step">₹9,01,77,720</td><td class="sipill-step sipill-final">₹11,97,86,644</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="sipill-20000" role="tabpanel" aria-labelledby="sipill-tab-20000" tabindex="0">
+                                <div class="sipill-caption">
+                                    <span class="sipill-caption-amt" id="sipill-cap-20000">Monthly SIP ₹20,000</span>
+                                    <span class="sipill-caption-note">Step-up plan: the monthly SIP rises 10% every year</span>
+                                </div>
+                                <div class="table-responsive sipill-scroll">
+                                    <table class="table sipill-table mb-0" aria-labelledby="sipill-cap-20000">
+                                        <thead>
+                                            <tr class="sipill-groups"><th scope="col" rowspan="2" class="sipill-years">Years</th><th scope="colgroup" colspan="3" class="sipill-g-reg">Regular SIP</th><th scope="colgroup" colspan="3" class="sipill-g-step sipill-split">With 10% Annual Step-Up</th></tr>
+                                            <tr class="sipill-cols"><th scope="col">Invested Amount</th><th scope="col">Estimated Returns</th><th scope="col">Total Value</th><th scope="col" class="sipill-step sipill-split">Invested Amount</th><th scope="col" class="sipill-step">Estimated Returns</th><th scope="col" class="sipill-step sipill-final">Estimated Future Value</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><th scope="row" class="sipill-years">5</th><td>₹12,00,000</td><td>₹4,22,072</td><td>₹16,22,072</td><td class="sipill-step sipill-split">₹14,65,224</td><td class="sipill-step">₹4,73,135</td><td class="sipill-step sipill-final">₹19,38,359</td></tr>
+                                            <tr><th scope="row" class="sipill-years">10</th><td>₹24,00,000</td><td>₹20,80,718</td><td>₹44,80,718</td><td class="sipill-step sipill-split">₹38,24,982</td><td class="sipill-step">₹27,12,815</td><td class="sipill-step sipill-final">₹65,37,797</td></tr>
+                                            <tr><th scope="row" class="sipill-years">15</th><td>₹36,00,000</td><td>₹59,18,628</td><td>₹95,18,628</td><td class="sipill-step sipill-split">₹76,25,396</td><td class="sipill-step">₹89,24,040</td><td class="sipill-step sipill-final">₹1,65,49,436</td></tr>
+                                            <tr><th scope="row" class="sipill-years">20</th><td>₹48,00,000</td><td>₹1,35,97,147</td><td>₹1,83,97,147</td><td class="sipill-step sipill-split">₹1,37,46,000</td><td class="sipill-step">₹2,35,16,767</td><td class="sipill-step sipill-final">₹3,72,62,767</td></tr>
+                                            <tr><th scope="row" class="sipill-years">25</th><td>₹60,00,000</td><td>₹2,80,44,131</td><td>₹3,40,44,131</td><td class="sipill-step sipill-split">₹2,36,03,294</td><td class="sipill-step">₹5,51,06,742</td><td class="sipill-step sipill-final">₹7,87,10,036</td></tr>
+                                            <tr><th scope="row" class="sipill-years">30</th><td>₹72,00,000</td><td>₹5,44,19,464</td><td>₹6,16,19,464</td><td class="sipill-step sipill-split">₹3,94,78,565</td><td class="sipill-step">₹12,02,36,960</td><td class="sipill-step sipill-final">₹15,97,15,526</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+
+                <div class="sipill-foot">
+                    <div class="sipill-sign">
+                        <strong>VAIBHAV S. PAWAR</strong>
+                        <span>Proprietor &amp; Trainer &middot; Lord Sai Investment and Share Market Academy</span>
+                        <span>AMFI Registered Mutual Fund Distributor &middot; ARN-280789 &middot; Mob. 9920 254 354</span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="#calculator" class="btn btn-primary rounded-pill px-4"><i class="fas fa-calculator me-2"></i>Open SIP Calculator</a>
+                        <a href="https://wa.me/919920254354?text=Hi%20Lord%20Sai%20Desk,%20I%20want%20to%20plan%20a%20step-up%20SIP" target="_blank" rel="noopener noreferrer" class="btn btn-outline-success rounded-pill px-4"><i class="fab fa-whatsapp me-2"></i>Consult MFD Desk</a>
+                    </div>
+                </div>
+                <div class="sipill-disclaimer">
+                    <p><strong>Disclaimer:</strong> Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully before investing. The above calculation is based on an assumed annual return of 12% p.a. and annual SIP step-up of 10% for illustration purposes only. Returns may be higher or lower depending on market conditions and scheme performance. It is not a guaranteed or assured return.</p>
+                    <p class="sipill-method">Instalments assumed at the start of each month; 12% p.a. effective annual return; figures rounded to the nearest rupee.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================================================
          CROSS-LINK BANNER: EXPLORE SWP
          ========================================================================= -->
     <div class="container my-5">
@@ -1524,6 +1745,7 @@
                         <a href="stories.html" data-i18n="nav.stories"><i class="fas fa-angle-right me-1"></i> Stories</a>
                         <a href="blog.html" data-i18n="nav.blog"><i class="fas fa-angle-right me-1"></i> Blog</a>
                         <a href="store.html" data-i18n="nav.store"><i class="fas fa-angle-right me-1"></i> Store</a>
+                        <a href="student-login.html" class="mode-academy-only" data-i18n="nav.studentLogin"><i class="fas fa-angle-right me-1"></i> Student Login</a>
                         <a href="contact.html" data-i18n="nav.contact"><i class="fas fa-angle-right me-1"></i> Contact</a>
                     </div>
                 </div>
@@ -1590,8 +1812,8 @@
                     has been independently assessed and found to be in compliance with the requirement of the standard:
                 </p>
                 <p class="lsi-accred-standard">ISO 9001:2015</p>
-                <p class="lsi-accred-scope-label">For the following scope of activities:</p>
-                <p class="lsi-accred-scope">
+                <p class="lsi-accred-scope-label mode-academy-only">For the following scope of activities:</p>
+                <p class="lsi-accred-scope mode-academy-only">
                     Share Market Basic to Advance Course
                     <span class="lsi-accred-scope-note">(Only Educational Purpose)</span>
                 </p>
@@ -1605,7 +1827,6 @@
         <div class="container text-center">
             <span class="mode-academy-only" data-i18n="footer.copyrightAcademy">&copy; Lord Sai Share Market Classes. All Rights Reserved.</span>
             <span class="mode-mf-only" data-i18n="footer.copyrightMf">&copy; VAIBHAV S. PAWAR — AMFI Registered Mutual Fund Distributor (ARN: 280789). All Rights Reserved.</span>
-            <a href="student-login.html" class="btn btn-sm btn-outline-info rounded-pill px-3 ms-3 lsi-student-link mode-academy-only" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
         </div>
     </div>
     <!-- Copyright End -->
@@ -1678,12 +1899,14 @@
 
     <!-- Template Javascript -->
     <script src="js/api-config.js"></script>
-    <script src="js/auth.js"></script>
+    <script src="js/auth.js?v=20261001-single"></script>
     <script src="js/translations.js?v=20260923-caps"></script>
-    <script src="js/lang.js?v=20260924-i18n2"></script>
+    <script src="js/lang.js?v=20260930-enquiry"></script>
     <script src="js/mode.js"></script>
     <script src="js/offerings-data.js"></script>
-    <script src="js/main.js"></script>
+    <!-- Enquiry forms: emailed through the LSI backend + WhatsApp pre-filled (js/enquiry.js) -->
+    <script src="js/enquiry.js?v=20260930-enquiry"></script>
+    <script src="js/main.js?v=20260930-enquiry"></script>
     <script src="js/mf-plant-video.js"></script>
 </body>
 

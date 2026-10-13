@@ -23,6 +23,7 @@
         <razorpay.version>1.4.10</razorpay.version>
         <openhtmltopdf.version>1.1.28</openhtmltopdf.version>
         <poi.version>5.3.0</poi.version>
+        <zxing.version>3.5.3</zxing.version>
     </properties>
 
     <dependencies>
@@ -102,6 +103,13 @@
             <groupId>io.github.openhtmltopdf</groupId>
             <artifactId>openhtmltopdf-pdfbox</artifactId>
             <version>${openhtmltopdf.version}</version>
+        </dependency>
+
+        <!-- QR code on each course completion certificate (points to its verification page) -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>${zxing.version}</version>
         </dependency>
 
         <!-- Excel (.xlsx) exports for the Automation Admin / Main Admin report screens -->

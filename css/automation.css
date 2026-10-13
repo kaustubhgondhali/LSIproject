@@ -40,6 +40,11 @@
 
 /* ---- sidebar ------------------------------------------------------------------------------ */
 .au-sidebar { position: fixed; top: var(--au-header-h); bottom: 0; left: 0; width: var(--au-sidebar-w); background: var(--au-navy); color: #fff; display: flex; flex-direction: column; z-index: 50; transition: transform .2s ease; }
+/* On screens shorter than the menu (e.g. 1366x768 laptops) the sidebar scrolls, so Settings and Logout stay reachable. */
+.au-sidebar { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.28) transparent; }
+.au-sidebar::-webkit-scrollbar { width: 8px; }
+.au-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.28); border-radius: 8px; }
+.au-sidebar::-webkit-scrollbar-track { background: transparent; }
 .au-nav { display: flex; flex-direction: column; padding: 18px 0 8px; flex: 1; }
 .au-nav a { display: flex; align-items: center; gap: 14px; padding: 15px 22px; color: rgba(255,255,255,.88); font-size: 16px; border-left: 4px solid transparent; }
 .au-nav a i { width: 22px; text-align: center; font-size: 17px; }
@@ -112,6 +117,12 @@
 .au-form .fld { margin-bottom: 12px; }
 .au-form .hint { font-size: 12px; color: var(--au-muted); margin-top: 3px; }
 .au-form .readonly { background: #F8FAFC; }
+/* Add Student: "Change Student ID series" */
+.au-series-bar { margin: -2px 0 12px; }
+.au-series { border: 1px dashed var(--au-border); border-radius: 10px; padding: 10px 12px; background: #F8FAFC; margin-bottom: 12px; }
+/* Section heading inside the Student Admission form and the profile's Admission tab. */
+.au-sec { font-size: 12.5px; font-weight: 800; color: var(--au-navy); text-transform: uppercase; letter-spacing: .5px;
+    padding-bottom: 6px; margin: 6px 0 12px; border-bottom: 2px solid var(--au-border); }
 .au-error { background: #FEE2E2; color: #991B1B; border-radius: 8px; padding: 8px 12px; font-size: 13px; margin-bottom: 10px; }
 
 .au-quick { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 18px; }
@@ -159,8 +170,19 @@
 .au-receipt th { background: #F1F5FB; text-align: left; }
 .au-receipt td.num, .au-receipt th.num { text-align: right; }
 .au-receipt .words { font-size: 12.5px; margin: 4px 0 8px; }
-.au-receipt .sig { text-align: right; margin-top: 18px; font-size: 13px; }
-.au-receipt .sig .line { display: inline-block; border-top: 1px solid #334155; padding-top: 4px; min-width: 150px; text-align: center; }
+.au-receipt .hist-title { font-weight: 700; font-size: 13px; color: var(--au-navy); margin-top: 10px; }
+.au-receipt .hist-wrap { overflow-x: auto; }
+.au-receipt table.hist { font-size: 12px; margin-top: 4px; }
+.au-receipt table.hist th, .au-receipt table.hist td { padding: 4px 7px; vertical-align: top; }
+.au-receipt table.hist .pno { font-size: 10.5px; font-weight: 400; color: #64748B; }
+.au-receipt table.hist .dt { white-space: nowrap; }
+.au-receipt table.hist tr.cur td { background: #EEF4FF; font-weight: 600; }
+.au-receipt table.hist .this { font-weight: 400; color: #475569; font-size: 11px; }
+.au-receipt .sig { display: flex; justify-content: flex-end; align-items: center; gap: 22px; margin-top: 8px; font-size: 13px; }
+.au-receipt .sig .stamp { width: 118px; height: auto; flex: 0 0 auto; }
+.au-receipt .sig .box { display: inline-block; min-width: 150px; text-align: center; }
+.au-receipt .sig .box img { display: block; width: 140px; height: auto; margin: 0 auto 2px; }
+.au-receipt .sig .line { border-top: 1px solid #334155; padding-top: 4px; text-align: center; }
 
 .au-empty { padding: 30px; text-align: center; color: var(--au-muted); }
 .au-toast-area { position: fixed; right: 18px; bottom: 18px; z-index: 200; display: flex; flex-direction: column; gap: 8px; }
@@ -212,6 +234,15 @@
 .au-export { display: inline-flex; gap: 6px; flex-wrap: wrap; }
 .au-export .au-btn { white-space: nowrap; }
 .au-check { width: 16px; height: 16px; cursor: pointer; }
+/* One-click payment receipt (Email & WhatsApp page) */
+.rs-student { display: flex; flex-wrap: wrap; gap: 6px 22px; align-items: center; padding: 10px 14px; border: 1px solid var(--au-border); border-radius: 10px; background: #F8FAFC; margin: 4px 0 12px; }
+.rs-contact { font-size: 13.5px; }
+.rs-row { cursor: pointer; }
+.rs-row.on td { background: #EEF6FF; }
+#rsSend i + i { margin-left: 2px; }
+.rs-result { border: 1px solid var(--au-border); border-radius: 10px; padding: 12px 14px; background: #fff; }
+.rs-line { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; }
+.rs-line > i { font-size: 18px; margin-top: 2px; }
 .au-comm-status { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; padding: 14px; }
 .au-comm-status .ch { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; }
 .au-comm-status .ch i { font-size: 22px; margin-top: 2px; }
@@ -219,8 +250,64 @@
 .au-comm-status .ch .s { font-size: 12px; color: #64748b; }
 .au-badge.sent, .au-badge.success { background: #dcfce7; color: #15803d; }
 .au-badge.failed { background: #fee2e2; color: #b91c1c; }
+.au-badge.opened { background: #dcfce7; color: #166534; }
+.au-badge.ready { background: #fef3c7; color: #b45309; }
+.rs-wa { border: 1px solid #bbf7d0; background: #f0fdf4; border-radius: 10px; padding: 10px 12px; margin-top: 12px; }
+.rs-wa .t { font-weight: 700; color: #166534; font-size: 13px; margin-bottom: 6px; }
+.rs-wa pre { white-space: pre-wrap; word-break: break-word; font-family: inherit; font-size: 12.5px; margin: 0; color: #0f172a; max-height: 220px; overflow: auto; }
+.rs-wa-body { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; }
+.rs-wa-body > a { flex: 0 0 auto; max-width: 100%; }
+.rs-pic { display: block; width: 220px; max-width: 100%; height: auto; border: 1px solid #d1d5db; border-radius: 6px; background: #fff; box-shadow: 0 1px 3px rgba(15, 23, 42, .12); }
+.rs-pic-note { width: 220px; max-width: 100%; font-size: 12.5px; }
+.rs-wa-text { flex: 1 1 220px; min-width: 0; }
+.rs-steps { font-size: 12.5px; color: #166534; margin-top: 8px; }
+.rs-steps.warn { color: #9a3412; }
+.rs-steps kbd { font-size: 11px; padding: 1px 5px; }
+.wa-queue td { vertical-align: middle; }
+.wa-queue tr.done td { background: #f0fdf4; }
 .au-badge.email { background: #dbeafe; color: #1d4ed8; }
 .au-badge.whatsapp { background: #dcfce7; color: #15803d; }
 .au-badge.course { background: #e0f2fe; color: #0369a1; }
 .au-badge.ebook { background: #ede9fe; color: #6d28d9; }
 .au-badge.pending_setup, .au-badge.disabled, .au-badge.inactive { background: #fef3c7; color: #b45309; }
+
+/* Shorter screens (e.g. 1366x768 laptops): tighter sidebar spacing so the whole menu, including
+   Settings and Logout, fits without scrolling. Kept last so it overrides the .au-nav rules above. */
+@media (max-height: 900px) {
+    .au-nav { padding-top: 10px; }
+    .au-nav a { padding-top: 8px; padding-bottom: 8px; }
+    .au-nav-label { padding-top: 10px; }
+}
+
+/* Automation Admin > student page, Fees tab: up to five cards, each amount kept on one line */
+.au-fee-stats .au-stat { padding: 14px 14px; gap: 12px; }
+.au-fee-stats .au-stat .ico { width: 46px; height: 46px; font-size: 20px; flex: 0 0 auto; }
+.au-fee-stats .au-stat .val { font-size: 22px; white-space: nowrap; }
+/* Automation Admin > student page: the discount box (Fees tab) */
+.au-discount { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 16px; padding: 10px 14px; border: 1px dashed #86efac; background: #f0fdf4; border-radius: 10px; font-size: 13.5px; }
+/* Automation Admin > Pending Fees: contact details column */
+.pf-contact { font-size: 13px; line-height: 1.5; min-width: 160px; max-width: 240px; }
+.pf-contact span { word-break: break-word; }
+.pf-when { font-size: 12.5px; line-height: 1.5; min-width: 120px; }
+.pf-actions { display: flex; flex-direction: column; gap: 6px; align-items: stretch; }
+.pf-actions .au-btn { white-space: nowrap; justify-content: flex-start; }
+.pf-contact div { display: flex; gap: 6px; align-items: baseline; }
+.pf-contact i { width: 14px; color: #64748B; flex: 0 0 auto; }
+
+/* Automation Admin > student > Ebook Login */
+.au-ebook-state { padding: 12px 14px; border-radius: 10px; background: #F1F5F9; border: 1px solid #E2E8F0; font-size: 14px; }
+.au-ebook-state.warn { background: #FFF7ED; border-color: #FED7AA; color: #9A3412; }
+.au-ebook-kv { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.au-ebook-kv strong { word-break: break-word; }
+.au-secret { font-size: 15px; letter-spacing: .5px; color: var(--au-navy); background: #EEF4FF; padding: 1px 6px; border-radius: 4px; }
+.au-badge.blocked { background: #FEE2E2; color: #B91C1C; }
+/* Values keep their exact case (passwords are case-sensitive) and flow inline: the .au-kv span / div
+   rules above are meant for the small captions and the rows, not for what is inside a value. */
+.au-ebook-kv strong span { display: inline; font-size: inherit; font-weight: inherit; color: inherit; text-transform: none; letter-spacing: normal; }
+.au-ebook-kv strong div { padding: 2px 0; border-bottom: 0; }
+.au-ebook-kv strong .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+.au-ebook-kv strong .au-secret { font-size: 15px; letter-spacing: .5px; color: var(--au-navy); background: #EEF4FF; padding: 1px 6px; border-radius: 4px; }
+.au-ebook-kv strong .au-badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 10px; margin-left: 6px; }
+.au-ebook-kv strong .small { font-size: 13px; }
+@media (max-width: 640px) { .au-ebook-kv { grid-template-columns: 1fr; } }
+

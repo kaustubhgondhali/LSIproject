@@ -10,13 +10,13 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
-    <link href="css/lms.css" rel="stylesheet">
+    <link href="css/lms.css?v=20260930-userid" rel="stylesheet">
 </head>
 <body class="lms-app">
     <div id="capture-protection-overlay" aria-hidden="true"><div class="capture-protection-blackout"></div></div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="js/api-config.js"></script>
-    <script src="js/auth.js"></script>
+    <script src="js/auth.js?v=20261001-single"></script>
     <script>LSI_Auth.requireAuth('student');</script>
     <script src="js/student-protect.js?v=20260919"></script>
 
@@ -48,10 +48,9 @@
             <a href="#invoices" data-view="invoices"><i class="fas fa-file-invoice"></i> My Invoices</a>
             <a href="#discover" data-view="discover"><i class="fas fa-compass"></i> Discover</a>
             <a href="#progress" data-view="progress"><i class="fas fa-chart-pie"></i> Progress</a>
-            <a href="#exams" data-view="exams"><i class="fas fa-file-signature"></i> My Exams <span class="count" id="navExamCount"></span></a>
-            <a href="#certificates" data-view="certificates"><i class="fas fa-award"></i> Certificates <span class="count" id="navCertCount"></span></a>
+            <a href="#certificates" data-view="certificates"><i class="fas fa-award"></i> Certificate <span class="count" id="navCertCount"></span></a>
             <div class="lms-nav-label">Support</div>
-            <a href="#resources" data-view="resources"><i class="fas fa-file-pdf"></i> Resources</a>
+            <a href="#journal" data-view="journal"><i class="fas fa-book-open"></i> Student Journal</a>
             <a href="#doubts" data-view="doubts"><i class="fas fa-comments"></i> Doubt Desk <span class="count" id="navDoubtCount"></span></a>
             <div class="lms-nav-label">Account</div>
             <a href="#profile" data-view="profile"><i class="fas fa-user"></i> Profile</a>
@@ -93,7 +92,15 @@
         <section class="lms-view" id="view-ebooks">
             <h1 class="lms-page-title">My Ebooks</h1>
             <p class="lms-page-sub">Purchased ebooks open inside the portal. Files are protected — they are streamed only to your logged-in account.</p>
+            <div class="alert alert-success small py-2" id="ebookOnlyNote" hidden><i class="fas fa-gift me-1"></i> Your LORD SAI Academy login gives you <strong>free access to the ebook</strong>. Courses are not part of this login.</div>
             <div class="lms-grid" id="ebooksGrid"><div class="lms-card lms-empty" style="grid-column:1/-1"><span class="spinner-border spinner-border-sm"></span></div></div>
+
+            <!-- Course students can buy ebooks here directly; a bought ebook lands in My Ebooks above. -->
+            <div id="ebookShop" hidden>
+                <div class="lms-section-title">Buy Ebooks</div>
+                <p class="lms-page-sub lms-shop-sub">Academy ebooks for your course. A bought ebook is added to My Ebooks as soon as the payment is confirmed, and the invoice appears in My Invoices.</p>
+                <div class="lms-grid" id="ebookShopGrid"></div>
+            </div>
         </section>
 
         <section class="lms-view" id="view-invoices">
@@ -114,27 +121,83 @@
             <div id="progressBody"></div>
         </section>
 
-        <section class="lms-view" id="view-exams">
-            <h1 class="lms-page-title">My Exams</h1>
-            <p class="lms-page-sub">Complete a course, apply for its final exam, and attempt the MCQ exam in the scheduled window. Pass to earn your certificate.</p>
-            <div id="examsBody"><div class="lms-card lms-empty"><span class="spinner-border spinner-border-sm"></span></div></div>
-        </section>
-
-        <section class="lms-view" id="view-exam-take">
-            <div id="examPaperBody"></div>
-        </section>
-
         <section class="lms-view" id="view-certificates">
-            <h1 class="lms-page-title">Certificates</h1>
-            <p class="lms-page-sub">A course completion certificate is issued when you pass the final exam of a completed course.</p>
+            <h1 class="lms-page-title">Certificate</h1>
+            <p class="lms-page-sub">Course Completion Certificate — apply once you complete your course. After the academy approves it, your certificate appears here to view and download.</p>
             <div id="certificatesBody"><div class="lms-card lms-empty"><span class="spinner-border spinner-border-sm"></span></div></div>
             <div id="certificatePrint" class="d-none"></div>
         </section>
 
-        <section class="lms-view" id="view-resources">
-            <h1 class="lms-page-title">Resources</h1>
-            <p class="lms-page-sub">Handouts and PDFs from your enrolled courses. They open inside the portal with your Student ID watermark.</p>
-            <div class="lms-card" id="resourcesBody"><div class="lms-empty">Loading…</div></div>
+        <section class="lms-view" id="view-journal">
+            <h1 class="lms-page-title">Student Journal</h1>
+            <p class="lms-page-sub">Your personal trading journal. Everything you save here is private to your account.</p>
+
+            <div id="journalPane">
+                <div class="lms-card pad lms-journal-head">
+                    <div>
+                        <h2>Daily Trading Journal</h2>
+                        <p>Record every trade and understand why you made profit or loss.</p>
+                    </div>
+                    <span class="lms-chip info">Student Journal</span>
+                </div>
+
+                <div class="lms-card pad lms-form mt-3" id="journalFormCard">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <strong><i class="fas fa-pen me-2" style="color:var(--lms-primary)"></i><span id="journalFormTitle">Add a trade</span></strong>
+                        <small class="text-muted" id="journalEditing"></small>
+                    </div>
+                    <form id="journalForm" autocomplete="off">
+                        <div class="row g-3">
+                            <div class="col-6 col-lg-3"><label for="journalDate">Date</label><input type="date" class="form-control" id="journalDate" required></div>
+                            <div class="col-6 col-lg-3"><label for="journalSegment">Segment</label>
+                                <select class="form-select" id="journalSegment">
+                                    <option>Equity</option><option>Futures</option><option>Options</option><option>Commodity</option><option>Currency</option>
+                                </select></div>
+                            <div class="col-6 col-lg-3"><label for="journalSymbol">Symbol</label><input type="text" class="form-control" id="journalSymbol" placeholder="e.g. NIFTY / RELIANCE" maxlength="40" required></div>
+                            <div class="col-6 col-lg-3"><label for="journalType">Trade Type</label>
+                                <select class="form-select" id="journalType"><option value="BUY">Buy</option><option value="SELL">Sell</option></select></div>
+
+                            <div class="col-6 col-lg-3"><label for="journalEntry">Entry Price</label><input type="number" class="form-control" id="journalEntry" min="0" step="0.01" inputmode="decimal" required></div>
+                            <div class="col-6 col-lg-3"><label for="journalQty">Quantity</label><input type="number" class="form-control" id="journalQty" min="1" step="1" inputmode="numeric" required></div>
+                            <div class="col-6 col-lg-3"><label for="journalExit">Exit Price</label><input type="number" class="form-control" id="journalExit" min="0" step="0.01" inputmode="decimal" required></div>
+                            <div class="col-6 col-lg-3"><label for="journalTradingType">Type of Trading</label>
+                                <select class="form-select" id="journalTradingType" required>
+                                    <option value="" selected disabled>Select type</option>
+                                    <option value="EQUITIES">Equities</option><option value="MUTUAL_FUNDS">Mutual Funds</option><option value="ETFS">ETFs</option>
+                                    <option value="OPTIONS">Options</option><option value="FUTURES">Futures</option><option value="COMMODITIES">Commodities</option>
+                                </select></div>
+
+                            <div class="col-6 col-lg-3"><label for="journalStrategy">Strategy Used</label><input type="text" class="form-control" id="journalStrategy" maxlength="60" placeholder="Type your strategy, e.g. Breakout"></div>
+                            <div class="col-6 col-lg-3"><label for="journalResult">Result</label>
+                                <select class="form-select" id="journalResult"><option value="PROFIT">Profit</option><option value="LOSS">Loss</option><option value="BREAKEVEN">Breakeven</option></select></div>
+                            <div class="col-12 col-lg-6 d-flex align-items-end"><div class="lms-journal-preview w-100" id="journalPreview">Enter entry price, quantity and exit price to see the P&amp;L.</div></div>
+
+                            <div class="col-12 col-lg-6"><label for="journalWhy">Why did this trade happen?</label><textarea class="form-control" id="journalWhy" rows="3" maxlength="2000" placeholder="Entry का घेतली? कोणता setup दिसला?"></textarea></div>
+                            <div class="col-12 col-lg-6"><label for="journalOutcome">Why Profit / Loss happened?</label><textarea class="form-control" id="journalOutcome" rows="3" maxlength="2000" placeholder="चूक काय झाली किंवा काय योग्य झाले?"></textarea></div>
+                        </div>
+                        <div class="alert alert-danger py-2 px-3 small d-none mt-3" id="journalError"></div>
+                        <div class="d-flex flex-wrap gap-2 mt-3">
+                            <button type="submit" class="lms-btn primary" id="journalSubmitBtn"><i class="fas fa-plus"></i> Save Trade</button>
+                            <button type="button" class="lms-btn ghost" id="journalClearBtn">Clear</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="lms-section-title">Performance Summary</div>
+                <div class="lms-journal-stats">
+                    <div class="lms-card lms-stat"><div class="ico"><i class="fas fa-list-ol"></i></div><div><div class="val" id="jsTotal">—</div><div class="lbl">Total Trades</div></div></div>
+                    <div class="lms-card lms-stat"><div class="ico" style="background:#DCFCE7;color:#15803D"><i class="fas fa-arrow-up"></i></div><div><div class="val" id="jsWins">—</div><div class="lbl">Winning Trades</div></div></div>
+                    <div class="lms-card lms-stat"><div class="ico" style="background:#FEE2E2;color:#B91C1C"><i class="fas fa-arrow-down"></i></div><div><div class="val" id="jsLosses">—</div><div class="lbl">Losing Trades</div></div></div>
+                    <div class="lms-card lms-stat"><div class="ico"><i class="fas fa-bullseye"></i></div><div><div class="val" id="jsWinRate">—</div><div class="lbl">Win Rate</div></div></div>
+                    <div class="lms-card lms-stat wide"><div class="ico"><i class="fas fa-rupee-sign"></i></div><div><div class="val" id="jsNet">—</div><div class="lbl">Net P&amp;L</div></div></div>
+                    <div class="lms-card lms-stat wide"><div class="ico"><i class="fas fa-receipt"></i></div><div><div class="val" id="jsCharges">—</div><div class="lbl">Charges Paid</div></div></div>
+                </div>
+
+                <div class="lms-section-title">My Trades
+                    <input type="search" class="form-control form-control-sm lms-journal-search" id="journalSearch" placeholder="Search symbol or strategy" autocomplete="off">
+                </div>
+                <div class="lms-card" id="journalList"><div class="lms-empty">Loading…</div></div>
+            </div>
         </section>
 
         <section class="lms-view" id="view-doubts">
@@ -186,9 +249,9 @@
                     </div>
                     <div class="lms-card pad lms-form mt-3">
                         <strong class="d-block mb-1"><i class="fas fa-id-badge me-2" style="color:var(--lms-primary)"></i>Change User ID</strong>
-                        <p class="text-muted small mb-3">Your User ID is the Student ID you sign in with. Your courses, invoices and progress are not affected.</p>
+                        <p class="text-muted small mb-3">Your User ID is what you sign in with. It is separate from your Student ID (your record reference number); changing it does <strong>not</strong> change your Student ID, courses, invoices, certificates or progress.</p>
                         <form id="changeUserIdForm" autocomplete="off">
-                            <div class="mb-2"><label>Current User ID</label><input type="text" class="form-control form-control-sm" id="cuCurrent" required maxlength="20" placeholder="e.g. LSI-2026-00001"></div>
+                            <div class="mb-2"><label>Current User ID</label><input type="text" class="form-control form-control-sm" id="cuCurrent" required maxlength="20" placeholder="e.g. rahul4821"></div>
                             <div class="mb-2"><label>New User ID</label><input type="text" class="form-control form-control-sm" id="cuNew" required minlength="4" maxlength="20" pattern="[A-Za-z0-9][A-Za-z0-9._-]{3,19}" title="4-20 characters: letters, numbers, dot, underscore or hyphen"><div class="form-text">4–20 characters: letters, numbers, dot, underscore or hyphen.</div></div>
                             <div class="mb-2"><label>Confirm new User ID</label><input type="text" class="form-control form-control-sm" id="cuConfirm" required maxlength="20"></div>
                             <div class="mb-3"><label>Current password</label><input type="password" class="form-control form-control-sm" id="cuPassword" required autocomplete="current-password"></div>
@@ -204,7 +267,7 @@
                 <div class="col-lg-7">
                     <div class="lms-card pad">
                         <strong class="d-block mb-2"><i class="fas fa-shield-alt me-2" style="color:var(--lms-primary)"></i>Session</strong>
-                        <p class="text-muted small mb-3">You can sign in with your valid Student ID and password from any trusted device. Use log out here only if you want to end this session.</p>
+                        <p class="text-muted small mb-3">You can sign in with your User ID (or email) and password on any trusted device, but only one login is active at a time: signing in on another device or browser automatically logs out this one. Use log out here if you want to end this session now.</p>
                         <button type="button" class="lms-btn ghost" onclick="LSI_Auth.logout()"><i class="fas fa-sign-out-alt"></i> Log out of this device</button>
                         <hr>
                         <strong class="d-block mb-2"><i class="fas fa-headset me-2" style="color:var(--lms-primary)"></i>Need help?</strong>
@@ -220,28 +283,92 @@
     </main>
 
 
-    <div class="modal fade" id="examApplyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="certApplyModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 14px;">
                 <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fw-bold"><i class="fas fa-file-signature me-2" style="color:var(--lms-primary)"></i>Exam Application</h5>
+                    <h5 class="modal-title fw-bold"><i class="fas fa-award me-2" style="color:var(--lms-primary)"></i>Apply for Certificate</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4 lms-form">
-                    <p class="text-muted small mb-3">Your details are taken from your student account. Submit to apply for the final exam of this course.</p>
-                    <form id="examApplyForm">
-                        <input type="hidden" id="examApplyCourseId">
-                        <div class="mb-2"><label>Student Name</label><input type="text" class="form-control form-control-sm" id="examApplyName" readonly></div>
-                        <div class="mb-2"><label>Student ID</label><input type="text" class="form-control form-control-sm" id="examApplyStudentId" readonly></div>
-                        <div class="mb-2"><label>Course</label><input type="text" class="form-control form-control-sm" id="examApplyCourse" readonly></div>
-                        <div class="mb-2"><label>Registered Email</label><input type="text" class="form-control form-control-sm" id="examApplyEmail" readonly></div>
-                        <div class="mb-3"><label>Course Completion</label><input type="text" class="form-control form-control-sm" id="examApplyCompletion" readonly></div>
-                        <div class="alert alert-danger py-2 px-3 small d-none" id="examApplyError"></div>
+                    <p class="text-muted small mb-3">Please check your details before applying. Your certificate will show your name <strong>exactly as written in "Name on certificate"</strong> — if it is misspelled, correct it here first.</p>
+                    <form id="certApplyForm">
+                        <input type="hidden" id="certApplyCourseId">
+                        <div class="mb-2">
+                            <label for="certApplyName">Name on certificate <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-sm" id="certApplyName" required minlength="2" maxlength="150" autocomplete="name" placeholder="Your full name as it should appear on the certificate">
+                            <div class="form-text">Use English letters (A–Z); spaces, dots, apostrophes and hyphens are allowed.</div>
+                            <div class="form-text">Printed on the certificate as: <strong id="certApplyNamePreview" style="letter-spacing:.5px;color:#0A1128"></strong></div>
+                            <div class="form-text d-none" id="certApplyNameNote" style="color:#B45309"></div>
+                        </div>
+                        <div class="mb-2"><label for="certApplyStudentId">Student ID</label><input type="text" class="form-control form-control-sm" id="certApplyStudentId" readonly></div>
+                        <div class="mb-2"><label for="certApplyCourse">Course</label><input type="text" class="form-control form-control-sm" id="certApplyCourse" readonly></div>
+                        <div class="mb-3"><label for="certApplyCompletion">Course Completed</label><input type="text" class="form-control form-control-sm" id="certApplyCompletion" readonly></div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="certApplyConfirm" required>
+                            <label class="form-check-label small" for="certApplyConfirm">I have checked my name and it is correct as it should be printed on my certificate.</label>
+                        </div>
+                        <div class="alert alert-danger py-2 px-3 small d-none" id="certApplyError"></div>
                         <div class="d-flex justify-content-end gap-2">
                             <button type="button" class="lms-btn ghost" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="lms-btn primary" id="examApplySubmit"><i class="fas fa-paper-plane"></i> Apply for Exam</button>
+                            <button type="submit" class="lms-btn primary" id="certApplySubmit"><i class="fas fa-paper-plane"></i> Submit Request</button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Buy an ebook from the portal: same payment pipeline as the store, always for this account. -->
+    <div class="modal fade" id="ebookBuyModal" tabindex="-1" aria-hidden="true" aria-labelledby="ebookBuyLabel" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 14px;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="ebookBuyLabel"><i class="fas fa-shopping-cart me-2" style="color:var(--lms-primary)"></i>Buy Ebook</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="ebookBuyClose"></button>
+                </div>
+                <div class="modal-body p-4 lms-form">
+                    <div id="ebookBuyDetails">
+                        <div class="lms-buy-product">
+                            <div class="flex-grow-1 min-w-0">
+                                <div class="name" id="ebookBuyTitle">Ebook</div>
+                                <div class="by" id="ebookBuyAuthor"></div>
+                            </div>
+                            <div class="text-end">
+                                <div class="price" id="ebookBuyPrice">—</div>
+                                <div class="was" id="ebookBuyWas"></div>
+                            </div>
+                        </div>
+                        <div class="alert small py-2 px-3" id="ebookBuyMode" role="status"><span class="spinner-border spinner-border-sm me-1"></span> Checking payment options…</div>
+                        <div class="lms-buy-billto">
+                            <div class="head"><i class="fas fa-user-check me-1"></i> Your student account details — nothing to fill in</div>
+                            <div class="lms-buy-facts" id="ebookBuyAccount"></div>
+                        </div>
+                        <p class="text-muted small mb-3"><i class="fas fa-lock me-1"></i> The ebook is added to this account only and can be read in My Ebooks right after payment.</p>
+                        <div class="alert alert-danger py-2 px-3 small d-none" id="ebookBuyError" role="alert"></div>
+                        <form id="ebookBuyForm">
+                            <div class="d-flex justify-content-end gap-2">
+                                <button type="button" class="lms-btn ghost" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="lms-btn primary" id="ebookBuyPay" disabled><i class="fas fa-lock"></i> <span id="ebookBuyPayText">Pay</span></button>
+                            </div>
+                        </form>
+                    </div>
+                    <div id="ebookBuyBusy" class="text-center py-4 d-none" role="status">
+                        <span class="spinner-border" style="color:var(--lms-primary)"></span>
+                        <div class="mt-3 fw-semibold" id="ebookBuyBusyText">Please wait…</div>
+                        <small class="text-muted">Please do not close this window.</small>
+                    </div>
+                    <div id="ebookBuyResult" class="text-center py-2 d-none">
+                        <div class="lms-buy-icon" id="ebookBuyResultIcon"></div>
+                        <h5 class="fw-bold mt-3 mb-2" id="ebookBuyResultTitle"></h5>
+                        <p class="text-muted small mb-3" id="ebookBuyResultText"></p>
+                        <div class="lms-buy-facts d-none" id="ebookBuyFacts"></div>
+                        <div class="d-flex justify-content-center flex-wrap gap-2 mt-3">
+                            <button type="button" class="lms-btn ghost" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="lms-btn ghost d-none" id="ebookBuyRetry"><i class="fas fa-redo"></i> Try again</button>
+                            <button type="button" class="lms-btn accent d-none" id="ebookBuyRead"><i class="fas fa-book-open"></i> Read now</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -276,8 +403,20 @@
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+                <div class="lms-reader-bar" id="ebookReaderBar">
+                    <div class="grp" role="group" aria-label="Zoom">
+                        <button type="button" class="lms-btn ghost sm" id="ebookZoomOut" title="Zoom out" aria-label="Zoom out" disabled><i class="fas fa-search-minus"></i></button>
+                        <span class="zoom" id="ebookZoomLevel" aria-live="polite">100%</span>
+                        <button type="button" class="lms-btn ghost sm" id="ebookZoomIn" title="Zoom in" aria-label="Zoom in" disabled><i class="fas fa-search-plus"></i></button>
+                    </div>
+                    <div class="grp" role="group" aria-label="Page orientation">
+                        <button type="button" class="lms-btn ghost sm" id="ebookPortrait" aria-pressed="true" title="Portrait: the whole page on screen" disabled><i class="far fa-file"></i> Portrait</button>
+                        <button type="button" class="lms-btn ghost sm" id="ebookLandscape" aria-pressed="false" title="Landscape: the page across the full width, larger text" disabled><i class="far fa-file fa-rotate-90"></i> Landscape</button>
+                    </div>
+                </div>
                 <div class="modal-body p-0 position-relative" style="background:#0f172a;">
                     <div class="lms-empty text-white" id="ebookReaderLoading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><span class="spinner-border spinner-border-sm me-2"></span> Opening your ebook…</div>
+                    <div class="lms-reader-pages" id="ebookReaderPages" style="display:none;"></div>
                     <iframe id="ebookReaderFrame" title="Ebook" style="width:100%;height:100%;border:0;display:none;"></iframe>
                 </div>
             </div>
@@ -285,6 +424,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/student-dashboard.js?v=20260919"></script>
+    <script src="js/student-dashboard.js?v=20261012-ebookonly2"></script>
 </body>
 </html>

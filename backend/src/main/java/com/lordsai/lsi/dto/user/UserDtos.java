@@ -59,7 +59,11 @@ public final class UserDtos {
             Instant lastLoginAt,
             Instant createdAt,
             long enrolledCourses,
-            boolean hasActiveSession
+            boolean hasActiveSession,
+            /** The User ID the student signs in with (separate from the Student ID, which is only a reference). */
+            String loginUserId,
+            /** An Automation Admin student's free ebook login (Student ID LSA/...), not an online course student. */
+            boolean academyEbookOnly
     ) {
     }
 

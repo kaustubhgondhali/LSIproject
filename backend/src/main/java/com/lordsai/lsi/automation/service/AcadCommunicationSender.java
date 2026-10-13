@@ -1,6 +1,7 @@
 package com.lordsai.lsi.automation.service;
 
 import com.lordsai.lsi.automation.entity.AcadCommunicationLog;
+import com.lordsai.lsi.automation.entity.AcadReceipt;
 import com.lordsai.lsi.automation.repository.AcadCommunicationLogRepository;
 import com.lordsai.lsi.communication.WhatsAppDelivery;
 import com.lordsai.lsi.communication.WhatsAppMessageService;
@@ -9,6 +10,7 @@ import com.lordsai.lsi.email.EmailDelivery;
 import com.lordsai.lsi.email.EmailService;
 import com.lordsai.lsi.entity.enums.CommunicationChannel;
 import com.lordsai.lsi.entity.enums.CommunicationStatus;
+import com.lordsai.lsi.entity.enums.CommunicationType;
 import com.lordsai.lsi.exception.ResourceNotFoundException;
 import com.lordsai.lsi.service.AuditService;
 import com.lordsai.lsi.service.FileStorageService;
@@ -35,17 +37,20 @@ public class AcadCommunicationSender {
     private final WhatsAppMessageService whatsApp;
     private final FileStorageService storage;
     private final AuditService auditService;
+    private final AcadReceiptPdfService receiptPdf;
 
     public AcadCommunicationSender(AcadCommunicationLogRepository logRepository,
                                    EmailService emailService,
                                    WhatsAppMessageService whatsApp,
                                    FileStorageService storage,
-                                   AuditService auditService) {
+                                   AuditService auditService,
+                                   AcadReceiptPdfService receiptPdf) {
         this.logRepository = logRepository;
         this.emailService = emailService;
         this.whatsApp = whatsApp;
         this.storage = storage;
         this.auditService = auditService;
+        this.receiptPdf = receiptPdf;
     }
 
     @Transactional
@@ -57,7 +62,9 @@ public class AcadCommunicationSender {
         }
         String recipientName = row.getStudentName() == null ? "Student" : row.getStudentName();
         try {
-            if (row.getChannel() == CommunicationChannel.EMAIL) {
+            if (row.getMessageType() == CommunicationType.FEE_RECEIPT) {
+                deliverReceipt(row, recipientName);
+            } else if (row.getChannel() == CommunicationChannel.EMAIL) {
                 EmailDelivery d = emailService.sendMessage(row.getRecipient(), recipientName, row.getSubject(), row.getBody(), attachment(row));
                 applyEmailOutcome(row, d);
             } else {
@@ -85,6 +92,40 @@ public class AcadCommunicationSender {
                 "AcadCommunicationLog", row.getId(), row.getMessageType() + " to " + row.getRecipient()
                         + (row.getStatus() == CommunicationStatus.SENT ? " via " + row.getProvider() : " — " + row.getErrorReason()), null);
         return row;
+    }
+
+    /**
+     * A payment receipt row: the receipt PDF is the message. Email carries it as an attachment;
+     * WhatsApp sends it as a document, and the row is SENT only if that document was accepted.
+     * The PDF is rendered from the linked receipt on every attempt, so a retry sends the same receipt.
+     */
+    private void deliverReceipt(AcadCommunicationLog row, String recipientName) {
+        AcadReceipt receipt = row.getReceipt();
+        if (receipt == null) {
+            failWithoutSending(row, "The receipt no longer exists (its payment was deleted).");
+            return;
+        }
+        AcadReceiptPdfService.ReceiptFile file;
+        try {
+            file = receiptPdf.render(receipt);
+        } catch (RuntimeException e) {
+            log.error("[AUTOMATION] Receipt PDF for message {} could not be generated: {}", row.getId(), e.getMessage());
+            failWithoutSending(row, "The receipt PDF could not be generated.");
+            return;
+        }
+        if (row.getChannel() == CommunicationChannel.EMAIL) {
+            applyEmailOutcome(row, emailService.sendMessage(row.getRecipient(), recipientName, row.getSubject(), row.getBody(),
+                    EmailAttachment.pdf(file.filename(), file.content())));
+        } else {
+            applyWhatsAppOutcome(row, whatsApp.sendDocument(row.getRecipient(), row.getBody(), file.filename(), "application/pdf", file.content()));
+        }
+    }
+
+    private static void failWithoutSending(AcadCommunicationLog row, String reason) {
+        row.setAttempts(row.getAttempts() + 1);
+        row.setLastAttemptAt(Instant.now());
+        row.setStatus(CommunicationStatus.FAILED);
+        row.setErrorReason(reason);
     }
 
     static void applyEmailOutcome(AcadCommunicationLog row, EmailDelivery delivery) {

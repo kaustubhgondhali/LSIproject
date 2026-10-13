@@ -1,7 +1,6 @@
 package com.lordsai.lsi.service;
 
-import com.lordsai.lsi.communication.WhatsAppDelivery;
-import com.lordsai.lsi.communication.WhatsAppMessageService;
+import com.lordsai.lsi.communication.WhatsAppChat;
 import com.lordsai.lsi.config.AppProperties;
 import com.lordsai.lsi.email.EmailAttachment;
 import com.lordsai.lsi.email.EmailDelivery;
@@ -10,14 +9,18 @@ import com.lordsai.lsi.email.PurchaseEmail;
 import com.lordsai.lsi.entity.CommunicationLog;
 import com.lordsai.lsi.entity.Invoice;
 import com.lordsai.lsi.entity.Payment;
+import com.lordsai.lsi.entity.StudentProfile;
 import com.lordsai.lsi.entity.User;
 import com.lordsai.lsi.entity.enums.CommunicationChannel;
 import com.lordsai.lsi.entity.enums.CommunicationStatus;
 import com.lordsai.lsi.entity.enums.CommunicationType;
 import com.lordsai.lsi.entity.enums.PaymentStatus;
+import com.lordsai.lsi.exception.ApiException;
 import com.lordsai.lsi.repository.CommunicationLogRepository;
+import com.lordsai.lsi.repository.StudentProfileRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,23 +52,26 @@ public class PurchaseCommunicationService {
 
     private final EmailService emailService;
     private final InvoiceService invoiceService;
-    private final WhatsAppMessageService whatsApp;
+    private final DocumentLinkService documentLinks;
     private final CommunicationLogRepository logRepository;
     private final AuditService auditService;
     private final AppProperties properties;
+    private final StudentProfileRepository studentProfileRepository;
 
     public PurchaseCommunicationService(EmailService emailService,
                                         InvoiceService invoiceService,
-                                        WhatsAppMessageService whatsApp,
+                                        DocumentLinkService documentLinks,
                                         CommunicationLogRepository logRepository,
                                         AuditService auditService,
-                                        AppProperties properties) {
+                                        AppProperties properties,
+                                        StudentProfileRepository studentProfileRepository) {
         this.emailService = emailService;
         this.invoiceService = invoiceService;
-        this.whatsApp = whatsApp;
+        this.documentLinks = documentLinks;
         this.logRepository = logRepository;
         this.auditService = auditService;
         this.properties = properties;
+        this.studentProfileRepository = studentProfileRepository;
     }
 
     /**
@@ -110,39 +116,55 @@ public class PurchaseCommunicationService {
         return delivery;
     }
 
-    /** Sends the invoice PDF as a WhatsApp document when the provider supports it. */
+    /**
+     * The invoice's WhatsApp chat: WhatsApp's own "click to chat" (no WhatsApp Business API). The
+     * message says it is the invoice of the purchase and carries a private PDF download link; the
+     * admin's browser opens the chat and the admin presses Send. Logged as OPENED, never as SENT.
+     */
     @Transactional
-    public WhatsAppDelivery sendInvoiceWhatsApp(Invoice invoice, User actor, String ip) {
+    public WhatsAppChat prepareInvoiceWhatsApp(Invoice invoice, User actor, String ip) {
         User student = invoice.getStudent();
-        String mobile = invoice.getStudentPhone() != null ? invoice.getStudentPhone() : student.getMobile();
-        String caption = "Lord Sai Share Market Academy — Invoice " + invoice.getInvoiceNumber() + " for "
-                + invoice.getProductName() + " (" + InvoiceService.money(invoice.getTotal(), invoice.getCurrency()) + ").";
-        WhatsAppDelivery delivery;
+        String mobile = invoice.getStudentPhone() != null && !invoice.getStudentPhone().isBlank() ? invoice.getStudentPhone() : student.getMobile();
         if (mobile == null || mobile.isBlank()) {
-            delivery = WhatsAppDelivery.failed("No mobile number on record for this student.", whatsApp.providerName());
-        } else {
-            byte[] pdf = invoiceService.pdfBytes(invoice);
-            delivery = whatsApp.sendDocument(mobile, caption, invoice.fileName(), "application/pdf", pdf);
+            throw new ApiException(HttpStatus.BAD_REQUEST, "No mobile number on record for this student, so WhatsApp cannot be opened.");
+        }
+        WhatsAppChat chat = WhatsAppChat.of(mobile, invoiceWhatsAppText(invoice));
+        if (chat == null) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "The mobile number '" + mobile.trim() + "' cannot be used on WhatsApp.");
         }
         CommunicationLog row = new CommunicationLog();
         row.setChannel(CommunicationChannel.WHATSAPP);
         row.setMessageType(CommunicationType.INVOICE);
         row.setStudent(student);
         row.setStudentCode(invoice.getStudentCode());
-        row.setRecipient(mobile == null ? "—" : mobile);
+        row.setRecipient(mobile.trim());
         row.setSubject("Invoice " + invoice.getInvoiceNumber());
-        row.setBody(caption);
+        row.setBody(chat.text());
         row.setInvoice(invoice);
         row.setProductType(invoice.getProductType());
         row.setProductId(invoice.productId());
-        row.setAttachmentPath(invoice.getPdfPath());
         row.setAttachmentName(invoice.fileName());
         row.setSentBy(actor);
-        applyWhatsAppOutcome(row, delivery);
+        row.setStatus(CommunicationStatus.OPENED);
+        row.setProvider(WhatsAppChat.PROVIDER);
         logRepository.save(row);
-        auditService.record(actor, delivery.sent() ? "WHATSAPP_SENT" : "WHATSAPP_FAILED", "Invoice", invoice.getId(),
-                invoice.getInvoiceNumber() + (delivery.sent() ? " sent via " + delivery.provider() : " — " + delivery.reason()), ip);
-        return delivery;
+        auditService.record(actor, "WHATSAPP_OPENED", "Invoice", invoice.getId(),
+                invoice.getInvoiceNumber() + " WhatsApp chat opened for " + mobile.trim(), ip);
+        return chat;
+    }
+
+    /** Says plainly that the link is the invoice of the purchase, with the details to recognise it. */
+    String invoiceWhatsAppText(Invoice invoice) {
+        String support = properties.support() == null ? null : properties.support().phone();
+        return "Dear " + invoice.getStudentName() + ",\n"
+                + "Thank you for your purchase. Here is the *invoice for your purchase* of " + invoice.getProductName() + ":\n\n"
+                + "Invoice No: " + invoice.getInvoiceNumber() + "\n"
+                + "Invoice date: " + invoice.getInvoiceDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + "\n"
+                + "Amount paid: " + InvoiceService.money(invoice.getTotal(), invoice.getCurrency()) + "\n\n"
+                + "Download your invoice (PDF):\n" + documentLinks.invoiceLink(invoice.getId()) + "\n"
+                + "(This link is valid for " + DocumentLinkService.LINK_DAYS + " days.)\n\n"
+                + "Regards,\nLord Sai Share Market Academy"
+                + (support == null || support.isBlank() ? "" : "\n" + support);
     }
 
     // ---- helpers ---------------------------------------------------------------------------
@@ -152,6 +174,9 @@ public class PurchaseCommunicationService {
         m.put("name", student.getFullName());
         m.put("email", student.getEmail());
         m.put("studentId", studentCode == null ? "—" : studentCode);
+        // The User ID is what the student signs in with; the Student ID above is only the record reference.
+        m.put("userId", student.getId() == null ? "—" : studentProfileRepository.findByUserId(student.getId())
+                .map(StudentProfile::userId).orElse("—"));
         m.put("productName", payment.productName());
         m.put("productType", payment.getProductType().label());
         m.put("amount", InvoiceService.money(payment.getAmount(), payment.getCurrency()));
@@ -216,21 +241,6 @@ public class PurchaseCommunicationService {
             row.setErrorReason(null);
         } else {
             // DISABLED (no mail channel) is a failure from the student's point of view and is retryable.
-            row.setStatus(CommunicationStatus.FAILED);
-            row.setErrorReason(delivery.reason());
-        }
-    }
-
-    static void applyWhatsAppOutcome(CommunicationLog row, WhatsAppDelivery delivery) {
-        row.setAttempts(row.getAttempts() + 1);
-        row.setLastAttemptAt(Instant.now());
-        row.setProvider(delivery.provider());
-        if (delivery.sent()) {
-            row.setStatus(CommunicationStatus.SENT);
-            row.setSentAt(Instant.now());
-            row.setProviderMessageId(delivery.providerMessageId());
-            row.setErrorReason(null);
-        } else {
             row.setStatus(CommunicationStatus.FAILED);
             row.setErrorReason(delivery.reason());
         }

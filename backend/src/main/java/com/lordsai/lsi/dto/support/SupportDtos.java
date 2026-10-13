@@ -1,10 +1,14 @@
 package com.lordsai.lsi.dto.support;
 
 import com.lordsai.lsi.entity.enums.DoubtStatus;
+import com.lordsai.lsi.entity.enums.TradeResult;
 import com.lordsai.lsi.entity.enums.TradeReviewStatus;
 import com.lordsai.lsi.entity.enums.TradeType;
+import com.lordsai.lsi.entity.enums.TradingType;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -28,19 +32,39 @@ public final class SupportDtos {
             @NotNull @DecimalMin("0.00") @Digits(integer = 10, fraction = 2) BigDecimal entryPrice,
             @DecimalMin("0.00") @Digits(integer = 10, fraction = 2) BigDecimal stopLoss,
             @DecimalMin("0.00") @Digits(integer = 10, fraction = 2) BigDecimal target,
-            @Size(max = 2000) String notes
+            @Size(max = 2000) String notes,
+            @Size(max = 30) String segment,
+            @DecimalMin("0.00") @Digits(integer = 10, fraction = 2) BigDecimal exitPrice,
+            @Min(1) @Max(100_000_000) Integer quantity,
+            @DecimalMin("0.00") @Digits(integer = 10, fraction = 2) BigDecimal charges,
+            @Size(max = 60) String strategy,
+            TradeResult result,
+            @Size(max = 2000) String tradeReason,
+            @Size(max = 2000) String outcomeReason,
+            TradingType tradingType
     ) {
     }
 
+    /** grossPnl / netPnl are derived (never stored) and null until exit price and quantity are known. */
     public record TradeResponse(
             Long id,
             Long studentUserId,
             String studentName,
             String studentId,
             LocalDate tradeDate,
+            String segment,
             String symbol,
             TradeType tradeType,
             BigDecimal entryPrice,
+            BigDecimal exitPrice,
+            Integer quantity,
+            BigDecimal charges,
+            BigDecimal grossPnl,
+            BigDecimal netPnl,
+            String strategy,
+            TradeResult result,
+            String tradeReason,
+            String outcomeReason,
             BigDecimal stopLoss,
             BigDecimal target,
             String riskReward,
@@ -49,7 +73,20 @@ public final class SupportDtos {
             String mentorComment,
             String reviewedBy,
             Instant reviewedAt,
-            Instant createdAt
+            Instant createdAt,
+            TradingType tradingType
+    ) {
+    }
+
+    /** Performance across all of the student's own journal entries; win rate counts trades that have a result. */
+    public record TradeSummary(
+            long totalTrades,
+            long winningTrades,
+            long losingTrades,
+            long breakevenTrades,
+            int winRatePercent,
+            BigDecimal netPnl,
+            BigDecimal totalCharges
     ) {
     }
 

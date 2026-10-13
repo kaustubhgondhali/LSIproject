@@ -23,6 +23,8 @@ public interface UserSessionRepository extends JpaRepository<UserSession, Long> 
 
     List<UserSession> findByUserIdOrderByCreatedAtDesc(Long userId);
 
+    void deleteByUserId(Long userId);
+
     @Modifying
     @Query("""
             update UserSession s

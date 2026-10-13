@@ -44,9 +44,19 @@ public interface AcadStudentRepository extends JpaRepository<AcadStudent, Long> 
     Page<AcadStudent> search(@Param("q") String q, @Param("batchId") Long batchId, @Param("courseId") Long courseId,
                              @Param("status") String status, @Param("year") Integer year, Pageable pageable);
 
-    @Query("select coalesce(sum(s.courseFee), 0) from AcadStudent s where s.status = 'ACTIVE'")
+    /** What active students have to pay in total: each course fee less that student's discount. */
+    @Query("select coalesce(sum(s.courseFee - s.discountAmount), 0) from AcadStudent s where s.status = 'ACTIVE'")
     BigDecimal totalExpectedFees();
 
-    @Query("select max(s.studentId) from AcadStudent s where s.studentId like concat('LSA/', :year, '/%')")
-    Optional<String> maxStudentIdForYear(@Param("year") String year);
+    Optional<AcadStudent> findByAadhaarNo(String aadhaarNo);
+
+    /** The academy student whose free ebook login is this website user, if any. */
+    Optional<AcadStudent> findByPortalUserId(Long userId);
+
+    /** Every academy student who has a free ebook login. */
+    List<AcadStudent> findByPortalUserIsNotNull();
+
+    /** Every Student ID in a series (prefix may not contain LIKE wildcards; the service only allows [A-Z0-9/.-]). */
+    @Query("select s.studentId from AcadStudent s where s.studentId like concat(:prefix, '%')")
+    List<String> findStudentIdsStartingWith(@Param("prefix") String prefix);
 }

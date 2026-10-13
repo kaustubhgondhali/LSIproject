@@ -18,7 +18,7 @@ import java.util.List;
 
 /**
  * Admin-managed Success Stories shown on the public stories page. Categories are content
- * labels (STUDENTS / TEACHERS / PARENTS); publishing is the only thing that makes a story
+ * labels (STUDENTS / TEACHERS / PARENTS, plus INVESTORS for the Mutual Fund site); publishing is the only thing that makes a story
  * visible to visitors.
  */
 @Service

@@ -3,7 +3,6 @@ package com.lordsai.lsi.controller.admin;
 import com.lordsai.lsi.dto.ApiResponse;
 import com.lordsai.lsi.dto.course.CourseDtos.ReorderRequest;
 import com.lordsai.lsi.dto.ebook.EbookDtos.AdminEbook;
-import com.lordsai.lsi.dto.ebook.EbookDtos.EbookPriceRequest;
 import com.lordsai.lsi.dto.ebook.EbookDtos.EbookRequest;
 import com.lordsai.lsi.dto.ebook.EbookDtos.EbookStatusRequest;
 import com.lordsai.lsi.dto.ebook.EbookDtos.EntitlementResponse;
@@ -39,7 +38,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-/** Main Admin: ebook catalogue (add / edit / price / status / files) and ebook entitlements. */
+/** Main Admin: ebook catalogue (add / edit incl. price / status / files) and ebook entitlements. */
 @RestController
 @RequestMapping("/api/admin")
 public class AdminEbookController {
@@ -74,43 +73,42 @@ public class AdminEbookController {
     }
 
     /**
-     * The Main Admin form: name + price + cover + PDF (+ optional info) in ONE request. Files are
-     * validated by extension, declared type, content signature and size; the ebook is created
-     * ACTIVE so it appears on the store immediately. Field names match the admin form exactly.
+     * The Main Admin form: name + price (+ optional selling price) + cover + PDF (+ optional info) in
+     * ONE request. Files are validated by extension, declared type, content signature and size; the
+     * ebook is created ACTIVE so it appears on the store immediately. Field names match the admin form.
      */
     @PostMapping(value = "/ebooks", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<AdminEbook> createWithFiles(@RequestParam(value = "title", required = false) String title,
                                                    @RequestParam(value = "price", required = false) java.math.BigDecimal price,
+                                                   @RequestParam(value = "discountedPrice", required = false) java.math.BigDecimal discountedPrice,
                                                    @RequestParam(value = "description", required = false) String description,
                                                    @RequestParam(value = "cover", required = false) MultipartFile cover,
                                                    @RequestParam(value = "pdf", required = false) MultipartFile pdf,
                                                    HttpServletRequest req) {
         return ApiResponse.ok("Ebook uploaded successfully and is now available in the Store.",
-                ebookService.createSimple(title, price, description, cover, pdf, actor(), RequestUtil.clientIp(req)));
+                ebookService.createSimple(title, price, discountedPrice, description, cover, pdf, actor(), RequestUtil.clientIp(req)));
     }
 
-    /** Same form for editing: a missing cover / PDF keeps the current file. */
+    /**
+     * Same form for editing, and the only place an ebook's price is changed. A missing cover / PDF
+     * keeps the current file; a missing selling price means no discount.
+     */
     @PutMapping(value = "/ebooks/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<AdminEbook> updateWithFiles(@PathVariable Long id,
                                                    @RequestParam(value = "title", required = false) String title,
                                                    @RequestParam(value = "price", required = false) java.math.BigDecimal price,
+                                                   @RequestParam(value = "discountedPrice", required = false) java.math.BigDecimal discountedPrice,
                                                    @RequestParam(value = "description", required = false) String description,
                                                    @RequestParam(value = "cover", required = false) MultipartFile cover,
                                                    @RequestParam(value = "pdf", required = false) MultipartFile pdf,
                                                    HttpServletRequest req) {
         return ApiResponse.ok("Ebook updated.",
-                ebookService.updateSimple(id, title, price, description, cover, pdf, actor(), RequestUtil.clientIp(req)));
+                ebookService.updateSimple(id, title, price, discountedPrice, description, cover, pdf, actor(), RequestUtil.clientIp(req)));
     }
 
     @PutMapping("/ebooks/{id}")
     public ApiResponse<AdminEbook> update(@PathVariable Long id, @Valid @RequestBody EbookRequest body, HttpServletRequest req) {
         return ApiResponse.ok("Ebook updated.", ebookService.update(id, body, actor(), RequestUtil.clientIp(req)));
-    }
-
-    @PatchMapping("/ebooks/{id}/price")
-    public ApiResponse<AdminEbook> price(@PathVariable Long id, @Valid @RequestBody EbookPriceRequest body, HttpServletRequest req) {
-        return ApiResponse.ok("Price updated.",
-                ebookService.changePrice(id, body.price(), body.discountedPrice(), actor(), RequestUtil.clientIp(req)));
     }
 
     @PatchMapping("/ebooks/{id}/status")

@@ -6,7 +6,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,9 +14,10 @@ import lombok.Setter;
 import java.time.Instant;
 
 /**
- * A course-completion certificate, issued by the backend only when an exam attempt reached the
- * configured passing marks. Snapshot columns and the recorded template mean an issued certificate
- * is reproduced identically even if the student, course or active template changes later.
+ * A course completion certificate, generated when the admin approves the student's certificate
+ * request for a completed course. The snapshot columns (printed name, Student ID, course, period,
+ * issue date) mean an issued certificate is reproduced identically even if the student or course
+ * record changes later. The verification code behind the QR link is random, never the id.
  */
 @Getter
 @Setter
@@ -41,23 +41,6 @@ public class Certificate extends BaseEntity {
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "exam_id", nullable = false)
-    private Exam exam;
-
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "attempt_id", nullable = false, unique = true)
-    private ExamAttempt attempt;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "application_id", nullable = false)
-    private ExamApplication application;
-
-    /** Null = the default Lord Sai certificate. */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "template_id")
-    private CertificateTemplate template;
-
     @Column(name = "student_name", nullable = false, length = 150)
     private String studentName;
 
@@ -67,20 +50,18 @@ public class Certificate extends BaseEntity {
     @Column(name = "course_name", nullable = false, length = 200)
     private String courseName;
 
-    @Column(name = "exam_title", nullable = false, length = 200)
-    private String examTitle;
-
-    @Column(nullable = false)
-    private int score;
-
-    @Column(name = "total_marks", nullable = false)
-    private int totalMarks;
-
-    @Column(name = "passing_marks", nullable = false)
-    private int passingMarks;
+    @Column(name = "course_started_at")
+    private Instant courseStartedAt;
 
     @Column(name = "course_completed_at")
     private Instant courseCompletedAt;
+
+    /** The printed period, e.g. "January to April 2026". */
+    @Column(name = "course_period", length = 80)
+    private String coursePeriod;
+
+    @Column(name = "verification_code", length = 40, unique = true)
+    private String verificationCode;
 
     @Column(name = "issued_at", nullable = false)
     private Instant issuedAt;

@@ -2,6 +2,7 @@ package com.lordsai.lsi.security;
 
 import com.lordsai.lsi.dto.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -57,6 +58,10 @@ public class SecurityConfig {
                                 org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter
                                         .ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)))
                 .authorizeHttpRequests(auth -> auth
+                        // The error page only renders a failure that already happened (ApiErrorController).
+                        // Guarding it made any failure outside a controller read "Authentication required",
+                        // because the login token is not re-read on the error dispatch.
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 "/",
@@ -93,9 +98,16 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint((req, res, e) ->
-                                writeJson(res, HttpServletResponse.SC_UNAUTHORIZED,
-                                        "Authentication required. Please sign in."))
+                        .authenticationEntryPoint((req, res, e) -> {
+                            // A login that was replaced by a newer one elsewhere says so, so the old device can explain it.
+                            if (JwtAuthenticationFilter.SIGNED_IN_ELSEWHERE.equals(req.getAttribute(JwtAuthenticationFilter.REJECTION_REASON))) {
+                                writeJson(res, HttpServletResponse.SC_UNAUTHORIZED, ApiResponse.error(
+                                        JwtAuthenticationFilter.SIGNED_IN_ELSEWHERE_MESSAGE,
+                                        java.util.Map.of("reason", JwtAuthenticationFilter.SIGNED_IN_ELSEWHERE)));
+                            } else {
+                                writeJson(res, HttpServletResponse.SC_UNAUTHORIZED, "Authentication required. Please sign in.");
+                            }
+                        })
                         .accessDeniedHandler((req, res, e) ->
                                 writeJson(res, HttpServletResponse.SC_FORBIDDEN,
                                         "You do not have permission to perform this action.")))
@@ -108,8 +120,12 @@ public class SecurityConfig {
     }
 
     private void writeJson(HttpServletResponse response, int status, String message) throws java.io.IOException {
+        writeJson(response, status, ApiResponse.error(message));
+    }
+
+    private void writeJson(HttpServletResponse response, int status, ApiResponse<Void> body) throws java.io.IOException {
         response.setStatus(status);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.getWriter().write(objectMapper.writeValueAsString(ApiResponse.error(message)));
+        response.getWriter().write(objectMapper.writeValueAsString(body));
     }
 }

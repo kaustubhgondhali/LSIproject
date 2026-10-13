@@ -24,12 +24,15 @@
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:0 0 14px;font-size:14px;">
             <tr style="background:#e2e8f0;"><td style="padding:8px 12px;border:1px solid #cbd5e1;"><strong>Particulars</strong></td><td style="padding:8px 12px;border:1px solid #cbd5e1;text-align:right;"><strong>Amount (₹)</strong></td></tr>
             <tr><td style="padding:8px 12px;border:1px solid #cbd5e1;">Course Fee</td><td style="padding:8px 12px;border:1px solid #cbd5e1;text-align:right;" th:text="${#numbers.formatDecimal(receipt.totalFee, 1, 'COMMA', 2, 'POINT')}">10,000.00</td></tr>
+            <tr th:if="${receipt.discount != null and receipt.discount.signum() > 0}"><td style="padding:8px 12px;border:1px solid #cbd5e1;">Discount</td><td style="padding:8px 12px;border:1px solid #cbd5e1;text-align:right;" th:text="${'− ' + #numbers.formatDecimal(receipt.discount, 1, 'COMMA', 2, 'POINT')}">&#8722; 2,000.00</td></tr>
+            <tr th:if="${receipt.discount != null and receipt.discount.signum() > 0}"><td style="padding:8px 12px;border:1px solid #cbd5e1;"><strong>Fee after Discount (to pay)</strong></td><td style="padding:8px 12px;border:1px solid #cbd5e1;text-align:right;"><strong th:text="${#numbers.formatDecimal(receipt.netFee, 1, 'COMMA', 2, 'POINT')}">8,000.00</strong></td></tr>
             <tr><td style="padding:8px 12px;border:1px solid #cbd5e1;">Amount Paid (this receipt)</td><td style="padding:8px 12px;border:1px solid #cbd5e1;text-align:right;" th:text="${#numbers.formatDecimal(receipt.amountPaid, 1, 'COMMA', 2, 'POINT')}">5,000.00</td></tr>
             <tr><td style="padding:8px 12px;border:1px solid #cbd5e1;">Total Paid to Date</td><td style="padding:8px 12px;border:1px solid #cbd5e1;text-align:right;" th:text="${#numbers.formatDecimal(receipt.totalPaid, 1, 'COMMA', 2, 'POINT')}">5,000.00</td></tr>
             <tr><td style="padding:8px 12px;border:1px solid #cbd5e1;"><strong>Balance Amount</strong></td><td style="padding:8px 12px;border:1px solid #cbd5e1;text-align:right;"><strong th:text="${#numbers.formatDecimal(receipt.balance, 1, 'COMMA', 2, 'POINT')}">5,000.00</strong></td></tr>
         </table>
         <p style="margin:0 0 18px;font-size:13px;color:#334155;"><strong>Amount in Words:</strong> <span th:text="${receipt.amountInWords}">Rupees Five Thousand Only</span></p>
 
+        <p th:if="${pdfAttached}" style="margin:0 0 14px;font-size:13px;color:#334155;">Your signed fee receipt is attached as a PDF.</p>
         <p style="margin:0 0 6px;font-size:13px;color:#64748b;line-height:1.6;" th:text="${receipt.academyAddress}">Address</p>
         <p style="margin:0;font-size:14px;line-height:1.6;color:#334155;">
             Thank you for being a part of our academy!<br>

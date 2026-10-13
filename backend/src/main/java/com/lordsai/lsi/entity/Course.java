@@ -56,6 +56,14 @@ public class Course extends BaseEntity {
     @Column(name = "display_order", nullable = false)
     private int displayOrder = 0;
 
+    /**
+     * Whether visitors may buy the course online right now (Main Admin > Courses > "Course Purchase"
+     * switch). An ACTIVE course with this off stays visible and keeps its enrolled students, but the
+     * payment API refuses new purchases. Manual enrollment by the admin still works.
+     */
+    @Column(name = "purchase_enabled", nullable = false)
+    private boolean purchaseEnabled = true;
+
     /** The amount the backend charges. Never derived from anything the frontend sends. */
     public BigDecimal effectivePrice() {
         return discountedPrice != null ? discountedPrice : price;

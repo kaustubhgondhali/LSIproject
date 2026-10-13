@@ -95,7 +95,9 @@ public class StudentLearningService {
                 profile == null ? null : profile.getLocation(),
                 profile == null ? null : profile.getRegistrationDate(),
                 user.getLastLoginAt(), enrollments.size(), total, done, percent(done, total),
-                tradeJournalRepository.countByStudentId(studentUserId), openDoubts);
+                tradeJournalRepository.countByStudentId(studentUserId), openDoubts,
+                profile == null ? null : profile.userId(),
+                profile != null && profile.isAcademyEbookOnly() && enrollments.isEmpty());
     }
 
     @Transactional(readOnly = true)

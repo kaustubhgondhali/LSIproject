@@ -29,7 +29,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Template Stylesheet -->
-    <link href="css/style.css?v=20260924l" rel="stylesheet">
+    <link href="css/style.css?v=20261012-switch-align" rel="stylesheet">
 
     <!-- Mutual Fund Home Page: Enhanced NJ Wealth Navbar Logo -->
     <style>
@@ -119,7 +119,6 @@
                         <span class="mode-academy-only"><i class="fas fa-th-large me-1"></i> Invest & Wealth Manager</span>
                     </a>
                     <a href="https://wa.me/919920254354" target="_blank" class="btn btn-sm btn-outline-light rounded-pill py-1 px-3 me-3" data-i18n="topbar.whatsapp"><i class="fab fa-whatsapp text-success me-1"></i> WhatsApp Support</a>
-                    <a href="student-login.html" class="text-light small mode-academy-only" data-i18n="topbar.studentLogin"><i class="fas fa-user-lock text-info me-1"></i> Student Login</a>
                 </div>
             </div>
         </div>
@@ -201,13 +200,13 @@
                     <a href="blog.html" class="nav-item nav-link" data-i18n="nav.blog">Blog</a>
                     <a href="store.html" class="nav-item nav-link mode-academy-only" data-i18n="nav.store">Store</a>
                     <a href="contact.html" class="nav-item nav-link" data-i18n="nav.contact">Contact</a>
-                    <a href="student-login.html" class="nav-item nav-link d-lg-none mode-academy-only" data-i18n="nav.studentLogin">Student Login</a>
                     <a href="index.html" class="nav-item nav-link text-warning fw-bold d-lg-none" data-i18n="nav.switchBusiness">
                         <span class="mode-mf-only"><i class="fas fa-th-large me-1"></i> Share Market Class</span>
                         <span class="mode-academy-only"><i class="fas fa-th-large me-1"></i> Invest & Wealth Manager</span>
                     </a>
                 </div>
-                <div class="ms-lg-3 my-2 my-lg-0">
+                <div class="ms-lg-3 my-2 my-lg-0 d-flex flex-wrap align-items-center gap-2">
+                    <a href="student-login.html" class="btn btn-student-login mode-academy-only" data-i18n="nav.studentLogin" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
                     <button type="button" class="btn btn-enquire mode-academy-only" data-bs-toggle="modal" data-bs-target="#demoModal" data-i18n="nav.enquireCourse">
                         <i class="fas fa-bolt me-1"></i> Enquire Course
                     </button>
@@ -1356,7 +1355,7 @@
                         <div class="col-lg-4 text-lg-end">
                             <div class="p-3 rounded-3 bg-white bg-opacity-10 border border-white border-opacity-20 text-center">
                                 <small class="text-light opacity-75 d-block mb-1">Fee Investment</small>
-                                <div class="h3 fw-bold text-warning mb-1">₹9,999 <small class="text-light text-decoration-line-through fs-6 opacity-75">₹14,999</small></div>
+                                <div class="h3 fw-bold text-warning mb-1" data-course-code="SMET-MASTER"><span class="lsi-course-price">₹9,999</span> <small class="text-light text-decoration-line-through fs-6 opacity-75 lsi-course-discount-only" data-price-text="{listPrice}">₹14,999</small></div>
                                 <a href="courses.html" class="btn btn-warning rounded-pill px-4 py-2 fw-bold text-dark w-100 mt-2 shadow">
                                     <i class="fas fa-door-open me-1"></i> View Full Curriculum
                                 </a>
@@ -2399,6 +2398,7 @@
                         <a href="stories.html" data-i18n="nav.stories"><i class="fas fa-angle-right me-1"></i> Stories</a>
                         <a href="blog.html" data-i18n="nav.blog"><i class="fas fa-angle-right me-1"></i> Blog</a>
                         <a href="store.html" data-i18n="nav.store"><i class="fas fa-angle-right me-1"></i> Store</a>
+                        <a href="student-login.html" class="mode-academy-only" data-i18n="nav.studentLogin"><i class="fas fa-angle-right me-1"></i> Student Login</a>
                         <a href="contact.html" data-i18n="nav.contact"><i class="fas fa-angle-right me-1"></i> Contact</a>
                     </div>
                 </div>
@@ -2465,8 +2465,8 @@
                     has been independently assessed and found to be in compliance with the requirement of the standard:
                 </p>
                 <p class="lsi-accred-standard">ISO 9001:2015</p>
-                <p class="lsi-accred-scope-label">For the following scope of activities:</p>
-                <p class="lsi-accred-scope">
+                <p class="lsi-accred-scope-label mode-academy-only">For the following scope of activities:</p>
+                <p class="lsi-accred-scope mode-academy-only">
                     Share Market Basic to Advance Course
                     <span class="lsi-accred-scope-note">(Only Educational Purpose)</span>
                 </p>
@@ -2480,7 +2480,6 @@
         <div class="container text-center">
             <span class="mode-academy-only" data-i18n="footer.copyrightAcademy">&copy; Lord Sai Share Market Classes. All Rights Reserved.</span>
             <span class="mode-mf-only" data-i18n="footer.copyrightMf">&copy; VAIBHAV S. PAWAR — AMFI Registered Mutual Fund Distributor (ARN: 280789). All Rights Reserved.</span>
-            <a href="student-login.html" class="btn btn-sm btn-outline-info rounded-pill px-3 ms-3 lsi-student-link mode-academy-only" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
         </div>
     </div>
     <!-- Copyright End -->
@@ -2548,13 +2547,17 @@
 
     <!-- Template Javascript -->
     <script src="js/api-config.js"></script>
-    <script src="js/auth.js"></script>
+    <script src="js/auth.js?v=20261001-single"></script>
+    <!-- Fills the course fee above with the admin-set price (no purchase modal on this page) -->
+    <script src="js/checkout.js?v=20260930-userid"></script>
     <script src="js/translations.js?v=20260923-caps"></script>
-    <script src="js/lang.js?v=20260924-i18n2"></script>
+    <script src="js/lang.js?v=20260930-enquiry"></script>
     <script src="js/mode.js"></script>
     <script src="js/offerings-data.js"></script>
     <script src="js/mf-slider.js?v=20260918_static"></script>
-    <script src="js/main.js?v=20260913b"></script>
+    <!-- Enquiry forms: emailed through the LSI backend + WhatsApp pre-filled (js/enquiry.js) -->
+    <script src="js/enquiry.js?v=20260930-enquiry"></script>
+    <script src="js/main.js?v=20260930-enquiry"></script>
 
     <!-- Hero Background Video Controller (viewport-aware play/pause, reduced-motion aware) -->
     <script src="js/hero-video.js"></script>

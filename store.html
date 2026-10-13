@@ -25,7 +25,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Template Stylesheet -->
-    <link href="css/style.css?v=20260924l" rel="stylesheet">
+    <link href="css/style.css?v=20261012-nav" rel="stylesheet">
 </head>
 
 <body>
@@ -58,7 +58,6 @@
                         <span class="mode-academy-only"><i class="fas fa-th-large me-1"></i> Invest & Wealth Manager</span>
                     </a>
                     <a href="https://wa.me/919920254354" target="_blank" class="btn btn-sm btn-outline-light rounded-pill py-1 px-3 me-3" data-i18n="topbar.whatsapp"><i class="fab fa-whatsapp text-success me-1"></i> WhatsApp Support</a>
-                    <a href="student-login.html" class="text-light small mode-academy-only" data-i18n="topbar.studentLogin"><i class="fas fa-user-lock text-info me-1"></i> Student Login</a>
                 </div>
             </div>
         </div>
@@ -134,9 +133,9 @@
                     <a href="blog.html" class="nav-item nav-link" data-i18n="nav.blog">Blog</a>
                     <a href="store.html" class="nav-item nav-link active mode-academy-only" data-i18n="nav.store">Store</a>
                     <a href="contact.html" class="nav-item nav-link" data-i18n="nav.contact">Contact</a>
-                    <a href="student-login.html" class="nav-item nav-link d-lg-none mode-academy-only" data-i18n="nav.studentLogin">Student Login</a>
                 </div>
-                <div class="ms-lg-3 my-2 my-lg-0">
+                <div class="ms-lg-3 my-2 my-lg-0 d-flex flex-wrap align-items-center gap-2">
+                    <a href="student-login.html" class="btn btn-student-login mode-academy-only" data-i18n="nav.studentLogin" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
                     <button type="button" class="btn btn-enquire" data-bs-toggle="modal" data-bs-target="#demoModal" data-i18n="nav.enquireNow">
                         <i class="fas fa-bolt me-1"></i> Enquire Now
                     </button>
@@ -642,6 +641,7 @@
                         <a href="investments.html" class="footer-mode-investments mode-mf-only"><i class="fas fa-angle-right me-1"></i> Investments</a>
                         <a href="insurance.html" class="mode-mf-only"><i class="fas fa-angle-right me-1"></i> Insurance</a>
                         <a href="financial-planning.html" class="mode-mf-only"><i class="fas fa-angle-right me-1"></i> Financial Planning</a>
+                        <a href="student-login.html" class="mode-academy-only" data-i18n="nav.studentLogin"><i class="fas fa-angle-right me-1"></i> Student Login</a>
                         <a href="contact.html"><i class="fas fa-angle-right me-1"></i> Contact</a>
                     </div>
                 </div>
@@ -698,8 +698,8 @@
                     has been independently assessed and found to be in compliance with the requirement of the standard:
                 </p>
                 <p class="lsi-accred-standard">ISO 9001:2015</p>
-                <p class="lsi-accred-scope-label">For the following scope of activities:</p>
-                <p class="lsi-accred-scope">
+                <p class="lsi-accred-scope-label mode-academy-only">For the following scope of activities:</p>
+                <p class="lsi-accred-scope mode-academy-only">
                     Share Market Basic to Advance Course
                     <span class="lsi-accred-scope-note">(Only Educational Purpose)</span>
                 </p>
@@ -713,7 +713,6 @@
         <div class="container text-center">
             <span class="mode-academy-only" data-i18n="footer.copyrightAcademy">&copy; Lord Sai Share Market Classes. All Rights Reserved.</span>
             <span class="mode-mf-only" data-i18n="footer.copyrightMf">&copy; VAIBHAV S. PAWAR — AMFI Registered Mutual Fund Distributor (ARN: 280789). All Rights Reserved.</span>
-            <a href="student-login.html" class="btn btn-sm btn-outline-info rounded-pill px-3 ms-3 lsi-student-link mode-academy-only" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
         </div>
     </div>
     <!-- Copyright End -->
@@ -792,14 +791,16 @@
 
     <!-- Authentication Engine -->
     <script src="js/api-config.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/checkout.js?v=20260924-i18n"></script>
+    <script src="js/auth.js?v=20261001-single"></script>
+    <script src="js/checkout.js?v=20260930-userid"></script>
 
     <!-- Multilingual Engine -->
     <script src="js/translations.js?v=20260923-caps"></script>
-    <script src="js/lang.js?v=20260924-i18n2"></script>
+    <script src="js/lang.js?v=20260930-userid"></script>
     <script src="js/mode.js"></script>
-    <script src="js/main.js"></script>
+    <!-- Enquiry forms: emailed through the LSI backend + WhatsApp pre-filled (js/enquiry.js) -->
+    <script src="js/enquiry.js?v=20260930-enquiry"></script>
+    <script src="js/main.js?v=20260930-enquiry"></script>
     <!-- Purchase Modal (Razorpay checkout) — shared with courses.html; driven by js/checkout.js -->
     <div class="modal fade" id="purchaseModal" tabindex="-1" aria-labelledby="purchaseModalLabel" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -826,7 +827,7 @@
                                     <div class="mb-3">
                                         <label class="form-label small fw-bold text-muted">Email Address *</label>
                                         <input type="email" class="form-control" id="purchaseEmail" placeholder="you@example.com" maxlength="190" required>
-                                        <div class="form-text">Your Student ID and password setup link will be sent here.</div>
+                                        <div class="form-text">Your User ID and login details will be sent here.</div>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label small fw-bold text-muted">Mobile Number *</label>
@@ -880,7 +881,7 @@
                         <div class="p-3 bg-light rounded-3 border text-start mx-auto mb-4" style="max-width: 420px;">
                             <div class="d-flex justify-content-between small mb-2"><span class="text-muted" id="successProductLabel">Course</span><strong id="successCourse"></strong></div>
                             <div class="d-flex justify-content-between small mb-2"><span class="text-muted" id="successAccessLabel">Enrollment</span><span class="badge bg-success">Active</span></div>
-                            <div class="d-flex justify-content-between small mb-2"><span class="text-muted">Student ID</span><strong class="font-monospace" id="successStudentId"></strong></div>
+                            <div class="d-flex justify-content-between small mb-2"><span class="text-muted">Student ID (reference)</span><strong class="font-monospace" id="successStudentId"></strong></div>
                             <div class="d-flex justify-content-between small mb-2"><span class="text-muted">Invoice No.</span><strong class="font-monospace" id="successInvoice"></strong></div>
                             <div class="d-flex justify-content-between small mb-2"><span class="text-muted">Order Ref</span><span class="font-monospace" id="successOrderRef"></span></div>
                             <div class="d-flex justify-content-between small"><span class="text-muted" id="successEmailLabel">Email sent to</span><strong id="successEmail"></strong></div>

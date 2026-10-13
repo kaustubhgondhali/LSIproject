@@ -38,74 +38,85 @@
         e.innerText = msg; e.classList.remove("d-none");
     }
 
-    // ---- Share Market Course Purchase (Frontend Setting) -------------------
-    var SM_PURCHASE_STORAGE_KEY = "shareMarketCoursePurchaseEnabled";
-    var SM_CHANNEL_NAME = "lsi_purchase_channel";
+    // ---- Course Purchase switch (Main Admin > Courses) -----------------------------------------
+    // Comes from the server with the course list (purchaseEnabled), so every visitor sees the same
+    // state, and the payment API refuses a closed course anyway. Until the list has loaded a course
+    // counts as open (the server still has the final say).
+    var OLD_SWITCH_KEY = "shareMarketCoursePurchaseEnabled";   // the old switch, kept only in a browser
 
-    function isShareMarketPurchaseEnabled() {
+    function isCoursePurchaseOpen(code) {
+        var c = courses[code];
+        return !c || c.purchaseEnabled !== false;
+    }
+
+    /** The old browser-only switch could leave a stale "off" here that disabled the Buy button. */
+    function forgetOldBrowserSwitch() {
+        try { localStorage.removeItem(OLD_SWITCH_KEY); } catch (e) {}
+        try { sessionStorage.removeItem(OLD_SWITCH_KEY); } catch (e) {}
         try {
-            var m = /[?&]purchase=([^&#]*)/i.exec(window.location.search);
-            if (m) {
-                var p = decodeURIComponent(m[1]).toLowerCase();
-                if (p === "off" || p === "false" || p === "0" || p === "disabled") return false;
-                if (p === "on" || p === "true" || p === "1" || p === "enabled") return true;
+            if (document.cookie.indexOf(OLD_SWITCH_KEY + "=") >= 0) {
+                document.cookie = OLD_SWITCH_KEY + "=; path=/; max-age=0; SameSite=Lax";
+                if (location.hostname === "localhost") document.cookie = OLD_SWITCH_KEY + "=; path=/; domain=localhost; max-age=0; SameSite=Lax";
             }
         } catch (e) {}
-        try {
-            var val = localStorage.getItem(SM_PURCHASE_STORAGE_KEY);
-            if (val === "false") return false;
-            if (val === "true") return true;
-        } catch (e) {}
-        try {
-            var cookieMatch = document.cookie.match(new RegExp('(?:^|;\\s*)' + SM_PURCHASE_STORAGE_KEY + '=(true|false)(?:;|$)'));
-            if (cookieMatch) return cookieMatch[1] !== "false";
-        } catch (e) {}
-        try {
-            var sVal = sessionStorage.getItem(SM_PURCHASE_STORAGE_KEY);
-            if (sVal === "false") return false;
-            if (sVal === "true") return true;
-        } catch (e) {}
-        return true;
     }
 
-    function isShareMarketCourse(courseCode, productName) {
-        if (!courseCode && !productName) return true;
-        if (courseCode && (courseCode === "SMET-MASTER" || courseCode.indexOf("SMET") !== -1)) return true;
-        if (productName && productName.toLowerCase().indexOf("share market") !== -1) return true;
-        return false;
-    }
-
-    function applyShareMarketPurchaseSetting() {
-        if (typeof window.LSI_updateCourseUI === "function") {
+    function applyCoursePurchaseState() {
+        if (typeof window.LSI_updateCourseUI === "function") {   // courses.html: banner, badges and buttons
             window.LSI_updateCourseUI();
+            renderCoursePrices();
             return;
         }
-        var enabled = isShareMarketPurchaseEnabled();
         document.querySelectorAll(".lsi-buy-course").forEach(function (btn) {
-            var code = btn.getAttribute("data-course-code");
-            if (isShareMarketCourse(code)) {
-                if (!btn._lsiOriginalHtml) {
-                    btn._lsiOriginalHtml = btn.innerHTML;
-                    btn._lsiOriginalClass = btn.className;
-                }
-                if (!enabled) {
-                    btn.disabled = true;
-                    btn.setAttribute("aria-disabled", "true");
-                    btn.classList.add("disabled");
-                    btn.classList.remove("btn-buy-course-red");
-                    btn.classList.add("btn-secondary");
-                    btn.style.cursor = "not-allowed";
-                    btn.style.opacity = "0.85";
-                    btn.innerHTML = '<i class="fas fa-ban me-2"></i> Admissions Currently Closed (Purchase Disabled)';
-                } else {
-                    btn.disabled = false;
-                    btn.removeAttribute("aria-disabled");
-                    btn.className = btn._lsiOriginalClass;
-                    btn.style.cursor = "";
-                    btn.style.opacity = "";
-                    btn.innerHTML = btn._lsiOriginalHtml;
-                }
+            var open = isCoursePurchaseOpen(btn.getAttribute("data-course-code"));
+            if (!btn._lsiOriginalHtml) {
+                btn._lsiOriginalHtml = btn.innerHTML;
+                btn._lsiOriginalClass = btn.className;
             }
+            if (!open) {
+                btn.disabled = true;
+                btn.setAttribute("aria-disabled", "true");
+                btn.classList.add("disabled");
+                btn.classList.remove("btn-buy-course-red");
+                btn.classList.add("btn-secondary");
+                btn.style.cursor = "not-allowed";
+                btn.style.opacity = "0.85";
+                btn.innerHTML = '<i class="fas fa-ban me-2"></i> Admissions Currently Closed (Purchase Disabled)';
+            } else {
+                btn.disabled = false;
+                btn.removeAttribute("aria-disabled");
+                btn.className = btn._lsiOriginalClass;
+                btn.style.cursor = "";
+                btn.style.opacity = "";
+                btn.innerHTML = btn._lsiOriginalHtml;
+            }
+        });
+        renderCoursePrices();
+    }
+
+    /**
+     * Writes each loaded course's live price into the page. Inside any [data-course-code] element:
+     *   .lsi-course-price          -> the price charged
+     *   [data-price-text]          -> its English template with {price} / {listPrice} filled in
+     *                                 (lang.js translates it again, the "{#}" keys match any number)
+     *   .lsi-course-discount-only  -> hidden when there is no discount
+     * Runs again after button HTML is restored, since that snapshot still holds the page's fallback price.
+     */
+    function renderCoursePrices() {
+        Object.keys(courses).forEach(function (code) {
+            var c = courses[code], scope = '[data-course-code="' + code + '"] ';
+            var values = { price: inr(c.effectivePrice), listPrice: inr(c.price) };
+            var discount = c.discountedPrice && Number(c.discountedPrice) < Number(c.price);
+            document.querySelectorAll(scope + ".lsi-course-price").forEach(function (node) {
+                if (node.textContent !== values.price) node.textContent = values.price;
+            });
+            document.querySelectorAll(scope + "[data-price-text]").forEach(function (node) {
+                var text = node.getAttribute("data-price-text").replace(/\{(price|listPrice)\}/g, function (m, k) { return values[k]; });
+                if (node.textContent !== text) node.textContent = text;
+            });
+            document.querySelectorAll(scope + ".lsi-course-discount-only").forEach(function (node) {
+                node.classList.toggle("d-none", !discount);
+            });
         });
     }
 
@@ -119,10 +130,8 @@
             res.data.forEach(function (c) {
                 c.productType = "COURSE"; c.productName = c.courseName;
                 courses[c.courseCode] = c;
-                document.querySelectorAll('.lsi-buy-course[data-course-code="' + c.courseCode + '"] .lsi-course-price')
-                    .forEach(function (span) { span.innerText = inr(c.effectivePrice); });
             });
-            applyShareMarketPurchaseSetting();
+            applyCoursePurchaseState();   // also renders the prices
         }));
         if (wantEbooks) calls.push(api("/public/ebooks", { skipAuthRedirect: true }).then(function (res) {
             if (!res.success || !res.data) return;
@@ -210,11 +219,9 @@
             alert(tr("This product is not available for online purchase right now. Please contact the academy."));
             return;
         }
-        if (selected.productType === "COURSE" && isShareMarketCourse(selected.courseCode, selected.productName)) {
-            if (!isShareMarketPurchaseEnabled()) {
-                alert(tr("Purchase is currently unavailable for this course. Please contact the academy."));
-                return;
-            }
+        if (selected.productType === "COURSE" && selected.purchaseEnabled === false) {
+            alert(tr("Purchase is currently unavailable for this course. Please contact the academy."));
+            return;
         }
         var isEbook = selected.productType === "EBOOK";
         var label = el("purchaseProductLabel"); if (label) label.innerText = isEbook ? "Ebook" : "Course";
@@ -234,8 +241,11 @@
         }
         el("purchaseError").classList.add("d-none");
         el("purchaseForm").classList.remove("was-validated");
+        // Only a logged-in student buying for their own account gets their details filled in. An admin
+        // or office session on the same browser must not put the staff account into the form — the
+        // fields stay empty and show their placeholder hints.
         var user = LSI_Auth.getCurrentUser();
-        if (user) {
+        if (user && user.role === "student") {
             el("purchaseName").value = user.name || "";
             el("purchaseEmail").value = user.email || "";
             el("purchaseMobile").value = (user.mobile || "").replace(/\D/g, "").slice(-10);
@@ -362,12 +372,12 @@
         el("successHint").innerText = (emailFailed
             ? (isEbook
                 ? "Your ebook account email contains a fresh initial password and the invoice."
-                : "Note your Student ID above. Once you receive the setup email you can create your password and log in.")
+                : "Your Student ID above is only a reference number. Once you receive the setup email, create your password and log in with the User ID given in that email.")
             : d.newAccount
                 ? (isEbook
-                    ? "Open the email, use the initial password to log in, then change it. Your invoice is attached to the email."
-                    : "Open the email, set your password, then log in with your Student ID or email. Your invoice is attached to the email.")
-                : "Log in with your existing password — the new " + (isEbook ? "ebook" : "course") + " is already in your dashboard and the invoice has been emailed.")
+                    ? "Open the email and log in with the User ID and initial password it contains, then change the password. Your invoice is attached to the email."
+                    : "Open the email, set your password, then log in with the User ID from the email (or your email address). Your invoice is attached to the email.")
+                : "Log in with your User ID (or email) and your existing password — the new " + (isEbook ? "ebook" : "course") + " is already in your dashboard and the invoice has been emailed.")
             + " Purchased courses and ebooks can be accessed only inside the official Student Portal after login.";
         var title = document.querySelector("#purchaseStepSuccess h4");
         if (title) title.innerText = d.paymentMode === "DEMO" ? "Demo Payment Successful" : "Payment Successful";
@@ -410,7 +420,8 @@
     }
 
     function initCheckout() {
-        applyShareMarketPurchaseSetting();
+        forgetOldBrowserSwitch();
+        applyCoursePurchaseState();
 
         modalEl = el("purchaseModal");
         if (modalEl && typeof bootstrap !== "undefined" && bootstrap.Modal) {
@@ -423,9 +434,7 @@
         document.querySelectorAll(".lsi-buy-course").forEach(function (btn) {
             btn.addEventListener("click", function () {
                 var code = btn.getAttribute("data-course-code");
-                if (isShareMarketCourse(code) && !isShareMarketPurchaseEnabled()) {
-                    return;
-                }
+                if (!isCoursePurchaseOpen(code)) return;   // closed by the Main Admin (button is disabled too)
                 if (courses[code]) openModal(courses[code]);
                 else loadCatalog().then(function () { openModal(courses[code]); });
             });
@@ -443,29 +452,15 @@
         if (el("purchaseCancelRetryBtn")) el("purchaseCancelRetryBtn").addEventListener("click", function () { showStep("Details"); setBusy(false); });
         if (el("purchaseMobile")) el("purchaseMobile").addEventListener("input", function () { this.value = this.value.replace(/\D/g, "").slice(0, 10); });
 
-        window.addEventListener("storage", function (e) {
-            if (e.key === SM_PURCHASE_STORAGE_KEY) {
-                applyShareMarketPurchaseSetting();
-            }
-        });
-        try {
-            if (typeof BroadcastChannel !== "undefined") {
-                var bc = new BroadcastChannel(SM_CHANNEL_NAME);
-                bc.onmessage = function (ev) {
-                    if (ev.data && ev.data.key === SM_PURCHASE_STORAGE_KEY) {
-                        applyShareMarketPurchaseSetting();
-                    }
-                };
-            }
-        } catch (e) {}
     }
 
-    applyShareMarketPurchaseSetting();
+    applyCoursePurchaseState();
     if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", initCheckout);
     } else {
         initCheckout();
     }
 
-    window.LSI_applyShareMarketPurchaseSetting = applyShareMarketPurchaseSetting;
+    window.LSI_isCoursePurchaseOpen = isCoursePurchaseOpen;
+    window.LSI_renderCoursePrices = renderCoursePrices;
 })();

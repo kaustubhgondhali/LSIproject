@@ -209,6 +209,28 @@
         "Explore SWP Solutions": ["SWP समाधान देखें", "SWP उपाय पाहा"],
         "<0>Disclaimer:</0> Mutual Fund investments are subject to market risks, read all scheme related documents carefully. Past performance does not indicate future results. Systematic Investment Plans do not guarantee positive returns or capital protection; they are mathematical structures for rupee-cost averaging and disciplined accumulation.": [
             "<0>अस्वीकरण:</0> म्यूचुअल फंड निवेश बाजार जोखिमों के अधीन हैं, योजना से संबंधित सभी दस्तावेज ध्यान से पढ़ें। पिछला प्रदर्शन भविष्य के परिणामों का संकेत नहीं है। सिस्टमैटिक इन्वेस्टमेंट प्लान सकारात्मक रिटर्न या पूंजी सुरक्षा की गारंटी नहीं देते; ये रुपी-कॉस्ट एवरेजिंग और अनुशासित संचय के गणितीय ढांचे हैं।",
-            "<0>अस्वीकरण:</0> म्युच्युअल फंड गुंतवणूक बाजारातील जोखमींच्या अधीन असते, योजनेशी संबंधित सर्व कागदपत्रे काळजीपूर्वक वाचा. मागील कामगिरी भविष्यातील परिणाम दर्शवत नाही. सिस्टिमॅटिक इन्व्हेस्टमेंट प्लॅन सकारात्मक परतावा किंवा भांडवल संरक्षणाची हमी देत नाहीत; त्या रुपी-कॉस्ट ॲव्हरेजिंग आणि शिस्तबद्ध संचयाच्या गणितीय रचना आहेत."]
+            "<0>अस्वीकरण:</0> म्युच्युअल फंड गुंतवणूक बाजारातील जोखमींच्या अधीन असते, योजनेशी संबंधित सर्व कागदपत्रे काळजीपूर्वक वाचा. मागील कामगिरी भविष्यातील परिणाम दर्शवत नाही. सिस्टिमॅटिक इन्व्हेस्टमेंट प्लॅन सकारात्मक परतावा किंवा भांडवल संरक्षणाची हमी देत नाहीत; त्या रुपी-कॉस्ट ॲव्हरेजिंग आणि शिस्तबद्ध संचयाच्या गणितीय रचना आहेत."],
+
+        /* SIP Wealth Creation Illustration (#sip-wealth-illustration) */
+        "SIP Wealth Creation Illustration": ["SIP संपत्ति निर्माण उदाहरण", "SIP संपत्ती निर्मिती उदाहरण"],
+        "Regular SIP vs {#}% Annual Step‑Up SIP": ["नियमित SIP बनाम {#}% वार्षिक स्टेप-अप SIP", "नियमित SIP विरुद्ध {#}% वार्षिक स्टेप-अप SIP"],
+        "Estimated values for monthly SIPs of ₹{#} to ₹{#} over {#} to {#} years at an assumed {#}% p.a. — with and without increasing the SIP by {#}% every year.": ["₹{#1} से ₹{#2} तक के मासिक SIP के लिए {#3} से {#4} वर्षों में {#5}% प्रति वर्ष के अनुमानित रिटर्न पर अनुमानित मूल्य — SIP को हर वर्ष {#6}% बढ़ाने के साथ और बिना।", "₹{#1} ते ₹{#2} पर्यंतच्या मासिक SIP साठी {#3} ते {#4} वर्षांत {#5}% वार्षिक गृहीत परताव्यावर अंदाजित मूल्य — SIP दरवर्षी {#6}% ने वाढवून आणि न वाढवता."],
+        "Lord Sai Investment and Share Market Academy": ["लॉर्ड साई इन्वेस्टमेंट एवं शेयर मार्केट एकेडमी", "लॉर्ड साई इन्व्हेस्टमेंट आणि शेअर मार्केट अकॅडमी"],
+        "AMFI Registered Mutual Fund Distributor • SIP Wealth Creation Illustration": ["AMFI पंजीकृत म्यूचुअल फंड वितरक • SIP संपत्ति निर्माण उदाहरण", "AMFI नोंदणीकृत म्युच्युअल फंड वितरक • SIP संपत्ती निर्मिती उदाहरण"],
+        "Value assumed: {#}% p.a.": ["अनुमानित रिटर्न: {#}% प्रति वर्ष", "गृहीत परतावा: {#}% वार्षिक"],
+        "SIP annual step-up: {#}%": ["SIP वार्षिक स्टेप-अप: {#}%", "SIP वार्षिक स्टेप-अप: {#}%"],
+        "Choose a monthly SIP amount": ["मासिक SIP राशि चुनें", "मासिक SIP रक्कम निवडा"],
+        "Monthly SIP ₹{#}": ["मासिक SIP ₹{#}", "मासिक SIP ₹{#}"],
+        "Step-up plan: the monthly SIP rises {#}% every year": ["स्टेप-अप योजना: मासिक SIP हर वर्ष {#}% बढ़ता है", "स्टेप-अप योजना: मासिक SIP दरवर्षी {#}% ने वाढते"],
+        "Regular SIP": ["नियमित SIP", "नियमित SIP"],
+        "With {#}% Annual Step-Up": ["{#}% वार्षिक स्टेप-अप के साथ", "{#}% वार्षिक स्टेप-अपसह"],
+        "Total Value": ["कुल मूल्य", "एकूण मूल्य"],
+        "Estimated Future Value": ["अनुमानित भविष्य मूल्य", "अंदाजित भविष्यातील मूल्य"],
+        "Proprietor & Trainer · Lord Sai Investment and Share Market Academy": ["प्रोप्राइटर एवं ट्रेनर · लॉर्ड साई इन्वेस्टमेंट एवं शेयर मार्केट एकेडमी", "प्रोप्रायटर आणि ट्रेनर · लॉर्ड साई इन्व्हेस्टमेंट आणि शेअर मार्केट अकॅडमी"],
+        "AMFI Registered Mutual Fund Distributor · ARN-{#} · Mob. {#} {#} {#}": ["AMFI पंजीकृत म्यूचुअल फंड वितरक · ARN-{#} · मो. {#} {#} {#}", "AMFI नोंदणीकृत म्युच्युअल फंड वितरक · ARN-{#} · मो. {#} {#} {#}"],
+        "<0>Disclaimer:</0> Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully before investing. The above calculation is based on an assumed annual return of {#}% p.a. and annual SIP step-up of {#}% for illustration purposes only. Returns may be higher or lower depending on market conditions and scheme performance. It is not a guaranteed or assured return.": ["<0>अस्वीकरण:</0> म्यूचुअल फंड निवेश बाजार जोखिमों के अधीन हैं। निवेश से पहले योजना संबंधी सभी दस्तावेज ध्यान से पढ़ें। उपरोक्त गणना केवल उदाहरण के लिए {#}% प्रति वर्ष के अनुमानित वार्षिक रिटर्न और {#}% वार्षिक SIP स्टेप-अप पर आधारित है। बाजार की स्थिति और योजना के प्रदर्शन के अनुसार रिटर्न अधिक या कम हो सकते हैं। यह गारंटीड या सुनिश्चित रिटर्न नहीं है।", "<0>अस्वीकरण:</0> म्युच्युअल फंड गुंतवणूक बाजारातील जोखमींच्या अधीन आहे. गुंतवणुकीपूर्वी योजनेशी संबंधित सर्व कागदपत्रे काळजीपूर्वक वाचा. वरील गणना केवळ उदाहरणासाठी {#}% वार्षिक गृहीत परतावा आणि {#}% वार्षिक SIP स्टेप-अपवर आधारित आहे. बाजारस्थिती आणि योजनेच्या कामगिरीनुसार परतावा जास्त किंवा कमी असू शकतो. हा हमी दिलेला किंवा निश्चित परतावा नाही."],
+        "Instalments assumed at the start of each month; {#}% p.a. effective annual return; figures rounded to the nearest rupee.": ["किस्तें हर महीने की शुरुआत में मानी गई हैं; {#}% प्रति वर्ष प्रभावी वार्षिक रिटर्न; आंकड़े निकटतम रुपये तक पूर्णांकित।", "हप्ते प्रत्येक महिन्याच्या सुरुवातीला गृहीत धरले आहेत; {#}% वार्षिक प्रभावी परतावा; आकडे जवळच्या रुपयापर्यंत पूर्णांकित."],
+        "Step-Up SIP Table": ["स्टेप-अप SIP तालिका", "स्टेप-अप SIP तक्ता"],
+        "Swipe the table sideways to see the step-up columns": ["स्टेप-अप कॉलम देखने के लिए तालिका को बगल में स्वाइप करें", "स्टेप-अप कॉलम पाहण्यासाठी तक्ता बाजूला स्वाइप करा"]
     });
 })(window);

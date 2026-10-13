@@ -11,9 +11,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
@@ -107,16 +109,27 @@ class EbookAccessAndAdminTest {
         mockMvc.perform(get("/api/public/ebooks")).andExpect(jsonPath("$.data.length()").value(0));
     }
 
+    /** The admin Edit Ebook form (multipart PUT) — the only place an ebook's price is changed. */
+    private ResultActions editPrice(String token, String price, String discountedPrice) throws Exception {
+        return mockMvc.perform(multipart(HttpMethod.PUT, "/api/admin/ebooks/" + ebookId)
+                .param("title", "Candlestick Workbook").param("price", price).param("discountedPrice", discountedPrice)
+                .header("Authorization", "Bearer " + token));
+    }
+
     @Test
-    void adminChangesEbookPriceAndItIsAudited() throws Exception {
-        api.patch(admin, "/api/admin/ebooks/" + ebookId + "/price", Map.of("price", 1999, "discountedPrice", 1499))
+    void adminChangesEbookPriceInTheEditFormAndItIsAudited() throws Exception {
+        editPrice(admin, "1999", "1499")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.effectivePrice").value(1499));
-        api.patch(admin, "/api/admin/ebooks/" + ebookId + "/price", Map.of("price", 100, "discountedPrice", 200))
-                .andExpect(status().isBadRequest());
+        editPrice(admin, "100", "200").andExpect(status().isBadRequest());
+        // A blank selling price removes the discount, so the new list price is what the store charges.
+        editPrice(admin, "999", "")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.effectivePrice").value(999));
+        assertThat(ebookRepository.findById(ebookId).orElseThrow().getDiscountedPrice()).isNull();
         assertThat(auditLogRepository.findAll().stream().anyMatch(a -> "EBOOK_PRICE_CHANGED".equals(a.getAction()))).isTrue();
         // Students / anonymous cannot manage ebooks.
-        api.patch(studentA, "/api/admin/ebooks/" + ebookId + "/price", Map.of("price", 1)).andExpect(status().isForbidden());
+        editPrice(studentA, "1", "").andExpect(status().isForbidden());
     }
 
     @Test

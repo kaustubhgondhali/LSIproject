@@ -1,7 +1,9 @@
 package com.lordsai.lsi.automation;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.lordsai.lsi.automation.entity.AcadStudent;
 import com.lordsai.lsi.automation.repository.AcadCommunicationLogRepository;
+import com.lordsai.lsi.automation.repository.AcadStudentRepository;
 import com.lordsai.lsi.email.EmailDelivery;
 import com.lordsai.lsi.email.EmailService;
 import com.lordsai.lsi.entity.User;
@@ -9,6 +11,7 @@ import com.lordsai.lsi.entity.enums.CommunicationStatus;
 import com.lordsai.lsi.repository.AuditLogRepository;
 import com.lordsai.lsi.repository.CommunicationLogRepository;
 import com.lordsai.lsi.support.ApiClient;
+import com.lordsai.lsi.support.TestAadhaar;
 import com.lordsai.lsi.support.TestUsers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,6 +56,7 @@ class AutomationCommunicationTest {
     @Autowired TestUsers users;
     @Autowired MockMvc mockMvc;
     @Autowired AcadCommunicationLogRepository acadLogs;
+    @Autowired AcadStudentRepository acadStudents;
     @Autowired CommunicationLogRepository lmsLogs;
     @Autowired AuditLogRepository auditLogRepository;
 
@@ -84,8 +88,17 @@ class AutomationCommunicationTest {
         Map<String, Object> m = new HashMap<>();
         m.put("fullName", name); m.put("batchId", batchId); m.put("courseId", course1);
         m.put("admissionDate", "2026-09-01"); m.put("mobile", mobile);
-        if (email != null) m.put("email", email);
-        return api.data(api.post(office, "/api/automation/students", m)).path("id").asLong();
+        // Email and address are compulsory when adding; a student with no email (e.g. an older /
+        // imported record) is made by clearing it afterwards.
+        m.put("email", email != null ? email : "placeholder@office.local"); m.put("address", "Uran, Navi Mumbai");
+        m.put("aadhaarNo", TestAadhaar.next());
+        long id = api.data(api.post(office, "/api/automation/students", m)).path("id").asLong();
+        if (email == null) {
+            AcadStudent s = acadStudents.findById(id).orElseThrow();
+            s.setEmail(null);
+            acadStudents.save(s);
+        }
+        return id;
     }
 
     // ---- recipients: Automation Admin data only -------------------------------------------------
@@ -107,13 +120,14 @@ class AutomationCommunicationTest {
     }
 
     @Test
-    void previewCountsUsableAddressesAndReportsWhatsAppConfiguration() throws Exception {
+    void previewCountsUsableAddressesAndWhatsAppNeedsNoSetup() throws Exception {
         api.post(office, "/api/automation/communications/preview", Map.of("channels", List.of("EMAIL", "WHATSAPP"), "message", "Hi"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.recipients").value(3))
                 .andExpect(jsonPath("$.data.emailRecipients").value(2))
                 .andExpect(jsonPath("$.data.whatsappRecipients").value(3))
-                .andExpect(jsonPath("$.data.whatsappConfigured").value(false));
+                // WhatsApp's own click-to-chat: nothing to configure.
+                .andExpect(jsonPath("$.data.whatsappConfigured").value(true));
     }
 
     // ---- sending ----------------------------------------------------------------------------------
@@ -149,14 +163,30 @@ class AutomationCommunicationTest {
     }
 
     @Test
-    void whatsAppFailsHonestlyWhenNoProviderIsConfigured() throws Exception {
-        api.post(office, "/api/automation/communications/send", Map.of("studentIds", List.of(sneha), "channels", List.of("WHATSAPP"), "message", "Hi"))
+    void whatsAppMessageIsPreparedForTheOfficeToOpenAndPressSend() throws Exception {
+        JsonNode sent = api.data(api.post(office, "/api/automation/communications/send", Map.of("studentIds", List.of(sneha),
+                        "channels", List.of("WHATSAPP"), "subject", "Fees", "message", "Please pay the second installment."))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.whatsappQueued").value(1))
-                .andExpect(jsonPath("$.data.message").value(org.hamcrest.Matchers.containsString("not configured")));
-        JsonNode row = api.data(api.get(office, "/api/automation/communications/history?channel=WHATSAPP&status=FAILED")).path("content").get(0);
+                .andExpect(jsonPath("$.data.message").value(org.hamcrest.Matchers.containsString("ready"))));
+        JsonNode chat = sent.path("whatsappChats").get(0);
+        assertThat(chat.path("studentName").asText()).isEqualTo("Sneha More");
+        assertThat(chat.path("phone").asText()).isEqualTo("919876543211");
+        assertThat(chat.path("text").asText()).startsWith("*Fees*").contains("Please pay the second installment.");
+
+        // Prepared, not sent: the history shows it waiting to be opened.
+        long logId = chat.path("logId").asLong();
+        JsonNode row = api.data(api.get(office, "/api/automation/communications/history?channel=WHATSAPP")).path("content").get(0);
+        assertThat(row.path("id").asLong()).isEqualTo(logId);
+        assertThat(row.path("status").asText()).isEqualTo("READY");
         assertThat(row.path("recipient").asText()).isEqualTo("9876543211");
-        assertThat(row.path("errorReason").asText()).isNotBlank();
+
+        // The office opens the chat on its computer (and presses Send there): recorded as OPENED, never SENT.
+        api.post(office, "/api/automation/communications/history/" + logId + "/opened", null).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.status").value("OPENED"))
+                .andExpect(jsonPath("$.data.whatsappChat.phone").value("919876543211"));
+        assertThat(acadLogs.findById(logId).orElseThrow().getProvider()).isEqualTo("WHATSAPP_CHAT");
+        verify(emailService, never()).sendMessage(anyString(), anyString(), anyString(), anyString(), any());
     }
 
     @Test
@@ -174,6 +204,10 @@ class AutomationCommunicationTest {
                 .andExpect(jsonPath("$.data.pending").value(0));
         assertThat(acadLogs.findByBatchRefOrderByIdAsc(batchRef)).hasSize(5)
                 .allMatch(l -> l.getMessageType().name().equals("ADMIN_BULK"));
+        // The three WhatsApp messages are chats ready for the office to open, one per student.
+        assertThat(r.path("whatsappChats").size()).isEqualTo(3);
+        assertThat(acadLogs.findByBatchRefOrderByIdAsc(batchRef)).filteredOn(l -> l.getChannel().name().equals("WHATSAPP"))
+                .hasSize(3).allMatch(l -> l.getStatus().name().equals("READY"));
         assertThat(api.data(api.get(office, "/api/automation/communications/students/" + ravi + "/history")).size()).isEqualTo(2);
     }
 

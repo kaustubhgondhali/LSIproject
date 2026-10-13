@@ -91,6 +91,11 @@ public class AcadCommunicationLog extends BaseEntity {
     @Column(name = "batch_ref", length = 40)
     private String batchRef;
 
+    /** The payment receipt this row delivered (FEE_RECEIPT rows only); null for every other message. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "acad_receipt_id")
+    private AcadReceipt receipt;
+
     @Column(nullable = false)
     private int attempts = 0;
 

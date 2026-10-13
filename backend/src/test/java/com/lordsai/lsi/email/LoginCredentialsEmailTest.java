@@ -53,7 +53,7 @@ class LoginCredentialsEmailTest {
         users.admin("creds-admin@test.local");
         admin = api.login("creds-admin@test.local", TestUsers.PASSWORD);
         when(emailService.sendLoginCredentials(any(), anyString(), anyString(), anyString())).thenReturn(EmailDelivery.sent());
-        when(emailService.sendWelcomeEmail(any(), anyString())).thenReturn(EmailDelivery.sent());
+        when(emailService.sendWelcomeEmail(any(), any(), anyString())).thenReturn(EmailDelivery.sent());
         when(emailService.sendPasswordChanged(any())).thenReturn(EmailDelivery.sent());
     }
 
@@ -79,11 +79,12 @@ class LoginCredentialsEmailTest {
         ArgumentCaptor<String> link = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> url = ArgumentCaptor.forClass(String.class);
         verify(emailService).sendLoginCredentials(any(), userId.capture(), link.capture(), url.capture());
-        assertThat(userId.getValue()).isEqualTo(studentId);
+        // The email carries the User ID for login — a generated one, never the Student ID.
+        assertThat(userId.getValue()).isEqualTo(res.path("loginUserId").asText()).matches("creds\\d{4}").isNotEqualTo(studentId);
         assertThat(link.getValue()).contains("set-password.html?token=");
         assertThat(url.getValue()).isEqualTo("http://localhost:5500/student-login.html");
         // No direct welcome email path was taken.
-        verify(emailService, never()).sendWelcomeEmail(any(), anyString());
+        verify(emailService, never()).sendWelcomeEmail(any(), any(), anyString());
 
         User user = userRepository.findByEmailIgnoreCase("creds1@example.com").orElseThrow();
         assertThat(user.getPasswordHash()).isNull();
@@ -93,9 +94,12 @@ class LoginCredentialsEmailTest {
         api.post(null, "/api/auth/reset-password", Map.of("token", rawToken, "newPassword", "SecureP@ss123"))
                 .andExpect(status().isOk());
 
-        api.post(null, "/api/auth/login", Map.of("identifier", studentId, "password", "SecureP@ss123", "portal", "STUDENT"))
+        api.post(null, "/api/auth/login", Map.of("identifier", userId.getValue(), "password", "SecureP@ss123", "portal", "STUDENT"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.redirectUrl").value("student-dashboard.html"));
+        // The Student ID is only a reference: it does not sign in.
+        api.post(null, "/api/auth/login", Map.of("identifier", studentId, "password", "SecureP@ss123", "portal", "STUDENT"))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -104,7 +108,7 @@ class LoginCredentialsEmailTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Student created. A password setup email has been sent."))
                 .andExpect(jsonPath("$.data.accountStatus").value("PENDING_SETUP"));
-        verify(emailService).sendWelcomeEmail(any(), anyString());
+        verify(emailService).sendWelcomeEmail(any(), any(), anyString());
         verify(emailService, never()).sendLoginCredentials(any(), anyString(), anyString(), anyString());
         assertThat(userRepository.findByEmailIgnoreCase("link1@example.com").orElseThrow().getPasswordHash()).isNull();
     }

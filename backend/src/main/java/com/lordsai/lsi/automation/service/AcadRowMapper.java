@@ -1,5 +1,6 @@
 package com.lordsai.lsi.automation.service;
 
+import com.lordsai.lsi.automation.dto.AutomationDtos.AdmissionDetails;
 import com.lordsai.lsi.automation.dto.AutomationDtos.StudentRow;
 import com.lordsai.lsi.automation.entity.AcadStudent;
 import com.lordsai.lsi.automation.repository.AcadPaymentRepository;
@@ -20,7 +21,7 @@ import java.util.Map;
 @Component
 public class AcadRowMapper {
 
-    public record Fees(BigDecimal paid, LocalDate lastPayment) {
+    public record Fees(BigDecimal paid, LocalDate lastPayment, int payments) {
     }
 
     public record Attendance(int total, int present, int excused, LocalDate last) {
@@ -41,7 +42,7 @@ public class AcadRowMapper {
     public Map<Long, Fees> feesByStudent() {
         Map<Long, Fees> out = new HashMap<>();
         for (Object[] r : payments.totalsByStudent()) {
-            out.put((Long) r[0], new Fees((BigDecimal) r[1], (LocalDate) r[2]));
+            out.put((Long) r[0], new Fees((BigDecimal) r[1], (LocalDate) r[2], ((Number) r[3]).intValue()));
         }
         return out;
     }
@@ -67,15 +68,28 @@ public class AcadRowMapper {
 
     public StudentRow row(AcadStudent s, Fees f, Attendance a) {
         BigDecimal paid = f == null ? BigDecimal.ZERO : f.paid();
-        BigDecimal balance = s.getCourseFee().subtract(paid);
+        // A discount lowers what the student has to pay; balance and status follow the fee after discount.
+        BigDecimal netFee = s.netFee();
+        BigDecimal balance = netFee.subtract(paid);
         return new StudentRow(s.getId(), s.getStudentId(), s.getFullName(),
                 s.getBatch() == null ? null : s.getBatch().getId(), s.getBatch() == null ? null : s.getBatch().getName(),
                 s.getCourse() == null ? null : s.getCourse().getId(), s.getCourse() == null ? null : s.getCourse().getName(),
-                s.getAdmissionDate(), s.getAdmissionDateRaw(), s.getMobile(), s.getEmail(), s.getAddress(),
-                s.getCourseFee(), paid, balance, paymentStatus(s.getCourseFee(), paid),
+                s.getAdmissionDate(), s.getAdmissionDateRaw(), s.getMobile(), s.getEmail(), s.getAddress(), Aadhaar.mask(s.getAadhaarNo()),
+                s.getCourseFee(), s.getDiscountAmount(), netFee, paid, balance, paymentStatus(netFee, paid),
                 a == null ? 0 : a.total(), a == null ? 0 : a.present(), a == null ? null : a.percent(),
                 f == null ? null : f.lastPayment(), a == null ? null : a.last(),
-                s.getStatus(), s.getReviewNote(), s.getSource(), s.getCreatedAt(), s.getUpdatedAt());
+                s.getStatus(), s.getReviewNote(), s.getSource(), s.getCreatedAt(), s.getUpdatedAt(),
+                admission(s));
+    }
+
+    public static AdmissionDetails admission(AcadStudent s) {
+        return new AdmissionDetails(s.getDateOfBirth(), s.getGender(),
+                s.getHighestQualification(), s.getInstituteName(), s.getYearOfCompletion(),
+                s.getEmploymentStatus(), s.getCurrentEmployer(), s.getJobTitle(), s.getAnnualIncome(),
+                s.getStockMarketExperience(), s.getStockMarketYears(),
+                s.getTradingExperience(), s.getTradingYears(),
+                s.getTradingPlatforms(), s.getTradingStrategies(),
+                s.getPreferredStartDate(), s.getPaymentMethod());
     }
 
     /** PAID when the fee is fully covered, PENDING when nothing has been paid, otherwise PARTIAL. */

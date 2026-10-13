@@ -89,7 +89,7 @@ public class PublicContentController {
         return ApiResponse.ok(contentService.publicContent(site));
     }
 
-    /** Published success stories only, optionally filtered by category (STUDENTS / TEACHERS / PARENTS). */
+    /** Published success stories only, optionally filtered by category (STUDENTS / TEACHERS / PARENTS / INVESTORS). */
     @GetMapping("/stories")
     public ApiResponse<List<PublicStory>> stories(@RequestParam(required = false) StoryCategory category) {
         return ApiResponse.ok(storyService.listPublished(category));

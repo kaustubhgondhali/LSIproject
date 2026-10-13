@@ -13,8 +13,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
+import java.text.Normalizer;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Locale;
 import java.util.Optional;
 
 /** Account creation and profile management shared by the purchase flow and the admin portal. */
@@ -23,6 +26,8 @@ public class UserService {
 
     public record StudentCreation(User user, StudentProfile profile, boolean created, String temporaryPassword) {
     }
+
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     private final UserRepository userRepository;
     private final StudentProfileRepository studentProfileRepository;
@@ -40,8 +45,9 @@ public class UserService {
     }
 
     /**
-     * Reuses an existing student with the same email, otherwise creates one in PENDING_SETUP
-     * with a generated student ID. Never creates a duplicate account for a repeat purchase.
+     * Reuses an existing student with the same email, otherwise creates an active one with a
+     * generated Student ID, User ID and temporary password (emailed with the purchase). Never
+     * creates a duplicate account for a repeat purchase.
      */
     @Transactional
     public StudentCreation findOrCreateStudent(String fullName, String email, String mobile) {
@@ -89,6 +95,39 @@ public class UserService {
         return new StudentCreation(user, attachProfile(user, batch, location), true, null);
     }
 
+    /**
+     * Automation Admin: the Student Panel login of an academy (office) student, for the ebook only.
+     * It keeps the academy Student ID (LSA/...) — never a website LSI- ID, so the two series never
+     * clash — and gets its own User ID and a temporary password like any new student.
+     */
+    @Transactional
+    public StudentCreation createAcademyEbookLogin(String fullName, String email, String mobile, String academyStudentId, String batch) {
+        String cleanEmail = AuthService.normalizeEmail(email);
+        if (userRepository.existsByEmailIgnoreCase(cleanEmail)) {
+            throw new ApiException(HttpStatus.CONFLICT, "A website login already uses the email " + cleanEmail + ".");
+        }
+        if (studentProfileRepository.findByStudentIdIgnoreCase(academyStudentId).isPresent()) {
+            throw new ApiException(HttpStatus.CONFLICT, "A website login already uses Student ID " + academyStudentId + ".");
+        }
+        User user = new User();
+        user.setFullName(fullName.trim());
+        user.setEmail(cleanEmail);
+        user.setMobile(cleanMobile(mobile));
+        user.setRole(Role.STUDENT);
+        user.setAccountStatus(AccountStatus.ACTIVE);
+        user = userRepository.save(user);
+
+        StudentProfile profile = new StudentProfile();
+        profile.setUser(user);
+        profile.setStudentId(academyStudentId);
+        profile.setLoginId(newUserId(user));
+        profile.setBatch(batch);
+        profile.setRegistrationDate(LocalDate.now(ZoneId.of("Asia/Kolkata")));
+        profile.setAcademyEbookOnly(true);
+        profile = studentProfileRepository.save(profile);
+        return new StudentCreation(user, profile, true, assignGeneratedPassword(user));
+    }
+
     @Transactional
     public void updateContact(User user, String fullName, String email, String mobile) {
         String cleanEmail = AuthService.normalizeEmail(email);
@@ -130,10 +169,45 @@ public class UserService {
         StudentProfile profile = new StudentProfile();
         profile.setUser(user);
         profile.setStudentId(studentIdService.next());
+        profile.setLoginId(newUserId(user));
         profile.setBatch(batch);
         profile.setLocation(location);
         profile.setRegistrationDate(LocalDate.now(ZoneId.of("Asia/Kolkata")));
         return studentProfileRepository.save(profile);
+    }
+
+    /**
+     * A new student's User ID — what they sign in to the Student Portal with — kept separate from
+     * the Student ID (the record reference on invoices and certificates): first name + 4 random
+     * digits, e.g. "rahul4821". It never clashes with another User ID, Student ID or short username.
+     */
+    private String newUserId(User user) {
+        String base = userIdBase(user.getFullName());
+        for (int attempt = 0; attempt < 200; attempt++) {
+            int digits = attempt < 100 ? 4 : 6;
+            String candidate = base + String.format("%0" + digits + "d", RANDOM.nextInt(digits == 4 ? 10_000 : 1_000_000));
+            if (isFreeUserId(candidate, user)) {
+                return candidate;
+            }
+        }
+        throw new IllegalStateException("Could not generate a free User ID for " + user.getEmail());
+    }
+
+    private static String userIdBase(String fullName) {
+        String first = fullName == null ? "" : fullName.trim().split("\\s+")[0];
+        String letters = Normalizer.normalize(first, Normalizer.Form.NFD)
+                .toLowerCase(Locale.ROOT)
+                .replaceAll("[^a-z]", "");
+        if (letters.length() < 2) {
+            return "student";
+        }
+        return letters.length() > 12 ? letters.substring(0, 12) : letters;
+    }
+
+    private boolean isFreeUserId(String candidate, User user) {
+        return studentProfileRepository.findByLoginIdIgnoreCase(candidate).isEmpty()
+                && studentProfileRepository.findByStudentIdIgnoreCase(candidate).isEmpty()
+                && userRepository.findByUsername(candidate).stream().allMatch(u -> u.getId().equals(user.getId()));
     }
 
     private String assignGeneratedPassword(User user) {

@@ -25,7 +25,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Template Stylesheet -->
-    <link href="css/style.css?v=20260924l" rel="stylesheet">
+    <link href="css/style.css?v=20261012-nav" rel="stylesheet">
 
     <style>
         .program-advantages-header {
@@ -60,35 +60,6 @@
             background-color: #fcfcfd !important;
         }
     </style>
-    <script>
-    (function () {
-        var KEY = "shareMarketCoursePurchaseEnabled";
-        try {
-            var m = /[?&]purchase=([^&#]*)/i.exec(window.location.search);
-            if (m) {
-                var p = decodeURIComponent(m[1]).toLowerCase();
-                if (p === "off" || p === "false" || p === "0" || p === "disabled") {
-                    localStorage.setItem(KEY, "false");
-                    sessionStorage.setItem(KEY, "false");
-                    document.cookie = KEY + "=false; path=/; max-age=31536000; SameSite=Lax";
-                } else if (p === "on" || p === "true" || p === "1" || p === "enabled") {
-                    localStorage.setItem(KEY, "true");
-                    sessionStorage.setItem(KEY, "true");
-                    document.cookie = KEY + "=true; path=/; max-age=31536000; SameSite=Lax";
-                }
-            }
-            var v = localStorage.getItem(KEY);
-            if (v === "false") {
-                document.documentElement.classList.add("lsi-purchase-disabled");
-            } else {
-                var c = document.cookie.match(/(?:^|;\s*)shareMarketCoursePurchaseEnabled=(true|false)(?:;|$)/);
-                if (c && c[1] === "false") {
-                    document.documentElement.classList.add("lsi-purchase-disabled");
-                }
-            }
-        } catch (e) {}
-    })();
-    </script>
     <!-- Certificate of Completion sample (scoped to this page) -->
     <style>
         .certdoc-stage {
@@ -178,7 +149,6 @@
                         <i class="fas fa-th-large me-1"></i> Invest & Wealth Manager
                     </a>
                     <a href="https://wa.me/919920254354" target="_blank" class="btn btn-sm btn-outline-light rounded-pill py-1 px-3 me-3" data-i18n="topbar.whatsapp"><i class="fab fa-whatsapp text-success me-1"></i> WhatsApp Support</a>
-                    <a href="student-login.html" class="text-light small" data-i18n="topbar.studentLogin"><i class="fas fa-user-lock text-info me-1"></i> Student Login</a>
                 </div>
             </div>
         </div>
@@ -251,9 +221,9 @@
                     <a href="blog.html" class="nav-item nav-link" data-i18n="nav.blog">Blog</a>
                     <a href="store.html" class="nav-item nav-link mode-academy-only" data-i18n="nav.store">Store</a>
                     <a href="contact.html" class="nav-item nav-link" data-i18n="nav.contact">Contact</a>
-                    <a href="student-login.html" class="nav-item nav-link d-lg-none" data-i18n="nav.studentLogin">Student Login</a>
                 </div>
-                <div class="ms-lg-3 my-2 my-lg-0">
+                <div class="ms-lg-3 my-2 my-lg-0 d-flex flex-wrap align-items-center gap-2">
+                    <a href="student-login.html" class="btn btn-student-login mode-academy-only" data-i18n="nav.studentLogin" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
                     <button type="button" class="btn btn-enquire" data-bs-toggle="modal" data-bs-target="#demoModal" data-i18n="nav.enquireNow">
                         <i class="fas fa-bolt me-1"></i> Enquire Now
                     </button>
@@ -306,8 +276,8 @@
             </div>
 
             <div class="d-flex flex-wrap justify-content-center gap-3 pt-2">
-                <a href="#pricing" class="btn btn-enquire btn-lg px-5 shadow" id="heroEnrollBtn">
-                    <i class="fas fa-graduation-cap me-2"></i> Enroll Now — ₹9,999
+                <a href="#pricing" class="btn btn-enquire btn-lg px-5 shadow" id="heroEnrollBtn" data-course-code="SMET-MASTER">
+                    <i class="fas fa-graduation-cap me-2"></i> <span data-price-text="Enroll Now — {price}">Enroll Now — ₹9,999</span>
                 </a>
                 <a href="#curriculum" class="btn btn-outline-light btn-lg rounded-pill px-4">
                     <i class="fas fa-list-ul me-2"></i> Explore Curriculum
@@ -332,8 +302,8 @@
                     <div class="h4 fw-bold text-success mb-0">100% Practical</div>
                     <small class="text-muted">Live Charts & Trade Journaling</small>
                 </div>
-                <div class="col-6 col-md-3 border-end mt-3 mt-md-0">
-                    <div class="h4 fw-bold text-warning mb-0">₹9,999</div>
+                <div class="col-6 col-md-3 border-end mt-3 mt-md-0" data-course-code="SMET-MASTER">
+                    <div class="h4 fw-bold text-warning mb-0 lsi-course-price">₹9,999</div>
                     <small class="text-muted">Transparent All-Inclusive Fee</small>
                 </div>
                 
@@ -519,7 +489,7 @@
             <div class="row g-4">
 
                 <!-- MODULE 1 -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-6" id="basics" style="scroll-margin-top: 110px;">
                     <div class="card p-4 h-100 shadow-sm border bg-white border-top border-4 border-primary" style="border-radius: 12px;">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="badge bg-primary">Module 01</span>
@@ -542,7 +512,7 @@
                 </div>
 
                 <!-- MODULE 2 -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-6" id="technical-analysis" style="scroll-margin-top: 110px;">
                     <div class="card p-4 h-100 shadow-sm border bg-white border-top border-4 border-info" style="border-radius: 12px;">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="badge bg-info text-dark">Module 02</span>
@@ -565,7 +535,7 @@
                 </div>
 
                 <!-- MODULE 3 -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-6" id="intraday" style="scroll-margin-top: 110px;">
                     <div class="card p-4 h-100 shadow-sm border bg-white border-top border-4 border-primary" style="border-radius: 12px;">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="badge bg-primary">Module 03</span>
@@ -588,7 +558,7 @@
                 </div>
 
                 <!-- MODULE 4 -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-6" id="swing-trading" style="scroll-margin-top: 110px;">
                     <div class="card p-4 h-100 shadow-sm border bg-white border-top border-4 border-secondary" style="border-radius: 12px;">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="badge bg-secondary">Module 04</span>
@@ -611,7 +581,7 @@
                 </div>
 
                 <!-- MODULE 5 -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-6" id="options" style="scroll-margin-top: 110px;">
                     <div class="card p-4 h-100 shadow-sm border bg-white border-top border-4 border-warning" style="border-radius: 12px;">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="badge bg-warning text-dark">Module 05</span>
@@ -634,7 +604,7 @@
                 </div>
 
                 <!-- MODULE 6 -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-6" id="investment" style="scroll-margin-top: 110px;">
                     <div class="card p-4 h-100 shadow-sm border bg-white border-top border-4 border-success" style="border-radius: 12px;">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="badge bg-success">Module 06</span>
@@ -657,7 +627,7 @@
                 </div>
 
                 <!-- MODULE 7 -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-6" id="risk-management" style="scroll-margin-top: 110px;">
                     <div class="card p-4 h-100 shadow-sm border bg-white border-top border-4 border-danger" style="border-radius: 12px;">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="badge bg-danger">Module 07</span>
@@ -680,7 +650,7 @@
                 </div>
 
                 <!-- MODULE 8 -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-6" id="psychology" style="scroll-margin-top: 110px;">
                     <div class="card p-4 h-100 shadow-sm border bg-white border-top border-4 border-dark" style="border-radius: 12px;">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="badge bg-dark">Module 08</span>
@@ -703,7 +673,7 @@
                 </div>
 
                 <!-- MODULE 9 -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-6" id="live-sessions" style="scroll-margin-top: 110px;">
                     <div class="card p-4 h-100 shadow-sm border bg-white border-top border-4 border-success" style="border-radius: 12px;">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="badge bg-success">Module 09</span>
@@ -728,8 +698,8 @@
             </div>
 
             <div class="text-center mt-5">
-                <a href="#pricing" class="btn btn-primary rounded-pill btn-lg px-5 shadow-sm" id="curriculumEnrollBtn">
-                    <i class="fas fa-arrow-down me-2"></i> View Enrollment Fee & Details (₹9,999)
+                <a href="#pricing" class="btn btn-primary rounded-pill btn-lg px-5 shadow-sm" id="curriculumEnrollBtn" data-course-code="SMET-MASTER">
+                    <i class="fas fa-arrow-down me-2"></i> <span data-price-text="View Enrollment Fee &amp; Details ({price})">View Enrollment Fee & Details (₹9,999)</span>
                 </a>
             </div>
         </div>
@@ -893,8 +863,8 @@
          SECTION 5B: CERTIFICATE OF COMPLETION (sample shown inline)
          A visual sample only. Nothing here issues, generates, downloads or
          verifies a certificate; the real one is produced server-side by
-         CertificateService when a student completes the course and passes the
-         final examination. Placed directly above Section 6 (Course Fee &
+         CertificateService when a student who completed the course applies and
+         the academy approves the request. Placed directly above Section 6 (Course Fee &
          Enrollment), which is unchanged.
 
          img/certificate-sample.jpg is the academy artwork with the student name
@@ -965,11 +935,11 @@
                         </div>
 
                         <!-- Price Box -->
-                        <div class="p-4 rounded-3 bg-light border mb-4 d-flex flex-wrap justify-content-between align-items-center gap-3" id="pricingBox">
+                        <div class="p-4 rounded-3 bg-light border mb-4 d-flex flex-wrap justify-content-between align-items-center gap-3" id="pricingBox" data-course-code="SMET-MASTER">
                             <div>
-                                <small class="text-muted text-decoration-line-through d-block fs-6">Original Fee: ₹14,999</small>
+                                <small class="text-muted text-decoration-line-through d-block fs-6 lsi-course-discount-only" data-price-text="Original Fee: {listPrice}">Original Fee: ₹14,999</small>
                                 <div class="d-flex align-items-baseline gap-2">
-                                    <span class="display-5 fw-bold course-price-current">₹9,999</span>
+                                    <span class="display-5 fw-bold course-price-current lsi-course-price">₹9,999</span>
                                     <small class="text-muted fw-bold">/ One-Time Course Fee</small>
                                 </div>
                             </div>
@@ -1195,6 +1165,7 @@
                         <a href="investments.html" data-i18n="nav.investments"><i class="fas fa-angle-right me-1"></i> Investments</a>
                         <a href="insurance.html" data-i18n="nav.insurancePlan"><i class="fas fa-angle-right me-1"></i> Insurance</a>
                         <a href="financial-planning.html" data-i18n="nav.holisticPlan"><i class="fas fa-angle-right me-1"></i> Financial Planning</a>
+                        <a href="student-login.html" class="mode-academy-only" data-i18n="nav.studentLogin"><i class="fas fa-angle-right me-1"></i> Student Login</a>
                         <a href="contact.html" data-i18n="nav.contact"><i class="fas fa-angle-right me-1"></i> Contact</a>
                     </div>
                 </div>
@@ -1250,8 +1221,8 @@
                     has been independently assessed and found to be in compliance with the requirement of the standard:
                 </p>
                 <p class="lsi-accred-standard">ISO 9001:2015</p>
-                <p class="lsi-accred-scope-label">For the following scope of activities:</p>
-                <p class="lsi-accred-scope">
+                <p class="lsi-accred-scope-label mode-academy-only">For the following scope of activities:</p>
+                <p class="lsi-accred-scope mode-academy-only">
                     Share Market Basic to Advance Course
                     <span class="lsi-accred-scope-note">(Only Educational Purpose)</span>
                 </p>
@@ -1264,7 +1235,6 @@
     <div class="container-fluid copyright py-3">
         <div class="container text-center">
             <span data-i18n="footer.copyrightAcademy">&copy; Lord Sai Share Market Classes. All Rights Reserved.</span>
-            <a href="student-login.html" class="btn btn-sm btn-outline-info rounded-pill px-3 ms-3 lsi-student-link mode-academy-only" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
         </div>
     </div>
     <!-- Copyright End -->
@@ -1304,7 +1274,7 @@
                                     <div class="mb-3">
                                         <label class="form-label small fw-bold text-muted">Email Address *</label>
                                         <input type="email" class="form-control" id="purchaseEmail" placeholder="you@example.com" maxlength="190" required>
-                                        <div class="form-text">Your Student ID and password setup link will be sent here.</div>
+                                        <div class="form-text">Your User ID and login details will be sent here.</div>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label small fw-bold text-muted">Mobile Number *</label>
@@ -1358,7 +1328,7 @@
                         <div class="p-3 bg-light rounded-3 border text-start mx-auto mb-4" style="max-width: 420px;">
                             <div class="d-flex justify-content-between small mb-2"><span class="text-muted" id="successProductLabel">Course</span><strong id="successCourse"></strong></div>
                             <div class="d-flex justify-content-between small mb-2"><span class="text-muted" id="successAccessLabel">Enrollment</span><span class="badge bg-success">Active</span></div>
-                            <div class="d-flex justify-content-between small mb-2"><span class="text-muted">Student ID</span><strong class="font-monospace" id="successStudentId"></strong></div>
+                            <div class="d-flex justify-content-between small mb-2"><span class="text-muted">Student ID (reference)</span><strong class="font-monospace" id="successStudentId"></strong></div>
                             <div class="d-flex justify-content-between small mb-2"><span class="text-muted">Invoice No.</span><strong class="font-monospace" id="successInvoice"></strong></div>
                             <div class="d-flex justify-content-between small mb-2"><span class="text-muted">Order Ref</span><span class="font-monospace" id="successOrderRef"></span></div>
                             <div class="d-flex justify-content-between small"><span class="text-muted" id="successEmailLabel">Email sent to</span><strong id="successEmail"></strong></div>
@@ -1428,8 +1398,8 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-bold small text-muted">Selected Program</label>
-                            <select class="form-select" disabled>
-                                <option selected>Share Market Education & Training (Full Master Course — ₹9,999)</option>
+                            <select class="form-select" disabled data-course-code="SMET-MASTER">
+                                <option selected data-price-text="Share Market Education &amp; Training (Full Master Course — {price})">Share Market Education & Training (Full Master Course — ₹9,999)</option>
                             </select>
                             <input type="hidden" name="course" value="Share Market Education & Training">
                         </div>
@@ -1456,62 +1426,19 @@
 
     <!-- Authentication Engine -->
     <script src="js/api-config.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/checkout.js?v=20260924-i18n"></script>
+    <script src="js/auth.js?v=20261001-single"></script>
+    <script src="js/checkout.js?v=20260930-userid"></script>
 
-    <!-- Share Market Course Purchase State Controller (Frontend Setting) -->
+    <!-- Share Market Course Purchase state (server setting, loaded by js/checkout.js) -->
     <script>
     (function () {
-        var KEY = "shareMarketCoursePurchaseEnabled";
-        var CHANNEL_NAME = "lsi_purchase_channel";
-
-        function getParam(name) {
-            try {
-                var m = new RegExp('[?&]' + name + '=([^&#]*)', 'i').exec(window.location.search);
-                return m ? decodeURIComponent(m[1]) : null;
-            } catch (e) { return null; }
-        }
-
+        /**
+         * Open / closed comes from the server with the course list (Main Admin > Courses > "Course
+         * Purchase" switch), via js/checkout.js. Until it has loaded the course counts as open; the
+         * payment API refuses a closed course whatever this page shows.
+         */
         function isPurchaseEnabled() {
-            // 1. URL parameter override
-            var p = getParam("purchase");
-            if (p) {
-                var pLower = p.toLowerCase();
-                if (pLower === "off" || pLower === "false" || pLower === "0" || pLower === "disabled") {
-                    try { localStorage.setItem(KEY, "false"); } catch (e) {}
-                    try { sessionStorage.setItem(KEY, "false"); } catch (e) {}
-                    try { document.cookie = KEY + "=false; path=/; max-age=31536000; SameSite=Lax"; } catch (e) {}
-                    return false;
-                }
-                if (pLower === "on" || pLower === "true" || pLower === "1" || pLower === "enabled") {
-                    try { localStorage.setItem(KEY, "true"); } catch (e) {}
-                    try { sessionStorage.setItem(KEY, "true"); } catch (e) {}
-                    try { document.cookie = KEY + "=true; path=/; max-age=31536000; SameSite=Lax"; } catch (e) {}
-                    return true;
-                }
-            }
-
-            // 2. LocalStorage
-            try {
-                var val = localStorage.getItem(KEY);
-                if (val === "false") return false;
-                if (val === "true") return true;
-            } catch (e) {}
-
-            // 3. Cookie (handles cross-port on same host)
-            try {
-                var m = document.cookie.match(new RegExp('(?:^|;\\s*)' + KEY + '=(true|false)(?:;|$)'));
-                if (m) return m[1] !== "false";
-            } catch (e) {}
-
-            // 4. SessionStorage
-            try {
-                var sVal = sessionStorage.getItem(KEY);
-                if (sVal === "false") return false;
-                if (sVal === "true") return true;
-            } catch (e) {}
-
-            return true;
+            return typeof window.LSI_isCoursePurchaseOpen === "function" ? window.LSI_isCoursePurchaseOpen("SMET-MASTER") : true;
         }
 
         function updateUI() {
@@ -1610,7 +1537,7 @@
                     heroBtn.innerHTML = '<i class="fas fa-info-circle me-2"></i> View Course (Admissions Closed)';
                 } else {
                     heroBtn.className = "btn btn-enquire btn-lg px-5 shadow";
-                    heroBtn.innerHTML = '<i class="fas fa-graduation-cap me-2"></i> Enroll Now — ₹9,999';
+                    heroBtn.innerHTML = '<i class="fas fa-graduation-cap me-2"></i> <span data-price-text="Enroll Now — {price}">Enroll Now — ₹9,999</span>';
                 }
             }
 
@@ -1621,7 +1548,7 @@
                     currBtn.innerHTML = '<i class="fas fa-info-circle me-2"></i> View Course Details (Admissions Closed)';
                 } else {
                     currBtn.className = "btn btn-primary rounded-pill btn-lg px-5 shadow-sm";
-                    currBtn.innerHTML = '<i class="fas fa-arrow-down me-2"></i> View Enrollment Fee & Details (₹9,999)';
+                    currBtn.innerHTML = '<i class="fas fa-arrow-down me-2"></i> <span data-price-text="View Enrollment Fee &amp; Details ({price})">View Enrollment Fee & Details (₹9,999)</span>';
                 }
             }
 
@@ -1635,6 +1562,9 @@
                     overBtn.innerHTML = '<i class="fas fa-arrow-down me-1"></i> Check Course Fee & Enroll';
                 }
             }
+
+            // The HTML written above carries the fallback price; put the admin-set price back.
+            if (typeof window.LSI_renderCoursePrices === "function") window.LSI_renderCoursePrices();
         }
 
         updateUI();
@@ -1642,28 +1572,19 @@
             document.addEventListener("DOMContentLoaded", updateUI);
         }
         window.addEventListener("load", updateUI);
-        window.addEventListener("storage", function (e) {
-            if (e.key === KEY) updateUI();
-        });
-        try {
-            if (typeof BroadcastChannel !== "undefined") {
-                var bc = new BroadcastChannel(CHANNEL_NAME);
-                bc.onmessage = function (ev) {
-                    if (ev.data && ev.data.key === KEY) updateUI();
-                };
-            }
-        } catch (e) {}
 
+        // js/checkout.js calls this again once the course list (with purchaseEnabled) has loaded.
         window.LSI_updateCourseUI = updateUI;
-        window.LSI_isPurchaseEnabled = isPurchaseEnabled;
     })();
     </script>
 
     <!-- Template Javascript -->
     <script src="js/translations.js?v=20260923-caps"></script>
-    <script src="js/lang.js?v=20260924-i18n2"></script>
+    <script src="js/lang.js?v=20260930-userid"></script>
     <script src="js/mode.js"></script>
-    <script src="js/main.js"></script>
+    <!-- Enquiry forms: emailed through the LSI backend + WhatsApp pre-filled (js/enquiry.js) -->
+    <script src="js/enquiry.js?v=20260930-enquiry"></script>
+    <script src="js/main.js?v=20260930-enquiry"></script>
 </body>
 
 </html>

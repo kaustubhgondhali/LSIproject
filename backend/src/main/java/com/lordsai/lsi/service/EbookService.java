@@ -11,6 +11,7 @@ import com.lordsai.lsi.exception.ApiException;
 import com.lordsai.lsi.exception.ResourceNotFoundException;
 import com.lordsai.lsi.repository.EbookEntitlementRepository;
 import com.lordsai.lsi.repository.EbookRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,15 +29,18 @@ public class EbookService {
     private final EbookEntitlementRepository entitlementRepository;
     private final AuditService auditService;
     private final FileStorageService storage;
+    private final ApplicationEventPublisher events;
 
     public EbookService(EbookRepository ebookRepository,
                         EbookEntitlementRepository entitlementRepository,
                         AuditService auditService,
-                        FileStorageService storage) {
+                        FileStorageService storage,
+                        ApplicationEventPublisher events) {
         this.ebookRepository = ebookRepository;
         this.entitlementRepository = entitlementRepository;
         this.auditService = auditService;
         this.storage = storage;
+        this.events = events;
     }
 
     // ---- Public ---------------------------------------------------------------------------
@@ -53,6 +57,12 @@ public class EbookService {
                 .filter(e -> e.getStatus() == EbookStatus.ACTIVE)
                 .orElseThrow(() -> ResourceNotFoundException.of("Ebook", id));
         return toPublic(ebook);
+    }
+
+    /** The ebooks on sale (ACTIVE) — what an academy student is given free. */
+    @Transactional(readOnly = true)
+    public List<Ebook> activeEbooks() {
+        return ebookRepository.findByStatusOrderByDisplayOrderAscTitleAsc(EbookStatus.ACTIVE);
     }
 
     @Transactional(readOnly = true)
@@ -127,19 +137,6 @@ public class EbookService {
     }
 
     @Transactional
-    public AdminEbook changePrice(Long id, BigDecimal price, BigDecimal discountedPrice, User actor, String ip) {
-        validatePricing(price, discountedPrice);
-        Ebook ebook = requireEbook(id);
-        BigDecimal old = ebook.effectivePrice();
-        ebook.setPrice(price);
-        ebook.setDiscountedPrice(discountedPrice);
-        ebook.setUpdatedBy(actor);
-        ebookRepository.save(ebook);
-        auditService.record(actor, "EBOOK_PRICE_CHANGED", "Ebook", id, "Effective price " + old + " -> " + ebook.effectivePrice(), ip);
-        return toAdmin(ebook);
-    }
-
-    @Transactional
     public AdminEbook setStatus(Long id, EbookStatus status, User actor, String ip) {
         Ebook ebook = requireEbook(id);
         if (status == EbookStatus.ACTIVE && ebook.getPdfPath() == null) {
@@ -151,6 +148,9 @@ public class EbookService {
         ebookRepository.save(ebook);
         auditService.record(actor, status == EbookStatus.ACTIVE ? "EBOOK_ACTIVATED" : "EBOOK_DEACTIVATED", "Ebook", id,
                 "'" + ebook.getTitle() + "': " + old + " -> " + status, ip);
+        if (status == EbookStatus.ACTIVE && old != EbookStatus.ACTIVE) {
+            events.publishEvent(new EbookActivatedEvent(id, actor, ip));
+        }
         return toAdmin(ebook);
     }
 
@@ -212,7 +212,7 @@ public class EbookService {
         auditService.record(actor, "EBOOK_DELETED", "Ebook", id, "Deleted ebook '" + ebook.getTitle() + "' (" + ebook.getEbookCode() + ")", ip);
     }
 
-    // ---- Simple upload (Main Admin form: name, price, cover, PDF, optional info) -----------
+    // ---- Simple upload (Main Admin form: name, price, selling price, cover, PDF, optional info) -----------
 
     public static final String MSG_TITLE_REQUIRED = "Ebook name is required.";
     public static final String MSG_PRICE_REQUIRED = "Price is required.";
@@ -227,10 +227,11 @@ public class EbookService {
      * was written, that file is removed again; no half-created ebook is ever left behind.
      */
     @Transactional
-    public AdminEbook createSimple(String title, BigDecimal price, String info, MultipartFile cover, MultipartFile pdf,
-                                   User actor, String ip) {
+    public AdminEbook createSimple(String title, BigDecimal price, BigDecimal discountedPrice, String info,
+                                   MultipartFile cover, MultipartFile pdf, User actor, String ip) {
         String cleanTitle = requireTitle(title);
         BigDecimal cleanPrice = requirePrice(price);
+        BigDecimal cleanDiscount = cleanDiscount(discountedPrice, cleanPrice);
         String cleanInfo = requireInfo(info);
         if (ebookRepository.existsByTitleIgnoreCase(cleanTitle)) {
             throw new ApiException(HttpStatus.CONFLICT, MSG_DUPLICATE_TITLE);
@@ -248,6 +249,7 @@ public class EbookService {
             ebook.setTitle(cleanTitle);
             ebook.setShortDescription(cleanInfo);
             ebook.setPrice(cleanPrice);
+            ebook.setDiscountedPrice(cleanDiscount);
             ebook.setCoverImagePath(coverPath);
             ebook.setPdfPath(pdfPath);
             ebook.setPdfOriginalName(FileStorageService.safeFilename(pdf.getOriginalFilename(), ebook.getEbookCode() + ".pdf"));
@@ -258,6 +260,7 @@ public class EbookService {
             ebook = ebookRepository.saveAndFlush(ebook);
             auditService.record(actor, "EBOOK_CREATED", "Ebook", ebook.getId(),
                     "Added ebook '" + ebook.getTitle() + "' (" + ebook.getEbookCode() + ") at " + ebook.effectivePrice() + " with PDF and cover; active", ip);
+            events.publishEvent(new EbookActivatedEvent(ebook.getId(), actor, ip));
             return toAdmin(ebook);
         } catch (RuntimeException e) {
             storage.deleteQuietly(coverPath);
@@ -266,13 +269,18 @@ public class EbookService {
         }
     }
 
-    /** Edits name / price / info; a new cover or PDF replaces the old one, an absent file keeps it. */
+    /**
+     * Edits name / price / selling price / info — the single place an ebook's price changes. The form
+     * always sends the selling price it shows, so a blank one removes the discount. A new cover or PDF
+     * replaces the old one, an absent file keeps it.
+     */
     @Transactional
-    public AdminEbook updateSimple(Long id, String title, BigDecimal price, String info, MultipartFile cover, MultipartFile pdf,
-                                   User actor, String ip) {
+    public AdminEbook updateSimple(Long id, String title, BigDecimal price, BigDecimal discountedPrice, String info,
+                                   MultipartFile cover, MultipartFile pdf, User actor, String ip) {
         Ebook ebook = requireEbook(id);
         String cleanTitle = requireTitle(title);
         BigDecimal cleanPrice = requirePrice(price);
+        BigDecimal cleanDiscount = cleanDiscount(discountedPrice, cleanPrice);
         String cleanInfo = requireInfo(info);
         if (ebookRepository.existsByTitleIgnoreCaseAndIdNot(cleanTitle, id)) {
             throw new ApiException(HttpStatus.CONFLICT, MSG_DUPLICATE_TITLE);
@@ -300,9 +308,7 @@ public class EbookService {
             }
             ebook.setTitle(cleanTitle);
             ebook.setPrice(cleanPrice);
-            if (ebook.getDiscountedPrice() != null && ebook.getDiscountedPrice().compareTo(cleanPrice) > 0) {
-                ebook.setDiscountedPrice(null);   // a legacy discount can never exceed the new price
-            }
+            ebook.setDiscountedPrice(cleanDiscount);
             ebook.setShortDescription(cleanInfo);
             ebook.setUpdatedBy(actor);
             ebook = ebookRepository.saveAndFlush(ebook);
@@ -343,6 +349,18 @@ public class EbookService {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Enter a valid price (up to 2 decimals).");
         }
         return price;
+    }
+
+    /** Optional selling price: none means no discount; otherwise a valid amount not above the list price. */
+    private static BigDecimal cleanDiscount(BigDecimal discounted, BigDecimal price) {
+        if (discounted == null) {
+            return null;
+        }
+        if (discounted.signum() < 0 || discounted.scale() > 2 || discounted.precision() - discounted.scale() > 8) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Enter a valid selling price (up to 2 decimals), or leave it blank.");
+        }
+        validatePricing(price, discounted);
+        return discounted;
     }
 
     private static String requireInfo(String info) {

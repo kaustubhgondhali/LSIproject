@@ -11,4 +11,6 @@ public interface AccountTokenRepository extends JpaRepository<AccountToken, Long
     Optional<AccountToken> findByTokenHash(String tokenHash);
 
     void deleteByUserIdAndPurpose(Long userId, TokenPurpose purpose);
+
+    void deleteByUserId(Long userId);
 }

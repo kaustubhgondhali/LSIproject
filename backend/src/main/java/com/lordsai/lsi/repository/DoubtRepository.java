@@ -17,4 +17,6 @@ public interface DoubtRepository extends JpaRepository<Doubt, Long> {
     Page<Doubt> findByStatusOrderByCreatedAtAsc(DoubtStatus status, Pageable pageable);
 
     long countByStatus(DoubtStatus status);
+
+    long countByStudentId(Long studentUserId);
 }

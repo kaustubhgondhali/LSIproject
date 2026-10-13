@@ -12,7 +12,8 @@
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;margin:0 0 22px;">
             <tr><td style="padding:14px 18px;font-size:14px;line-height:1.8;">
                 <div><span style="color:#64748b;">Course:</span> <strong th:text="${courseName}">Course</strong></div>
-                <div><span style="color:#64748b;">Student ID:</span> <strong style="font-family:monospace;font-size:15px;color:#0a1128;" th:text="${studentId}">LSI-2026-00001</strong></div>
+                <div><span style="color:#64748b;">User ID (for login):</span> <strong style="font-family:monospace;font-size:15px;color:#0a1128;" th:text="${userId}">rahul4821</strong></div>
+                <div><span style="color:#64748b;">Student ID (reference):</span> <span style="font-family:monospace;" th:text="${studentId}">LSI-2026-00001</span></div>
                 <div><span style="color:#64748b;">Login email:</span> <span th:text="${email}">email</span></div>
                 <div><span style="color:#64748b;">Order reference:</span> <span th:text="${orderRef}">LSI-ORD</span></div>
                 <div><span style="color:#64748b;">Amount paid:</span> <span th:text="${amount}">₹</span></div>
@@ -21,7 +22,8 @@
 
         <div th:if="${setupLink != null}">
             <p style="margin:0 0 14px;font-size:15px;line-height:1.6;">
-                To access the Student Portal, first create your password using the secure link below.
+                To access the Student Portal, first create your password using the secure link below, then log in with your
+                <strong>User ID</strong> (or email). Your Student ID is only a reference number and is not used to log in.
                 The link is valid for <strong>48 hours</strong> and can be used only once.
             </p>
             <p style="margin:0 0 22px;text-align:center;">
@@ -34,7 +36,7 @@
         </div>
         <div th:if="${setupLink == null}">
             <p style="margin:0 0 14px;font-size:15px;line-height:1.6;">
-                This course has been added to your existing Student Portal account. Log in with your usual password to start learning.
+                This course has been added to your existing Student Portal account. Log in with your User ID (or email) and your usual password to start learning.
             </p>
             <p style="margin:0 0 22px;text-align:center;">
                 <a th:href="${portalUrl}" style="display:inline-block;background:#0f9f90;color:#ffffff;text-decoration:none;font-weight:700;padding:13px 28px;border-radius:30px;font-size:15px;">Open Student Portal</a>

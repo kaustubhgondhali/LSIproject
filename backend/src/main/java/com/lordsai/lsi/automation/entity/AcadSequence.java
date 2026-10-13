@@ -31,6 +31,14 @@ public class AcadSequence {
     @Column(name = "last_number", nullable = false)
     private int lastNumber;
 
+    /** STUDENT only: the office-chosen ID prefix (e.g. "LSI-B3-"); null = the default "LSA/" + year + "/". */
+    @Column(name = "id_prefix", length = 24)
+    private String prefix;
+
+    /** STUDENT only: digits in the number part (0100 = 4); null = 4. */
+    @Column(name = "pad_width")
+    private Integer padWidth;
+
     public AcadSequence(String kind, int year) {
         this.kind = kind;
         this.year = year;

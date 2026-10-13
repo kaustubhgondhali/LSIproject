@@ -109,6 +109,22 @@ class SuccessStoryTest {
         assertThat(audit.path("content").toString()).contains("STORY_CREATED", "STORY_VIDEO_UPLOADED", "STORY_PUBLISHED", "STORY_DELETED");
     }
 
+    @Test
+    void investorVideoReviewsAreListedOnlyUnderTheirOwnCategory() throws Exception {
+        long id = api.data(api.post(admin, "/api/admin/stories", story("INVESTORS", "SIP investor review")).andExpect(status().isOk()))
+                .path("id").asLong();
+        mockMvc.perform(multipart("/api/admin/stories/" + id + "/video")
+                        .file(new MockMultipartFile("file", "review.mp4", "video/mp4", new byte[128]))
+                        .header("Authorization", "Bearer " + admin))
+                .andExpect(status().isOk());
+        api.patch(admin, "/api/admin/stories/" + id + "/publish", Map.of("published", true)).andExpect(status().isOk());
+
+        JsonNode investors = api.data(api.get(null, "/api/public/stories?category=INVESTORS"));
+        assertThat(investors.size()).isEqualTo(1);
+        assertThat(investors.get(0).path("category").asText()).isEqualTo("INVESTORS");
+        api.get(null, "/api/public/stories?category=STUDENTS").andExpect(jsonPath("$.data.length()").value(0));
+    }
+
         @Test
         void multipartCreateRequiresBothFilesAndPublishesUploadedStory() throws Exception {
         mockMvc.perform(multipart("/api/admin/stories")

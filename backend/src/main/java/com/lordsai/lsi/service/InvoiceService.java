@@ -1,5 +1,6 @@
 package com.lordsai.lsi.service;
 
+import com.lordsai.lsi.automation.service.AcadPaymentService;
 import com.lordsai.lsi.config.AppProperties;
 import com.lordsai.lsi.dto.invoice.InvoiceDtos.InvoiceResponse;
 import com.lordsai.lsi.entity.Invoice;
@@ -43,6 +44,7 @@ import java.util.Optional;
 @Service
 public class InvoiceService {
 
+    static final String DEFAULT_NOTES = "This is a computer-generated invoice for a digital product.";
     private static final Logger log = LoggerFactory.getLogger(InvoiceService.class);
     private static final ZoneId INDIA = ZoneId.of("Asia/Kolkata");
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH);
@@ -125,7 +127,7 @@ public class InvoiceService {
         Instant purchasedAt = payment.getVerifiedAt() != null ? payment.getVerifiedAt() : Instant.now();
         inv.setPurchaseDate(purchasedAt);
         inv.setInvoiceDate(LocalDate.ofInstant(purchasedAt, INDIA));
-        inv.setNotes("This is a computer-generated invoice for a digital product and does not require a signature.");
+        inv.setNotes(DEFAULT_NOTES);
         inv = invoiceRepository.save(inv);
 
         try {
@@ -144,10 +146,13 @@ public class InvoiceService {
 
     // ---- PDF -------------------------------------------------------------------------------
 
-    /** The stored PDF, regenerated transparently if the file is missing (e.g. storage moved). */
+    /**
+     * The stored PDF, regenerated transparently if the file is missing (e.g. storage moved) or was
+     * marked for re-rendering (pdf_generated_at cleared, as V35 did to add the signature).
+     */
     @Transactional
     public byte[] pdfBytes(Invoice invoice) {
-        if (invoice.getPdfPath() != null && storage.exists(invoice.getPdfPath())) {
+        if (invoice.getPdfPath() != null && invoice.getPdfGeneratedAt() != null && storage.exists(invoice.getPdfPath())) {
             return storage.readBytes(invoice.getPdfPath());
         }
         return renderAndStore(invoice);
@@ -197,6 +202,9 @@ public class InvoiceService {
         m.put("transactionId", inv.getTransactionId() == null ? "—" : inv.getTransactionId());
         m.put("orderRef", inv.getOrderRef() == null ? "—" : inv.getOrderRef());
         m.put("paymentStatus", inv.getPaymentStatus().name());
+        String[] signatory = AcadPaymentService.SIGNATORY.split(",", 2);
+        m.put("signatoryName", signatory[0].trim());
+        m.put("signatoryRole", signatory.length > 1 ? signatory[1].trim() : "");
         m.put("paymentStatusLabel", inv.getPaymentStatus() == PaymentStatus.SUCCESS ? "PAID" : inv.getPaymentStatus().name());
         m.put("notes", inv.getNotes() == null ? "" : inv.getNotes());
         m.put("supportEmail", properties.support().email());

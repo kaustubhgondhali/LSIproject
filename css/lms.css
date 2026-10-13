@@ -219,6 +219,70 @@
 .lms-result-badge.fail { background: #FEE2E2; color: #B91C1C; }
 @media (max-width: 575.98px) { .lms-exam-head { position: static; } .lms-exam-kv { grid-template-columns: 1fr 1fr; } }
 
+/* In-page tabs (Student General) */
+.lms-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--lms-border); margin-bottom: 18px; overflow-x: auto; }
+.lms-tab { display: inline-flex; align-items: center; gap: 8px; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; background: transparent;
+    padding: 10px 14px; font-weight: 600; font-size: 13.5px; color: var(--lms-muted); white-space: nowrap; cursor: pointer; }
+.lms-tab:hover { color: var(--lms-text); }
+.lms-tab.active { color: var(--lms-accent); border-bottom-color: var(--lms-accent); }
+.lms-tab-pane { display: none; }
+.lms-tab-pane.active { display: block; }
+
+/* Student Journal */
+.lms-journal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.lms-journal-head h2 { font-size: 18px; font-weight: 800; margin: 0 0 4px; }
+.lms-journal-head p { color: var(--lms-muted); margin: 0; }
+.lms-journal-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.lms-journal-stats > * { min-width: 0; }
+.lms-journal-stats .val { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lms-journal-preview { border: 1px dashed var(--lms-border); border-radius: 9px; padding: 8px 12px; background: #F8FAFC; font-size: 13px; min-height: 38px; }
+.lms-journal-search { max-width: 240px; font-weight: 400; }
+.lms-pnl { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lms-pnl.up { color: #15803D; }
+.lms-pnl.down { color: #B91C1C; }
+.lms-journal-editing td { background: #F0F9FF; }
+.lms-journal-detail td { background: #F8FAFC; font-size: 13px; white-space: normal; }
+.lms-journal-detail small { display: block; color: var(--lms-muted); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px; }
+@media (max-width: 575.98px) {
+    .lms-journal-stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .lms-journal-stats .wide { grid-column: span 2; }
+    .lms-journal-head { flex-direction: column-reverse; }
+    .lms-journal-search { max-width: 150px; }
+}
+
+/* Ebook reader: zoom in / out and portrait / landscape */
+.lms-reader-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px; padding: 8px 16px; border-top: 1px solid var(--lms-border); background: var(--lms-surface); }
+.lms-reader-bar .grp { display: inline-flex; align-items: center; gap: 6px; }
+.lms-reader-bar .zoom { min-width: 54px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+.lms-reader-bar .lms-btn.on { background: var(--lms-accent-soft); border-color: var(--lms-accent); color: var(--lms-accent); }
+/* Vertical scrollbar space is always reserved, so "fit width" is measured against the final width
+   (otherwise the scrollbar that appears once pages load would add a small sideways scroll at 100%). */
+.lms-reader-pages { position: absolute; inset: 0; overflow-x: auto; overflow-y: scroll; padding: 16px; -webkit-overflow-scrolling: touch; }
+.lms-reader-page { margin: 0 auto 14px; background: #fff; border-radius: 3px; box-shadow: 0 2px 12px rgba(0,0,0,.35); }
+.lms-reader-page canvas { display: block; }
+.lms-reader-err { padding: 24px; text-align: center; color: #64748B; font-size: 13px; }
+
+/* My Ebooks: buy ebooks from the portal (course students) */
+.lms-shop-sub { margin-top: -6px; margin-bottom: 14px; font-size: 13px; }
+.lms-course .price { font-weight: 800; font-size: 16px; color: var(--lms-text); white-space: nowrap; }
+.lms-course .price s { font-weight: 500; font-size: 12px; color: var(--lms-muted); margin-left: 4px; }
+.lms-buy-product { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; margin-bottom: 14px; border: 1px solid var(--lms-border); border-radius: 12px; background: #F8FAFC; }
+.lms-buy-product .name { font-weight: 700; line-height: 1.35; overflow-wrap: anywhere; }
+.lms-buy-product .by { color: var(--lms-muted); font-size: 12px; margin-top: 2px; }
+.lms-buy-product .price { font-weight: 800; font-size: 18px; white-space: nowrap; }
+.lms-buy-product .was { color: var(--lms-muted); font-size: 12px; text-decoration: line-through; }
+.lms-buy-billto { margin-bottom: 10px; }
+.lms-buy-billto .head { font-size: 12.5px; font-weight: 600; color: #334155; margin-bottom: 6px; }
+.lms-buy-icon { width: 58px; height: 58px; margin: 6px auto 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; }
+.lms-buy-icon.ok { background: #DCFCE7; color: #15803D; }
+.lms-buy-icon.warn { background: #FEF3C7; color: #B45309; }
+.lms-buy-icon.danger { background: #FEE2E2; color: #B91C1C; }
+.lms-buy-facts { text-align: left; border: 1px solid var(--lms-border); border-radius: 10px; padding: 8px 12px; font-size: 13px; }
+.lms-buy-facts div { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; }
+.lms-buy-facts div + div { border-top: 1px dashed var(--lms-border); }
+.lms-buy-facts span { color: var(--lms-muted); }
+.lms-buy-facts strong { overflow-wrap: anywhere; text-align: right; }
+
 /* Learn page: sidebar becomes curriculum */
 .lms-learn { margin-left: 0; }
 .lms-player-wrap { background: #000; border-radius: 12px; overflow: hidden; }

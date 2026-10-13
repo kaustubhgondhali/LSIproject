@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lordsai.lsi.entity.StudentProfile;
 import com.lordsai.lsi.entity.User;
 import com.lordsai.lsi.repository.StudentProfileRepository;
+import com.lordsai.lsi.service.UserService;
 import com.lordsai.lsi.support.TestUsers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** Student Settings -> Change User ID: the sign-in Student ID changes, nothing else does. */
+/**
+ * Student ID vs User ID: students sign in with their User ID (generated for new students, changeable in
+ * Settings -> Change User ID); the academy-issued Student ID (certificates, invoices, admin panel) is
+ * only a reference, never changes and does not sign in by itself.
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -36,6 +41,11 @@ class StudentUserIdChangeTest {
     @Autowired ObjectMapper objectMapper;
     @Autowired TestUsers testUsers;
     @Autowired StudentProfileRepository studentProfileRepository;
+    @Autowired com.lordsai.lsi.service.StudentIdRepair studentIdRepair;
+    @Autowired com.lordsai.lsi.service.AuditService auditService;
+    @Autowired UserService userService;
+    @Autowired com.lordsai.lsi.repository.UserRepository userRepository;
+    @Autowired org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     @Test
     void studentChangesUserIdAndOnlyTheNewOneLogsInAfterwards() throws Exception {
@@ -48,30 +58,54 @@ class StudentUserIdChangeTest {
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.userId").value("ravi.trader"));
 
-        // Same account, same row, only the sign-in ID changed.
+        // Same account, same row: the User ID changed, the Student ID did NOT.
         StudentProfile profile = studentProfileRepository.findByUserId(student.getId()).orElseThrow();
-        assertThat(profile.getStudentId()).isEqualTo("ravi.trader");
+        assertThat(profile.getStudentId()).isEqualTo(oldId);
+        assertThat(profile.getLoginId()).isEqualTo("ravi.trader");
         assertThat(profile.getUser().getEmail()).isEqualTo("rename@example.com");
-        assertThat(studentProfileRepository.findByStudentIdIgnoreCase(oldId)).isEmpty();
 
-        // The current session is still valid (the token is keyed on the user id, not the Student ID).
+        // The current session is still valid (the token is keyed on the user id, not on any ID text).
         mockMvc.perform(get("/api/student/profile").header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.studentId").value("ravi.trader"))
+                .andExpect(jsonPath("$.data.studentId").value(oldId))
+                .andExpect(jsonPath("$.data.loginUserId").value("ravi.trader"))
                 .andExpect(jsonPath("$.data.email").value("rename@example.com"));
         mockMvc.perform(get("/api/auth/me").header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.studentId").value("ravi.trader"));
+                .andExpect(jsonPath("$.data.studentId").value(oldId))
+                .andExpect(jsonPath("$.data.loginUserId").value("ravi.trader"));
 
-        // New ID logs in (case-insensitively, like the academy-issued one); the old ID no longer does.
+        // The new User ID logs in (case-insensitively); the Student ID no longer signs in, email still does.
         mockMvc.perform(login("Ravi.Trader", TestUsers.PASSWORD))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.user.email").value("rename@example.com"))
-                .andExpect(jsonPath("$.data.user.studentId").value("ravi.trader"));
+                .andExpect(jsonPath("$.data.user.studentId").value(oldId))
+                .andExpect(jsonPath("$.data.user.loginUserId").value("ravi.trader"));
         mockMvc.perform(login(oldId, TestUsers.PASSWORD))
                 .andExpect(status().isUnauthorized());
-        mockMvc.perform(login("rename@example.com", TestUsers.PASSWORD))
-                .andExpect(status().isOk());
+        // (One login per account: each login above replaced the previous one, so continue with the newest.)
+        token = tokenFrom(mockMvc.perform(login("rename@example.com", TestUsers.PASSWORD))
+                .andExpect(status().isOk()).andReturn());
+
+        // Choosing the Student ID again makes it the User ID once more.
+        mockMvc.perform(change(token, "ravi.trader", oldId, oldId, TestUsers.PASSWORD))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.userId").value(oldId));
+        assertThat(studentProfileRepository.findByUserId(student.getId()).orElseThrow().getLoginId()).isEqualTo(oldId);
+        mockMvc.perform(login(oldId, TestUsers.PASSWORD)).andExpect(status().isOk());
+        mockMvc.perform(login("ravi.trader", TestUsers.PASSWORD)).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void anotherStudentsChosenUserIdIsTaken() throws Exception {
+        User first = testUsers.student("taken1@example.com");
+        User second = testUsers.student("taken2@example.com");
+        String t1 = tokenFrom(mockMvc.perform(login("LSI-TEST-" + first.getId(), TestUsers.PASSWORD)).andReturn());
+        String t2 = tokenFrom(mockMvc.perform(login("LSI-TEST-" + second.getId(), TestUsers.PASSWORD)).andReturn());
+        mockMvc.perform(change(t1, "LSI-TEST-" + first.getId(), "market.king", "market.king", TestUsers.PASSWORD)).andExpect(status().isOk());
+        mockMvc.perform(change(t2, "LSI-TEST-" + second.getId(), "Market.King", "Market.King", TestUsers.PASSWORD))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("That User ID is already in use. Please choose a different one."));
     }
 
     @Test
@@ -164,6 +198,81 @@ class StudentUserIdChangeTest {
 
         mockMvc.perform(change(token, "anything", "newname1", "newname1", TestUsers.PASSWORD))
                 .andExpect(status().isForbidden());
+    }
+
+    /** Before the fix, a chosen ID overwrote the Student ID: the repair gives it back and keeps the login. */
+    @Test
+    void repairRestoresOverwrittenStudentIdsAndKeepsTheChosenIdForLogin() throws Exception {
+        User pranjal = testUsers.student("pranjal@example.com");
+        User noHistory = testUsers.student("nohistory@example.com");
+        StudentProfile p1 = studentProfileRepository.findByUserId(pranjal.getId()).orElseThrow();
+        p1.setStudentId("Pranjal");
+        p1.setLoginId(null);
+        studentProfileRepository.saveAndFlush(p1);
+        auditService.record(pranjal, "USER_ID_CHANGED", "StudentProfile", p1.getId(),
+                "Student ID changed from LSI-2026-00042 to Pranjal by the student", null);
+        StudentProfile p2 = studentProfileRepository.findByUserId(noHistory.getId()).orElseThrow();
+        p2.setStudentId("trader99");
+        p2.setLoginId(null);
+        studentProfileRepository.saveAndFlush(p2);
+
+        assertThat(studentIdRepair.repair()).isEqualTo(2);
+
+        StudentProfile r1 = studentProfileRepository.findByUserId(pranjal.getId()).orElseThrow();
+        assertThat(r1.getStudentId()).isEqualTo("LSI-2026-00042");
+        assertThat(r1.getLoginId()).isEqualTo("Pranjal");
+        StudentProfile r2 = studentProfileRepository.findByUserId(noHistory.getId()).orElseThrow();
+        assertThat(r2.getStudentId()).matches("LSI-\\d{4}-\\d{5}");
+        assertThat(r2.getLoginId()).isEqualTo("trader99");
+
+        // They keep signing in exactly as before, and see their Student ID again.
+        mockMvc.perform(login("Pranjal", TestUsers.PASSWORD)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.user.studentId").value("LSI-2026-00042"))
+                .andExpect(jsonPath("$.data.user.loginUserId").value("Pranjal"));
+        mockMvc.perform(login("trader99", TestUsers.PASSWORD)).andExpect(status().isOk());
+
+        // Running it again changes nothing.
+        assertThat(studentIdRepair.repair()).isZero();
+    }
+
+    /** Student ID and User ID are separate: a new student gets a generated User ID, and only that (or email) signs in. */
+    @Test
+    void newStudentGetsASeparateUserIdAndTheStudentIdDoesNotSignIn() throws Exception {
+        UserService.StudentCreation c = userService.createStudentByAdmin("Rahul Patil", "rahul.patil@example.com", "9876500001", null, null);
+        StudentProfile profile = c.profile();
+        assertThat(profile.getStudentId()).matches("LSI-\\d{4}-\\d{5}");
+        assertThat(profile.getLoginId()).matches("rahul\\d{4}").isNotEqualTo(profile.getStudentId());
+        User user = c.user();
+        user.setPasswordHash(passwordEncoder.encode(TestUsers.PASSWORD));
+        user.setAccountStatus(com.lordsai.lsi.entity.enums.AccountStatus.ACTIVE);
+        userRepository.saveAndFlush(user);
+
+        mockMvc.perform(login(profile.getLoginId().toUpperCase(), TestUsers.PASSWORD)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.user.studentId").value(profile.getStudentId()))
+                .andExpect(jsonPath("$.data.user.loginUserId").value(profile.getLoginId()));
+        mockMvc.perform(login("rahul.patil@example.com", TestUsers.PASSWORD)).andExpect(status().isOk());
+        mockMvc.perform(login(profile.getStudentId(), TestUsers.PASSWORD)).andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Invalid email/User ID or password."));
+
+        // Names without usable Latin letters still get a valid User ID; accents are simplified.
+        assertThat(userService.createStudentByAdmin("राहुल पाटील", "devanagari@example.com", "9876500002", null, null)
+                .profile().getLoginId()).matches("student\\d{4}");
+        assertThat(userService.createStudentByAdmin("  Zoë  Fernandes ", "zoe@example.com", "9876500003", null, null)
+                .profile().getLoginId()).matches("zoe\\d{4}");
+    }
+
+    /** A legacy profile with an academy Student ID and no User ID keeps signing in with that text (same as V34). */
+    @Test
+    void legacyProfileWithoutUserIdGetsItsStudentIdAsUserId() throws Exception {
+        User legacy = testUsers.student("legacy@example.com");
+        StudentProfile p = studentProfileRepository.findByUserId(legacy.getId()).orElseThrow();
+        p.setStudentId("LSI-2025-00077");
+        p.setLoginId(null);
+        studentProfileRepository.saveAndFlush(p);
+
+        assertThat(studentIdRepair.repair()).isZero();   // not a "repair": the Student ID was never overwritten
+        assertThat(studentProfileRepository.findByUserId(legacy.getId()).orElseThrow().getLoginId()).isEqualTo("LSI-2025-00077");
+        mockMvc.perform(login("LSI-2025-00077", TestUsers.PASSWORD)).andExpect(status().isOk());
     }
 
     @Test

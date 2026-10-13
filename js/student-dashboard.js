@@ -7,8 +7,9 @@
     "use strict";
 
     var api = LSI_Auth.api;
-    var doubtModal, readerModal, applyModal, readerBlobUrl = null, examTimer = null;
-    var state = { overview: null, courses: [], content: {}, publicCourses: [], doubts: [], ebooks: [], invoices: [], exams: [], certificates: [], paper: null };
+    var doubtModal, readerModal, readerBlobUrl = null;
+    var state = { overview: null, courses: [], content: {}, publicCourses: [], doubts: [], ebooks: [], invoices: [], certificates: [], certCourses: [],
+        journal: { entries: [], page: 0, last: true, editingId: null, editCharges: null, resultTouched: false, openId: null } };
 
     // ---- helpers ---------------------------------------------------------------------------
 
@@ -20,7 +21,8 @@
     function duration(sec) { if (!sec) return ""; var m = Math.round(sec / 60); return m >= 60 ? Math.floor(m / 60) + "h " + (m % 60) + "m" : m + " min"; }
     function chip(status) {
         var map = { ACTIVE: "ok", COMPLETED: "info", INACTIVE: "muted", CANCELLED: "danger", OPEN: "warn", IN_PROGRESS: "info", RESOLVED: "ok", PENDING_REVIEW: "muted", REVIEWED: "ok", NEEDS_REVISION: "danger", PAID: "ok", SUCCESS: "ok", FAILED: "danger", REFUNDED: "muted", REVOKED: "danger",
-            PENDING: "warn", APPROVED: "info", SCHEDULED: "info", REJECTED: "danger", PASSED: "ok", SUBMITTED: "info", EXPIRED: "danger", UPCOMING: "warn", CLOSED: "muted", ELIGIBLE: "ok" };
+            PENDING: "warn", APPROVED: "info", SCHEDULED: "info", REJECTED: "danger", PASSED: "ok", SUBMITTED: "info", EXPIRED: "danger", UPCOMING: "warn", CLOSED: "muted", ELIGIBLE: "ok",
+            PROFIT: "ok", LOSS: "danger", BREAKEVEN: "muted" };
         return '<span class="lms-chip ' + (map[status] || "muted") + '">' + esc(String(status || "").replace(/_/g, " ").toLowerCase()) + '</span>';
     }
     function progressBar(pct, done, total) {
@@ -43,9 +45,38 @@
         document.body.appendChild(t); setTimeout(function () { t.remove(); }, 4000);
     }
 
+    // A 401 means the login itself has ended (logged out elsewhere, password changed, expired) and auth.js
+    // has already cleared it: say so plainly and go to the login page instead of leaving a dead form.
+    function sessionEnded(r, errBox) {
+        if (!r || r.status !== 401) return false;
+        var msg = "Your login session has ended. Please log in again.";
+        if (errBox) { errBox.textContent = msg; errBox.classList.remove("d-none"); } else { toast(msg, false); }
+        setTimeout(function () { window.location.replace("student-login.html?session_expired=1"); }, 2000);
+        return true;
+    }
+
     // ---- navigation ------------------------------------------------------------------------
 
+    // An Automation Admin student's free ebook login (with no course) sees only these sections.
+    var EBOOK_ONLY_VIEWS = ["ebooks", "profile", "settings"];
+    function ebookOnly() { return !!(state.overview && state.overview.ebookOnly); }
+
+    function applyEbookOnly() {
+        var on = ebookOnly();
+        document.querySelectorAll(".lms-nav a[data-view]").forEach(function (a) {
+            if (EBOOK_ONLY_VIEWS.indexOf(a.dataset.view) < 0) a.style.display = on ? "none" : "";
+        });
+        document.querySelectorAll(".lms-nav .lms-nav-label").forEach(function (l) {
+            if (/support/i.test(l.textContent)) l.style.display = on ? "none" : "";
+        });
+        var note = el("ebookOnlyNote"); if (note) note.hidden = !on;
+        var search = el("lmsSearch"); if (search) search.placeholder = on ? "Search your ebooks..." : "Search your courses, lessons and resources...";
+    }
+
     function show(view) {
+        if (view === "general") view = "journal"; // old "Student General" links open the Student Journal
+        if (ebookOnly() && EBOOK_ONLY_VIEWS.indexOf(view) < 0) view = "ebooks";
+        if (view === "exams" || view === "exam-take") view = "certificates"; // the exam pages were replaced by Certificate
         document.querySelectorAll(".lms-view").forEach(function (v) { v.classList.remove("active"); });
         var target = el("view-" + view);
         if (!target) { view = "dashboard"; target = el("view-dashboard"); }
@@ -53,8 +84,7 @@
         document.querySelectorAll(".lms-nav a[data-view]").forEach(function (a) { a.classList.toggle("active", a.dataset.view === view); });
         el("lmsSidebar").classList.remove("open"); el("lmsBackdrop").classList.remove("show");
         window.scrollTo({ top: 0 });
-        if (view === "exam-take" && !state.paper) { show("exams"); return; }
-        var loaders = { discover: renderDiscover, progress: renderProgress, certificates: loadCertificates, resources: renderResources, profile: renderProfile, ebooks: loadEbooks, invoices: loadInvoices, exams: loadExams };
+        var loaders = { discover: renderDiscover, progress: renderProgress, certificates: loadCertificates, journal: loadJournalView, profile: renderProfile, ebooks: loadEbooks, invoices: loadInvoices };
         if (loaders[view]) loaders[view]();
     }
 
@@ -63,6 +93,7 @@
     function loadAll() {
         return Promise.all([api("/student/profile"), api("/student/courses"), api("/student/ebooks")]).then(function (r) {
             if (r[0].success) state.overview = r[0].data;
+            applyEbookOnly();
             if (r[1].success) state.courses = r[1].data || [];
             if (r[2].success) state.ebooks = r[2].data || [];
             renderHeader(); renderDashboard(); renderLearning(); renderEbooks();
@@ -77,23 +108,26 @@
     function loadEbooks() {
         return api("/student/ebooks").then(function (res) {
             if (res.success) { state.ebooks = res.data || []; renderEbooks(); }
+            return loadShop();
         });
     }
 
     function ebookCard(e) {
         var active = e.status === "ACTIVE";
+        var blockedByAcademy = !active && e.source === "ACADEMY";
         var cover = e.coverImagePath ? '<div class="thumb" style="background-image:url(\'' + esc(mediaUrl(e.coverImagePath)) + '\');background-size:contain;background-repeat:no-repeat;background-color:#0A1128"></div>'
             : '<div class="thumb placeholder"><i class="fas fa-book"></i></div>';
         return '<div class="lms-card lms-course">' + cover +
             '<div class="body">' +
-            '<div class="d-flex justify-content-between align-items-center mb-2">' + chip(active ? "ACTIVE" : "INACTIVE") + '<small class="text-muted">Purchased ' + fmtDate(e.purchasedAt) + '</small></div>' +
+            '<div class="d-flex justify-content-between align-items-center mb-2">' + (blockedByAcademy ? '<span class="lms-chip danger">blocked</span>' : chip(active ? "ACTIVE" : "INACTIVE")) + '<small class="text-muted">' + (e.source === "ACADEMY" ? "Free from the academy · " : "Purchased ") + fmtDate(e.purchasedAt) + '</small></div>' +
             '<h3 class="title">' + esc(e.title) + '</h3>' +
             (e.author ? '<div class="text-muted" style="font-size:12px;margin-bottom:6px"><i class="fas fa-pen-nib me-1"></i>' + esc(e.author) + '</div>' : '') +
             '<p class="desc">' + esc(e.shortDescription || "") + '</p>' +
             '<div class="meta">' + (e.category ? '<span><i class="fas fa-tag me-1"></i>' + esc(e.category) + '</span>' : '') + (e.language ? '<span><i class="fas fa-language me-1"></i>' + esc(e.language) + '</span>' : '') + (e.invoiceNumber ? '<span><i class="fas fa-file-invoice me-1"></i>' + esc(e.invoiceNumber) + '</span>' : '') + '</div>' +
             '<div class="foot">' +
             (active && e.fileAvailable ? '<button type="button" class="lms-btn accent sm" data-read="' + e.ebookId + '"><i class="fas fa-book-open"></i> Read / View</button>'
-                : '<span class="text-muted small">' + (active ? "File not available yet — contact the academy" : "Access inactive — contact the academy") + '</span>') +
+                : '<span class="' + (blockedByAcademy ? "text-danger fw-semibold" : "text-muted") + ' small">' + (active ? "File not available yet — contact the academy"
+                    : blockedByAcademy ? "Your ebook access is blocked. Please contact the academy." : "Access inactive — contact the academy") + '</span>') +
             (e.invoiceId ? '<button type="button" class="lms-btn ghost sm" data-invoice="' + e.invoiceId + '"><i class="fas fa-download"></i> Invoice</button>' : '') +
             '</div></div></div>';
     }
@@ -102,7 +136,8 @@
         var grid = el("ebooksGrid"); if (!grid) return;
         setText("navEbookCount", state.ebooks.length || "");
         if (!state.ebooks.length) {
-            grid.innerHTML = '<div class="lms-card lms-empty" style="grid-column:1/-1"><i class="fas fa-book"></i>No ebooks yet. <a href="store.html#ebooks">Browse ebooks in the store</a>.</div>';
+            grid.innerHTML = '<div class="lms-card lms-empty" style="grid-column:1/-1"><i class="fas fa-book"></i>No ebooks yet. ' +
+                (isCourseStudent() ? 'You can buy one below.' : '<a href="store.html#ebooks">Browse ebooks in the store</a>.') + '</div>';
             return;
         }
         grid.innerHTML = state.ebooks.map(ebookCard).join("");
@@ -110,24 +145,431 @@
         grid.querySelectorAll("[data-invoice]").forEach(function (b) { b.addEventListener("click", function () { downloadInvoice(b.dataset.invoice); }); });
     }
 
+    // ---- buy ebooks (course students) ----------------------------------------------------------
+    // Same pipeline as the public store: the price comes from the database, a Razorpay payment is
+    // confirmed only by the server (/payments/verify), and demo mode works only while no gateway is
+    // configured. The buyer is always this account: /student/ebooks/{id}/order reads the name and
+    // email on the server, so nothing typed here can send the ebook to anyone else.
+
+    var buyModal, shop = { list: [], selected: null, mode: null, busy: false, paid: false, failure: null, order: null, bought: null };
+
+    function isCourseStudent() { return state.courses.some(hasAccess); }
+    function ownsEbook(id) { return state.ebooks.some(function (e) { return String(e.ebookId) === String(id) && e.status === "ACTIVE"; }); }
+    function rupees(v) { return money(v).replace(/\.00$/, ""); }
+    function errText(res, fallback) { return (res.errors ? Object.values(res.errors).join(" ") : res.message) || fallback; }
+    function hasDiscount(b) { return b.discountedPrice != null && Number(b.discountedPrice) < Number(b.price); }
+
+    function loadShop() {
+        var box = el("ebookShop"); if (!box) return;
+        box.hidden = !isCourseStudent();
+        if (box.hidden) return;
+        return api("/public/ebooks", { skipAuthRedirect: true }).then(function (res) {
+            if (!res.success) {
+                el("ebookShopGrid").innerHTML = '<div class="lms-card lms-empty" style="grid-column:1/-1"><i class="fas fa-exclamation-circle"></i>' + esc(errText(res, "Could not load the ebooks on sale.")) + '</div>';
+                return;
+            }
+            shop.list = res.data || [];
+            renderShop();
+        });
+    }
+
+    function shopCard(b) {
+        var cover = b.coverImagePath ? '<div class="thumb" style="background-image:url(\'' + esc(mediaUrl(b.coverImagePath)) + '\');background-size:contain;background-repeat:no-repeat;background-color:#0A1128"></div>'
+            : '<div class="thumb placeholder"><i class="fas fa-book"></i></div>';
+        return '<div class="lms-card lms-course">' + cover +
+            '<div class="body">' +
+            (b.category ? '<div class="mb-2"><span class="lms-chip info">' + esc(b.category) + '</span></div>' : '') +
+            '<h3 class="title">' + esc(b.title) + '</h3>' +
+            (b.author ? '<div class="text-muted" style="font-size:12px;margin-bottom:6px"><i class="fas fa-pen-nib me-1"></i>' + esc(b.author) + '</div>' : '') +
+            '<p class="desc">' + esc(b.shortDescription || "") + '</p>' +
+            '<div class="meta">' + (b.language ? '<span><i class="fas fa-language me-1"></i>' + esc(b.language) + '</span>' : '') + '</div>' +
+            '<div class="foot"><div class="price">' + rupees(b.effectivePrice) + (hasDiscount(b) ? '<s>' + rupees(b.price) + '</s>' : '') + '</div>' +
+            (b.available ? '<button type="button" class="lms-btn primary sm" data-buy="' + esc(b.id) + '"><i class="fas fa-shopping-cart"></i> Buy Ebook</button>'
+                : '<span class="text-muted small">Coming soon</span>') +
+            '</div></div></div>';
+    }
+
+    function renderShop() {
+        var grid = el("ebookShopGrid"); if (!grid) return;
+        var list = shop.list.filter(function (b) { return !ownsEbook(b.id); });
+        var empty = function (msg) { return '<div class="lms-card lms-empty" style="grid-column:1/-1"><i class="fas fa-book"></i>' + msg + '</div>'; };
+        if (!shop.list.length) grid.innerHTML = empty("No ebooks are on sale right now. Please check back soon.");
+        else if (!list.length) grid.innerHTML = empty("You already have every ebook that is on sale. New titles will appear here.");
+        else grid.innerHTML = list.map(shopCard).join("");
+        grid.querySelectorAll("[data-buy]").forEach(function (b) { b.addEventListener("click", function () { openBuy(b.dataset.buy); }); });
+    }
+
+    function buyStep(name) {
+        ["Details", "Busy", "Result"].forEach(function (s) { el("ebookBuy" + s).classList.toggle("d-none", s !== name); });
+        el("ebookBuyClose").disabled = name === "Busy";
+    }
+
+    function setBuyBusy(on) { shop.busy = on; el("ebookBuyPay").disabled = on || !shop.mode; }
+
+    function showBuyError(msg) { var e = el("ebookBuyError"); e.textContent = msg; e.classList.remove("d-none"); }
+
+    function openBuy(id) {
+        var b = shop.list.find(function (x) { return String(x.id) === String(id); });
+        if (!b || shop.busy) return;
+        var o = state.overview || {};
+        shop.selected = b; shop.bought = null; shop.order = null;
+        setText("ebookBuyTitle", b.title);
+        setText("ebookBuyAuthor", b.author ? "by " + b.author : "");
+        setText("ebookBuyPrice", rupees(b.effectivePrice));
+        setText("ebookBuyWas", hasDiscount(b) ? rupees(b.price) : "");
+        // Shown for confirmation only: the server uses the account's details, the student types nothing.
+        el("ebookBuyAccount").innerHTML = [["Name", o.fullName], ["Student ID", o.studentId], ["Email", o.email], ["Mobile", o.mobile]]
+            .filter(function (f) { return f[1]; })
+            .map(function (f) { return '<div><span>' + esc(f[0]) + '</span><strong>' + esc(f[1]) + '</strong></div>'; }).join("");
+        el("ebookBuyError").classList.add("d-none");
+        buyStep("Details");
+        checkBuyMode();
+        buyModal.show();
+    }
+
+    /** The backend decides Razorpay or demo; it also enforces that choice whatever this page does. */
+    function checkBuyMode() {
+        var banner = el("ebookBuyMode");
+        shop.mode = null; setBuyBusy(false);
+        setText("ebookBuyPayText", "Pay " + rupees(shop.selected.effectivePrice));
+        banner.className = "alert alert-light border small py-2 px-3";
+        banner.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Checking payment options…';
+        return api("/payments/mode", { skipAuthRedirect: true }).then(function (res) {
+            var info = res.success && res.data ? res.data : null;
+            shop.mode = info && (info.mode === "DEMO" || info.mode === "RAZORPAY") ? info.mode : null;
+            if (!shop.mode) {
+                banner.className = "alert alert-warning small py-2 px-3";
+                banner.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i> Online payment is unavailable right now. Please try again in a few minutes.';
+            } else if (shop.mode === "DEMO") {
+                banner.className = "alert alert-warning small py-2 px-3";
+                banner.innerHTML = '<strong><i class="fas fa-flask me-1"></i> Demo Payment Mode</strong><br>' + esc(info.message || "No real money will be charged.");
+                setText("ebookBuyPayText", "Complete Demo Payment — " + rupees(shop.selected.effectivePrice));
+            } else {
+                banner.className = "alert alert-success small py-2 px-3";
+                banner.innerHTML = '<strong><i class="fas fa-shield-alt me-1"></i> Secure payment powered by Razorpay.</strong><br>UPI, cards, net banking and wallets accepted.';
+            }
+            setBuyBusy(false);
+        });
+    }
+
+    function submitBuy(e) {
+        e.preventDefault();
+        if (shop.busy || !shop.mode || !shop.selected) return;
+        el("ebookBuyError").classList.add("d-none");
+        var path = "/student/ebooks/" + encodeURIComponent(shop.selected.id);
+        setBuyBusy(true);
+        if (shop.mode === "DEMO") {
+            buyStep("Busy"); setText("ebookBuyBusyText", "Completing the demo payment…");
+            api(path + "/demo-complete", { method: "POST" }).then(function (res) {
+                if (res.success && res.data && res.data.paymentStatus === "SUCCESS") buySucceeded(res.data);
+                else buyRefused(res, "The demo payment could not be completed.");
+            });
+            return;
+        }
+        Promise.all([api(path + "/order", { method: "POST" }), loadRazorpay()]).then(function (r) {
+            var res = r[0];
+            if (!res.success || !res.data) { buyRefused(res, "Could not start the payment."); return; }
+            openRazorpay(res.data);
+        }, function (err) { setBuyBusy(false); showBuyError(err.message); });
+    }
+
+    /** Nothing was charged: back to the form with the reason. */
+    function buyRefused(res, fallback) {
+        var msg = res.message || "";
+        buyStep("Details");
+        if ((res.status === 409 && /real payments are active/i.test(msg)) || (res.status === 503 && /demo payment mode/i.test(msg))) {
+            // The admin switched the payment mode while this window was open.
+            checkBuyMode(); showBuyError("The payment mode has just changed. Please click the button again."); return;
+        }
+        setBuyBusy(false);
+        if (res.status === 409 && /already have access/i.test(msg)) {
+            showBuyError("You already own this ebook — it is in My Ebooks above."); loadEbooks(); return;
+        }
+        showBuyError(errText(res, fallback));
+    }
+
+    function loadRazorpay() {
+        if (window.Razorpay) return Promise.resolve();
+        return new Promise(function (resolve, reject) {
+            var s = document.createElement("script");
+            s.src = LSI_CONFIG.RAZORPAY_CHECKOUT_JS;
+            s.onload = resolve;
+            s.onerror = function () { s.remove(); reject(new Error("Could not load the payment gateway. Please check your connection.")); };
+            document.head.appendChild(s);
+        });
+    }
+
+    function openRazorpay(order) {
+        var rzp;
+        shop.order = order; shop.paid = false; shop.failure = null;
+        try {
+            rzp = new window.Razorpay({
+                key: order.razorpayKeyId,
+                amount: order.amountPaise,
+                currency: order.currency,
+                name: LSI_CONFIG.BRAND_NAME,
+                description: order.productName,
+                image: LSI_CONFIG.BRAND_LOGO,
+                order_id: order.razorpayOrderId,
+                prefill: { name: order.customerName, email: order.customerEmail, contact: order.customerMobile },
+                notes: { order_ref: order.orderRef },
+                theme: { color: LSI_CONFIG.BRAND_COLOR },
+                modal: { ondismiss: function () { if (!shop.paid) razorpayClosed(); } },
+                handler: function (response) { shop.paid = true; verifyBuy(response); }
+            });
+            rzp.on("payment.failed", function (resp) {
+                shop.failure = (resp && resp.error && resp.error.description) || "The payment was declined by your bank or wallet.";
+            });
+        } catch (err) {
+            setBuyBusy(false); showBuyError("Could not open the payment window. Please try again."); return;
+        }
+        // Bootstrap keeps keyboard focus inside its own dialog, which would stop typing in
+        // Razorpay's window, so this dialog steps aside while Razorpay is open.
+        el("ebookBuyModal").addEventListener("hidden.bs.modal", function () { rzp.open(); }, { once: true });
+        buyModal.hide();
+    }
+
+    function razorpayClosed() {
+        setBuyBusy(false);
+        if (shop.failure) {
+            buyResult("danger", "Payment not completed", "Payment was not completed. " + shop.failure + " Nothing has been added to your account.",
+                [["Order", shop.order && shop.order.orderRef]], true);
+        } else {
+            buyResult("warn", "Payment cancelled", "The payment window was closed before paying, so nothing was charged and nothing was added to your account.", null, true);
+        }
+        buyModal.show();
+    }
+
+    function verifyBuy(r) {
+        buyStep("Busy"); setText("ebookBuyBusyText", "Confirming your payment…");
+        buyModal.show();
+        api("/payments/verify", {
+            method: "POST", skipAuthRedirect: true,
+            body: { razorpayOrderId: r.razorpay_order_id, razorpayPaymentId: r.razorpay_payment_id, razorpaySignature: r.razorpay_signature }
+        }).then(function (res) {
+            if (res.success && res.data && res.data.paymentStatus === "SUCCESS") { buySucceeded(res.data); return; }
+            setBuyBusy(false);
+            buyResult("danger", "Payment not confirmed", errText(res, "We could not verify this payment.") +
+                " If money was deducted, the ebook will appear in My Ebooks once the payment reaches us — otherwise contact the academy with your order number.",
+                [["Order", shop.order && shop.order.orderRef]], false);
+        });
+    }
+
+    /** Shown only after the backend confirmed the payment and granted the ebook. */
+    function buySucceeded(d) {
+        var demo = d.paymentMode === "DEMO", title = shop.selected ? shop.selected.title : d.productName;
+        setBuyBusy(false);
+        shop.bought = shop.selected && shop.selected.id;
+        buyResult("ok", demo ? "Demo payment successful" : "Payment successful",
+            "“" + title + "” is now in My Ebooks." + (demo ? " No money was charged." : "") + " " +
+            (d.setupEmailSent ? "The invoice has been emailed to " + d.email + "." : "We could not email the invoice this time — you can download it from My Invoices."),
+            [["Order", d.orderRef], ["Invoice", d.invoiceNumber], ["Amount", d.amountInr != null ? rupees(d.amountInr) : null]], false);
+        loadEbooks().then(function () {
+            var mine = state.ebooks.find(function (e) { return String(e.ebookId) === String(shop.bought); });
+            el("ebookBuyRead").classList.toggle("d-none", !(mine && mine.status === "ACTIVE" && mine.fileAvailable));
+        });
+    }
+
+    function buyResult(kind, title, text, facts, canRetry) {
+        var icon = el("ebookBuyResultIcon"), box = el("ebookBuyFacts");
+        icon.className = "lms-buy-icon " + kind;
+        icon.innerHTML = '<i class="fas ' + ({ ok: "fa-check", warn: "fa-times", danger: "fa-exclamation" })[kind] + '"></i>';
+        setText("ebookBuyResultTitle", title);
+        setText("ebookBuyResultText", text);
+        box.innerHTML = (facts || []).filter(function (f) { return f[1]; }).map(function (f) {
+            return '<div><span>' + esc(f[0]) + '</span><strong>' + esc(f[1]) + '</strong></div>';
+        }).join("");
+        box.classList.toggle("d-none", !box.innerHTML);
+        el("ebookBuyRetry").classList.toggle("d-none", !canRetry);
+        el("ebookBuyRead").classList.add("d-none");
+        buyStep("Result");
+    }
+
     /** Streams the protected PDF with the bearer token and shows it inside the portal (never a plain link). */
     function openEbook(ebookId) {
         var e = state.ebooks.find(function (x) { return String(x.ebookId) === String(ebookId); }) || {};
         setText("ebookReaderTitle", e.title || "Ebook");
         setText("ebookReaderMeta", (e.author ? e.author + " · " : "") + "Licensed to " + ((state.overview && state.overview.studentId) || "you") + " — for personal use inside the Student Portal only");
+        el("ebookReaderLoading").innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Opening your ebook…';
         el("ebookReaderLoading").style.display = "flex";
         el("ebookReaderFrame").style.display = "none";
+        el("ebookReaderPages").style.display = "none";
+        setReaderControls(false);
         readerModal.show();
         fetchProtected("/student/ebooks/" + ebookId + "/download").then(function (blob) {
-            if (readerBlobUrl) URL.revokeObjectURL(readerBlobUrl);
-            readerBlobUrl = URL.createObjectURL(blob);
-            var frame = el("ebookReaderFrame");
-            frame.src = readerBlobUrl + "#toolbar=0&navpanes=0";
-            frame.style.display = "block";
-            el("ebookReaderLoading").style.display = "none";
-        }).catch(function (err) {
+            // PDF.js gives zoom and portrait / landscape; the browser's own viewer stays as the fallback.
+            return loadPdfJs().then(function () { return showInReader(blob); }).catch(function () { showInFrame(blob); });
+        }, function (err) {
             el("ebookReaderLoading").innerHTML = '<span class="text-warning"><i class="fas fa-lock me-1"></i> ' + esc(err.message) + '</span>';
         });
+    }
+
+    // ---- ebook reader: zoom in / out and portrait / landscape (PDF.js, as for lesson handouts) ----
+    // Text always stays upright: pages are never rotated. Portrait shows the whole page on screen,
+    // like holding the book; Landscape spreads the page across the full width for larger text.
+
+    var PDFJS_SRC = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+    var PDFJS_WORKER = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    /** Percent of the current fit (Portrait: whole page; Landscape: full width). */
+    var ZOOM_STEPS = [50, 75, 100, 125, 150, 175, 200, 250, 300];
+    /** Stay under iOS Safari's canvas limit (~16.7 MP); larger pages render at a lower pixel density. */
+    var MAX_CANVAS_PIXELS = 16000000;
+    var reader = { task: null, pdf: null, zoom: 100, landscape: false, chosen: false, scale: 1, observer: null, gen: 0 };
+
+    /** Until the student picks a mode, the reader follows the screen: wide -> Landscape, tall -> Portrait. */
+    function readerIsWide() { var box = el("ebookReaderPages"); return box.clientWidth > box.clientHeight; }
+
+    /** pdf.js is fetched only the first time an ebook is opened, so the dashboard itself stays light. */
+    function loadPdfJs() {
+        if (window.pdfjsLib) return Promise.resolve();
+        if (!loadPdfJs.pending) {
+            loadPdfJs.pending = new Promise(function (resolve, reject) {
+                var s = document.createElement("script");
+                s.src = PDFJS_SRC;
+                s.onload = function () { window.pdfjsLib ? resolve() : reject(new Error("PDF viewer unavailable")); };
+                s.onerror = function () { loadPdfJs.pending = null; s.remove(); reject(new Error("PDF viewer unavailable")); };
+                document.head.appendChild(s);
+            });
+        }
+        return loadPdfJs.pending;
+    }
+
+    /** The previous in-frame viewer, used only when pdf.js cannot load. Zoom / orientation stay disabled. */
+    function showInFrame(blob) {
+        if (readerBlobUrl) URL.revokeObjectURL(readerBlobUrl);
+        readerBlobUrl = URL.createObjectURL(blob);
+        var frame = el("ebookReaderFrame");
+        frame.src = readerBlobUrl + "#toolbar=0&navpanes=0";
+        frame.style.display = "block";
+        el("ebookReaderLoading").style.display = "none";
+    }
+
+    function showInReader(blob) {
+        var gen = ++reader.gen;
+        return blob.arrayBuffer().then(function (buf) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
+            reader.task = pdfjsLib.getDocument({ data: buf, isEvalSupported: false });
+            return reader.task.promise;
+        }).then(function (pdf) {
+            if (gen !== reader.gen) return;
+            reader.pdf = pdf;
+            reader.zoom = 100;
+            reader.chosen = false;
+            el("ebookReaderLoading").style.display = "none";
+            el("ebookReaderPages").style.display = "block";
+            reader.landscape = readerIsWide();
+            setReaderControls(true);
+            layoutReader(1);
+        });
+    }
+
+    function currentReaderPage() {
+        var box = el("ebookReaderPages"), slots = box.querySelectorAll(".lms-reader-page");
+        for (var i = 0; i < slots.length; i++) {
+            if (slots[i].offsetTop + slots[i].offsetHeight > box.scrollTop + 20) return i + 1;
+        }
+        return 1;
+    }
+
+    /** Lays out one placeholder per page at the current zoom / fit; pages are drawn as they scroll into view. */
+    function layoutReader(keepPage) {
+        var box = el("ebookReaderPages"), pdf = reader.pdf;
+        if (!pdf) return;
+        var gen = ++reader.gen;
+        if (reader.observer) reader.observer.disconnect();
+        pdf.getPage(1).then(function (first) {
+            if (gen !== reader.gen) return;
+            // The page's own orientation (including a PDF's built-in page rotation), so text reads straight.
+            var base = first.getViewport({ scale: 1 });
+            var fitWidth = Math.max(200, box.clientWidth - 32) / base.width;
+            var fitPage = Math.min(fitWidth, Math.max(200, box.clientHeight - 32) / base.height);
+            reader.scale = (reader.landscape ? fitWidth : fitPage) * reader.zoom / 100;
+            var w = Math.floor(base.width * reader.scale), h = Math.floor(base.height * reader.scale);
+            var html = "";
+            for (var n = 1; n <= pdf.numPages; n++) {
+                html += '<div class="lms-reader-page" data-page="' + n + '" style="width:' + w + 'px;height:' + h + 'px" aria-label="Page ' + n + ' of ' + pdf.numPages + '"></div>';
+            }
+            box.innerHTML = html;
+            reader.observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (en) { if (en.isIntersecting) drawPage(en.target, gen); else releasePage(en.target); });
+            }, { root: box, rootMargin: "800px 0px" });
+            box.querySelectorAll(".lms-reader-page").forEach(function (s) { reader.observer.observe(s); });
+            var target = box.querySelector('[data-page="' + keepPage + '"]');
+            box.scrollTop = target && keepPage > 1 ? target.offsetTop - 12 : 0;
+            updateReaderControls();
+        });
+    }
+
+    function drawPage(slot, gen) {
+        if (slot.dataset.drawn) return;
+        slot.dataset.drawn = "1";
+        var n = Number(slot.dataset.page);
+        reader.pdf.getPage(n).then(function (page) {
+            if (gen !== reader.gen || !slot.dataset.drawn) return;
+            var css = page.getViewport({ scale: reader.scale });
+            var density = Math.min(window.devicePixelRatio || 1, 2, Math.sqrt(MAX_CANVAS_PIXELS / (css.width * css.height)));
+            var vp = page.getViewport({ scale: reader.scale * density });
+            var canvas = document.createElement("canvas");
+            canvas.width = Math.floor(vp.width); canvas.height = Math.floor(vp.height);
+            canvas.style.width = Math.floor(css.width) + "px"; canvas.style.height = Math.floor(css.height) + "px";
+            // Pages of a different size than page 1 take their own size.
+            slot.style.width = canvas.style.width; slot.style.height = canvas.style.height;
+            return page.render({ canvasContext: canvas.getContext("2d"), viewport: vp }).promise.then(function () {
+                if (gen !== reader.gen || !slot.dataset.drawn) return;
+                slot.innerHTML = ""; slot.appendChild(canvas);
+                if (window.LSI_Protect) LSI_Protect.stampCanvas(canvas);
+            });
+        }).catch(function () {
+            if (gen === reader.gen) slot.innerHTML = '<div class="lms-reader-err">Page ' + n + ' could not be displayed.</div>';
+        });
+    }
+
+    /** Pages far from view give their memory back and are redrawn when the reader returns. */
+    function releasePage(slot) {
+        if (!slot.dataset.drawn) return;
+        delete slot.dataset.drawn;
+        slot.innerHTML = "";
+    }
+
+    function setReaderControls(on) {
+        ["ebookZoomOut", "ebookZoomIn", "ebookPortrait", "ebookLandscape"].forEach(function (id) { el(id).disabled = !on; });
+        if (!on) setText("ebookZoomLevel", "100%");
+    }
+
+    function updateReaderControls() {
+        setText("ebookZoomLevel", reader.zoom + "%");
+        el("ebookZoomOut").disabled = reader.zoom <= ZOOM_STEPS[0];
+        el("ebookZoomIn").disabled = reader.zoom >= ZOOM_STEPS[ZOOM_STEPS.length - 1];
+        el("ebookPortrait").classList.toggle("on", !reader.landscape);
+        el("ebookLandscape").classList.toggle("on", reader.landscape);
+        el("ebookPortrait").setAttribute("aria-pressed", String(!reader.landscape));
+        el("ebookLandscape").setAttribute("aria-pressed", String(reader.landscape));
+    }
+
+    function zoomReader(dir) {
+        if (!reader.pdf) return;
+        var i = ZOOM_STEPS.indexOf(reader.zoom) + dir;
+        if (i < 0 || i >= ZOOM_STEPS.length) return;
+        reader.zoom = ZOOM_STEPS[i];
+        layoutReader(currentReaderPage());
+    }
+
+    function orientReader(landscape) {
+        if (!reader.pdf) return;
+        reader.chosen = true;
+        if (reader.landscape === landscape) return;
+        reader.landscape = landscape;
+        layoutReader(currentReaderPage());
+    }
+
+    function closeReader() {
+        reader.gen++;
+        if (reader.observer) { reader.observer.disconnect(); reader.observer = null; }
+        if (reader.task && reader.task.destroy) { try { reader.task.destroy(); } catch (e) { /* ignore */ } }
+        reader.task = null; reader.pdf = null;
+        el("ebookReaderPages").innerHTML = "";
+        el("ebookReaderPages").style.display = "none";
+        setReaderControls(false);
     }
 
     function fetchProtected(path) {
@@ -302,255 +744,339 @@
         body.querySelectorAll("[data-toggle]").forEach(function (h) { h.addEventListener("click", function () { h.parentElement.classList.toggle("open"); }); });
     }
 
-    // ---- my exams --------------------------------------------------------------------------
-    // Everything shown here comes from /api/student/exams; the backend decides eligibility, the
-    // exam window, attempts and results. The page only renders the state and the one allowed action.
+    // ---- certificate -------------------------------------------------------------------------
+    // Course Completion Certificate: complete the course -> apply here -> the academy approves ->
+    // the certificate (generated on the server on the Lord Sai design) is ready to view / download.
+    // The backend decides eligibility and status and prints the account's registered name; no exam.
 
-    function fmtDateTime(iso) { if (!iso) return "—"; var d = new Date(iso); return isNaN(d) ? esc(iso) : d.toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }); }
+    var certApplyModal;
+    var CERT_STATES = {
+        NOT_ELIGIBLE: { chip: '<span class="lms-chip muted">Not eligible yet</span>', status: "Not Applied" },
+        ELIGIBLE: { chip: '<span class="lms-chip info">Ready to apply</span>', status: "Not Applied" },
+        PENDING: { chip: '<span class="lms-chip warn">Pending</span>', status: "Pending Admin Approval" },
+        APPROVED: { chip: '<span class="lms-chip info">Approved</span>', status: "Approved" },
+        REJECTED: { chip: '<span class="lms-chip danger">Rejected</span>', status: "Rejected" },
+        GENERATED: { chip: '<span class="lms-chip ok">Certificate Available</span>', status: "Certificate Available" }
+    };
 
-    function loadExams() {
-        var body = el("examsBody");
-        return api("/student/exams").then(function (res) {
-            if (!res.success) { body.innerHTML = '<div class="lms-card lms-empty text-danger">' + esc(res.message) + '</div>'; return; }
-            state.exams = res.data || [];
-            var actionable = state.exams.filter(function (x) { return x.canApply || (x.application && (x.application.action === "START" || x.application.action === "RESUME")); }).length;
-            setText("navExamCount", actionable || "");
-            if (!state.exams.length) { body.innerHTML = '<div class="lms-card lms-empty"><i class="fas fa-file-signature"></i>Complete your course to apply for the exam. Enroll in a course to get started.</div>'; return; }
-            body.innerHTML = state.exams.map(examCard).join("");
-            body.querySelectorAll("[data-apply]").forEach(function (b) { b.addEventListener("click", function () { openApply(b.dataset.apply); }); });
-            body.querySelectorAll("[data-start]").forEach(function (b) { b.addEventListener("click", function () { startExam(b.dataset.start, b); }); });
-            body.querySelectorAll("[data-result]").forEach(function (b) { b.addEventListener("click", function () { showAttemptResult(b.dataset.result); }); });
+    function loadCertificates() {
+        var body = el("certificatesBody");
+        return Promise.all([api("/student/certificates/courses"), api("/student/certificates")]).then(function (r) {
+            if (!r[0].success) { body.innerHTML = '<div class="lms-card lms-empty text-danger">' + esc(r[0].message) + '</div>'; return; }
+            state.certCourses = r[0].data || [];
+            if (r[1].success) state.certificates = r[1].data || [];
+            setText("navCertCount", state.certificates.length || "");
+            if (!state.certCourses.length) {
+                body.innerHTML = '<div class="lms-card lms-empty"><i class="fas fa-award"></i>Enroll in a course and complete it to apply for your Course Completion Certificate.<br><a href="#discover" data-view="discover" class="lms-btn primary sm mt-3">Discover courses</a></div>';
+                bindViewLinks(body); return;
+            }
+            body.innerHTML = state.certCourses.map(certCard).join("");
+            body.querySelectorAll("[data-cert-apply]").forEach(function (b) { b.addEventListener("click", function () { openCertApply(b.dataset.certApply); }); });
             body.querySelectorAll("[data-cert-view]").forEach(function (b) { b.addEventListener("click", function () { openCertificate(b.dataset.certView, false); }); });
+            body.querySelectorAll("[data-cert-download]").forEach(function (b) { b.addEventListener("click", function () { openCertificate(b.dataset.certDownload, true); }); });
             bindViewLinks(body);
         });
     }
 
-    function examCard(x) {
-        var a = x.application, s = a && a.schedule;
-        var completed = x.courseCompleted;
-        var html = '<div class="lms-card pad mb-3">' +
-            '<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2"><div><h3 class="title mb-1" style="font-size:16px;font-weight:700">' + esc(x.courseName) + '</h3>' +
-            '<small class="text-muted">' + (completed ? '<i class="fas fa-check-circle text-success me-1"></i>Course Completed' : x.completedLessons + ' of ' + x.totalLessons + ' lessons completed (' + x.progressPercent + '%)') + '</small></div>' +
-            (a ? chip(a.status === "COMPLETED" && a.result ? a.result : a.status) : (completed ? chip("ELIGIBLE") : chip(x.enrollmentStatus))) + '</div>';
-
-        if (!completed) {
-            html += '<div class="mb-2">' + progressBar(x.progressPercent, x.completedLessons, x.totalLessons) + '</div>' +
-                '<div class="lms-exam-note">Complete the course before applying for the exam.</div>' +
+    function certCard(x) {
+        var s = CERT_STATES[x.state] || CERT_STATES.NOT_ELIGIBLE, r = x.request, c = x.certificate;
+        var html = '<div class="lms-card pad mb-3" data-cert-course="' + x.courseId + '">' +
+            '<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2"><div>' +
+            '<h3 class="title mb-1" style="font-size:16px;font-weight:700">Course Completion Certificate</h3>' +
+            '<small class="text-muted">' + esc(x.courseName) + '</small></div>' + s.chip + '</div>' +
+            '<div class="mb-2" style="font-size:13.5px">Status: <strong class="cert-status">' + esc(s.status) + '</strong></div>';
+        if (x.state === "NOT_ELIGIBLE") {
+            var mc = state.courses.find(function (m) { return String(m.courseId) === String(x.courseId); });
+            if (mc && mc.totalLessons) html += '<div class="mb-2">' + progressBar(mc.progressPercent, mc.completedLessons, mc.totalLessons) + '</div>';
+            html += '<div class="lms-exam-note">Complete your course before applying for a certificate.</div>' +
                 '<div class="mt-3"><a href="learn.html?course=' + x.courseId + '" class="lms-btn accent sm"><i class="fas fa-play"></i> Continue course</a></div>';
-        } else if (!a || a.status === "REJECTED" || (a.status === "COMPLETED" && a.result === "FAILED" && x.canApply)) {
-            if (a) html += applicationBlock(x, a, s);
-            html += x.canApply
-                ? '<div class="lms-exam-note ok mt-2"><strong>Course Completed ✓</strong><br>' + esc(x.eligibilityMessage) + (x.examAvailable ? '' : ' The academy will assign the exam when it schedules your application.') + '</div>' +
-                  '<div class="mt-3"><button type="button" class="lms-btn primary" data-apply="' + x.courseId + '"><i class="fas fa-file-signature"></i> Apply for Exam</button></div>'
-                : '<div class="lms-exam-note mt-2">' + esc(x.eligibilityMessage) + '</div>';
-        } else {
-            html += applicationBlock(x, a, s);
+        } else if (x.state === "ELIGIBLE") {
+            html += '<div class="lms-exam-note ok"><strong>You have completed your course.</strong>' + (x.courseCompletedAt ? ' Completed on ' + fmtDate(x.courseCompletedAt) + '.' : '') + '</div>' +
+                '<div class="mt-3"><button type="button" class="lms-btn primary" data-cert-apply="' + x.courseId + '"><i class="fas fa-award"></i> Apply for Certificate</button></div>';
+        } else if (x.state === "PENDING" || x.state === "APPROVED") {
+            html += '<div class="lms-exam-note"><strong>Certificate application submitted.</strong><br>Status: Pending Admin Approval. You will be able to view and download your certificate here once the academy approves it.</div>' +
+                '<div class="lms-exam-kv mt-3"><div><small>Student</small><strong>' + esc(r.studentName) + '</strong></div><div><small>Student ID</small><strong>' + esc(r.studentId || "—") + '</strong></div>' +
+                '<div><small>Applied on</small><strong>' + fmtDate(r.requestedAt) + '</strong></div></div>';
+        } else if (x.state === "REJECTED") {
+            html += '<div class="lms-exam-note danger"><strong>Certificate application was rejected.</strong>' + (r && r.rejectionReason ? '<br>Reason: ' + esc(r.rejectionReason) : '') + '</div>' +
+                (x.canApply ? '<div class="mt-3"><button type="button" class="lms-btn primary" data-cert-apply="' + x.courseId + '"><i class="fas fa-redo"></i> Apply Again</button></div>' : '');
+        } else if (x.state === "GENERATED" && c) {
+            html += '<div class="lms-exam-kv">' +
+                '<div><small>Course</small><strong>' + esc(c.courseName) + '</strong></div>' +
+                '<div><small>Student</small><strong>' + esc(c.studentName) + '</strong></div>' +
+                '<div><small>Student ID</small><strong>' + esc(c.studentId || "—") + '</strong></div>' +
+                '<div><small>Issue Date</small><strong>' + fmtDate(c.issuedAt) + '</strong></div>' +
+                '<div><small>Certificate No.</small><strong>' + esc(c.certificateNumber) + '</strong></div></div>' +
+                '<div class="d-flex flex-wrap gap-2 mt-3"><button type="button" class="lms-btn primary" data-cert-view="' + c.id + '"><i class="fas fa-eye"></i> View Certificate</button>' +
+                '<button type="button" class="lms-btn accent" data-cert-download="' + c.id + '"><i class="fas fa-download"></i> Download Certificate</button></div>';
         }
         return html + '</div>';
     }
 
-    function applicationBlock(x, a, s) {
-        var kv = '<div class="lms-exam-kv">' +
-            '<div><small>Exam</small><strong>' + esc(a.examTitle || "To be assigned") + '</strong></div>' +
-            '<div><small>Applied on</small><strong>' + fmtDate(a.appliedAt) + '</strong></div>' +
-            (s ? '<div><small>Date</small><strong>' + esc(s.examDate) + '</strong></div><div><small>Time (IST)</small><strong>' + esc(s.startTime) + ' – ' + esc(s.endTime) + '</strong></div>' : '') +
-            (a.totalMarks != null ? '<div><small>Total marks</small><strong>' + a.totalMarks + '</strong></div><div><small>Passing marks</small><strong>' + a.passingMarks + '</strong></div>' : '') +
-            (a.maxAttempts != null ? '<div><small>Attempts</small><strong>' + a.attemptsUsed + ' / ' + a.maxAttempts + '</strong></div>' : '') +
-            '<div><small>Status</small><strong>' + esc(String(a.status === "COMPLETED" && a.result ? a.result : a.status).replace(/_/g, " ")) + (s && a.status === "SCHEDULED" ? ' · window ' + esc(String(s.window).toLowerCase()) : '') + '</strong></div>' +
-            '</div>';
-        var tone = a.action === "PASSED" ? "ok" : (a.action === "FAILED" || a.action === "REJECTED" || a.action === "CLOSED") ? "danger" : (a.action === "START" || a.action === "RESUME") ? "ok" : "";
-        var note = '<div class="lms-exam-note ' + tone + '">' + esc(a.message || "") + '</div>';
-        if (s && s.instructions && (a.action === "WAIT" || a.action === "START" || a.action === "RESUME")) note += '<div class="text-muted small mt-2"><strong>Instructions:</strong> ' + esc(s.instructions).replace(/\n/g, "<br>") + '</div>';
-        var actions = '';
-        if (a.action === "START") actions += '<button type="button" class="lms-btn primary" data-start="' + a.id + '"><i class="fas fa-play"></i> Start Exam</button>';
-        if (a.action === "RESUME") actions += '<button type="button" class="lms-btn accent" data-start="' + a.id + '"><i class="fas fa-redo"></i> Continue Exam</button>';
-        if (a.certificateId) actions += '<button type="button" class="lms-btn primary" data-cert-view="' + a.certificateId + '"><i class="fas fa-award"></i> View Certificate</button> <a href="#certificates" data-view="certificates" class="lms-btn ghost">Certificates</a>';
-        var attempts = (a.attempts || []).filter(function (t) { return t.status !== "IN_PROGRESS"; });
-        var table = attempts.length ? '<div class="lms-table-wrap mt-3"><table class="lms-table"><thead><tr><th>Attempt</th><th>Score</th><th>Passing</th><th>Result</th><th>Submitted</th><th></th></tr></thead><tbody>' +
-            attempts.map(function (t) { return '<tr><td>' + t.attemptNumber + (a.maxAttempts ? ' / ' + a.maxAttempts : '') + '</td><td><strong>' + t.score + ' / ' + t.totalMarks + '</strong></td><td>' + t.passingMarks + '</td><td>' + chip(t.status === "EXPIRED" ? "EXPIRED" : (t.passed ? "PASSED" : "FAILED")) + '</td><td>' + fmtDateTime(t.submittedAt) + '</td><td><button type="button" class="lms-btn ghost sm" data-result="' + t.id + '">Result</button></td></tr>'; }).join("") + '</tbody></table></div>' : '';
-        return kv + note + (actions ? '<div class="d-flex flex-wrap gap-2 mt-3">' + actions + '</div>' : '') + table;
-    }
-
-    function openApply(courseId) {
-        var x = state.exams.find(function (e) { return String(e.courseId) === String(courseId); }); if (!x) return;
+    function openCertApply(courseId) {
+        var x = (state.certCourses || []).find(function (e) { return String(e.courseId) === String(courseId); }); if (!x) return;
         var o = state.overview || {};
-        el("examApplyCourseId").value = x.courseId;
-        el("examApplyName").value = o.fullName || "";
-        el("examApplyStudentId").value = o.studentId || "";
-        el("examApplyCourse").value = x.courseName;
-        el("examApplyEmail").value = o.email || "";
-        el("examApplyCompletion").value = "Completed (" + x.completedLessons + " of " + x.totalLessons + " lessons)";
-        el("examApplyError").classList.add("d-none");
-        applyModal.show();
+        el("certApplyCourseId").value = x.courseId;
+        el("certApplyName").value = o.fullName || "";
+        el("certApplyName").dataset.accountName = o.fullName || "";
+        el("certApplyConfirm").checked = false;
+        updateCertNameNote();
+        el("certApplyStudentId").value = o.studentId || "";
+        el("certApplyCourse").value = x.courseName;
+        el("certApplyCompletion").value = x.courseCompletedAt ? fmtDate(x.courseCompletedAt) : "Completed";
+        el("certApplyError").classList.add("d-none");
+        el("certApplySubmit").disabled = false;
+        certApplyModal.show();
     }
 
-    function submitApply(e) {
+    // The certificate fonts print Latin letters (accents allowed); the server checks the same rule.
+    var CERT_NAME = /^[A-Za-z\u00C0-\u024F][A-Za-z\u00C0-\u024F .'-]*$/;
+    function cleanCertName(v) { return String(v || "").trim().replace(/\s+/g, " "); }
+    function updateCertNameNote() {
+        var input = el("certApplyName"), note = el("certApplyNameNote");
+        var typed = cleanCertName(input.value), account = cleanCertName(input.dataset.accountName);
+        el("certApplyNamePreview").textContent = typed ? typed.toUpperCase() : "—";
+        var changed = typed !== "" && account !== "" && typed !== account;
+        note.textContent = changed ? "This differs from your registered name (" + account + "). The academy will see your correction before issuing the certificate." : "";
+        note.classList.toggle("d-none", !changed);
+    }
+
+    function submitCertApply(e) {
         e.preventDefault();
-        var btn = el("examApplySubmit"), err = el("examApplyError");
+        var btn = el("certApplySubmit"), err = el("certApplyError");
+        if (btn.disabled) return;
+        var name = cleanCertName(el("certApplyName").value);
+        var fail = function (m) { err.textContent = m; err.classList.remove("d-none"); };
+        if (name.length < 2 || name.length > 150) return fail("Please enter your full name (2 to 150 characters) as it should appear on the certificate.");
+        if (!CERT_NAME.test(name)) return fail("Type the name in English letters (A-Z). Only spaces, dots, apostrophes and hyphens are allowed besides letters.");
+        if (!el("certApplyConfirm").checked) return fail("Please confirm that your name is correct.");
         btn.disabled = true; err.classList.add("d-none");
-        api("/student/exams/apply", { method: "POST", body: { courseId: Number(el("examApplyCourseId").value) } }).then(function (res) {
+        // The Student ID always comes from the account on the server; the name is the one the student confirmed.
+        api("/student/certificate-requests", { method: "POST", body: { courseId: Number(el("certApplyCourseId").value), certificateName: name } }).then(function (res) {
             btn.disabled = false;
-            if (!res.success) { err.textContent = res.errors ? Object.values(res.errors).join(" ") : res.message; err.classList.remove("d-none"); return; }
-            applyModal.hide(); toast(res.message || "Exam application submitted successfully.");
-            loadExams();
-        });
-    }
-
-    // ---- exam paper ------------------------------------------------------------------------
-
-    function startExam(applicationId, btn) {
-        if (btn) btn.disabled = true;
-        api("/student/exams/applications/" + applicationId + "/start", { method: "POST" }).then(function (res) {
-            if (btn) btn.disabled = false;
-            if (!res.success) { toast(res.message, false); loadExams(); return; }
-            state.paper = res.data; state.paper.answers = {};
-            location.hash = "exam-take"; show("exam-take"); renderPaper();
-        });
-    }
-
-    function renderPaper() {
-        var p = state.paper; if (!p) return;
-        var body = el("examPaperBody");
-        body.innerHTML = '<div class="lms-card">' +
-            '<div class="lms-exam-head"><div><h1 class="lms-page-title mb-0" style="font-size:18px">' + esc(p.examTitle) + '</h1><small class="text-muted">' + esc(p.courseName) + ' · Attempt ' + p.attemptNumber + ' / ' + p.maxAttempts + ' · Total ' + p.totalMarks + ' marks · Passing ' + p.passingMarks + '</small></div>' +
-            '<div class="d-flex align-items-center gap-2"><span class="text-muted small d-none d-sm-inline">Time remaining</span><span class="lms-exam-timer" id="examTimer">--:--</span></div></div>' +
-            (p.description || p.instructions ? '<div class="px-4 pt-3"><div class="lms-exam-note">' + (p.instructions ? esc(p.instructions).replace(/\n/g, "<br>") : '') + (p.description ? (p.instructions ? '<br>' : '') + esc(p.description).replace(/\n/g, "<br>") : '') + '</div></div>' : '') +
-            '<div class="px-4 pt-3 text-muted small">Select one answer per question. Your answers are evaluated by the academy server after you submit. <strong id="examAnswered">0</strong> of ' + p.questions.length + ' answered.</div>' +
-            '<form id="examForm">' + p.questions.map(function (q) {
-                return '<div class="lms-question" data-q="' + q.id + '"><div class="q"><span class="marks">' + q.marks + ' mark' + (q.marks === 1 ? '' : 's') + '</span><span class="n">Question ' + q.number + '</span>' + esc(q.questionText).replace(/\n/g, "<br>") + '</div>' +
-                    ["A", "B", "C", "D"].map(function (k) { return '<label class="lms-option"><input type="radio" name="q' + q.id + '" value="' + k + '"><span class="key">' + k + '.</span><span>' + esc(q["option" + k]) + '</span></label>'; }).join("") + '</div>';
-            }).join("") +
-            '<div class="p-4 d-flex flex-wrap justify-content-between align-items-center gap-2 border-top"><small class="text-muted">Submitting is final — a submitted attempt cannot be changed.</small><button type="submit" class="lms-btn primary" id="examSubmitBtn"><i class="fas fa-paper-plane"></i> Submit Exam</button></div>' +
-            '</form></div>';
-        body.querySelectorAll('input[type="radio"]').forEach(function (r) {
-            r.addEventListener("change", function () {
-                var q = r.closest(".lms-question"); q.querySelectorAll(".lms-option").forEach(function (o) { o.classList.remove("selected"); });
-                r.closest(".lms-option").classList.add("selected");
-                state.paper.answers[q.dataset.q] = r.value;
-                setText("examAnswered", Object.keys(state.paper.answers).length);
-            });
-        });
-        el("examForm").addEventListener("submit", function (e) { e.preventDefault(); submitExam(false); });
-        startTimer(p.secondsRemaining);
-        window.scrollTo({ top: 0 });
-    }
-
-    function startTimer(seconds) {
-        clearInterval(examTimer);
-        // Server-provided remaining seconds anchor the countdown; the deadline is enforced by the backend anyway.
-        var end = Date.now() + Math.max(0, seconds) * 1000;
-        function tick() {
-            var left = Math.max(0, Math.round((end - Date.now()) / 1000));
-            var t = el("examTimer"); if (!t) { clearInterval(examTimer); return; }
-            var h = Math.floor(left / 3600), m = Math.floor((left % 3600) / 60), s = left % 60;
-            t.textContent = (h ? h + ":" : "") + (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
-            t.classList.toggle("low", left <= 120);
-            if (left <= 0) { clearInterval(examTimer); submitExam(true); }
-        }
-        tick(); examTimer = setInterval(tick, 1000);
-    }
-
-    function submitExam(auto) {
-        var p = state.paper; if (!p) return;
-        if (!auto) {
-            var unanswered = p.questions.length - Object.keys(p.answers).length;
-            if (!window.confirm("Are you sure you want to submit your exam?" + (unanswered ? "\n\n" + unanswered + " question(s) are still unanswered." : ""))) return;
-        }
-        clearInterval(examTimer);
-        var btn = el("examSubmitBtn"); if (btn) btn.disabled = true;
-        var answers = p.questions.map(function (q) { return { questionId: q.id, selectedOption: p.answers[q.id] || null }; });
-        api("/student/exams/attempts/" + p.attemptId + "/submit", { method: "POST", body: { answers: answers } }).then(function (res) {
             if (!res.success) {
-                if (btn) btn.disabled = false;
-                toast(res.message || "The exam could not be submitted.", false);
-                if (res.status === 409) { state.paper = null; location.hash = "exams"; show("exams"); }
+                err.textContent = res.errors ? Object.values(res.errors).join(" ") : res.message; err.classList.remove("d-none");
+                if (res.status === 409) loadCertificates();
                 return;
             }
-            state.paper = null;
-            renderResult(res.data);
-            refreshOverview();
+            certApplyModal.hide(); toast(res.message || "Certificate application submitted.");
+            loadCertificates();
         });
     }
 
-    function showAttemptResult(attemptId) {
-        api("/student/exams/attempts/" + attemptId + "/result").then(function (res) {
-            if (!res.success) { toast(res.message, false); return; }
-            state.paper = { done: true }; location.hash = "exam-take"; show("exam-take"); renderResult(res.data); state.paper = null;
-        });
+    function certificateFileName(c) {
+        var n = String((c && c.studentName) || "").replace(/[^A-Za-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+        return "LSA-Certificate-" + (n || (c ? c.certificateNumber : "certificate")) + ".pdf";
     }
 
-    function renderResult(r) {
-        var body = el("examPaperBody");
-        body.innerHTML = '<div class="lms-card pad text-center" style="max-width:640px;margin:0 auto">' +
-            '<div class="text-muted" style="letter-spacing:2px;font-size:12px;font-weight:700">EXAM RESULT</div>' +
-            '<h2 class="lms-page-title mt-2 mb-1">' + esc(r.examTitle) + '</h2><div class="text-muted mb-3">' + esc(r.courseName) + '</div>' +
-            '<div class="lms-result-score" style="color:' + (r.passed ? "#15803D" : "#B91C1C") + '">' + r.score + ' <span class="text-muted" style="font-size:18px;font-weight:600">/ ' + r.totalMarks + '</span></div>' +
-            '<div class="mt-2 mb-3"><span class="lms-result-badge ' + (r.passed ? "pass" : "fail") + '">' + esc(r.result) + '</span></div>' +
-            '<div class="lms-exam-kv text-start" style="max-width:520px;margin:0 auto 14px">' +
-            '<div><small>Student</small><strong>' + esc(r.studentName) + '</strong></div><div><small>Student ID</small><strong>' + esc(r.studentId || "—") + '</strong></div>' +
-            '<div><small>Passing marks</small><strong>' + r.passingMarks + '</strong></div><div><small>Correct answers</small><strong>' + r.correctCount + ' / ' + r.questionCount + '</strong></div>' +
-            '<div><small>Attempt</small><strong>' + r.attemptNumber + ' / ' + r.maxAttempts + '</strong></div><div><small>' + (r.passed ? "Certificate" : "Attempts remaining") + '</small><strong>' + (r.passed ? esc(r.certificateNumber || "Issued") : r.attemptsRemaining) + '</strong></div>' +
-            '<div><small>Submitted</small><strong>' + fmtDateTime(r.submittedAt) + '</strong></div></div>' +
-            '<div class="lms-exam-note ' + (r.passed ? "ok" : "danger") + ' text-start">' + esc(r.message) + '</div>' +
-            '<div class="d-flex flex-wrap justify-content-center gap-2 mt-4">' +
-            (r.certificateId ? '<button type="button" class="lms-btn primary" data-cert-view="' + r.certificateId + '"><i class="fas fa-award"></i> View Certificate</button><button type="button" class="lms-btn accent" data-cert-download="' + r.certificateId + '"><i class="fas fa-download"></i> Download Certificate</button>' : '') +
-            '<a href="#exams" data-view="exams" class="lms-btn ghost">Back to My Exams</a></div></div>';
-        body.querySelectorAll("[data-cert-view]").forEach(function (b) { b.addEventListener("click", function () { openCertificate(b.dataset.certView, false); }); });
-        body.querySelectorAll("[data-cert-download]").forEach(function (b) { b.addEventListener("click", function () { openCertificate(b.dataset.certDownload, true); }); });
-        bindViewLinks(body);
-        window.scrollTo({ top: 0 });
-    }
-
-    // ---- certificates ----------------------------------------------------------------------
-    // Issued by the backend only for a passed exam attempt; the PDF is streamed with the bearer token.
-
-    function loadCertificates() {
-        var body = el("certificatesBody");
-        return api("/student/certificates").then(function (res) {
-            if (!res.success) { body.innerHTML = '<div class="lms-card lms-empty text-danger">' + esc(res.message) + '</div>'; return; }
-            state.certificates = res.data || [];
-            setText("navCertCount", state.certificates.length || "");
-            if (!state.certificates.length) {
-                body.innerHTML = '<div class="lms-card lms-empty"><i class="fas fa-award"></i>No certificate yet. Complete a course, pass its final exam and your certificate will appear here.<br><a href="#exams" data-view="exams" class="lms-btn primary sm mt-3">Go to My Exams</a></div>';
-                bindViewLinks(body); return;
-            }
-            body.innerHTML = '<div class="lms-card">' + state.certificates.map(function (c) {
-                return '<div class="lms-list-item"><div class="ico" style="background:#DCFCE7;color:#15803D"><i class="fas fa-award"></i></div>' +
-                    '<div class="txt"><strong>' + esc(c.courseName) + '</strong><small><span class="lms-chip ok">Eligible</span> ' + esc(c.certificateNumber) + ' · ' + esc(c.examTitle) + ' · Score ' + c.score + ' / ' + c.totalMarks + ' · Issued ' + fmtDate(c.issuedAt) + '</small></div>' +
-                    '<div class="d-flex gap-2 flex-wrap justify-content-end"><button type="button" class="lms-btn primary sm" data-cert-view="' + c.id + '"><i class="fas fa-eye"></i> View</button><button type="button" class="lms-btn ghost sm" data-cert-download="' + c.id + '"><i class="fas fa-download"></i> Download</button></div></div>';
-            }).join("") + '</div>';
-            body.querySelectorAll("[data-cert-view]").forEach(function (b) { b.addEventListener("click", function () { openCertificate(b.dataset.certView, false); }); });
-            body.querySelectorAll("[data-cert-download]").forEach(function (b) { b.addEventListener("click", function () { openCertificate(b.dataset.certDownload, true); }); });
-        });
-    }
-
+    /** Streams the student's own certificate PDF with the bearer token (never a public link). */
     function openCertificate(id, download) {
         var c = state.certificates.find(function (x) { return String(x.id) === String(id); });
+        // Open the tab during the click so pop-up blockers allow it; the PDF is loaded into it after.
+        var win = download ? null : window.open("", "_blank");
         fetchProtected("/student/certificates/" + id + "/pdf").then(function (blob) {
             var url = URL.createObjectURL(blob);
-            if (download) { var a = document.createElement("a"); a.href = url; a.download = (c ? c.certificateNumber : "certificate") + ".pdf"; document.body.appendChild(a); a.click(); a.remove(); }
-            else window.open(url, "_blank");
+            if (download || !win) {
+                var a = document.createElement("a"); a.href = url; a.download = certificateFileName(c);
+                document.body.appendChild(a); a.click(); a.remove();
+            } else {
+                win.location.href = url;
+            }
             setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
-        }).catch(function (err) { toast(err.message, false); });
+        }).catch(function (err) { if (win) win.close(); toast(err.message, false); });
     }
 
-    // ---- resources -------------------------------------------------------------------------
+    // ---- student journal ----------------------------------------------------------------------
+    // The student's own daily trading journal (/api/student/journal). Entries are private to the
+    // account; P&L, the derived result and the performance summary come from the backend.
 
-    function renderResources() {
-        var items = [];
-        state.courses.filter(hasAccess).forEach(function (c) {
-            var content = state.content[c.courseId]; if (!content) return;
-            content.modules.forEach(function (m) { m.lessons.forEach(function (l) { if (l.hasMaterial) items.push({ c: c, m: m, l: l }); }); });
+    var JOURNAL_PAGE_SIZE = 50;
+
+    function todayIso() { var d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); }
+    // Trade dates are plain calendar days; parse them as local midnight so no timezone shifts the day.
+    function fmtDay(iso) { return fmtDate(iso ? iso + "T00:00:00" : iso); }
+    function inr(v) {
+        if (v == null) return "—";
+        var n = Number(v);
+        return (n < 0 ? "−" : "") + "₹" + Math.abs(n).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function pnl(v) {
+        if (v == null) return '<span class="text-muted">—</span>';
+        var n = Number(v);
+        return '<span class="lms-pnl ' + (n > 0 ? "up" : n < 0 ? "down" : "") + '">' + (n > 0 ? "+" : "") + inr(n) + '</span>';
+    }
+    function numOrNull(id) { var v = el(id).value; return v === "" ? null : Number(v); }
+    function resultFor(net) { return net > 0 ? "PROFIT" : net < 0 ? "LOSS" : "BREAKEVEN"; }
+    function tradeTypeLabel(t) { return t === "BUY" ? "Buy" : t === "SELL" ? "Sell" : String(t || "").charAt(0) + String(t || "").slice(1).toLowerCase(); }
+    var TRADING_TYPES = { EQUITIES: "Equities", MUTUAL_FUNDS: "Mutual Funds", ETFS: "ETFs", OPTIONS: "Options", FUTURES: "Futures", COMMODITIES: "Commodities" };
+    function tradingTypeLabel(t) { return TRADING_TYPES[t] || ""; }
+
+    function loadJournalView() {
+        if (!el("journalDate").value) el("journalDate").value = todayIso();
+        loadJournal(0);
+        loadJournalSummary();
+    }
+
+    function loadJournal(page) {
+        var j = state.journal;
+        return api("/student/journal?page=" + page + "&size=" + JOURNAL_PAGE_SIZE).then(function (res) {
+            if (!res.success) { el("journalList").innerHTML = '<div class="lms-empty text-danger">' + esc(res.message) + '</div>'; return; }
+            var d = res.data || {}, rows = d.content || [];
+            j.entries = page === 0 ? rows : j.entries.concat(rows);
+            j.page = page;
+            j.last = d.last != null ? d.last : !(d.page && d.page.number + 1 < d.page.totalPages);
+            renderJournal();
         });
-        var body = el("resourcesBody");
-        if (!items.length) { body.innerHTML = '<div class="lms-empty"><i class="fas fa-file-pdf"></i>No handouts have been uploaded to your courses yet.</div>'; return; }
-        body.innerHTML = items.map(function (it) {
-            return '<div class="lms-list-item"><div class="ico" style="color:#DC2626"><i class="fas fa-file-pdf"></i></div>' +
-                '<div class="txt"><strong>' + esc(it.l.materialOriginalName || it.l.lessonTitle) + '</strong><small>' + esc(it.c.courseName) + ' · ' + esc(it.m.moduleName) + ' · ' + esc(it.l.lessonTitle) + '</small></div>' +
-                '<a href="' + learnUrl(it.c, it.l.id) + '" class="lms-btn ghost sm">Lesson</a>' +
-                // Handouts open in the lesson page's watermarked viewer; there is no download.
-                '<a href="' + learnUrl(it.c, it.l.id) + '&material=1" class="lms-btn primary sm"><i class="fas fa-book-open"></i> View</a></div>';
-        }).join("");
+    }
+
+    function loadJournalSummary() {
+        return api("/student/journal/summary").then(function (res) {
+            if (!res.success) return;
+            var s = res.data;
+            setText("jsTotal", s.totalTrades);
+            setText("jsWins", s.winningTrades);
+            setText("jsLosses", s.losingTrades);
+            setText("jsWinRate", s.winRatePercent + "%");
+            el("jsNet").innerHTML = pnl(s.netPnl);
+            setText("jsCharges", inr(s.totalCharges));
+        });
+    }
+
+    function renderJournal() {
+        var j = state.journal, list = el("journalList");
+        var q = el("journalSearch").value.trim().toLowerCase();
+        var rows = j.entries.filter(function (t) { return !q || ((t.symbol || "") + " " + (t.strategy || "") + " " + (t.segment || "") + " " + tradingTypeLabel(t.tradingType)).toLowerCase().indexOf(q) >= 0; });
+        if (!j.entries.length) { list.innerHTML = '<div class="lms-empty"><i class="fas fa-book-open"></i>No trades yet. Add your first trade above — the performance summary updates as you go.</div>'; return; }
+        if (!rows.length) { list.innerHTML = '<div class="lms-empty">No trades match “' + esc(q) + '”.</div>'; return; }
+        list.innerHTML = '<div class="lms-table-wrap"><table class="lms-table"><thead><tr><th>Date</th><th>Symbol</th><th>Type of Trading</th><th>Type</th><th>Entry → Exit</th><th>Qty</th><th>Charges</th><th>Net P&amp;L</th><th>Strategy</th><th>Result</th><th></th></tr></thead><tbody>' +
+            rows.map(function (t) {
+                var open = String(j.openId) === String(t.id);
+                return '<tr' + (String(j.editingId) === String(t.id) ? ' class="lms-journal-editing"' : '') + '><td class="text-nowrap">' + fmtDay(t.tradeDate) + '</td>' +
+                    '<td><strong>' + esc(t.symbol) + '</strong>' + (t.segment ? '<br><small class="text-muted">' + esc(t.segment) + '</small>' : '') + '</td>' +
+                    '<td>' + (t.tradingType ? esc(tradingTypeLabel(t.tradingType)) : '<span class="text-muted">—</span>') + '</td>' +
+                    '<td>' + esc(tradeTypeLabel(t.tradeType)) + '</td>' +
+                    '<td class="text-nowrap">' + inr(t.entryPrice) + ' → ' + inr(t.exitPrice) + '</td>' +
+                    '<td>' + (t.quantity != null ? t.quantity : "—") + '</td>' +
+                    '<td class="text-nowrap">' + inr(t.charges) + '</td>' +
+                    '<td class="text-nowrap">' + pnl(t.netPnl) + '</td>' +
+                    '<td>' + esc(t.strategy || "—") + '</td>' +
+                    '<td>' + (t.result ? chip(t.result) : '<span class="text-muted">—</span>') + '</td>' +
+                    '<td class="text-nowrap text-end"><button type="button" class="lms-btn ghost sm" data-journal-view="' + t.id + '" aria-expanded="' + open + '" title="Notes"><i class="fas fa-' + (open ? "chevron-up" : "sticky-note") + '"></i></button> ' +
+                    '<button type="button" class="lms-btn ghost sm" data-journal-edit="' + t.id + '" title="Edit"><i class="fas fa-pen"></i></button> ' +
+                    '<button type="button" class="lms-btn ghost sm text-danger" data-journal-delete="' + t.id + '" title="Delete"><i class="fas fa-trash"></i></button></td></tr>' +
+                    (open ? '<tr class="lms-journal-detail"><td colspan="11"><div class="row g-3">' +
+                        '<div class="col-md-6"><small>Why did this trade happen?</small>' + (t.tradeReason ? esc(t.tradeReason).replace(/\n/g, "<br>") : (t.notes ? esc(t.notes).replace(/\n/g, "<br>") : '<span class="text-muted">Not recorded</span>')) + '</div>' +
+                        '<div class="col-md-6"><small>Why Profit / Loss happened?</small>' + (t.outcomeReason ? esc(t.outcomeReason).replace(/\n/g, "<br>") : '<span class="text-muted">Not recorded</span>') + '</div>' +
+                        (t.grossPnl != null ? '<div class="col-12 text-muted small">Gross ' + pnl(t.grossPnl) + ' − charges ' + inr(t.charges || 0) + ' = net ' + pnl(t.netPnl) + '</div>' : '') +
+                        '</div></td></tr>' : '');
+            }).join("") + '</tbody></table></div>' +
+            (j.last ? '' : '<div class="p-3 text-center border-top"><button type="button" class="lms-btn ghost sm" id="journalMoreBtn">Load more trades</button></div>');
+        list.querySelectorAll("[data-journal-view]").forEach(function (b) { b.addEventListener("click", function () { j.openId = String(j.openId) === b.dataset.journalView ? null : b.dataset.journalView; renderJournal(); }); });
+        list.querySelectorAll("[data-journal-edit]").forEach(function (b) { b.addEventListener("click", function () { editJournal(b.dataset.journalEdit); }); });
+        list.querySelectorAll("[data-journal-delete]").forEach(function (b) { b.addEventListener("click", function () { deleteJournal(b.dataset.journalDelete, b); }); });
+        var more = el("journalMoreBtn");
+        if (more) more.addEventListener("click", function () { more.disabled = true; loadJournal(j.page + 1); });
+    }
+
+    /**
+     * Live P&L as the student types; the Result follows it until the student picks one themselves.
+     * Charges are no longer entered; an older trade being edited keeps the charges it was saved with.
+     */
+    function updateJournalPreview() {
+        var entry = numOrNull("journalEntry"), exit = numOrNull("journalExit"), qty = numOrNull("journalQty"), charges = state.journal.editCharges || 0;
+        var box = el("journalPreview");
+        if (entry == null || exit == null || !qty) { box.innerHTML = "Enter entry price, quantity and exit price to see the P&amp;L."; return; }
+        var gross = Math.round((el("journalType").value === "SELL" ? entry - exit : exit - entry) * qty * 100) / 100;
+        var net = Math.round((gross - charges) * 100) / 100;
+        box.innerHTML = 'Net P&amp;L <strong>' + pnl(net) + '</strong>' + (charges ? ' <small class="text-muted">(gross ' + inr(gross) + ' − saved charges ' + inr(charges) + ')</small>' : '');
+        if (!state.journal.resultTouched) el("journalResult").value = resultFor(net);
+    }
+
+    function resetJournalForm() {
+        var j = state.journal;
+        el("journalForm").reset();
+        el("journalDate").value = todayIso();
+        el("journalError").classList.add("d-none");
+        j.editingId = null; j.editCharges = null; j.resultTouched = false;
+        el("journalFormTitle").textContent = "Add a trade";
+        el("journalEditing").textContent = "";
+        el("journalSubmitBtn").innerHTML = '<i class="fas fa-plus"></i> Save Trade';
+        updateJournalPreview();
+        if (j.entries.length) renderJournal();
+    }
+
+    function editJournal(id) {
+        var j = state.journal;
+        var t = j.entries.find(function (x) { return String(x.id) === String(id); }); if (!t) return;
+        j.editingId = t.id;
+        el("journalDate").value = t.tradeDate || todayIso();
+        el("journalSegment").value = t.segment || "Equity";
+        el("journalSymbol").value = t.symbol || "";
+        el("journalType").value = t.tradeType === "SELL" ? "SELL" : "BUY";
+        el("journalEntry").value = t.entryPrice != null ? t.entryPrice : "";
+        el("journalExit").value = t.exitPrice != null ? t.exitPrice : "";
+        el("journalQty").value = t.quantity != null ? t.quantity : "";
+        j.editCharges = t.charges != null ? Number(t.charges) : null;
+        // A segment saved outside the dropdown list (older entries) is kept as an extra option.
+        var seg = el("journalSegment");
+        if (t.segment && !Array.prototype.some.call(seg.options, function (o) { return o.value === t.segment; })) seg.add(new Option(t.segment, t.segment));
+        if (t.segment) seg.value = t.segment;
+        el("journalTradingType").value = TRADING_TYPES[t.tradingType] ? t.tradingType : "";
+        el("journalStrategy").value = t.strategy || "";
+        el("journalWhy").value = t.tradeReason || t.notes || "";
+        el("journalOutcome").value = t.outcomeReason || "";
+        // Keep a result the student chose that differs from the P&L; otherwise let it follow the numbers.
+        j.resultTouched = !!t.result && t.netPnl != null && t.result !== resultFor(Number(t.netPnl));
+        if (t.result) el("journalResult").value = t.result;
+        updateJournalPreview();
+        el("journalFormTitle").textContent = "Edit trade";
+        el("journalEditing").textContent = "Editing " + t.symbol + " · " + fmtDay(t.tradeDate);
+        el("journalSubmitBtn").innerHTML = '<i class="fas fa-save"></i> Update Trade';
+        el("journalError").classList.add("d-none");
+        renderJournal();
+        el("journalFormCard").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function submitJournal(e) {
+        e.preventDefault();
+        var j = state.journal, btn = el("journalSubmitBtn"), err = el("journalError");
+        var body = {
+            tradeDate: el("journalDate").value,
+            segment: el("journalSegment").value,
+            symbol: el("journalSymbol").value.trim(),
+            tradeType: el("journalType").value,
+            entryPrice: numOrNull("journalEntry"),
+            exitPrice: numOrNull("journalExit"),
+            quantity: numOrNull("journalQty"),
+            // Not asked any more: a new trade has none; an edited older trade keeps what it had.
+            charges: j.editingId ? j.editCharges : null,
+            tradingType: el("journalTradingType").value || null,
+            strategy: el("journalStrategy").value.trim(),
+            result: el("journalResult").value,
+            tradeReason: el("journalWhy").value.trim(),
+            outcomeReason: el("journalOutcome").value.trim()
+        };
+        var editing = j.editingId;
+        btn.disabled = true; err.classList.add("d-none");
+        api("/student/journal" + (editing ? "/" + editing : ""), { method: editing ? "PUT" : "POST", body: body }).then(function (res) {
+            btn.disabled = false;
+            if (!res.success) { err.textContent = res.errors ? Object.values(res.errors).join(" ") : res.message; err.classList.remove("d-none"); return; }
+            toast(res.message || (editing ? "Trade entry updated." : "Trade entry saved."));
+            resetJournalForm();
+            loadJournal(0); loadJournalSummary();
+        });
+    }
+
+    function deleteJournal(id, btn) {
+        var t = state.journal.entries.find(function (x) { return String(x.id) === String(id); });
+        if (!window.confirm("Delete this trade" + (t ? " (" + t.symbol + ", " + fmtDay(t.tradeDate) + ")" : "") + "? This cannot be undone.")) return;
+        btn.disabled = true;
+        api("/student/journal/" + id, { method: "DELETE" }).then(function (res) {
+            if (!res.success) { btn.disabled = false; toast(res.message, false); return; }
+            toast(res.message || "Trade entry deleted.");
+            if (String(state.journal.editingId) === String(id)) resetJournalForm();
+            loadJournal(0); loadJournalSummary();
+        });
     }
 
     // ---- profile ---------------------------------------------------------------------------
@@ -559,7 +1085,7 @@
         var o = state.overview; if (!o) return;
         var row = function (k, v) { return '<div class="d-flex justify-content-between py-2" style="border-bottom:1px solid #F1F5F9"><span class="text-muted">' + k + '</span><strong class="text-end">' + esc(v || "—") + '</strong></div>'; };
         el("profileCard").innerHTML = '<div class="d-flex align-items-center gap-3 mb-3"><div class="lms-avatar" style="width:56px;height:56px;font-size:20px">' + esc(el("topAvatar").textContent) + '</div><div><strong class="d-block" style="font-size:16px">' + esc(o.fullName) + '</strong><span class="lms-chip ok">Student</span></div></div>' +
-            row("Student ID", o.studentId) + row("Email", o.email) + row("Mobile", o.mobile) + row("Batch", o.batch) + row("Location", o.location) + row("Registered", fmtDate(o.registrationDate)) + row("Last login", fmtDate(o.lastLoginAt));
+            row("Student ID (reference)", o.studentId) + row("User ID (login)", o.loginUserId || "—") + row("Email", o.email) + row("Mobile", o.mobile) + row("Batch", o.batch) + row("Location", o.location) + row("Registered", fmtDate(o.registrationDate)) + row("Last login", fmtDate(o.lastLoginAt));
         el("profileCourses").innerHTML = '<strong class="d-block mb-2">Enrollment record</strong>' + (state.courses.length ? '<div class="lms-table-wrap"><table class="lms-table"><thead><tr><th>Course</th><th>Status</th><th>Enrolled</th><th>Progress</th></tr></thead><tbody>' +
             state.courses.map(function (c) { return '<tr><td>' + esc(c.courseName) + '</td><td>' + chip(c.enrollmentStatus) + '</td><td>' + fmtDate(c.enrolledAt) + '</td><td>' + c.progressPercent + '%</td></tr>'; }).join("") + '</tbody></table></div>' : '<div class="text-muted small">No enrollments.</div>') +
             '<strong class="d-block mb-2 mt-3">Ebook record</strong>' + (state.ebooks.length ? '<div class="lms-table-wrap"><table class="lms-table"><thead><tr><th>Ebook</th><th>Status</th><th>Purchased</th><th>Invoice</th></tr></thead><tbody>' +
@@ -649,7 +1175,8 @@
             content.modules.forEach(function (m) {
                 m.lessons.forEach(function (l) {
                     if (l.lessonTitle.toLowerCase().indexOf(q) >= 0) hits.push({ t: l.lessonTitle, s: c.courseName + " · " + m.moduleName, href: learnUrl(c, l.id), i: "fa-play-circle" });
-                    if (l.materialOriginalName && l.materialOriginalName.toLowerCase().indexOf(q) >= 0) hits.push({ t: l.materialOriginalName, s: "Resource · " + m.moduleName, href: "#resources", view: "resources", i: "fa-file-pdf" });
+                    // Handouts open in the lesson page's watermarked viewer.
+                    if (l.materialOriginalName && l.materialOriginalName.toLowerCase().indexOf(q) >= 0) hits.push({ t: l.materialOriginalName, s: "Handout · " + m.moduleName, href: learnUrl(c, l.id) + "&material=1", i: "fa-file-pdf" });
                 });
             });
         });
@@ -659,7 +1186,8 @@
         state.certificates.forEach(function (c) {
             if ((c.courseName + " " + c.certificateNumber).toLowerCase().indexOf(q) >= 0) hits.push({ t: c.certificateNumber, s: "Certificate · " + c.courseName, href: "#certificates", view: "certificates", i: "fa-award" });
         });
-        if ("my exams".indexOf(q) >= 0) hits.push({ t: "My Exams", s: "Exam applications, schedules and results", href: "#exams", view: "exams", i: "fa-file-signature" });
+        if (!ebookOnly() && ("certificate".indexOf(q) >= 0 || "course completion certificate".indexOf(q) >= 0)) hits.push({ t: "Certificate", s: "Apply for, view and download your course completion certificate", href: "#certificates", view: "certificates", i: "fa-award" });
+        if (!ebookOnly() && ("student general".indexOf(q) >= 0 || "student journal".indexOf(q) >= 0 || "trading journal".indexOf(q) >= 0)) hits.push({ t: "Student Journal", s: "Daily trading journal", href: "#journal", view: "journal", i: "fa-book-open" });
         box.innerHTML = hits.slice(0, 12).map(function (h) { return '<a href="' + h.href + '"' + (h.view ? ' data-view="' + h.view + '"' : "") + '><i class="fas ' + h.i + ' me-2 text-muted"></i>' + esc(h.t) + '<br><small>' + esc(h.s) + '</small></a>'; }).join("") || '<a href="#" class="text-muted">No matches</a>';
         box.style.display = "block";
         bindViewLinks(box);
@@ -671,14 +1199,44 @@
         if (!LSI_Auth.isAuthenticated()) return;
         doubtModal = new bootstrap.Modal(el("doubtThreadModal"));
         readerModal = new bootstrap.Modal(el("ebookReaderModal"));
+        el("ebookZoomOut").addEventListener("click", function () { zoomReader(-1); });
+        el("ebookZoomIn").addEventListener("click", function () { zoomReader(1); });
+        el("ebookPortrait").addEventListener("click", function () { orientReader(false); });
+        el("ebookLandscape").addEventListener("click", function () { orientReader(true); });
+        var readerResize;
+        window.addEventListener("resize", function () {
+            if (!reader.pdf) return;
+            clearTimeout(readerResize);
+            readerResize = setTimeout(function () {
+                if (!reader.chosen) reader.landscape = readerIsWide();
+                layoutReader(currentReaderPage());
+            }, 250);
+        });
         el("ebookReaderModal").addEventListener("hidden.bs.modal", function () {
+            closeReader();
             el("ebookReaderFrame").src = "about:blank";
             if (readerBlobUrl) { URL.revokeObjectURL(readerBlobUrl); readerBlobUrl = null; }
         });
         el("newDoubtForm").addEventListener("submit", submitDoubt);
         el("doubtReplyForm").addEventListener("submit", submitReply);
-        applyModal = new bootstrap.Modal(el("examApplyModal"));
-        el("examApplyForm").addEventListener("submit", submitApply);
+        certApplyModal = new bootstrap.Modal(el("certApplyModal"));
+        el("certApplyForm").addEventListener("submit", submitCertApply);
+        el("certApplyName").addEventListener("input", updateCertNameNote);
+        buyModal = new bootstrap.Modal(el("ebookBuyModal"));
+        el("ebookBuyForm").addEventListener("submit", submitBuy);
+        el("ebookBuyRetry").addEventListener("click", function () { el("ebookBuyError").classList.add("d-none"); buyStep("Details"); checkBuyMode(); });
+        el("ebookBuyRead").addEventListener("click", function () {
+            var id = shop.bought;
+            el("ebookBuyModal").addEventListener("hidden.bs.modal", function () { openEbook(id); }, { once: true });
+            buyModal.hide();
+        });
+
+        el("journalForm").addEventListener("submit", submitJournal);
+        el("journalClearBtn").addEventListener("click", resetJournalForm);
+        ["journalEntry", "journalQty", "journalExit"].forEach(function (id) { el(id).addEventListener("input", updateJournalPreview); });
+        el("journalType").addEventListener("change", updateJournalPreview);
+        el("journalResult").addEventListener("change", function () { state.journal.resultTouched = true; });
+        el("journalSearch").addEventListener("input", renderJournal);
 
         bindViewLinks(el("lmsSidebar"));
         bindViewLinks(el("view-dashboard"));
@@ -694,6 +1252,7 @@
             var err = el("cpError"); err.classList.add("d-none");
             if (el("cpNew").value !== el("cpConfirm").value) { err.textContent = "The new passwords do not match."; err.classList.remove("d-none"); return; }
             LSI_Auth.changePassword(el("cpCurrent").value, el("cpNew").value).then(function (r) {
+                if (sessionEnded(r, err)) return;
                 if (!r.success) { err.textContent = r.errors ? Object.values(r.errors).join(" ") : r.message; err.classList.remove("d-none"); return; }
                 toast(r.message || "Password changed."); setTimeout(function () { LSI_Auth.logout(); }, 1200);
             });
@@ -703,7 +1262,7 @@
             e.preventDefault();
             var err = el("cuError"); err.classList.add("d-none");
             var fail = function (m) { err.textContent = m; err.classList.remove("d-none"); };
-            var mine = String((state.overview && state.overview.studentId) || "").toLowerCase();
+            var mine = String((state.overview && (state.overview.loginUserId || state.overview.studentId)) || "").toLowerCase();
             var cur = el("cuCurrent").value.trim(), next = el("cuNew").value.trim(), again = el("cuConfirm").value.trim();
             if (mine && cur.toLowerCase() !== mine) return fail("The current User ID does not match your account.");
             if (next !== again) return fail("The new User IDs do not match.");
@@ -712,6 +1271,7 @@
             api("/student/change-user-id", { method: "POST", body: { currentUserId: cur, newUserId: next, confirmUserId: again, currentPassword: el("cuPassword").value } }).then(function (r) {
                 btn.disabled = false;
                 el("cuPassword").value = "";
+                if (sessionEnded(r, err)) return;
                 if (!r.success) { fail(r.errors ? Object.values(r.errors).join(" ") : (r.message || "Could not change your User ID. Please try again.")); return; }
                 el("changeUserIdForm").reset();
                 toast(r.message || "User ID updated.");

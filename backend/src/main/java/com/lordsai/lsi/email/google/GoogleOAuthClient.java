@@ -183,8 +183,7 @@ public class GoogleOAuthClient {
 
     private void requireConfigured() {
         if (!properties.isConfigured()) {
-            throw new GoogleAuthException("Google sign-in is not configured on this server. Set GOOGLE_CLIENT_ID, "
-                    + "GOOGLE_CLIENT_SECRET and GOOGLE_REDIRECT_URI, then restart the backend.", false);
+            throw new GoogleAuthException(properties.notConfiguredMessage(), false);
         }
     }
 

@@ -3,6 +3,7 @@ package com.lordsai.lsi.automation.repository;
 import com.lordsai.lsi.automation.entity.AcadCommunicationLog;
 import com.lordsai.lsi.entity.enums.CommunicationChannel;
 import com.lordsai.lsi.entity.enums.CommunicationStatus;
+import com.lordsai.lsi.entity.enums.CommunicationType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,6 +26,10 @@ public interface AcadCommunicationLogRepository extends JpaRepository<AcadCommun
     long countByChannelAndStatus(CommunicationChannel channel, CommunicationStatus status);
 
     List<AcadCommunicationLog> findByStudentIdOrderByCreatedAtDesc(Long acadStudentId);
+
+    /** [student id, latest createdAt] for every student who has a message of this type. */
+    @Query("select c.student.id, max(c.createdAt) from AcadCommunicationLog c where c.messageType = :type group by c.student.id")
+    List<Object[]> lastByType(@Param("type") CommunicationType type);
 
     @Query("""
             select c from AcadCommunicationLog c

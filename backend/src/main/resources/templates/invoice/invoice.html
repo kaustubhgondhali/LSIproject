@@ -53,6 +53,12 @@
         .status { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 8.5pt; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
         .status.paid { background: #dcfce7; color: #15803d; }
         .status.other { background: #fee2e2; color: #b91c1c; }
+        .sign { width: 100%; margin-top: 14px; border-collapse: collapse; }
+        .sign td { padding: 0; vertical-align: bottom; }
+        .sign .who { width: 200px; text-align: center; font-size: 9pt; color: #0f172a; }
+        .sign img { display: block; width: 150px; height: auto; margin: 0 auto 2px; }
+        .sign .line { border-top: 1px solid #334155; padding-top: 4px; }
+        .sign small { font-size: 8pt; color: #475569; }
         .notes { margin-top: 22px; border-top: 1px solid #e2e8f0; padding-top: 10px; font-size: 8.5pt; color: #475569; line-height: 1.6; }
         .notes h5 { margin: 0 0 4px; font-size: 9pt; color: #0A1128; text-transform: uppercase; letter-spacing: 1px; }
         .footer { margin-top: 18px; text-align: center; font-size: 8.5pt; color: #64748b; line-height: 1.6; }
@@ -135,7 +141,7 @@
         <td style="width:55%; padding-right:12px;">
             <div class="access">
                 <strong>Access condition.</strong> Your purchase is available only inside the official Lord Sai Student Portal after
-                login with your Student ID. Direct access to protected course or ebook files is not permitted.
+                login with your User ID. Direct access to protected course or ebook files is not permitted.
             </div>
         </td>
         <td style="width:45%;">
@@ -149,9 +155,17 @@
     </tr>
 </table>
 
+<table class="sign"><tr>
+    <td></td>
+    <td class="who">
+        <img th:if="${signatureDataUri != null and signatureDataUri != ''}" th:src="${signatureDataUri}" alt="Signature"/>
+        <div class="line"><strong th:text="${signatoryName}">Vaibhav S. Pawar</strong><br/><small th:text="${signatoryRole} + ' · Authorised Signatory'">Proprietor · Authorised Signatory</small></div>
+    </td>
+</tr></table>
+
 <div class="notes">
     <h5>Notes &amp; Terms</h5>
-    <div th:text="${notes}">This is a computer-generated invoice for a digital product and does not require a signature.</div>
+    <div th:text="${notes}">This is a computer-generated invoice for a digital product.</div>
     <div>Digital products are delivered to the Student Portal account of the email address above. Refunds are governed by the academy's policy communicated at purchase.</div>
     <div>For any query about this invoice, write to <span th:text="${supportEmail}">info@lordsaiinvestment.com</span> quoting the invoice number.</div>
 </div>

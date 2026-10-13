@@ -45,6 +45,8 @@ public class TestUsers {
         StudentProfile profile = new StudentProfile();
         profile.setUser(user);
         profile.setStudentId("LSI-TEST-" + user.getId());
+        // Like a student from before the Student ID / User ID split: the Student ID text is their User ID (V34).
+        profile.setLoginId("LSI-TEST-" + user.getId());
         profile.setRegistrationDate(LocalDate.now());
         studentProfileRepository.saveAndFlush(profile);
         return user;

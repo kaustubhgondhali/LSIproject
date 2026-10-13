@@ -140,7 +140,7 @@ public final class EmailSettingsDtos {
     public record DnsCheckResult(
             String recordType,
             String queryHost,
-            /** PASS, FAIL, NOT_CONFIGURED, CHECK_FAILED */
+            /** PASS, FAIL, NOT_CONFIGURED, CHECK_FAILED; DKIM also NOT_CHECKED or PROVIDER_MANAGED */
             String status,
             String message,
             List<String> recordsFound

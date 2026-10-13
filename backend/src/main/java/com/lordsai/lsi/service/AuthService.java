@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 @Service
 public class AuthService {
 
-    private static final String INVALID_CREDENTIALS = "Invalid email/student ID or password.";
+    private static final String INVALID_CREDENTIALS = "Invalid email/User ID or password.";
     private static final String ACCOUNT_DISABLED = "This account has been disabled. Please contact the academy.";
     private static final String ACCOUNT_PENDING = "Your account is not set up yet. Please use the setup link from your email, or request a password reset.";
     private static final String LOCKED = "Too many failed attempts. Please try again after 15 minutes.";
@@ -164,10 +164,12 @@ public class AuthService {
             }
             if (check.device() != null) {
                 boundDeviceId = check.device().getDeviceId();
-                boundDeviceToken = deviceToken;
+                boundDeviceToken = check.issuedDeviceToken() != null ? check.issuedDeviceToken() : deviceToken;
             }
         }
 
+        // One login per account: opening this session ends any earlier one (other device or browser).
+        boolean replacesOtherLogin = sessionService.hasActiveSession(user.getId());
         UserSession session = sessionService.open(user, jwtService.accessTokenTtl(), deviceInfo, ipAddress);
         if (boundDeviceId != null) {
             session.setDeviceId(boundDeviceId);
@@ -176,7 +178,8 @@ public class AuthService {
         loginAttemptService.recordSuccess(cleanId);
         user.setLastLoginAt(Instant.now());
         userRepository.save(user);
-        auditService.record(user, "LOGIN_SUCCESS", "User", user.getId(), "Logged in", ipAddress);
+        auditService.record(user, "LOGIN_SUCCESS", "User", user.getId(),
+                replacesOtherLogin ? "Logged in — the previous login on another device/browser was signed out" : "Logged in", ipAddress);
 
         String token = jwtService.issueAccessToken(user, session.getTokenId(), session.getExpiresAt(), boundDeviceId);
         return new LoginResponse(token, "Bearer", session.getExpiresAt(), summarize(user), redirectFor(user.getRole()), boundDeviceId, boundDeviceToken);
@@ -226,13 +229,13 @@ public class AuthService {
     }
 
     /**
-     * "I never received my enrollment email." Re-sends the Student ID and a fresh setup link.
+     * "I never received my enrollment email." Re-sends the User ID (plus Student ID reference) and a fresh setup link.
      * Like {@link #forgotPassword}, it answers the same way whether or not the account exists, so
      * it cannot be used to discover which emails have accounts.
      */
     @Transactional
     public String resendSetupEmail(String email, String ipAddress) {
-        final String[] message = {"If that email has an enrollment, we have re-sent the Student ID and password setup link."};
+        final String[] message = {"If that email has an enrollment, we have re-sent your User ID and password setup link."};
         userRepository.findByEmailIgnoreCase(normalizeEmail(email))
                 .filter(u -> u.getRole() == Role.STUDENT)
                 .filter(u -> u.getAccountStatus() != AccountStatus.DISABLED)
@@ -338,10 +341,11 @@ public class AuthService {
     }
 
     /**
-     * Lets a student change the User ID (Student ID) they sign in with. Only the
-     * student_profiles.student_id value changes: the users row, enrollments, payments,
-     * invoices and progress all key on the numeric user id, and so does the JWT subject,
-     * so the current session stays valid. Returns the stored new ID.
+     * Lets a student change the User ID they sign in with. The User ID is separate from the Student ID:
+     * only student_profiles.login_id changes — the academy-issued Student ID (certificates, invoices,
+     * admin panel) never does and never signs in by itself. A student whose User ID started out as
+     * their Student ID may pick that text again. The JWT
+     * subject is the numeric user id, so the current session stays valid. Returns the new User ID.
      */
     @Transactional
     public String changeStudentUserId(AuthUser current, String currentUserId, String newUserId, String confirmUserId,
@@ -354,7 +358,7 @@ public class AuthService {
         StudentProfile profile = studentProfileRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Student profile not found."));
 
-        String oldId = profile.getStudentId();
+        String oldId = profile.userId();
         String requested = newUserId == null ? "" : newUserId.trim();
         if (!oldId.equalsIgnoreCase(currentUserId == null ? "" : currentUserId.trim())) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "The current User ID does not match your account.");
@@ -365,20 +369,22 @@ public class AuthService {
         if (requested.equalsIgnoreCase(oldId)) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "The new User ID is the same as your current one.");
         }
-        if (ACADEMY_ISSUED_ID.matcher(requested).matches()) {
+        boolean backToStudentId = requested.equalsIgnoreCase(profile.getStudentId());
+        if (!backToStudentId && ACADEMY_ISSUED_ID.matcher(requested).matches()) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "IDs in the format LSI-YYYY-NNNNN are issued by the academy and cannot be chosen.");
         }
         if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Current password is incorrect.");
         }
-        // Both a Student ID and a short username (email local part) are accepted at login,
-        // so the new ID must be unique across both, ignoring the student's own account.
-        if (studentProfileRepository.findByStudentIdIgnoreCase(requested).isPresent()
+        // Another student's User ID, another student's Student ID and another account's short username
+        // (email local part) are all sign-in identifiers, so the new User ID must clash with none of them.
+        if (studentProfileRepository.findByLoginIdIgnoreCase(requested).filter(p -> !p.getId().equals(profile.getId())).isPresent()
+                || studentProfileRepository.findByStudentIdIgnoreCase(requested).filter(p -> !p.getId().equals(profile.getId())).isPresent()
                 || userRepository.findByUsername(requested.toLowerCase()).stream().anyMatch(u -> !u.getId().equals(user.getId()))) {
             throw new ApiException(HttpStatus.CONFLICT, USER_ID_TAKEN);
         }
 
-        profile.setStudentId(requested);
+        profile.setLoginId(backToStudentId ? profile.getStudentId() : requested);
         try {
             studentProfileRepository.saveAndFlush(profile);
         } catch (DataIntegrityViolationException e) {
@@ -386,8 +392,9 @@ public class AuthService {
             throw new ApiException(HttpStatus.CONFLICT, USER_ID_TAKEN);
         }
         auditService.record(user, "USER_ID_CHANGED", "StudentProfile", profile.getId(),
-                "Student ID changed from " + oldId + " to " + requested + " by the student", ipAddress);
-        return requested;
+                "User ID changed from " + oldId + " to " + profile.userId() + " by the student (Student ID "
+                        + profile.getStudentId() + " unchanged)", ipAddress);
+        return profile.userId();
     }
 
     // ----------------------------------------------------------------------------------------
@@ -422,7 +429,10 @@ public class AuthService {
         if (identifier.contains("@")) {
             return userRepository.findByEmailIgnoreCase(normalizeEmail(identifier));
         }
-        Optional<User> student = studentProfileRepository.findByStudentIdIgnoreCase(identifier).map(StudentProfile::getUser);
+        // Students sign in with their User ID (student_profiles.login_id). The Student ID is only the
+        // record reference on invoices, certificates and the admin panel — it does not sign in by
+        // itself. (Students from before the split kept their Student ID text as their User ID.)
+        Optional<User> student = studentProfileRepository.findByLoginIdIgnoreCase(identifier).map(StudentProfile::getUser);
         if (student.isPresent()) {
             return student;
         }
@@ -433,11 +443,12 @@ public class AuthService {
     }
 
     private UserSummary summarize(User user) {
-        String studentId = user.getRole() == Role.STUDENT
-                ? studentProfileRepository.findByUserId(user.getId()).map(StudentProfile::getStudentId).orElse(null)
+        StudentProfile profile = user.getRole() == Role.STUDENT
+                ? studentProfileRepository.findByUserId(user.getId()).orElse(null)
                 : null;
         return new UserSummary(user.getId(), user.getFullName(), user.getEmail(), user.getMobile(),
-                user.getRole(), studentId, user.getLastLoginAt());
+                user.getRole(), profile == null ? null : profile.getStudentId(), user.getLastLoginAt(),
+                profile == null ? null : profile.userId());
     }
 
     public static String redirectFor(Role role) {

@@ -25,7 +25,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Template Stylesheet -->
-    <link href="css/style.css?v=20260924l" rel="stylesheet">
+    <link href="css/style.css?v=20261012-nav" rel="stylesheet">
 </head>
 
 <body>
@@ -58,7 +58,6 @@
                         <span class="mode-academy-only"><i class="fas fa-th-large me-1"></i> Invest & Wealth Manager</span>
                     </a>
                     <a href="https://wa.me/919920254354" target="_blank" class="btn btn-sm btn-outline-light rounded-pill py-1 px-3 me-3" data-i18n="topbar.whatsapp"><i class="fab fa-whatsapp text-success me-1"></i> WhatsApp Support</a>
-                    <a href="student-login.html" class="text-light small mode-academy-only" data-i18n="topbar.studentLogin"><i class="fas fa-user-lock text-info me-1"></i> Student Login</a>
                 </div>
             </div>
         </div>
@@ -134,9 +133,9 @@
                     <a href="blog.html" class="nav-item nav-link" data-i18n="nav.blog">Blog</a>
                     <a href="store.html" class="nav-item nav-link mode-academy-only" data-i18n="nav.store">Store</a>
                     <a href="contact.html" class="nav-item nav-link" data-i18n="nav.contact">Contact</a>
-                    <a href="student-login.html" class="nav-item nav-link d-lg-none mode-academy-only" data-i18n="nav.studentLogin">Student Login</a>
                 </div>
-                <div class="ms-lg-3 my-2 my-lg-0">
+                <div class="ms-lg-3 my-2 my-lg-0 d-flex flex-wrap align-items-center gap-2">
+                    <a href="student-login.html" class="btn btn-student-login mode-academy-only" data-i18n="nav.studentLogin" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
                     <button type="button" class="btn btn-enquire" data-bs-toggle="modal" data-bs-target="#demoModal" data-i18n="nav.enquireNow">
                         <i class="fas fa-bolt me-1"></i> Enquire Now
                     </button>
@@ -699,6 +698,7 @@
                         <a href="investments.html"><i class="fas fa-angle-right me-1"></i> Investments</a>
                         <a href="insurance.html"><i class="fas fa-angle-right me-1"></i> Insurance</a>
                         <a href="financial-planning.html"><i class="fas fa-angle-right me-1"></i> Financial Planning</a>
+                        <a href="student-login.html" class="mode-academy-only" data-i18n="nav.studentLogin"><i class="fas fa-angle-right me-1"></i> Student Login</a>
                         <a href="contact.html"><i class="fas fa-angle-right me-1"></i> Contact</a>
                     </div>
                 </div>
@@ -754,8 +754,8 @@
                     has been independently assessed and found to be in compliance with the requirement of the standard:
                 </p>
                 <p class="lsi-accred-standard">ISO 9001:2015</p>
-                <p class="lsi-accred-scope-label">For the following scope of activities:</p>
-                <p class="lsi-accred-scope">
+                <p class="lsi-accred-scope-label mode-academy-only">For the following scope of activities:</p>
+                <p class="lsi-accred-scope mode-academy-only">
                     Share Market Basic to Advance Course
                     <span class="lsi-accred-scope-note">(Only Educational Purpose)</span>
                 </p>
@@ -768,7 +768,6 @@
     <div class="container-fluid copyright py-3">
         <div class="container text-center">
             <span data-i18n="footer.copyrightAcademy">&copy; Lord Sai Share Market Classes. All Rights Reserved.</span>
-            <a href="student-login.html" class="btn btn-sm btn-outline-info rounded-pill px-3 ms-3 lsi-student-link mode-academy-only" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
         </div>
     </div>
     <!-- Copyright End -->
@@ -842,11 +841,13 @@
 
     <!-- Template Javascript -->
     <script src="js/api-config.js"></script>
-    <script src="js/auth.js"></script>
+    <script src="js/auth.js?v=20261001-single"></script>
     <script src="js/translations.js?v=20260923-caps"></script>
-    <script src="js/lang.js?v=20260924-i18n2"></script>
+    <script src="js/lang.js?v=20260930-enquiry"></script>
     <script src="js/mode.js"></script>
-    <script src="js/main.js"></script>
+    <!-- Enquiry forms: emailed through the LSI backend + WhatsApp pre-filled (js/enquiry.js) -->
+    <script src="js/enquiry.js?v=20260930-enquiry"></script>
+    <script src="js/main.js?v=20260930-enquiry"></script>
     <script src="js/mf-plant-video.js"></script>
 </body>
 

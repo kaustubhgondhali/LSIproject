@@ -1,7 +1,9 @@
 package com.lordsai.lsi.entity;
 
+import com.lordsai.lsi.entity.enums.TradeResult;
 import com.lordsai.lsi.entity.enums.TradeReviewStatus;
 import com.lordsai.lsi.entity.enums.TradeType;
+import com.lordsai.lsi.entity.enums.TradingType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -56,6 +58,34 @@ public class TradeJournal extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String notes;
+
+    @Column(length = 30)
+    private String segment;
+
+    @Column(name = "exit_price", precision = 12, scale = 2)
+    private BigDecimal exitPrice;
+
+    private Integer quantity;
+
+    @Column(precision = 12, scale = 2)
+    private BigDecimal charges;
+
+    @Column(length = 60)
+    private String strategy;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "trading_type", length = 20)
+    private TradingType tradingType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "trade_result", length = 20)
+    private TradeResult result;
+
+    @Column(name = "trade_reason", columnDefinition = "TEXT")
+    private String tradeReason;
+
+    @Column(name = "outcome_reason", columnDefinition = "TEXT")
+    private String outcomeReason;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "review_status", nullable = false, length = 20)

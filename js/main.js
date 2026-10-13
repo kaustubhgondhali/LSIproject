@@ -252,30 +252,28 @@
     }
 
     // ==========================================
-    // 4. FREE DEMO REGISTRATION & LEAD MODAL
+    // 4. ENQUIRY POP-UP (and other enquiry forms)
     // ==========================================
+    // Emailed to the owner through the LSI backend, then WhatsApp opens with the same enquiry for
+    // the visitor to send (js/enquiry.js). The pop-up's fields have no ids, so they are read by
+    // type: name (text), phone (tel), email, programme (the select shown in this mode), message.
     $(document).on('submit', '#demoRegistrationForm, #webinarBannerForm, #contactInquiryForm', function(e) {
         e.preventDefault();
         var form = $(this);
-        var submitBtn = form.find('button[type="submit"]');
-        var originalText = submitBtn.html();
+        if (!window.LSI_Enquiry) { window.open('https://wa.me/919920254354', '_blank'); return; }
+        var first = function (sel) { return form.find(sel).first()[0] || null; };
+        window.LSI_Enquiry.submit(this, {
+            name: first('input[type="text"]:not([name="website"])'),
+            phone: first('input[type="tel"]'),
+            email: first('input[type="email"]'),
+            interest: form.find('select:visible').first()[0] || first('select'),
+            message: first('textarea')
+        });
+    });
 
-        submitBtn.html('<i class="fas fa-spinner fa-spin me-2"></i> Registering...').prop('disabled', true);
-
-        setTimeout(function() {
-            submitBtn.html('<i class="fas fa-check-circle me-2"></i> Request Noted').removeClass('btn-primary').addClass('btn-success');
-
-            // NOTE: this form is frontend-only (no backend persistence or notification exists yet), so the
-            // message must not claim a seat was reserved. It directs the visitor to the real contact channel.
-            var successMsg = $('<div class="alert alert-success mt-3 shadow-sm"><i class="fas fa-check-circle me-2"></i> <strong>Thank you!</strong> To confirm your free strategy session seat, please message us on <a href="https://wa.me/919920254354?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20book%20a%20free%20strategy%20session" target="_blank" rel="noopener" class="alert-link">WhatsApp (+91 99202 54354)</a> or call us — our mentor team will share the joining link.</div>');
-            form.append(successMsg);
-
-            setTimeout(function() {
-                if ($('#demoModal').length > 0) {
-                    $('#demoModal').modal('hide');
-                }
-            }, 3000);
-        }, 1200);
+    // Reopening the pop-up shows a fresh form, not the last result.
+    $(document).on('hidden.bs.modal', '#demoModal', function () {
+        if (window.LSI_Enquiry) window.LSI_Enquiry.clear($(this).find('form')[0]);
     });
 
     // ==========================================

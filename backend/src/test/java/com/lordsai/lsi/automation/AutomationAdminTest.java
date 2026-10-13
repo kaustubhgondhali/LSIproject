@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.lordsai.lsi.automation.service.AmountInWords;
 import com.lordsai.lsi.automation.service.AcadSequenceService;
 import com.lordsai.lsi.support.ApiClient;
+import com.lordsai.lsi.support.TestAadhaar;
 import com.lordsai.lsi.support.TestUsers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,6 +49,9 @@ class AutomationAdminTest {
         Map<String, Object> m = new HashMap<>();
         m.put("fullName", name); m.put("batchId", batch1); m.put("courseId", course1);
         m.put("admissionDate", "2026-09-01"); m.put("mobile", mobile);
+        // Compulsory for a new admission.
+        m.put("email", name.toLowerCase().replaceAll("[^a-z]", "") + "@example.com"); m.put("address", "Uran, Navi Mumbai");
+        m.put("aadhaarNo", TestAadhaar.next());
         return m;
     }
 

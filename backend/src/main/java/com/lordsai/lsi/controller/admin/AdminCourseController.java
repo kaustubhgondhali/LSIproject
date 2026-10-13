@@ -10,6 +10,7 @@ import com.lordsai.lsi.dto.course.CourseDtos.LessonRequest;
 import com.lordsai.lsi.dto.course.CourseDtos.LessonResponse;
 import com.lordsai.lsi.dto.course.CourseDtos.ModuleRequest;
 import com.lordsai.lsi.dto.course.CourseDtos.ModuleResponse;
+import com.lordsai.lsi.dto.course.CourseDtos.PurchaseToggleRequest;
 import com.lordsai.lsi.dto.course.CourseDtos.ReorderRequest;
 import com.lordsai.lsi.dto.course.CourseDtos.StatusRequest;
 import com.lordsai.lsi.entity.User;
@@ -84,6 +85,14 @@ public class AdminCourseController {
                                                 HttpServletRequest req) {
         return ApiResponse.ok("Price updated.",
                 courseService.changePrice(id, body.price(), body.discountedPrice(), actor(), RequestUtil.clientIp(req)));
+    }
+
+    /** Open / close online purchase of a course (the "Course Purchase" switch). Enforced by the payment API. */
+    @PatchMapping("/courses/{id}/purchase")
+    public ApiResponse<AdminCourse> setPurchase(@PathVariable Long id, @Valid @RequestBody PurchaseToggleRequest body,
+                                                HttpServletRequest req) {
+        return ApiResponse.ok(body.enabled() ? "Online purchase opened." : "Online purchase closed (Admissions Closed).",
+                courseService.setPurchaseEnabled(id, body.enabled(), actor(), RequestUtil.clientIp(req)));
     }
 
     @PatchMapping("/courses/{id}/status")

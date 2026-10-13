@@ -45,6 +45,7 @@ import com.lordsai.lsi.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -224,7 +225,7 @@ public class AdminService {
                 "Created student " + c.profile().getStudentId() + " (" + c.user().getEmail() + ")", ip);
 
         if (req.wantsCredentials()) {
-            EmailDelivery delivery = issueCredentialsSetup(c.user(), c.profile().getStudentId(), actor, ip);
+            EmailDelivery delivery = issueCredentialsSetup(c.user(), c.profile().userId(), actor, ip);
             return new StudentCreated(toStudent(c.user()), delivery.delivered()
                     ? "Student created. Login credentials have been emailed to " + c.user().getEmail() + "."
                     : "Student created, but the credentials email could not be sent (" + delivery.reason()
@@ -233,7 +234,7 @@ public class AdminService {
         }
 
         String link = accountTokenService.issueLink(c.user(), TokenPurpose.ACCOUNT_SETUP);
-        EmailDelivery delivery = emailService.sendWelcomeEmail(c.user(), link);
+        EmailDelivery delivery = emailService.sendWelcomeEmail(c.user(), c.profile().userId(), link);
         return new StudentCreated(toStudent(c.user()), delivery.delivered()
                 ? "Student created. A password setup email has been sent."
                 : "Student created, but the setup email could not be sent (" + delivery.reason()
@@ -252,8 +253,9 @@ public class AdminService {
         if (student.getAccountStatus() == AccountStatus.DISABLED) {
             throw new ApiException(HttpStatus.CONFLICT, "Activate the account before sending credentials.");
         }
-        String studentId = userService.requireStudentProfile(id).getStudentId();
-        EmailDelivery delivery = issueCredentialsSetup(student, studentId, actor, ip);
+        // Login details carry the User ID (what the student signs in with), never the Student ID.
+        String userId = userService.requireStudentProfile(id).userId();
+        EmailDelivery delivery = issueCredentialsSetup(student, userId, actor, ip);
         return delivery.delivered()
                 ? "A secure password setup link has been emailed to " + student.getEmail() + "."
                 : "A password setup link was generated, but the email could not be sent (" + delivery.reason()
@@ -324,7 +326,8 @@ public class AdminService {
                 ? TokenPurpose.ACCOUNT_SETUP : TokenPurpose.PASSWORD_RESET;
         String link = accountTokenService.issueLink(user, purpose);
         if (purpose == TokenPurpose.ACCOUNT_SETUP) {
-            emailService.sendWelcomeEmail(user, link);
+            emailService.sendWelcomeEmail(user, user.getRole() == Role.STUDENT
+                    ? studentProfileRepository.findByUserId(id).map(StudentProfile::userId).orElse(null) : null, link);
         } else {
             emailService.sendPasswordResetEmail(user, link);
         }
@@ -333,7 +336,7 @@ public class AdminService {
     }
 
     /**
-     * Re-sends the enrollment email (Student ID + a fresh setup link) for a student whose email
+     * Re-sends the enrollment email (User ID, Student ID reference + a fresh setup link) for a student whose email
      * never arrived. Creates no student and no enrollment; the caller is told whether it was
      * actually delivered so the admin is not left assuming it was.
      */
@@ -358,10 +361,26 @@ public class AdminService {
             throw new ApiException(HttpStatus.CONFLICT,
                     "This student has enrollment or payment history and cannot be deleted. Deactivate the account instead.");
         }
+        boolean hasOtherRecords = !ebookEntitlementRepository.findByStudentIdOrderByGrantedAtDesc(id).isEmpty()
+                || doubtRepository.countByStudentId(id) > 0;
+        if (hasOtherRecords) {
+            throw new ApiException(HttpStatus.CONFLICT, "This student has other records (such as ebooks, doubts, journal "
+                    + "entries, certificates or activity history), so the account cannot be deleted. Deactivate it instead.");
+        }
         sessionService.revokeAll(id, SessionRevokeReason.ACCOUNT_DISABLED);
+        // A student added by mistake still has an unused password link (and maybe old sessions):
+        // they belong only to this account and go with it.
+        accountTokenService.deleteAllFor(id);
+        sessionService.deleteHistory(id);
         studentProfileRepository.findByUserId(id).ifPresent(studentProfileRepository::delete);
         auditService.record(actor, "STUDENT_DELETED", "User", id, "Deleted " + user.getEmail(), ip);
-        userRepository.delete(user);
+        try {
+            userRepository.delete(user);
+            userRepository.flush();
+        } catch (org.springframework.dao.DataAccessException e) {
+            throw new ApiException(HttpStatus.CONFLICT, "This student has other records (such as ebooks, doubts, journal "
+                    + "entries, certificates or activity history), so the account cannot be deleted. Deactivate it instead.");
+        }
     }
 
     @Transactional(readOnly = true)
@@ -396,7 +415,8 @@ public class AdminService {
         return new StudentResponse(u.getId(), p == null ? null : p.getStudentId(), u.getFullName(), u.getEmail(),
                 u.getMobile(), p == null ? null : p.getBatch(), p == null ? null : p.getLocation(),
                 u.getAccountStatus(), p == null ? null : p.getRegistrationDate(), u.getLastLoginAt(), u.getCreatedAt(),
-                enrollmentRepository.findByStudentIdOrderByEnrolledAtDesc(u.getId()).size(), live);
+                enrollmentRepository.findByStudentIdOrderByEnrolledAtDesc(u.getId()).size(), live,
+                p == null ? null : p.userId(), p != null && p.isAcademyEbookOnly());
     }
 
     private SessionInfo toSession(UserSession s) {

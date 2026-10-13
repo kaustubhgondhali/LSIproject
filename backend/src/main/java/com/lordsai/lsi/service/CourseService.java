@@ -29,6 +29,9 @@ import java.util.List;
 @Service
 public class CourseService {
 
+    public static final String PURCHASE_CLOSED =
+            "Online purchase of this course is closed right now. Please contact the academy for the next batch.";
+
     private final CourseRepository courseRepository;
     private final CourseModuleRepository moduleRepository;
     private final LessonRepository lessonRepository;
@@ -76,6 +79,9 @@ public class CourseService {
         Course course = requireCourse(id);
         if (course.getStatus() != CourseStatus.ACTIVE) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "This course is not open for enrollment right now.");
+        }
+        if (!course.isPurchaseEnabled()) {
+            throw new ApiException(HttpStatus.CONFLICT, PURCHASE_CLOSED);
         }
         return course;
     }
@@ -167,6 +173,23 @@ public class CourseService {
         return toAdmin(course);
     }
 
+    /**
+     * Opens or closes online purchase (the "Course Purchase" switch). Stored on the server, so every
+     * visitor sees the same state and the payment API refuses a closed course.
+     */
+    @Transactional
+    public AdminCourse setPurchaseEnabled(Long id, boolean enabled, User actor, String ip) {
+        Course course = requireCourse(id);
+        boolean old = course.isPurchaseEnabled();
+        course.setPurchaseEnabled(enabled);
+        courseRepository.save(course);
+        if (old != enabled) {
+            auditService.record(actor, enabled ? "COURSE_PURCHASE_OPENED" : "COURSE_PURCHASE_CLOSED", "Course", id,
+                    "Online purchase of '" + course.getCourseName() + "' " + (enabled ? "opened" : "closed"), ip);
+        }
+        return toAdmin(course);
+    }
+
     @Transactional
     public void reorder(List<Long> orderedIds, User actor, String ip) {
         List<Course> courses = courseRepository.findAllById(orderedIds);
@@ -222,7 +245,8 @@ public class CourseService {
                         .stream().map(Lesson::getLessonTitle).toList())).toList();
         return new PublicCourse(c.getId(), c.getCourseCode(), c.getCourseName(), c.getShortDescription(),
                 c.getDescription(), c.getPrice(), c.getDiscountedPrice(), c.effectivePrice(), c.getDuration(),
-                c.getThumbnailPath(), modules.size(), lessonRepository.countActiveByCourseId(c.getId()), publicModules);
+                c.getThumbnailPath(), modules.size(), lessonRepository.countActiveByCourseId(c.getId()), publicModules,
+                c.isPurchaseEnabled());
     }
 
     private AdminCourse toAdmin(Course c) {
@@ -232,7 +256,7 @@ public class CourseService {
                 moduleRepository.countByCourseId(c.getId()),
                 lessonRepository.countActiveByCourseId(c.getId()),
                 enrollmentRepository.countByCourseIdAndStatus(c.getId(), EnrollmentStatus.ACTIVE),
-                c.getCreatedAt(), c.getUpdatedAt());
+                c.getCreatedAt(), c.getUpdatedAt(), c.isPurchaseEnabled());
     }
 
     public static ModuleResponse toModuleResponse(CourseModule m, List<Lesson> lessons) {

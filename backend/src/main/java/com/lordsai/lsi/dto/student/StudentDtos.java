@@ -36,7 +36,14 @@ public final class StudentDtos {
             long completedLessons,
             int overallProgressPercent,
             long journalEntries,
-            long openDoubts
+            long openDoubts,
+            /** The User ID the student signs in with (separate from the Student ID, which is only a reference). */
+            String loginUserId,
+            /**
+             * An Automation Admin student's free ebook login with no course: the Student Panel shows
+             * only My Ebooks, Profile and Settings.
+             */
+            boolean ebookOnly
     ) {
     }
 

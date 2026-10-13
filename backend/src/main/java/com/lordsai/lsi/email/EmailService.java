@@ -9,15 +9,16 @@ import com.lordsai.lsi.entity.User;
 public interface EmailService {
 
     /**
-     * Sent after a verified purchase, with the student ID and the one-time password setup link.
+     * Sent after a verified purchase, with the User ID (for login), the Student ID (reference only)
+     * and the one-time password setup link.
      * Returns the delivery outcome: this email is the only carrier of the setup link, so a failure
      * has to reach the checkout screen instead of being swallowed.
      */
-    EmailDelivery sendEnrollmentEmail(User student, String studentId, String courseName,
+    EmailDelivery sendEnrollmentEmail(User student, String studentId, String userId, String courseName,
                                       String orderRef, String amountDisplay, String setupLink);
 
-    /** Sent when an admin creates an account by hand. */
-    EmailDelivery sendWelcomeEmail(User user, String setupLink);
+    /** Sent when an admin creates an account by hand. {@code userId} is the student's User ID, null for staff. */
+    EmailDelivery sendWelcomeEmail(User user, String userId, String setupLink);
 
     void sendPasswordResetEmail(User user, String resetLink);
 
@@ -39,13 +40,24 @@ public interface EmailService {
      */
     EmailDelivery sendLoginCredentials(User user, String userId, String temporaryPassword, String loginUrl);
 
+    /**
+     * Automation Admin: the free ebook login of an academy student — the same login details email,
+     * saying that this login opens the ebook (My Ebooks) in the Student Panel.
+     */
+    default EmailDelivery sendAcademyEbookLogin(User user, String userId, String temporaryPassword, String loginUrl) {
+        return sendLoginCredentials(user, userId, temporaryPassword, loginUrl);
+    }
+
     /** Sent after a successful password change or reset. Never includes the old or new password. */
     EmailDelivery sendPasswordChanged(User user);
 
-    /** Automation Admin: emails a fee receipt. The model carries a ReceiptDto under "receipt". */
-    EmailDelivery sendFeeReceipt(String toEmail, java.util.Map<String, Object> model);
+    /** Automation Admin: emails a fee receipt. The model carries a ReceiptDto under "receipt"; the signed PDF is attached. */
+    EmailDelivery sendFeeReceipt(String toEmail, java.util.Map<String, Object> model, EmailAttachment receiptPdf);
 
-    /** Website contact/enquiry form -> the academy inbox, with Reply-To set to the visitor. */
+    /** Subject line of every website enquiry email. */
+    String ENQUIRY_SUBJECT = "New Enquiry - LSI Website";
+
+    /** Website contact/enquiry form -> the academy inbox, with Reply-To set to the visitor when they gave an email. */
     EmailDelivery sendEnquiry(String toEmail, String replyTo, java.util.Map<String, Object> model);
 
     /**

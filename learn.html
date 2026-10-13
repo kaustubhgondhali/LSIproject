@@ -9,14 +9,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
+    <link href="css/style.css?v=20261012-nav" rel="stylesheet">
     <link href="css/lms.css" rel="stylesheet">
 </head>
 <body class="lms-app">
     <div id="capture-protection-overlay" aria-hidden="true"><div class="capture-protection-blackout"></div></div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="js/api-config.js"></script>
-    <script src="js/auth.js"></script>
+    <script src="js/auth.js?v=20261001-single"></script>
     <script>LSI_Auth.requireAuth('student');</script>
     <script src="js/student-protect.js?v=20260919"></script>
 
@@ -39,8 +39,8 @@
     <main class="lms-main lms-learn" style="padding-top: calc(var(--lms-topbar-h) + 20px);">
         <div class="alert alert-danger d-none" id="learnError"></div>
         <div class="alert alert-success d-none d-flex flex-wrap align-items-center justify-content-between gap-2" id="learnCompleteBanner">
-            <span><i class="fas fa-check-circle me-1"></i> <strong>Course Completed ✓</strong> You are eligible to apply for the final exam.</span>
-            <a href="student-dashboard.html#exams" class="lms-btn primary sm"><i class="fas fa-file-signature"></i> Apply for Exam</a>
+            <span><i class="fas fa-check-circle me-1"></i> <strong>Course Completed ✓</strong> You can now apply for your Course Completion Certificate.</span>
+            <a href="student-dashboard.html#certificates" class="lms-btn primary sm"><i class="fas fa-award"></i> Apply for Certificate</a>
         </div>
         <div class="row g-4">
             <div class="col-lg-8">

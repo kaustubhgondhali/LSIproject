@@ -8,6 +8,7 @@ import com.lordsai.lsi.repository.AuditLogRepository;
 import com.lordsai.lsi.repository.WhatsAppConfigRepository;
 import com.lordsai.lsi.security.SecretCrypto;
 import com.lordsai.lsi.support.ApiClient;
+import com.lordsai.lsi.support.TestAadhaar;
 import com.lordsai.lsi.support.TestUsers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,10 +35,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Central WhatsApp configuration: saved once by the Main Admin (token encrypted, never returned),
- * verified with the provider before it is enabled, and used by every WhatsApp send in the
- * system — the Automation Admin's automation included — without any second copy of credentials.
- * Only the provider's network calls are stubbed.
+ * The stored WhatsApp Business (Cloud API) configuration: saved by the Main Admin (token encrypted,
+ * never returned) and verified with the provider before it is enabled. The screens no longer use it —
+ * WhatsApp now opens as WhatsApp's own click-to-chat on the office computer — but the backend keeps
+ * it, switched off, with the same guarantees. Only the provider's network calls are stubbed.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -88,9 +89,10 @@ class WhatsAppConfigTest {
                 .andExpect(jsonPath("$.data.providers[0]").value("META_CLOUD"));
         api.post(admin, "/api/admin/whatsapp/test-connection", null).andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("WHATSAPP_"))));
+        // The Automation Admin's WhatsApp needs none of this: it opens as click-to-chat on the office computer.
         api.get(office, "/api/automation/communications/status")
-                .andExpect(jsonPath("$.data.whatsappConfigured").value(false))
-                .andExpect(jsonPath("$.data.whatsappMessage").value("WhatsApp is not configured. Please ask the Main Admin to configure WhatsApp in Settings."));
+                .andExpect(jsonPath("$.data.whatsappConfigured").value(true))
+                .andExpect(jsonPath("$.data.whatsappMessage").value(org.hamcrest.Matchers.containsString("you press Send")));
     }
 
     // ---- save: verified, encrypted, masked ----------------------------------------------------------
@@ -159,11 +161,9 @@ class WhatsAppConfigTest {
 
         api.patch(admin, "/api/admin/whatsapp/disable", null).andExpect(jsonPath("$.data.configured").value(false)).andExpect(jsonPath("$.data.enabled").value(false));
         assertThat(whatsApp.isConfigured()).isFalse();
-        api.get(office, "/api/automation/communications/status").andExpect(jsonPath("$.data.whatsappConfigured").value(false));
 
         api.patch(admin, "/api/admin/whatsapp/enable", null).andExpect(jsonPath("$.data.configured").value(true));
-        api.get(office, "/api/automation/communications/status").andExpect(jsonPath("$.data.whatsappConfigured").value(true))
-                .andExpect(jsonPath("$.data.whatsappMessage").value(org.hamcrest.Matchers.containsString("managed from Main Admin")));
+        assertThat(whatsApp.isConfigured()).isTrue();
 
         api.delete(admin, "/api/admin/whatsapp").andExpect(jsonPath("$.data.recordExists").value(false));
         assertThat(repository.count()).isZero();
@@ -196,36 +196,33 @@ class WhatsAppConfigTest {
         assertThat(auditLogRepository.findAll().stream().map(a -> a.getAction()).toList()).contains("WHATSAPP_TEST_SENT", "WHATSAPP_TEST_FAILED");
     }
 
-    // ---- the Automation Admin USES the same configuration but cannot see or change it -----------------
+    // ---- the Automation Admin can neither see nor change it, and never sends through the API ----------
 
     @Test
-    void automationAdminUsesTheCentralConfigurationWithoutAccessToTheSecret() throws Exception {
+    void automationAdminNeverSeesTheTokenAndItsWhatsAppIsAClickToChatNotTheApi() throws Exception {
         providerAccepts();
         api.put(admin, "/api/admin/whatsapp", config(TOKEN)).andExpect(status().isOk());
         api.get(office, "/api/admin/whatsapp").andExpect(status().isForbidden());
         api.put(office, "/api/admin/whatsapp", config(TOKEN)).andExpect(status().isForbidden());
         api.post(office, "/api/admin/whatsapp/test-message", Map.of("mobile", "9876543210", "message", "x")).andExpect(status().isForbidden());
 
-        // Automation Admin sends to ITS OWN student through the same central credentials.
+        // Even with an API configuration saved, the Automation Admin's WhatsApp is a prepared chat.
         JsonNode l = api.data(api.get(office, "/api/automation/lookups"));
         long batchId = l.path("batches").get(0).path("id").asLong();
         long courseId = l.path("courses").get(0).path("id").asLong();
         long sid = api.data(api.post(office, "/api/automation/students", Map.of("fullName", "Ravi Patil", "batchId", batchId, "courseId", courseId,
-                "admissionDate", "2026-09-01", "mobile", "9876543210"))).path("id").asLong();
-        doReturn(WhatsAppDelivery.sent("wamid.AUTO", "META_CLOUD")).when(meta).sendText(any(), eq("919876543210"), anyString());
+                "admissionDate", "2026-09-01", "mobile", "9876543210", "email", "ravi@example.com", "address", "Uran",
+                "aadhaarNo", TestAadhaar.next()))).path("id").asLong();
         String body = api.post(office, "/api/automation/communications/send", Map.of("studentIds", List.of(sid), "channels", List.of("WHATSAPP"), "message", "Class at 10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.whatsappQueued").value(1))
-                .andExpect(jsonPath("$.data.message").value("Sent 1 message(s)."))
+                .andExpect(jsonPath("$.data.whatsappChats[0].phone").value("919876543210"))
                 .andReturn().getResponse().getContentAsString();
         assertThat(body).doesNotContain(TOKEN);
-        String history = api.get(office, "/api/automation/communications/history?channel=WHATSAPP").andExpect(jsonPath("$.data.content[0].status").value("SENT"))
-                .andExpect(jsonPath("$.data.content[0].providerMessageId").value("wamid.AUTO"))
+        String history = api.get(office, "/api/automation/communications/history?channel=WHATSAPP").andExpect(jsonPath("$.data.content[0].status").value("READY"))
                 .andReturn().getResponse().getContentAsString();
         assertThat(history).doesNotContain(TOKEN);
-        ArgumentCaptor<WhatsAppSettings> used = ArgumentCaptor.forClass(WhatsAppSettings.class);
-        verify(meta).sendText(used.capture(), eq("919876543210"), anyString());
-        assertThat(used.getValue().source()).isEqualTo("ADMIN");
+        verify(meta, org.mockito.Mockito.never()).sendText(any(), any(), any());
     }
 
     // ---- security ---------------------------------------------------------------------------------------

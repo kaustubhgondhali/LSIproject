@@ -3,6 +3,7 @@ package com.lordsai.lsi.invoice;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lordsai.lsi.entity.Course;
+import com.lordsai.lsi.entity.Invoice;
 import com.lordsai.lsi.entity.User;
 import com.lordsai.lsi.entity.enums.AccountStatus;
 import com.lordsai.lsi.entity.enums.CommunicationType;
@@ -12,7 +13,9 @@ import com.lordsai.lsi.repository.CommunicationLogRepository;
 import com.lordsai.lsi.repository.CourseRepository;
 import com.lordsai.lsi.repository.InvoiceRepository;
 import com.lordsai.lsi.repository.UserRepository;
+import com.lordsai.lsi.service.InvoiceService;
 import com.lordsai.lsi.support.ApiClient;
+import com.lordsai.lsi.support.PdfImages;
 import com.lordsai.lsi.support.TestUsers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +29,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -56,6 +60,7 @@ class InvoiceTest {
     @Autowired CommunicationLogRepository communicationLogRepository;
     @Autowired AuditLogRepository auditLogRepository;
     @Autowired UserRepository userRepository;
+    @Autowired InvoiceService invoiceService;
 
     @MockitoBean PaymentGateway gateway;
 
@@ -116,6 +121,50 @@ class InvoiceTest {
         api.get(buyer, "/api/automation/invoices").andExpect(status().isForbidden());
     }
 
+    /** Invoices carry Vaibhav S. Pawar's signature; PDFs stored before that (V35) are re-rendered exactly once. */
+    @Test
+    void invoicePdfIsSignedAndOlderStoredPdfsAreReRenderedOnce() throws Exception {
+        Invoice invoice = invoiceRepository.findById(invoiceId).orElseThrow();
+        byte[] pdf = invoiceService.pdfBytes(invoice);
+        assertThat(PdfImages.count(pdf)).isEqualTo(2);   // academy logo + signature
+        assertThat(PdfImages.text(pdf)).contains("Vaibhav S. Pawar", "Authorised Signatory")
+                .doesNotContain("does not require a signature");
+        assertThat(invoice.getNotes()).isEqualTo("This is a computer-generated invoice for a digital product.");
+
+        String storedBefore = invoice.getPdfPath();
+        invoice.setPdfGeneratedAt(null);                 // what V35 does to invoices issued before the signature
+        invoiceRepository.saveAndFlush(invoice);
+        assertThat(PdfImages.count(invoiceService.pdfBytes(invoice))).isEqualTo(2);
+        Invoice reRendered = invoiceRepository.findById(invoiceId).orElseThrow();
+        assertThat(reRendered.getPdfGeneratedAt()).isNotNull();
+        assertThat(reRendered.getPdfPath()).isNotEqualTo(storedBefore);
+
+        String storedNow = reRendered.getPdfPath();
+        invoiceService.pdfBytes(reRendered);             // served from storage from now on
+        assertThat(invoiceRepository.findById(invoiceId).orElseThrow().getPdfPath()).isEqualTo(storedNow);
+    }
+
+    /** Invoices and Purchase Reports moved to the Main Admin panel: the Automation Admin cannot open them. */
+    @Test
+    void invoicesAndPurchaseReportsAreMainAdminOnly() throws Exception {
+        users.create("office@test.local", com.lordsai.lsi.entity.enums.Role.AUTOMATION_ADMIN, AccountStatus.ACTIVE);
+        String office = api.login("office@test.local", TestUsers.PASSWORD);
+        for (String path : List.of("/api/automation/invoices", "/api/automation/invoices/" + invoiceId,
+                "/api/automation/invoices/" + invoiceId + "/pdf", "/api/automation/invoices/" + invoiceId + "/print",
+                "/api/automation/reports/purchases", "/api/automation/reports/purchases/xlsx", "/api/automation/reports/invoices/pdf")) {
+            api.get(office, path).andExpect(status().isForbidden());
+        }
+        api.post(office, "/api/automation/invoices/" + invoiceId + "/resend-email", null).andExpect(status().isForbidden());
+        api.post(office, "/api/automation/invoices/" + invoiceId + "/whatsapp", null).andExpect(status().isForbidden());
+
+        // The Main Admin's Purchase Reports page: the purchase is there, with its invoice and totals.
+        JsonNode report = api.data(api.get(admin, "/api/automation/reports/purchases?productType=COURSE&status=SUCCESS"));
+        assertThat(report.path("rows").size()).isEqualTo(1);
+        assertThat(report.path("rows").get(0).get(9).asText()).startsWith("LSI-INV-");
+        assertThat(report.path("totals").path("successful").asInt()).isEqualTo(1);
+        api.get(admin, "/api/automation/invoices").andExpect(status().isOk());
+    }
+
     @Test
     void adminListsDownloadsPrintsAndResendsInvoices() throws Exception {
         api.get(admin, "/api/automation/invoices?productType=COURSE&q=buyer").andExpect(status().isOk())
@@ -135,9 +184,25 @@ class InvoiceTest {
         assertThat(auditLogRepository.findAll().stream().anyMatch(a -> "INVOICE_RESEND_FAILED".equals(a.getAction()))).isTrue();
         assertThat(auditLogRepository.findAll().stream().anyMatch(a -> "INVOICE_GENERATED".equals(a.getAction()))).isTrue();
 
-        // WhatsApp is not configured: no pretend success.
-        api.post(admin, "/api/automation/invoices/" + invoiceId + "/whatsapp", null).andExpect(status().isBadGateway())
-                .andExpect(jsonPath("$.message").value(com.lordsai.lsi.communication.WhatsAppDelivery.NOT_CONFIGURED));
+        // WhatsApp: no Business API — a ready chat (invoice message + private PDF link) for the admin to open and send.
+        JsonNode chat = api.data(api.post(admin, "/api/automation/invoices/" + invoiceId + "/whatsapp", null).andExpect(status().isOk()));
+        assertThat(chat.path("phone").asText()).isEqualTo("919876543210");
+        String text = chat.path("text").asText();
+        assertThat(text).startsWith("Dear Student User,").contains("Here is the *invoice for your purchase* of Share Market Education & Training")
+                .contains("Invoice No: LSI-INV-").contains("Download your invoice (PDF):").contains("/receipt.html?t=");
+        java.util.regex.Matcher link = java.util.regex.Pattern.compile("/receipt\\.html\\?t=([A-Za-z0-9._-]+)").matcher(text);
+        assertThat(link.find()).isTrue();
+        // The link opens this invoice's PDF without a login; a tampered link opens nothing.
+        api.get(null, "/api/public/documents/" + link.group(1)).andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "application/pdf"));
+        api.get(null, "/api/public/documents/" + link.group(1) + "/info").andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.title").value("Invoice"));
+        String token = link.group(1);
+        String tampered = token.substring(0, token.length() - 1) + (token.endsWith("A") ? "B" : "A");
+        api.get(null, "/api/public/documents/" + tampered).andExpect(status().isNotFound());
+        assertThat(communicationLogRepository.findAll().stream()
+                .filter(c -> c.getChannel() == com.lordsai.lsi.entity.enums.CommunicationChannel.WHATSAPP)
+                .map(c -> c.getStatus()).toList()).containsExactly(com.lordsai.lsi.entity.enums.CommunicationStatus.OPENED);
     }
 
     @Test

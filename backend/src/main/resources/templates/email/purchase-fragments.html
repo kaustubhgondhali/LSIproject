@@ -22,17 +22,19 @@
     </td></tr>
 </table>
 
-<!-- Credential / setup block: one-time secure link for new accounts, portal login for existing ones -->
+<!-- Credential / setup block: one-time secure link for new accounts, portal login for existing ones.
+     Students sign in with their User ID (${userId}); the Student ID in the summary is only a reference. -->
 <div th:fragment="credentials">
     <div th:if="${temporaryPassword != null}">
         <h3 style="margin:0 0 8px;font-size:16px;color:#0A1128;">Your Student Portal login details</h3>
         <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#334155;">
-            Your Student ID is shown above. We have generated a secure temporary password for your new account.
-            Please keep it safe and use it to log in to the official Student Portal.
+            Log in to the official Student Portal with your <strong>User ID</strong> (or your email) and the secure
+            temporary password we generated for your new account. Please keep them safe.
+            Your Student ID shown above is only your reference number — it is not used to log in.
         </p>
         <p style="margin:0 0 10px;font-size:14px;line-height:1.7;color:#0f172a;">
-            <span style="color:#64748b;display:inline-block;min-width:110px;">Student ID:</span>
-            <strong style="font-family:monospace;font-size:15px;color:#0A1128;" th:text="${studentId}">LSI-2026-00001</strong>
+            <span style="color:#64748b;display:inline-block;min-width:110px;">User ID:</span>
+            <strong style="font-family:monospace;font-size:15px;color:#0A1128;" th:text="${userId}">rahul4821</strong>
         </p>
         <p style="margin:0 0 10px;font-size:14px;line-height:1.7;color:#0f172a;">
             <span style="color:#64748b;display:inline-block;min-width:110px;">Password:</span>
@@ -45,7 +47,12 @@
     <div th:if="${temporaryPassword == null and setupLink != null}">
         <h3 style="margin:0 0 8px;font-size:16px;color:#0A1128;">Your Student Portal credentials</h3>
         <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#334155;">
-            Your login ID is your <strong>Student ID</strong> shown above (your email address also works). For security, create your own password with the secure one-time link below.
+            Log in with your <strong>User ID</strong> below (your email address also works). For security, create your own password with the secure one-time link below.
+            Your Student ID shown above is only your reference number — it is not used to log in.
+        </p>
+        <p style="margin:0 0 10px;font-size:14px;line-height:1.7;color:#0f172a;">
+            <span style="color:#64748b;display:inline-block;min-width:110px;">User ID:</span>
+            <strong style="font-family:monospace;font-size:15px;color:#0A1128;" th:text="${userId}">rahul4821</strong>
         </p>
         <p style="margin:0 0 16px;text-align:center;">
             <a th:href="${setupLink}" style="display:inline-block;background:#0B5FA5;color:#ffffff;text-decoration:none;font-weight:700;padding:13px 28px;border-radius:30px;font-size:15px;">Set my password &amp; log in</a>
@@ -58,7 +65,7 @@
     <div th:if="${temporaryPassword == null and setupLink == null}">
         <h3 style="margin:0 0 8px;font-size:16px;color:#0A1128;">How to log in</h3>
         <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#334155;">
-            Open the Student Portal and sign in with your <strong>Student ID</strong> (or email) and your existing password.
+            Open the Student Portal and sign in with your User ID <strong style="font-family:monospace;" th:text="${userId}">rahul4821</strong> (or email) and your existing password.
             Forgot it? Use "Forgot password" on the login page — we never email passwords.
         </p>
         <p style="margin:0 0 18px;text-align:center;">

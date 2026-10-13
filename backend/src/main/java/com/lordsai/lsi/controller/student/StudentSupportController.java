@@ -7,6 +7,7 @@ import com.lordsai.lsi.dto.support.SupportDtos.DoubtRequest;
 import com.lordsai.lsi.dto.support.SupportDtos.DoubtSummary;
 import com.lordsai.lsi.dto.support.SupportDtos.TradeRequest;
 import com.lordsai.lsi.dto.support.SupportDtos.TradeResponse;
+import com.lordsai.lsi.dto.support.SupportDtos.TradeSummary;
 import com.lordsai.lsi.security.CurrentUser;
 import com.lordsai.lsi.service.DoubtService;
 import com.lordsai.lsi.service.TradeJournalService;
@@ -42,6 +43,11 @@ public class StudentSupportController {
     public ApiResponse<Page<TradeResponse>> journal(@RequestParam(defaultValue = "0") int page,
                                                     @RequestParam(defaultValue = "20") int size) {
         return ApiResponse.ok(journalService.myEntries(me(), PageRequest.of(page, Math.min(size, 100))));
+    }
+
+    @GetMapping("/journal/summary")
+    public ApiResponse<TradeSummary> journalSummary() {
+        return ApiResponse.ok(journalService.summary(me()));
     }
 
     @PostMapping("/journal")

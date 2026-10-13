@@ -263,8 +263,7 @@ public class EmailSettingsService {
 
         String message;
         if (!configured) {
-            message = "Google sign-in is not configured on this server. Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET "
-                    + "and GOOGLE_REDIRECT_URI in the backend environment and restart it.";
+            message = gmailOAuth.notConfiguredMessage();
         } else if (!connected) {
             message = "No Google account is connected. Click Connect Google Account to authorise the academy's Gmail account.";
         } else if (!canSend) {

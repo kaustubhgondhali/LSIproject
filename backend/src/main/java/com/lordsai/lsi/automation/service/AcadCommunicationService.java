@@ -9,11 +9,12 @@ import com.lordsai.lsi.automation.dto.AcadCommunicationDtos.RecipientFilter;
 import com.lordsai.lsi.automation.dto.AcadCommunicationDtos.SendPreview;
 import com.lordsai.lsi.automation.dto.AcadCommunicationDtos.SendRequest;
 import com.lordsai.lsi.automation.dto.AcadCommunicationDtos.SendResult;
+import com.lordsai.lsi.automation.dto.AcadCommunicationDtos.WhatsAppChatTarget;
 import com.lordsai.lsi.automation.entity.AcadCommunicationLog;
 import com.lordsai.lsi.automation.entity.AcadStudent;
 import com.lordsai.lsi.automation.repository.AcadCommunicationLogRepository;
 import com.lordsai.lsi.automation.repository.AcadStudentRepository;
-import com.lordsai.lsi.communication.WhatsAppMessageService;
+import com.lordsai.lsi.communication.WhatsAppChat;
 import com.lordsai.lsi.email.MailSenderResolver;
 import com.lordsai.lsi.entity.User;
 import com.lordsai.lsi.entity.enums.CommunicationChannel;
@@ -56,7 +57,9 @@ import java.util.UUID;
  * row; nothing is ever reported as sent unless the provider accepted it.
  *
  * This service never reads website / LMS data: no users, enrollments, purchases or invoices.
- * SMTP and the WhatsApp provider are only the delivery mechanism.
+ * Email is delivered by the server (SMTP). WhatsApp uses WhatsApp's own "click to chat" — no
+ * WhatsApp Business API: the server prepares each student's chat (READY) and the office opens it
+ * on its computer with the message already typed (OPENED) and presses Send.
  */
 @Service
 public class AcadCommunicationService {
@@ -68,7 +71,7 @@ public class AcadCommunicationService {
     private final AcadCommunicationLogRepository logRepository;
     private final AcadCommunicationDispatcher dispatcher;
     private final AcadCommunicationSender sender;
-    private final WhatsAppMessageService whatsApp;
+    private final AcadWhatsAppChats chats;
     private final MailSenderResolver mailResolver;
     private final FileStorageService storage;
     private final AuditService auditService;
@@ -78,7 +81,7 @@ public class AcadCommunicationService {
                                     AcadCommunicationLogRepository logRepository,
                                     AcadCommunicationDispatcher dispatcher,
                                     AcadCommunicationSender sender,
-                                    WhatsAppMessageService whatsApp,
+                                    AcadWhatsAppChats chats,
                                     MailSenderResolver mailResolver,
                                     FileStorageService storage,
                                     AuditService auditService,
@@ -87,7 +90,7 @@ public class AcadCommunicationService {
         this.logRepository = logRepository;
         this.dispatcher = dispatcher;
         this.sender = sender;
-        this.whatsApp = whatsApp;
+        this.chats = chats;
         this.mailResolver = mailResolver;
         this.storage = storage;
         this.auditService = auditService;
@@ -96,16 +99,16 @@ public class AcadCommunicationService {
 
     // ---- channel status --------------------------------------------------------------------
 
+    /** What the office sees about WhatsApp: it needs no setup — it opens on this computer. */
+    public static final String WHATSAPP_READY = "WhatsApp opens on this computer with the message ready — you press Send. "
+            + "No WhatsApp Business account is needed; keep WhatsApp Web (or the WhatsApp app) logged in.";
+
     @Transactional(readOnly = true)
     public ChannelStatus channelStatus() {
         String source = mailResolver.currentSource();
         boolean email = !MailSenderResolver.SOURCE_NONE.equals(source);
-        // WhatsApp is configured centrally by the Main Admin; the Automation Admin only sees connected / not.
-        String waMessage = whatsApp.isConfigured()
-                ? "WhatsApp is connected via " + whatsApp.providerName() + ". WhatsApp is managed from Main Admin → Settings → WhatsApp Settings."
-                : WhatsAppMessageService.NOT_CONFIGURED_AUTOMATION;
         return new ChannelStatus(email, source, email ? "Email is configured (" + source + ")." : mailResolver.disabledReason(),
-                whatsApp.isConfigured(), whatsApp.providerName(), waMessage, whatsApp.supportsDocuments());
+                true, "Click to chat", WHATSAPP_READY, false);
     }
 
     // ---- recipients (Automation Admin students only) -----------------------------------------
@@ -152,8 +155,8 @@ public class AcadCommunicationService {
         boolean email = req.channels().contains(CommunicationChannel.EMAIL);
         boolean wa = req.channels().contains(CommunicationChannel.WHATSAPP);
         int emailCount = email ? (int) recipients.stream().filter(r -> r.email() != null && !r.email().isBlank()).count() : 0;
-        int waCount = wa ? (int) recipients.stream().filter(r -> WhatsAppMessageService.toE164(r.mobile()) != null).count() : 0;
-        return new SendPreview(recipients.size(), emailCount, waCount, whatsApp.isConfigured(), whatsApp.statusMessage(),
+        int waCount = wa ? (int) recipients.stream().filter(r -> WhatsAppChat.number(r.mobile()) != null).count() : 0;
+        return new SendPreview(recipients.size(), emailCount, waCount, true, WHATSAPP_READY,
                 recipients.stream().limit(10).toList());
     }
 
@@ -161,8 +164,9 @@ public class AcadCommunicationService {
 
     /**
      * Queues one row per (student, channel) — never two for the same student even if several
-     * filters match — then hands the batch to the dispatcher. Individual sends (one recipient)
-     * are processed immediately so the office sees the result at once.
+     * filters match. Email rows go to the dispatcher (individual sends are processed immediately so
+     * the office sees the result at once). WhatsApp rows are READY chats returned to the office,
+     * which opens each one on its computer and presses Send.
      */
     @Transactional
     public SendResult send(SendRequest req, User actor, String ip) {
@@ -186,10 +190,11 @@ public class AcadCommunicationService {
         int emailQueued = 0;
         int waQueued = 0;
         int skipped = 0;
+        List<WhatsAppChatTarget> whatsappChats = new ArrayList<>();
         for (Recipient r : recipients) {
             for (CommunicationChannel channel : req.channels()) {
                 String to = channel == CommunicationChannel.EMAIL ? r.email() : r.mobile();
-                if (to == null || to.isBlank() || (channel == CommunicationChannel.WHATSAPP && WhatsAppMessageService.toE164(to) == null)) {
+                if (to == null || to.isBlank() || (channel == CommunicationChannel.WHATSAPP && WhatsAppChat.number(to) == null)) {
                     skipped++;
                     continue;
                 }
@@ -205,13 +210,23 @@ public class AcadCommunicationService {
                 row.setRecipient(to.trim());
                 row.setSubject(req.subject() == null ? null : req.subject().trim());
                 row.setBody(req.message().trim());
-                row.setStatus(CommunicationStatus.PENDING);
+                row.setStatus(channel == CommunicationChannel.WHATSAPP ? CommunicationStatus.READY : CommunicationStatus.PENDING);
+                if (channel == CommunicationChannel.WHATSAPP) {
+                    row.setProvider(WhatsAppChat.PROVIDER);
+                }
                 row.setAttachmentPath(attachmentPath);
                 row.setAttachmentName(attachmentName);
                 row.setBatchRef(batchRef);
                 row.setSentBy(actor);
-                logRepository.save(row);
-                if (channel == CommunicationChannel.EMAIL) emailQueued++; else waQueued++;
+                row = logRepository.save(row);
+                if (channel == CommunicationChannel.EMAIL) {
+                    emailQueued++;
+                } else {
+                    waQueued++;
+                    WhatsAppChat chat = chats.message(row);
+                    whatsappChats.add(new WhatsAppChatTarget(row.getId(), r.id(), r.studentId(), r.fullName(), row.getRecipient(),
+                            chat.phone(), chat.text()));
+                }
             }
         }
         int queued = emailQueued + waQueued;
@@ -222,6 +237,10 @@ public class AcadCommunicationService {
             throw new ApiException(HttpStatus.BAD_REQUEST, "None of the selected students has a usable address for the chosen channel(s).");
         }
 
+        String waNote = waQueued == 0 ? "" : " WhatsApp: " + waQueued + " chat(s) ready — open each one and press Send in WhatsApp.";
+        if (emailQueued == 0) {
+            return new SendResult(batchRef, recipients.size(), queued, emailQueued, waQueued, skipped, waNote.trim(), whatsappChats);
+        }
         if (async && recipients.size() > 1) {
             // Runs after this transaction commits so the rows are visible to the dispatcher.
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
@@ -231,10 +250,12 @@ public class AcadCommunicationService {
                 }
             });
             return new SendResult(batchRef, recipients.size(), queued, emailQueued, waQueued, skipped,
-                    "Queued " + queued + " message(s) for " + recipients.size() + " student(s). Delivery runs in batches; check Message History for progress.");
+                    "Queued " + emailQueued + " email(s) for " + recipients.size() + " student(s). Delivery runs in batches; check Message History for progress."
+                            + waNote, whatsappChats);
         }
-        // Individual send (or async disabled): deliver now, in this request.
-        List<AcadCommunicationLog> rows = logRepository.findByBatchRefOrderByIdAsc(batchRef);
+        // Individual send (or async disabled): deliver the emails now, in this request.
+        List<AcadCommunicationLog> rows = logRepository.findByBatchRefOrderByIdAsc(batchRef).stream()
+                .filter(row -> row.getStatus() == CommunicationStatus.PENDING).toList();
         logRepository.flush();
         int sent = 0;
         List<String> failures = new ArrayList<>();
@@ -243,10 +264,10 @@ public class AcadCommunicationService {
             if (result.getStatus() == CommunicationStatus.SENT) sent++;
             else failures.add(result.getChannel() + ": " + result.getErrorReason());
         }
-        String message = sent == queued ? "Sent " + sent + " message(s)."
-                : failures.isEmpty() ? "Sent " + sent + " of " + queued + " message(s)."
-                : "Sent " + sent + " of " + queued + " message(s). " + String.join(" ", failures);
-        return new SendResult(batchRef, recipients.size(), queued, emailQueued, waQueued, skipped, message);
+        String message = sent == emailQueued ? "Sent " + sent + " message(s)."
+                : failures.isEmpty() ? "Sent " + sent + " of " + emailQueued + " message(s)."
+                : "Sent " + sent + " of " + emailQueued + " message(s). " + String.join(" ", failures);
+        return new SendResult(batchRef, recipients.size(), queued, emailQueued, waQueued, skipped, message + waNote, whatsappChats);
     }
 
     private String validateAttachment(String path) {
@@ -299,10 +320,17 @@ public class AcadCommunicationService {
         return toResponse(logRepository.findById(id).orElseThrow(() -> ResourceNotFoundException.of("Automation message", id)));
     }
 
-    /** Re-sends one FAILED (or stuck PENDING) message right away and returns the new outcome. */
+    /**
+     * Re-sends one FAILED (or stuck PENDING) email right away and returns the new outcome. For a
+     * WhatsApp row it prepares the chat again for the office to open (for a receipt, the screen also
+     * copies the receipt picture again — the response carries the receipt id).
+     */
     @Transactional
     public CommunicationLogResponse retry(Long id, User actor, String ip) {
         AcadCommunicationLog row = logRepository.findById(id).orElseThrow(() -> ResourceNotFoundException.of("Automation message", id));
+        if (row.getChannel() == CommunicationChannel.WHATSAPP) {
+            return openWhatsApp(row, actor, ip);
+        }
         if (row.getStatus() == CommunicationStatus.SENT) {
             throw new ApiException(HttpStatus.CONFLICT, "This message was already delivered.");
         }
@@ -312,12 +340,54 @@ public class AcadCommunicationService {
         return toResponse(sender.sendOne(id));
     }
 
+    /** The office opened a prepared WhatsApp chat (READY -> OPENED); returns the chat to open. */
+    @Transactional
+    public CommunicationLogResponse opened(Long id, User actor, String ip) {
+        AcadCommunicationLog row = logRepository.findById(id).orElseThrow(() -> ResourceNotFoundException.of("Automation message", id));
+        if (row.getChannel() != CommunicationChannel.WHATSAPP) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Only WhatsApp messages are opened in WhatsApp.");
+        }
+        return openWhatsApp(row, actor, ip);
+    }
+
+    private CommunicationLogResponse openWhatsApp(AcadCommunicationLog row, User actor, String ip) {
+        row.setAttempts(row.getAttempts() + 1);
+        row.setLastAttemptAt(Instant.now());
+        row.setProvider(WhatsAppChat.PROVIDER);
+        WhatsAppChat chat = chats.forRow(row);
+        if (chat == null) {
+            row.setStatus(CommunicationStatus.FAILED);
+            row.setErrorReason(row.getMessageType() == CommunicationType.FEE_RECEIPT && row.getReceipt() == null
+                    ? "The receipt no longer exists (its payment was deleted)."
+                    : "The mobile number '" + row.getRecipient() + "' cannot be used on WhatsApp.");
+            logRepository.save(row);
+            return toResponse(row);
+        }
+        if (row.getMessageType() == CommunicationType.FEE_RECEIPT) {
+            row.setBody(chat.text());   // the receipt's short line (rows from before carried a PDF link)
+            if (row.getAttachmentName() != null) {
+                row.setAttachmentName(row.getAttachmentName().replaceFirst("(?i)\\.pdf$", ".png"));   // the picture goes with it
+            }
+        }
+        row.setStatus(CommunicationStatus.OPENED);
+        row.setErrorReason(null);
+        logRepository.save(row);
+        auditService.record(actor, "AUTOMATION_WHATSAPP_OPENED", "AcadCommunicationLog", row.getId(),
+                row.getMessageType() + " chat opened for " + row.getRecipient() + " (attempt " + row.getAttempts() + ")", ip);
+        return toResponse(row, chat);
+    }
+
     public CommunicationLogResponse toResponse(AcadCommunicationLog c) {
+        return toResponse(c, null);
+    }
+
+    private CommunicationLogResponse toResponse(AcadCommunicationLog c, WhatsAppChat chat) {
         return new CommunicationLogResponse(c.getId(), c.getCreatedAt(), c.getChannel(), c.getMessageType(),
                 c.getStudent() == null ? null : c.getStudent().getId(), c.getStudentCode(), c.getStudentName(), c.getRecipient(),
                 c.getSubject(), c.getBody(), c.getStatus(), c.getProvider(), c.getProviderMessageId(), c.getErrorReason(),
                 c.getAttachmentName(), c.getBatchRef(), c.getAttempts(), c.getLastAttemptAt(), c.getSentAt(),
-                c.getSentBy() == null ? "System" : c.getSentBy().getFullName());
+                c.getSentBy() == null ? "System" : c.getSentBy().getFullName(),
+                c.getReceipt() == null ? null : c.getReceipt().getId(), chat);
     }
 
     /** Summary counters for the Automation Admin dashboard. */
@@ -329,6 +399,8 @@ public class AcadCommunicationService {
         m.put("failed", logRepository.countByStatus(CommunicationStatus.FAILED));
         m.put("emailSent", logRepository.countByChannelAndStatus(CommunicationChannel.EMAIL, CommunicationStatus.SENT));
         m.put("whatsappSent", logRepository.countByChannelAndStatus(CommunicationChannel.WHATSAPP, CommunicationStatus.SENT));
+        m.put("whatsappOpened", logRepository.countByChannelAndStatus(CommunicationChannel.WHATSAPP, CommunicationStatus.OPENED));
+        m.put("whatsappReady", logRepository.countByChannelAndStatus(CommunicationChannel.WHATSAPP, CommunicationStatus.READY));
         return m;
     }
 }

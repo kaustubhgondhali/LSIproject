@@ -175,6 +175,19 @@ class EbookSimpleUploadTest {
         assertThat(ebookRepository.count()).isEqualTo(1);
     }
 
+    @Test
+    void sellingPriceIsSetInTheSameFormAndCannotExceedTheListPrice() throws Exception {
+        upload(admin, "POST", "/api/admin/ebooks", Map.of("title", "Discounted", "price", "500", "discountedPrice", "349"),
+                cover("c.png", "image/png", PNG), pdf("b.pdf", "application/pdf", PDF))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.effectivePrice").value(349));
+        mockMvc.perform(get("/api/public/ebooks")).andExpect(jsonPath("$.data[0].effectivePrice").value(349))
+                .andExpect(jsonPath("$.data[0].price").value(500));
+        upload(admin, "POST", "/api/admin/ebooks", Map.of("title", "Too cheap list", "price", "100", "discountedPrice", "200"),
+                cover("c.png", "image/png", PNG), pdf("b.pdf", "application/pdf", PDF))
+                .andExpect(status().isBadRequest());
+        assertThat(ebookRepository.count()).isEqualTo(1);
+    }
+
     // ---- editing --------------------------------------------------------------------------------------
 
     @Test

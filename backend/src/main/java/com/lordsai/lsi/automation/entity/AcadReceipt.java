@@ -33,7 +33,7 @@ import java.time.LocalDate;
 @Table(name = "acad_receipts")
 public class AcadReceipt extends BaseEntity {
 
-    @Column(name = "receipt_no", nullable = false, length = 30)
+    @Column(name = "receipt_no", nullable = false, length = 40)
     private String receiptNo;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
@@ -61,6 +61,10 @@ public class AcadReceipt extends BaseEntity {
 
     @Column(name = "total_fee", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalFee;
+
+    /** The student's discount when this receipt was (re)issued; fee after discount = totalFee - discount. */
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal discount = BigDecimal.ZERO;
 
     @Column(name = "amount_paid", nullable = false, precision = 10, scale = 2)
     private BigDecimal amountPaid;

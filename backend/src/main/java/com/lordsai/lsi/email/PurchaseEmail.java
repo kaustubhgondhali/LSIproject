@@ -18,7 +18,7 @@ public record PurchaseEmail(CommunicationType kind, String to, String subject, M
             case EBOOK_PURCHASE -> "email/ebook-purchase-confirmation";
             case EXISTING_STUDENT_PURCHASE -> "email/existing-student-new-purchase";
             case INVOICE -> "email/invoice-email";
-            case ADMIN_INDIVIDUAL, ADMIN_BULK, EXAM_NOTIFICATION -> "email/communication";
+            case ADMIN_INDIVIDUAL, ADMIN_BULK, EXAM_NOTIFICATION, FEE_RECEIPT, FEE_REMINDER, CERTIFICATE_NOTIFICATION -> "email/communication";
         };
     }
 }

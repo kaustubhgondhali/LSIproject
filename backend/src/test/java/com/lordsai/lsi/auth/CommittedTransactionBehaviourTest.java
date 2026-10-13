@@ -48,7 +48,7 @@ class CommittedTransactionBehaviourTest {
     }
 
     @Test
-    void studentCanLoginFromMultipleDevicesAndAdminSessionStillRotates() throws Exception {
+    void studentAndAdminCanLogInAgainAndTheNewestLoginIsCommitted() throws Exception {
         created = users.create("committed@test.local", com.lordsai.lsi.entity.enums.Role.STUDENT, com.lordsai.lsi.entity.enums.AccountStatus.ACTIVE);
 
         api.post(null, "/api/auth/login", Map.of("identifier", "committed@test.local", "password", TestUsers.PASSWORD))

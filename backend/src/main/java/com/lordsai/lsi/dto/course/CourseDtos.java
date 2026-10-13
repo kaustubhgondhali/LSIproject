@@ -47,6 +47,10 @@ public final class CourseDtos {
     public record StatusRequest(@NotNull CourseStatus status) {
     }
 
+    /** Open (true) or close (false) online purchase of a course. */
+    public record PurchaseToggleRequest(@NotNull Boolean enabled) {
+    }
+
     public record ModuleRequest(
             @NotBlank @Size(max = 200) String moduleName,
             @Size(max = 5000) String description
@@ -83,7 +87,9 @@ public final class CourseDtos {
             String thumbnailPath,
             int moduleCount,
             long lessonCount,
-            List<PublicModule> modules
+            List<PublicModule> modules,
+            /** False while the Main Admin has closed online purchase (the page shows "Admissions Closed"). */
+            boolean purchaseEnabled
     ) {
     }
 
@@ -108,7 +114,8 @@ public final class CourseDtos {
             long lessonCount,
             long activeStudents,
             Instant createdAt,
-            Instant updatedAt
+            Instant updatedAt,
+            boolean purchaseEnabled
     ) {
     }
 

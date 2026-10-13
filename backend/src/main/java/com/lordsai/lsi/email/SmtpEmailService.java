@@ -34,6 +34,15 @@ public class SmtpEmailService implements EmailService {
 
     private static final Logger log = LoggerFactory.getLogger(SmtpEmailService.class);
 
+    /**
+     * The mail server refused the login. With Gmail this almost always means the saved App Password
+     * no longer works (it stops when the Google password is changed or the App Password is removed),
+     * so the message says exactly what to do and where.
+     */
+    public static final String AUTH_FAILED = "Authentication failed: the mail server refused the username or password. "
+            + "For Gmail, create a new App Password (Google Account > Security > App passwords) and save it in "
+            + "Main Admin > Email Settings \u2014 an App Password stops working when the Google password is changed.";
+
     private final MailSenderResolver resolver;
     private final SpringTemplateEngine templateEngine;
     private final AppProperties properties;
@@ -46,16 +55,17 @@ public class SmtpEmailService implements EmailService {
     }
 
     @Override
-    public EmailDelivery sendEnrollmentEmail(User student, String studentId, String courseName,
+    public EmailDelivery sendEnrollmentEmail(User student, String studentId, String userId, String courseName,
                                              String orderRef, String amountDisplay, String setupLink) {
         Optional<MailSenderResolver.ActiveMail> channel = resolver.resolve();
         if (channel.isEmpty()) {
-            return notSent(fallback.sendEnrollmentEmail(student, studentId, courseName, orderRef, amountDisplay, setupLink));
+            return notSent(fallback.sendEnrollmentEmail(student, studentId, userId, courseName, orderRef, amountDisplay, setupLink));
         }
         Map<String, Object> model = base();
         model.put("name", student.getFullName());
         model.put("email", student.getEmail());
         model.put("studentId", studentId);
+        model.put("userId", userId);
         model.put("courseName", courseName);
         model.put("orderRef", orderRef);
         model.put("amount", amountDisplay);
@@ -65,15 +75,16 @@ public class SmtpEmailService implements EmailService {
     }
 
     @Override
-    public EmailDelivery sendWelcomeEmail(User user, String setupLink) {
+    public EmailDelivery sendWelcomeEmail(User user, String userId, String setupLink) {
         Optional<MailSenderResolver.ActiveMail> channel = resolver.resolve();
         if (channel.isEmpty()) {
-            return notSent(fallback.sendWelcomeEmail(user, setupLink));
+            return notSent(fallback.sendWelcomeEmail(user, userId, setupLink));
         }
         Map<String, Object> model = base();
         model.put("name", user.getFullName());
         model.put("email", user.getEmail());
         model.put("setupLink", setupLink);
+        model.put("userId", userId);
         model.put("role", user.getRole().name().charAt(0) + user.getRole().name().substring(1).toLowerCase());
         return send(channel.get(), user.getEmail(), "Your Lord Sai Academy account", "email/welcome", model);
     }
@@ -144,16 +155,27 @@ public class SmtpEmailService implements EmailService {
         Map<String, Object> model = base();
         model.put("requestedBy", requestedBy);
         model.put("source", channel.get().source());
-        return send(channel.get(), toEmail, "VITC Email Configuration Test", "email/test", model);
+        return send(channel.get(), toEmail, "Lord Sai Academy Email Configuration Test", "email/test", model);
     }
 
     @Override
     public EmailDelivery sendLoginCredentials(User user, String userId, String temporaryPassword, String loginUrl) {
+        return sendCredentials(user, userId, temporaryPassword, loginUrl, false);
+    }
+
+    @Override
+    public EmailDelivery sendAcademyEbookLogin(User user, String userId, String temporaryPassword, String loginUrl) {
+        return sendCredentials(user, userId, temporaryPassword, loginUrl, true);
+    }
+
+    private EmailDelivery sendCredentials(User user, String userId, String temporaryPassword, String loginUrl, boolean academyEbook) {
         Optional<MailSenderResolver.ActiveMail> channel = resolver.resolve();
         if (channel.isEmpty()) {
-            return notSent(fallback.sendLoginCredentials(user, userId, temporaryPassword, loginUrl));
+            return notSent(academyEbook ? fallback.sendAcademyEbookLogin(user, userId, temporaryPassword, loginUrl)
+                    : fallback.sendLoginCredentials(user, userId, temporaryPassword, loginUrl));
         }
         Map<String, Object> model = base();
+        model.put("academyEbook", academyEbook);
         model.put("name", user.getFullName());
         model.put("email", user.getEmail());
         model.put("userId", userId);
@@ -163,7 +185,8 @@ public class SmtpEmailService implements EmailService {
             model.put("password", temporaryPassword);
         }
         model.put("loginUrl", loginUrl);
-        return send(channel.get(), user.getEmail(), "LSI VITC - Your Login Credentials", "email/credentials", model);
+        return send(channel.get(), user.getEmail(), academyEbook ? "Lord Sai Academy - Your ebook login (Student Panel)" : "Lord Sai Academy - Your Login Credentials",
+                "email/credentials", model);
     }
 
     @Override
@@ -175,20 +198,21 @@ public class SmtpEmailService implements EmailService {
         Map<String, Object> model = base();
         model.put("name", user.getFullName());
         model.put("loginUrl", loginUrlFor(user.getRole()));
-        return send(channel.get(), user.getEmail(), "LSI VITC - Password Changed Successfully", "email/password-changed", model);
+        return send(channel.get(), user.getEmail(), "Lord Sai Academy - Password Changed Successfully", "email/password-changed", model);
     }
 
     @Override
-    public EmailDelivery sendFeeReceipt(String toEmail, Map<String, Object> receiptModel) {
+    public EmailDelivery sendFeeReceipt(String toEmail, Map<String, Object> receiptModel, EmailAttachment receiptPdf) {
         Optional<MailSenderResolver.ActiveMail> channel = resolver.resolve();
         if (channel.isEmpty()) {
-            return notSent(fallback.sendFeeReceipt(toEmail, receiptModel));
+            return notSent(fallback.sendFeeReceipt(toEmail, receiptModel, receiptPdf));
         }
         Map<String, Object> model = base();
         model.putAll(receiptModel);
         Object receipt = receiptModel.get("receipt");
         String receiptNo = receipt instanceof com.lordsai.lsi.automation.dto.AutomationDtos.ReceiptDto r ? r.receiptNo() : "";
-        return send(channel.get(), toEmail, "LSI VITC - Fee Receipt " + receiptNo, "email/receipt", model);
+        model.put("pdfAttached", receiptPdf != null);
+        return send(channel.get(), toEmail, null, "Lord Sai Academy - Fee Receipt " + receiptNo, "email/receipt", model, receiptPdf);
     }
 
     @Override
@@ -199,8 +223,7 @@ public class SmtpEmailService implements EmailService {
         }
         Map<String, Object> model = base();
         model.putAll(enquiryModel);
-        String subject = "Website enquiry: " + enquiryModel.getOrDefault("subject", "General") + " - " + enquiryModel.getOrDefault("visitorName", "");
-        return send(channel.get(), toEmail, replyTo, subject, "email/enquiry", model);
+        return send(channel.get(), toEmail, replyTo, ENQUIRY_SUBJECT, "email/enquiry", model);
     }
 
     @Override
@@ -384,7 +407,7 @@ public class SmtpEmailService implements EmailService {
             Throwable t = chain.get(i);
             String type = t.getClass().getSimpleName();
             if (t instanceof MailAuthenticationException || type.contains("AuthenticationFailed")) {
-                return "Authentication failed. Check the SMTP username and password.";
+                return AUTH_FAILED;
             }
             if (type.contains("SSLHandshake") || type.contains("SSLException")) {
                 return "TLS/SSL negotiation failed. Check the security mode (STARTTLS vs SSL/TLS) and the port.";
@@ -406,7 +429,7 @@ public class SmtpEmailService implements EmailService {
         for (Throwable t : chain) {
             String msg = t.getMessage() == null ? "" : t.getMessage().toLowerCase();
             if (msg.contains("authentication") || msg.contains("535 ")) {
-                return "Authentication failed. Check the SMTP username and password.";
+                return AUTH_FAILED;
             }
             if (msg.contains("certificate") || msg.contains("handshake") || msg.contains("starttls is required")) {
                 return "TLS/SSL negotiation failed. Check the security mode (STARTTLS vs SSL/TLS) and the port.";

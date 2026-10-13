@@ -26,7 +26,64 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Template Stylesheet -->
-    <link href="css/style.css?v=20260924l" rel="stylesheet">
+    <link href="css/style.css?v=20261012-nav" rel="stylesheet">
+
+    <!-- Mutual Fund investor stories (?mode=mutual-fund only). Built on the site's MF tokens/components. -->
+    <style>
+        .mfs-hero-lead { max-width: 760px; }
+        .mfs-hero-nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 24px; }
+        .mfs-hero-nav a {
+            display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 50px;
+            background: rgba(255, 255, 255, 0.10); border: 1px solid rgba(255, 255, 255, 0.30);
+            font-size: 14px; font-weight: 600; text-decoration: none; transition: background 0.2s ease, border-color 0.2s ease;
+        }
+        .mfs-hero-nav a:hover, .mfs-hero-nav a:focus-visible { background: rgba(46, 196, 182, 0.30); border-color: var(--lsi-green); }
+
+        .mfs-section-head { max-width: 760px; margin: 0 auto 40px; text-align: center; }
+        .mfs-section-head p { color: var(--lsi-gray-600); margin-bottom: 0; }
+
+        .mfs-investor-tag {
+            display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 3px 10px; border-radius: 50px;
+            background: var(--lsi-green-light); color: var(--lsi-green-dark); font-size: 11.5px; font-weight: 700; letter-spacing: 0.3px;
+        }
+        #investorVideosGrid .video-pure-card:focus-visible { outline: 3px solid var(--lsi-green); outline-offset: 3px; }
+
+        .mfs-empty {
+            background: #FFFFFF; border: 1px dashed rgba(15, 159, 144, 0.45); border-radius: var(--lsi-radius-lg);
+            padding: 36px 24px; text-align: center; color: var(--lsi-gray-600);
+        }
+        .mfs-empty > i { display: block; font-size: 30px; color: var(--lsi-green); margin-bottom: 12px; }
+
+        #investor-reviews .lsi-review-card {
+            border: 1px solid rgba(46, 196, 182, 0.35) !important; border-left: 4px solid var(--lsi-green) !important;
+            border-radius: var(--lsi-radius-lg); box-shadow: 0 10px 30px rgba(15, 159, 144, 0.08) !important;
+            position: relative; transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        #investor-reviews .lsi-review-card:hover { transform: translateY(-4px); box-shadow: 0 16px 36px rgba(15, 159, 144, 0.18) !important; }
+        #investor-reviews .lsi-review-card::after {
+            content: "\f10e"; font-family: "Font Awesome 5 Free"; font-weight: 900; position: absolute; top: 18px; right: 20px;
+            font-size: 24px; color: rgba(46, 196, 182, 0.22); pointer-events: none;
+        }
+        #investor-reviews .lsi-review-card .flex-grow-1 { padding-right: 32px; }
+
+        .mfs-experience-card {
+            display: flex; flex-direction: column; height: 100%; padding: 28px; background: #FFFFFF;
+            border: 1px solid rgba(46, 196, 182, 0.30); border-radius: var(--lsi-radius-lg);
+            box-shadow: 0 10px 30px rgba(15, 159, 144, 0.08); transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .mfs-experience-card:hover { transform: translateY(-4px); box-shadow: 0 16px 36px rgba(15, 159, 144, 0.18); }
+        .mfs-experience-icon {
+            width: 48px; height: 48px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+            border-radius: var(--lsi-radius-md); background: var(--lsi-green-light); color: var(--lsi-green-dark); font-size: 20px;
+        }
+        .mfs-experience-kicker { font-size: 12px; font-weight: 700; letter-spacing: 0.6px; color: var(--lsi-green-dark); }
+        .mfs-experience-lesson {
+            margin-top: auto; padding: 12px 14px; border-radius: var(--lsi-radius-sm); background: #F0FDFA;
+            border-left: 3px solid var(--lsi-green); font-size: 14px; font-weight: 600; color: var(--lsi-navy);
+        }
+        .mfs-intro-img { max-height: 280px; object-fit: contain; }
+        .mfs-note { font-size: 13px; color: var(--lsi-gray-600); }
+    </style>
 </head>
 
 <body>
@@ -59,7 +116,6 @@
                         <span class="mode-academy-only"><i class="fas fa-th-large me-1"></i> Invest & Wealth Manager</span>
                     </a>
                     <a href="https://wa.me/919920254354" target="_blank" class="btn btn-sm btn-outline-light rounded-pill py-1 px-3 me-3" data-i18n="topbar.whatsapp"><i class="fab fa-whatsapp text-success me-1"></i> WhatsApp Support</a>
-                    <a href="student-login.html" class="text-light small mode-academy-only" data-i18n="topbar.studentLogin"><i class="fas fa-user-lock text-info me-1"></i> Student Login</a>
                 </div>
             </div>
         </div>
@@ -135,9 +191,9 @@
                     <a href="blog.html" class="nav-item nav-link" data-i18n="nav.blog">Blog</a>
                     <a href="store.html" class="nav-item nav-link mode-academy-only" data-i18n="nav.store">Store</a>
                     <a href="contact.html" class="nav-item nav-link" data-i18n="nav.contact">Contact</a>
-                    <a href="student-login.html" class="nav-item nav-link d-lg-none mode-academy-only" data-i18n="nav.studentLogin">Student Login</a>
                 </div>
-                <div class="ms-lg-3 my-2 my-lg-0">
+                <div class="ms-lg-3 my-2 my-lg-0 d-flex flex-wrap align-items-center gap-2">
+                    <a href="student-login.html" class="btn btn-student-login mode-academy-only" data-i18n="nav.studentLogin" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
                     <button type="button" class="btn btn-enquire" data-bs-toggle="modal" data-bs-target="#demoModal" data-i18n="nav.enquireNow">
                         <i class="fas fa-bolt me-1"></i> Enquire Now
                     </button>
@@ -182,46 +238,128 @@
             </div>
             <!-- Mutual Fund Breadcrumb -->
             <div class="mode-mf-only">
-                <span class="badge bg-warning text-dark text-uppercase px-3 py-1 mb-2 font-monospace fw-bold">Disciplined Compounding</span>
-    <h1 class="text-white display-4 fw-bold mb-2">Investor Wealth Journeys</h1>
-    <p class="text-warning fs-4 fw-bold mb-3">Disciplined SIPs. Compounding Growth. Goal Milestones.</p>
-    <p class="text-light fs-6 mb-0 mx-auto" style="max-width: 750px;">
-        Real case studies of families and professionals achieving child education, marriage, and retirement goals through systematic mutual fund investments.
-    </p>
+                <span class="badge bg-warning text-dark text-uppercase px-3 py-1 mb-2 font-monospace fw-bold">Investor Experiences</span>
+                <h1 class="text-white display-4 fw-bold mb-2">Investor Stories &amp; Experiences</h1>
+                <p class="text-warning fs-4 fw-bold mb-3">Real experiences and feedback from our investors and clients.</p>
+                <p class="text-light fs-6 mb-0 mx-auto mfs-hero-lead">
+                    Video reviews, client testimonials and experiences shared by people who invest in mutual funds with VAIBHAV PAWAR (AMFI Registered MFD — ARN: 280789).
+                </p>
+                <nav class="mfs-hero-nav" aria-label="Investor stories sections">
+                    <a href="#investor-videos" class="text-white"><i class="fas fa-play-circle"></i> Video Reviews</a>
+                    <a href="#investor-reviews" class="text-white"><i class="fas fa-comment-dots"></i> Investor Testimonials</a>
+                    <a href="#investor-experiences" class="text-white"><i class="fas fa-users"></i> Investor Experiences</a>
+                </nav>
             </div>
         </div>
     </div>
     <!-- Header Breadcrumb End -->
 
     <!-- =========================================================================
-         SECTION 1: STUDENT & INVESTOR LEARNING JOURNEYS
+         MUTUAL FUND MODE: INVESTOR VIDEO REVIEWS
+         Admin-managed Success Stories in the INVESTORS category (Main Admin -> Success Stories).
          ========================================================================= -->
-    <section class="section-py mf-bg-visual mf-bg-visual--journey bg-white" id="journeys">
+    <section class="section-py bg-white mode-mf-only" id="investor-videos">
         <div class="container">
-            <!-- Mutual Fund Mode Lead Showcase -->
-            <div class="mode-mf-only mb-5">
-                <div class="mf-feature-visual-card p-4 p-lg-5">
-                    <div class="row align-items-center g-4">
-                        <div class="col-lg-6">
-                            <span class="mf-visual-badge-pill"><i class="fas fa-users me-1"></i> Real Milestones</span>
-                            <h2 class="display-6 fw-bold text-dark mb-3">Investor Wealth Journeys & Milestones</h2>
-                            <p class="lead text-dark fw-bold mb-3">
-                                Disciplined compounding creates life-changing financial independence for families in Uran & Navi Mumbai.
-                            </p>
-                            <p class="text-muted mb-4" style="line-height: 1.8;">
-                                From parents funding higher education without expensive loans to working professionals building early retirement pensions, read how systematic SIP investing transforms real-world goals.
-                            </p>
-                            <a href="https://p.njw.bz/33377" target="_blank" class="btn btn-primary rounded-pill px-4 fw-bold">
-                                <i class="fas fa-user-plus me-1"></i> Start Your Wealth Journey
-                            </a>
-                        </div>
-                        <div class="col-lg-6 text-center">
-                            <img src="img/mf-visual-investor-stories-collage.png" alt="Real Investor Wealth Journeys and Family Milestones" class="img-fluid rounded-3 border bg-white p-2 shadow-sm" style="max-height: 280px; object-fit: contain;">
-                        </div>
-                    </div>
+            <div class="mfs-section-head">
+                <span class="mf-visual-badge-pill"><i class="fas fa-play-circle"></i> Video Reviews</span>
+                <h2 class="display-6 fw-bold text-dark mb-3">Investor Video Reviews</h2>
+                <p>Watch our mutual fund investors and clients share their experience of investing with us.</p>
+            </div>
+            <div class="row g-4 justify-content-center" id="investorVideosGrid">
+                <div class="col-12 text-center text-muted py-4"><span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Loading investor video reviews…</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================================================
+         MUTUAL FUND MODE: CLIENT / INVESTOR TESTIMONIALS
+         Approved Mutual Fund reviews (js/reviews.js, site=MUTUAL_FUND): visitor reviews accepted by
+         the admin plus testimonials the admin adds in Main Admin -> Reviews & Testimonials.
+         ========================================================================= -->
+    <section class="section-py bg-light border-top border-bottom mode-mf-only" id="investor-reviews">
+        <div class="container">
+            <div class="mfs-section-head">
+                <span class="mf-visual-badge-pill"><i class="fas fa-comment-dots"></i> Client Testimonials</span>
+                <h2 class="display-6 fw-bold text-dark mb-3">What Our Investors Say</h2>
+                <p>Feedback from our mutual fund investors and clients. Every review is checked by our team before it is published.</p>
+            </div>
+            <div class="d-none" id="visitorReviews">
+                <div class="row g-4 justify-content-center" id="visitorReviewsGrid"></div>
+            </div>
+            <div class="text-center mt-5">
+                <button type="button" class="btn btn-primary rounded-pill px-5 py-3 fw-bold shadow-sm lsi-add-review-btn" data-bs-toggle="modal" data-bs-target="#addReviewModal">
+                    <i class="fas fa-star text-warning me-2"></i> Share Your Experience
+                </button>
+                <p class="text-muted small mt-2 mb-0">Invested with us? Your review is published after approval by our team.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================================================
+         MUTUAL FUND MODE: REAL INVESTOR EXPERIENCES (same case studies as home.html#mf-stories)
+         ========================================================================= -->
+    <section class="section-py bg-white mode-mf-only" id="investor-experiences">
+        <div class="container">
+            <div class="row align-items-center g-4 mb-5">
+                <div class="col-lg-6">
+                    <span class="mf-visual-badge-pill"><i class="fas fa-users"></i> Investor Experiences</span>
+                    <h2 class="display-6 fw-bold text-dark mb-3">Real Investor Experiences</h2>
+                    <p class="lead text-dark fw-bold mb-3">
+                        Real-world examples of families, professionals, and young investors achieving life milestones through systematic investing.
+                    </p>
+                    <p class="text-muted mb-4" style="line-height: 1.8;">
+                        Whether it is funding a child's dream education, creating an inflation-proof retirement pension, or building an emergency corpus, disciplined compounding turns financial aspirations into reality.
+                    </p>
+                    <a href="https://p.njw.bz/33377" target="_blank" rel="noopener" class="btn btn-primary rounded-pill px-4 fw-bold">
+                        <i class="fas fa-user-plus me-1"></i> Start Your Wealth Journey
+                    </a>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <img src="img/mf-visual-investor-stories-collage.png" alt="Mutual fund investors and families" class="img-fluid rounded-3 border bg-white p-2 shadow-sm mfs-intro-img" loading="lazy">
                 </div>
             </div>
 
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <article class="mfs-experience-card">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="mfs-experience-icon"><i class="fas fa-piggy-bank"></i></div>
+                            <div class="mfs-experience-kicker">CASE STUDY: CHILD EDUCATION FUND</div>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">Building a Higher Education Corpus through a ₹5,000 SIP</h5>
+                        <p class="text-muted small mb-3" style="line-height: 1.8;">
+                            A parent from Uran initiated a monthly SIP of ₹5,000 when their child was 5 years old. Over a disciplined 12-year horizon, rupee cost averaging helped build a resilient fund that funded professional college education comfortably.
+                        </p>
+                        <div class="mfs-experience-lesson">
+                            Key Lesson: "Starting early and staying invested through market volatility ensures peace of mind."
+                        </div>
+                    </article>
+                </div>
+                <div class="col-md-6">
+                    <article class="mfs-experience-card">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="mfs-experience-icon"><i class="fas fa-hand-holding-usd"></i></div>
+                            <div class="mfs-experience-kicker">CASE STUDY: RETIREMENT CASHFLOW</div>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">Creating a Regular Monthly Pension via SWP</h5>
+                        <p class="text-muted small mb-3" style="line-height: 1.8;">
+                            A retired individual structured their accumulated savings into a balanced hybrid mutual fund portfolio, withdrawing a fixed monthly cashflow via Systematic Withdrawal Plan (SWP) with higher tax efficiency than traditional fixed deposits.
+                        </p>
+                        <div class="mfs-experience-lesson">
+                            Key Lesson: "SWP provides regular cashflows while remaining capital continues to compound."
+                        </div>
+                    </article>
+                </div>
+            </div>
+            <p class="mfs-note text-center mt-4 mb-0"><i class="fas fa-info-circle me-1"></i> Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully</p>
+        </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION 1: STUDENT LEARNING JOURNEYS (Academy mode)
+         ========================================================================= -->
+    <section class="section-py mf-bg-visual mf-bg-visual--journey bg-white mode-academy-only" id="journeys">
+        <div class="container">
             <div class="text-center mx-auto pb-5 mode-academy-only" style="max-width: 750px;">
                 <span class="badge-brand-blue mb-2 text-uppercase">Real Growth</span>
                 <h2 class="display-6 fw-bold mb-3">Success Stories</h2>
@@ -363,7 +501,7 @@
     <!-- =========================================================================
          SECTION 2: CLASSROOM BATCH STORIES (IMAGE GALLERY)
          ========================================================================= -->
-    <section class="section-py bg-light border-top border-bottom" id="batch-stories">
+    <section class="section-py bg-light border-top border-bottom mode-academy-only" id="batch-stories">
         <div class="container">
             <div class="text-center mx-auto pb-4" style="max-width: 750px;">
                 <span class="badge-brand-green mb-2 text-uppercase">Cohort Spirit</span>
@@ -558,7 +696,7 @@
     <!-- =========================================================================
          SECTION 3: EVENTS & COMMUNITY SEMINARS
          ========================================================================= -->
-    <section class="section-py mf-bg-visual mf-bg-visual--journey bg-white" id="events">
+    <section class="section-py mf-bg-visual mf-bg-visual--journey bg-white mode-academy-only" id="events">
         <div class="container">
             <div class="text-center mx-auto pb-5" style="max-width: 750px;">
                 <span class="badge-brand-blue mb-2 text-uppercase">Outreach & Education</span>
@@ -613,7 +751,7 @@
             <canvas class="mf-live-wave-canvas"></canvas>
         </div>
         <div class="container text-center py-4">
-            <div class="mx-auto lsi-cta-box" style="max-width: 800px;">
+            <div class="mx-auto lsi-cta-box mode-academy-only" style="max-width: 800px;">
                 <span class="badge bg-primary text-uppercase mb-3 px-3 py-1">Be Part of the Community</span>
                 <h2 class="display-5 fw-bold text-white mb-3 lsi-oneline-heading">Write Your Own Success Story With LSI</h2>
                 <p class="text-light fs-5 mb-4" style="line-height: 1.8; opacity: 0.9;">
@@ -626,6 +764,24 @@
                     <a href="https://wa.me/919920254354?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20know%20about%20upcoming%20community%20seminars" target="_blank" class="btn btn-outline-light btn-lg rounded-pill px-4">
                         <i class="fab fa-whatsapp text-success me-2"></i> Connect on WhatsApp
                     </a>
+                </div>
+            </div>
+            <div class="mx-auto lsi-cta-box mode-mf-only" style="max-width: 800px;">
+                <span class="badge bg-primary text-uppercase mb-3 px-3 py-1">Your Experience Matters</span>
+                <h2 class="display-5 fw-bold text-white mb-3 lsi-oneline-heading">Start Your Own Investor Journey</h2>
+                <p class="text-light fs-5 mb-4" style="line-height: 1.8; opacity: 0.9;">
+                    Talk to us about SIP, SWP and goal-based mutual fund investing, or share your experience as an investor.
+                </p>
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <a href="https://p.njw.bz/33377" target="_blank" rel="noopener" class="btn btn-enquire btn-lg px-5">
+                        <i class="fas fa-user-plus me-2"></i> Start Your Wealth Journey
+                    </a>
+                    <a href="https://wa.me/919920254354?text=Hi%20Lord%20Sai%20Investment,%20I%20want%20to%20know%20more%20about%20mutual%20fund%20investing" target="_blank" rel="noopener" class="btn btn-outline-light btn-lg rounded-pill px-4">
+                        <i class="fab fa-whatsapp text-success me-2"></i> Connect on WhatsApp
+                    </a>
+                    <button type="button" class="btn btn-outline-light btn-lg rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#addReviewModal">
+                        <i class="fas fa-star text-warning me-2"></i> Share Your Experience
+                    </button>
                 </div>
             </div>
         </div>
@@ -784,6 +940,7 @@
                         <a href="investments.html"><i class="fas fa-angle-right me-1"></i> Investments</a>
                         <a href="insurance.html"><i class="fas fa-angle-right me-1"></i> Insurance</a>
                         <a href="financial-planning.html"><i class="fas fa-angle-right me-1"></i> Financial Planning</a>
+                        <a href="student-login.html" class="mode-academy-only" data-i18n="nav.studentLogin"><i class="fas fa-angle-right me-1"></i> Student Login</a>
                         <a href="contact.html"><i class="fas fa-angle-right me-1"></i> Contact</a>
                     </div>
                 </div>
@@ -839,8 +996,8 @@
                     has been independently assessed and found to be in compliance with the requirement of the standard:
                 </p>
                 <p class="lsi-accred-standard">ISO 9001:2015</p>
-                <p class="lsi-accred-scope-label">For the following scope of activities:</p>
-                <p class="lsi-accred-scope">
+                <p class="lsi-accred-scope-label mode-academy-only">For the following scope of activities:</p>
+                <p class="lsi-accred-scope mode-academy-only">
                     Share Market Basic to Advance Course
                     <span class="lsi-accred-scope-note">(Only Educational Purpose)</span>
                 </p>
@@ -853,7 +1010,6 @@
     <div class="container-fluid copyright py-3">
         <div class="container text-center">
             <span>&copy; Lord Sai Investment & Share Market Academy (Class). All Rights Reserved.</span>
-            <a href="student-login.html" class="btn btn-sm btn-outline-info rounded-pill px-3 ms-3 lsi-student-link mode-academy-only" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
         </div>
     </div>
     <!-- Copyright End -->
@@ -866,6 +1022,84 @@
 
     <!-- Back to Top -->
     <a href="#" class="back-to-top"><i class="fa fa-arrow-up"></i></a>
+
+    <!-- Investor "Share Your Experience" modal (Mutual Fund mode). Same form as testimonials.html,
+         driven by js/reviews.js: saved as a PENDING Mutual Fund review until the admin approves it. -->
+    <div class="modal fade" id="addReviewModal" tabindex="-1" aria-labelledby="addReviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, var(--lsi-navy), var(--lsi-blue)); border-radius: 16px 16px 0 0;">
+                    <div>
+                        <h5 class="modal-title fw-bold text-white" id="addReviewModalLabel"><i class="fas fa-star text-warning me-2"></i>Add Your Review</h5>
+                        <small class="text-light opacity-75" id="addReviewModalSubtitle">Share your Mutual Fund investment experience — published after approval by our team.</small>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div id="reviewFormWrap">
+                        <form id="reviewForm" novalidate>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="reviewName" class="form-label fw-bold small text-muted">Full Name *</label>
+                                    <input type="text" class="form-control" id="reviewName" name="fullName" maxlength="150" placeholder="Enter your full name" required autocomplete="name">
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="reviewEmail" class="form-label fw-bold small text-muted">Email *</label>
+                                    <input type="email" class="form-control" id="reviewEmail" name="email" maxlength="190" placeholder="you@example.com" required autocomplete="email">
+                                    <div class="invalid-feedback"></div>
+                                    <div class="form-text">Never shown publicly. Used only to confirm your review.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="reviewCourse" id="reviewCourseLabel" class="form-label fw-bold small text-muted">Service / Investment Goal <span class="fw-normal">(optional)</span></label>
+                                    <input type="text" class="form-control" id="reviewCourse" name="course" maxlength="150" list="reviewCourseOptions" placeholder="e.g. Mutual Funds & SIP, Retirement Planning">
+                                    <datalist id="reviewCourseOptions"></datalist>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-muted d-block">Rating *</label>
+                                    <div class="lsi-star-input" id="reviewStars" role="radiogroup" aria-label="Star rating">
+                                        <button type="button" data-value="1" role="radio" aria-checked="false" aria-label="1 star"><i class="fas fa-star"></i></button>
+                                        <button type="button" data-value="2" role="radio" aria-checked="false" aria-label="2 stars"><i class="fas fa-star"></i></button>
+                                        <button type="button" data-value="3" role="radio" aria-checked="false" aria-label="3 stars"><i class="fas fa-star"></i></button>
+                                        <button type="button" data-value="4" role="radio" aria-checked="false" aria-label="4 stars"><i class="fas fa-star"></i></button>
+                                        <button type="button" data-value="5" role="radio" aria-checked="false" aria-label="5 stars"><i class="fas fa-star"></i></button>
+                                        <span class="ms-2 small text-muted" id="reviewRatingLabel">Select a rating</span>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <label for="reviewText" class="form-label fw-bold small text-muted">Your Review *</label>
+                                    <textarea class="form-control" id="reviewText" name="reviewText" rows="5" placeholder="Tell us about your investment experience (20–1000 characters)" required></textarea>
+                                    <div class="invalid-feedback"></div>
+                                    <div class="form-text text-end" id="reviewCount">0 / 1000</div>
+                                </div>
+                                <div class="col-12">
+                                    <label for="reviewPhoto" class="form-label fw-bold small text-muted">Profile Photo <span class="fw-normal">(optional, JPG/PNG/WebP up to 5 MB)</span></label>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <input type="file" class="form-control" id="reviewPhoto" name="photo" accept="image/jpeg,image/png,image/webp">
+                                        <img id="reviewPhotoPreview" class="d-none rounded-circle border" alt="Preview" style="width:56px;height:56px;object-fit:cover;flex-shrink:0;">
+                                    </div>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                            <div class="alert alert-danger small py-2 mt-3 d-none" id="reviewFormError" role="alert" tabindex="-1"></div>
+                            <button type="submit" class="btn btn-primary rounded-pill w-100 py-2 mt-3" id="reviewSubmitBtn">
+                                <i class="fas fa-paper-plane me-2"></i> Submit Review
+                            </button>
+                            <p class="text-muted small text-center mt-2 mb-0">By submitting you agree that your name, rating, service and review may be shown on this website once approved.</p>
+                        </form>
+                    </div>
+                    <div class="text-center py-4 d-none" id="reviewSuccess" tabindex="-1">
+                        <div class="lsi-review-success-icon mx-auto mb-3"><i class="fas fa-check"></i></div>
+                        <h4 class="fw-bold mb-2">Thank you for sharing your experience!</h4>
+                        <p class="text-muted mb-1">Your review has been submitted successfully</p>
+                        <p class="text-muted mb-4">and is awaiting approval by our team.</p>
+                        <button type="button" class="btn btn-outline-primary rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Demo / Registration Modal -->
     <div class="modal fade" id="demoModal" tabindex="-1" aria-labelledby="demoModalLabel" aria-hidden="true">
@@ -949,15 +1183,17 @@
 
     <!-- Authentication Engine -->
     <script src="js/api-config.js"></script>
-    <script src="js/auth.js"></script>
+    <script src="js/auth.js?v=20261001-single"></script>
 
     <!-- Multilingual Engine -->
     <script src="js/translations.js?v=20260923-caps"></script>
-    <script src="js/lang.js?v=20260924-i18n2"></script>
+    <script src="js/lang.js?v=20260930-enquiry"></script>
     <script src="js/mode.js"></script>
-    <script src="js/main.js"></script>
+    <!-- Enquiry forms: emailed through the LSI backend + WhatsApp pre-filled (js/enquiry.js) -->
+    <script src="js/enquiry.js?v=20260930-enquiry"></script>
+    <script src="js/main.js?v=20260930-enquiry"></script>
 
-    <!-- Student Stories Filter & Video Modal Controller -->
+    <!-- Stories Filter & Video Modal Controller (Academy: student stories; Mutual Fund: investor videos + reviews) -->
     <script>
         (function($) {
             "use strict";
@@ -985,23 +1221,45 @@
 
             // ---- Success Stories (admin-managed, only PUBLISHED stories are returned) ----
             var apiBase = (window.LSI_CONFIG && LSI_CONFIG.API_BASE) || "/api";
+            var isMf = !!(window.LSI_Mode && LSI_Mode.getMode() === "mutual-fund");
+            if (isMf) document.title = "Investor Stories & Experiences | Lord Sai Investment";   // mode.js adds its MF prefix on ready
             function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
             function mediaUrl(p) { return p && p.indexOf("images/") === 0 ? apiBase + "/public/" + p : p; }
 
-            function storyCard(s) {
+            /** The clickable thumbnail that opens #studentVideoModal (shared by student and investor cards). */
+            function videoTrigger(s, extraAttrs) {
                 var attrs = s.videoType === "UPLOAD"
                     ? 'data-video-src="' + esc(apiBase + "/public/stories/" + s.id + "/video") + '"'
                     : 'data-video-url="' + esc(s.videoUrl || "") + '"';
                 var thumb = s.thumbnailPath ? '<img src="' + esc(mediaUrl(s.thumbnailPath)) + '" alt="' + esc(s.title) + '" class="video-pure-img" loading="lazy">'
                     : '<div class="video-pure-img d-flex align-items-center justify-content-center bg-dark text-white-50" style="min-height:220px"><i class="fas fa-video fa-3x"></i></div>';
+                return '<div class="video-pure-card" data-bs-toggle="modal" data-bs-target="#studentVideoModal" ' + attrs + ' data-video-title="' + esc(s.title) + '" data-video-caption="' + esc(s.description || "") + '" role="button"' + (extraAttrs || "") + ' aria-label="Play ' + esc(s.title) + '">' +
+                    '<div class="video-pure-thumb">' + thumb + '<div class="video-pure-overlay"><div class="video-pure-play-btn"><i class="fas fa-play"></i></div></div></div></div>';
+            }
+
+            function storyCard(s) {
                 return '<div class="col-lg-4 col-md-6 story-item" data-story-category="' + esc(s.category) + '">' +
-                    '<div class="video-story-item">' +
-                    '<div class="video-pure-card" data-bs-toggle="modal" data-bs-target="#studentVideoModal" ' + attrs + ' data-video-title="' + esc(s.title) + '" data-video-caption="' + esc(s.description || "") + '" role="button" aria-label="Play ' + esc(s.title) + '">' +
-                    '<div class="video-pure-thumb">' + thumb + '<div class="video-pure-overlay"><div class="video-pure-play-btn"><i class="fas fa-play"></i></div></div></div></div>' +
+                    '<div class="video-story-item">' + videoTrigger(s) +
                     '<div class="video-reviewer-info"><h6 class="video-reviewer-name">' + esc(s.personName || s.title) + '</h6>' +
                     '<small class="video-reviewer-location">' + esc(s.location || "") + '</small>' +
                     '<span class="badge rounded-pill bg-light text-primary border ms-2 align-middle" style="font-size:.65rem">' + esc(s.category.charAt(0) + s.category.slice(1).toLowerCase()) + '</span></div>' +
                     '</div></div>';
+            }
+
+            /** Mutual Fund mode: an investor / client video review card. */
+            function investorCard(s) {
+                return '<div class="col-lg-4 col-md-6">' +
+                    '<div class="video-story-item">' + videoTrigger(s, ' tabindex="0"') +
+                    '<div class="video-reviewer-info"><h6 class="video-reviewer-name">' + esc(s.personName || s.title) + '</h6>' +
+                    (s.location ? '<small class="video-reviewer-location">' + esc(s.location) + '</small>' : '') +
+                    '<span class="mfs-investor-tag"><i class="fas fa-chart-pie"></i> Mutual Fund Investor</span></div>' +
+                    '</div></div>';
+            }
+
+            function investorVideosEmpty() {
+                return '<div class="col-12"><div class="mfs-empty"><i class="fas fa-video"></i>' +
+                    '<h6 class="fw-bold text-dark mb-1">Investor video reviews are coming soon</h6>' +
+                    '<p class="small mb-0">Video reviews from our mutual fund investors and clients will be published here.</p></div></div>';
             }
 
             function applyStoryFilter() {
@@ -1023,13 +1281,32 @@
                 applyStoryFilter();
             });
 
-            // Replace the static cards with the admin-managed list. If the backend is not
-            // reachable the static cards stay, so the page never appears broken.
-            fetch(apiBase + "/public/stories").then(function (r) { return r.json(); }).then(function (res) {
-                if (!res || !res.success || !Array.isArray(res.data)) return;
-                $('#storiesGrid').html(res.data.map(storyCard).join(""));
-                applyStoryFilter();
-            }).catch(function () { /* offline: keep static fallback */ });
+            if (isMf) {
+                // Investor video reviews: only INVESTORS stories, never the student ones.
+                fetch(apiBase + "/public/stories?category=INVESTORS").then(function (r) { return r.json(); }).then(function (res) {
+                    var list = res && res.success && Array.isArray(res.data) ? res.data : [];
+                    $('#investorVideosGrid').html(list.length ? list.map(investorCard).join("") : investorVideosEmpty());
+                }).catch(function () { $('#investorVideosGrid').html(investorVideosEmpty()); });
+
+                // Keyboard: Enter / Space on a focused investor video opens it like a click.
+                $(document).on('keydown', '#investorVideosGrid .video-pure-card', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $(this).trigger('click'); }
+                });
+
+                // Approved Mutual Fund reviews + the "Share Your Experience" form (site=MUTUAL_FUND).
+                var reviewsScript = document.createElement("script");
+                reviewsScript.src = "js/reviews.js";
+                document.body.appendChild(reviewsScript);
+            } else {
+                // Replace the static cards with the admin-managed list. If the backend is not
+                // reachable the static cards stay, so the page never appears broken.
+                // Investor video reviews belong to the Mutual Fund page only.
+                fetch(apiBase + "/public/stories").then(function (r) { return r.json(); }).then(function (res) {
+                    if (!res || !res.success || !Array.isArray(res.data)) return;
+                    $('#storiesGrid').html(res.data.filter(function (s) { return s.category !== "INVESTORS"; }).map(storyCard).join(""));
+                    applyStoryFilter();
+                }).catch(function () { /* offline: keep static fallback */ });
+            }
 
             // Video Modal Controller (YouTube embed or self-hosted upload)
             $('#studentVideoModal').on('show.bs.modal', function (event) {
@@ -1037,7 +1314,7 @@
                 var modal = $(this);
                 var iframe = modal.find('#studentVideoIframe'), player = modal.find('#studentVideoPlayer');
                 var src = button.data('video-src'), url = button.data('video-url');
-                modal.find('#studentVideoModalLabel').text(button.data('video-title') || 'Student Learning Journey');
+                modal.find('#studentVideoModalLabel').text(button.data('video-title') || (isMf ? 'Investor Video Review' : 'Student Learning Journey'));
                 var caption = button.data('video-caption');
                 modal.find('#studentVideoCaption').text(caption || '').toggleClass('d-none', !caption);
                 if (src) {

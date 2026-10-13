@@ -33,9 +33,10 @@ class EmailTemplateTest {
     @Test
     void enrollmentTemplateWithSetupLink() {
         String html = templateEngine.process("email/enrollment", ctx(Map.of(
-                "studentId", "LSI-2026-00042", "courseName", "Share Market Education & Training",
+                "studentId", "LSI-2026-00042", "userId", "rahul4821", "courseName", "Share Market Education & Training",
                 "orderRef", "LSI-ORD-1", "amount", "₹9999.00", "setupLink", "http://x/set-password.html?token=abc")));
-        assertThat(html).contains("LSI-2026-00042", "Set my password", "token=abc", "help@lordsai.local", "LORD SAI");
+        assertThat(html).contains("LSI-2026-00042", "User ID (for login):", "rahul4821", "Student ID (reference):",
+                "Set my password", "token=abc", "help@lordsai.local", "LORD SAI");
         assertThat(html).doesNotContain("Open Student Portal");
     }
 
@@ -50,7 +51,9 @@ class EmailTemplateTest {
     @Test
     void otherTemplatesRender() {
         assertThat(templateEngine.process("email/welcome", ctx(Map.of("setupLink", "http://x", "role", "Teacher"))))
-                .contains("Teacher", "http://x");
+                .contains("Teacher", "http://x").doesNotContain("User ID");
+        assertThat(templateEngine.process("email/welcome", ctx(Map.of("setupLink", "http://x", "role", "Student", "userId", "rahul4821"))))
+                .contains("rahul4821", "User ID", "not used to log in");
         assertThat(templateEngine.process("email/password-reset", ctx(Map.of("resetLink", "http://reset"))))
                 .contains("http://reset", "30 minutes");
         assertThat(templateEngine.process("email/payment-confirmation",
@@ -69,11 +72,13 @@ class EmailTemplateTest {
     @Test
     void emailSettingsAndCredentialTemplatesRender() {
         assertThat(templateEngine.process("email/test", ctx(Map.of("requestedBy", "admin@x", "source", "ADMIN"))))
-                .contains("test email from the LSI VITC administration system", "working correctly", "LSI VITC Administration", "LORD SAI");
+                .contains("test email from the Lord Sai Academy administration system", "working correctly", "Lord Sai Academy Administration", "LORD SAI")
+                .doesNotContain("VITC");
         assertThat(templateEngine.process("email/credentials", ctx(Map.of(
                 "userId", "LSI-2026-00007", "password", "Tmp9xQ2kLm4p", "loginUrl", "http://x/student-login.html"))))
                 .contains("Rahul Sharma", "LSI-2026-00007", "Tmp9xQ2kLm4p", "http://x/student-login.html",
-                        "change your password after your first login", "LSI VITC Administration");
+                        "change your password after your first login", "Lord Sai Academy Administration")
+                .doesNotContain("VITC");
         assertThat(templateEngine.process("email/password-changed", ctx(Map.of("loginUrl", "http://x/student-login.html"))))
                 .contains("password was successfully changed", "contact the administrator immediately")
                 .doesNotContain("Passw0rd");
@@ -85,11 +90,13 @@ class EmailTemplateTest {
                 "productType", "Ebook", "amount", "₹ 999.00", "paymentStatus", "PAID", "paymentDate", "17 Sep 2026, 10:32 AM IST",
                 "transactionId", "pay_ABC", "invoiceNumber", "LSI-INV-2026-000007", "orderRef", "LSI-ORD-1"));
         m.put("setupLink", "http://x/set-password.html?token=abc");
+        m.put("userId", "rahul4821");
         m.put("accessMessage", "Your purchased ebook is available only inside your authenticated Lord Sai Student Portal account.");
         String ebook = templateEngine.process("email/ebook-purchase-confirmation", ctx(m));
         assertThat(ebook).contains("Ebook Purchase Confirmed", "LSI-2026-00042", "Price Action Workbook", "LSI-INV-2026-000007",
                 "pay_ABC", "token=abc", "Direct access to the protected ebook file is not permitted",
-                "Your Student Portal credentials are only for accessing your Lord Sai Student Portal account", "#0B5FA5");
+                "Your Student Portal credentials are only for accessing your Lord Sai Student Portal account", "#0B5FA5",
+                "User ID:", "rahul4821", "not used to log in");
         assertThat(ebook).doesNotContain("Open Student Portal</a>");
 
         m.put("setupLink", null);
@@ -100,13 +107,14 @@ class EmailTemplateTest {
 
         m.put("temporaryPassword", "X7mP@92kL");
         String newPurchase = templateEngine.process("email/course-purchase-confirmation", ctx(m));
-        assertThat(newPurchase).contains("Your Student Portal login details", "Password:", "X7mP@92kL")
+        assertThat(newPurchase).contains("Your Student Portal login details", "User ID:", "rahul4821", "Password:", "X7mP@92kL")
                 .doesNotContain("Set my password &amp; log in", "Login Limit", "one device");
 
         m.put("temporaryPassword", null);
         String existing = templateEngine.process("email/existing-student-new-purchase", ctx(m));
         assertThat(existing).contains("New Purchase Added To Your Existing Student Account",
-                "You already have a Lord Sai Student Portal account, so no new account has been created", "LSI-INV-2026-000007")
+                "You already have a Lord Sai Student Portal account, so no new account has been created", "LSI-INV-2026-000007",
+                "sign in with your User ID", "rahul4821")
                 .doesNotContain("Password:", "Set my password");
 
         String invoice = templateEngine.process("email/invoice-email", ctx(m));

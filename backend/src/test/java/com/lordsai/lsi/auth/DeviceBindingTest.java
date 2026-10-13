@@ -100,7 +100,7 @@ class DeviceBindingTest {
         assertThat(bound.getDeviceStatus()).isEqualTo(DeviceStatus.ACTIVE);
 
         // Step 3: Subsequent login with registered device credentials succeeds directly
-        mockMvc.perform(post("/api/auth/login")
+        String loginBody2 = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json(Map.of(
                                 "identifier", "devbound@example.com",
@@ -111,7 +111,17 @@ class DeviceBindingTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.accessToken").isNotEmpty())
-                .andExpect(jsonPath("$.data.deviceId").value(deviceId));
+                .andExpect(jsonPath("$.data.deviceId").value(deviceId))
+                .andReturn().getResponse().getContentAsString();
+        // One login per account: this newer login replaced the session opened by the registration.
+        String registrationToken = accessToken;
+        accessToken = objectMapper.readTree(loginBody2).path("data").path("accessToken").asText();
+        mockMvc.perform(get("/api/student/profile")
+                        .header("Authorization", "Bearer " + registrationToken)
+                        .header("X-Device-Id", deviceId)
+                        .header("X-Device-Token", deviceToken))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.errors.reason").value("SIGNED_IN_ELSEWHERE"));
 
         // Step 4: Access protected student endpoint with device headers succeeds
         mockMvc.perform(get("/api/student/profile")

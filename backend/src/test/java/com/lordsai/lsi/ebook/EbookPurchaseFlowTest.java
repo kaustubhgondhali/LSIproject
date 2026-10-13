@@ -2,6 +2,8 @@ package com.lordsai.lsi.ebook;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lordsai.lsi.email.EmailService;
+import com.lordsai.lsi.email.PurchaseEmail;
 import com.lordsai.lsi.entity.Course;
 import com.lordsai.lsi.entity.Ebook;
 import com.lordsai.lsi.entity.Invoice;
@@ -25,12 +27,14 @@ import com.lordsai.lsi.repository.UserRepository;
 import com.lordsai.lsi.support.TestUsers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -75,6 +79,7 @@ class EbookPurchaseFlowTest {
     @Autowired TestUsers testUsers;
 
     @MockitoBean PaymentGateway gateway;
+    @MockitoSpyBean EmailService emailService;
 
     private Course course;
     private Ebook ebook;
@@ -129,6 +134,15 @@ class EbookPurchaseFlowTest {
         assertThat(studentProfileRepository.findByUserId(student.getId())).isPresent();
         assertThat(entitlementRepository.findByStudentIdAndEbookId(student.getId(), ebook.getId())).isPresent();
         assertThat(enrollmentRepository.findByStudentIdOrderByEnrolledAtDesc(student.getId())).isEmpty();
+
+        // Separate IDs: a generated User ID for login ("test" + 4 digits); the Student ID is only a reference.
+        var profile = studentProfileRepository.findByUserId(student.getId()).orElseThrow();
+        assertThat(profile.getLoginId()).matches("test\\d{4}").isNotEqualTo(profile.getStudentId());
+        ArgumentCaptor<PurchaseEmail> mail = ArgumentCaptor.forClass(PurchaseEmail.class);
+        org.mockito.Mockito.verify(emailService).sendPurchaseEmail(mail.capture());
+        assertThat(mail.getValue().model())
+                .containsEntry("userId", profile.getLoginId())
+                .containsEntry("studentId", profile.getStudentId());
 
         var payment = paymentRepository.findByRazorpayOrderId(rzpOrderId).orElseThrow();
         assertThat(payment.getProductType()).isEqualTo(ProductType.EBOOK);

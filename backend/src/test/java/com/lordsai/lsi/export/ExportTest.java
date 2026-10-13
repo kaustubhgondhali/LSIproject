@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.lordsai.lsi.entity.enums.AccountStatus;
 import com.lordsai.lsi.entity.enums.Role;
 import com.lordsai.lsi.support.ApiClient;
+import com.lordsai.lsi.support.TestAadhaar;
 import com.lordsai.lsi.support.TestUsers;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -38,36 +39,53 @@ class ExportTest {
     @Autowired ExcelExporter excelExporter;
 
     private String office;
+    private String mainAdmin;
     private long batchId;
 
     @BeforeEach
     void setUp() throws Exception {
         users.create("office@test.local", Role.AUTOMATION_ADMIN, AccountStatus.ACTIVE);
         office = api.login("office@test.local", TestUsers.PASSWORD);
+        users.admin("main.admin@test.local");
+        mainAdmin = api.login("main.admin@test.local", TestUsers.PASSWORD);
         JsonNode lookups = api.data(api.get(office, "/api/automation/lookups"));
         batchId = lookups.path("batches").get(0).path("id").asLong();
         long courseId = lookups.path("courses").get(0).path("id").asLong();
         api.post(office, "/api/automation/students", Map.of("fullName", "Export Alpha", "mobile", "9000000001", "batchId", batchId,
-                "courseId", courseId, "courseFee", 10000, "admissionDate", "2026-01-10")).andExpect(status().isOk());
+                "courseId", courseId, "courseFee", 10000, "admissionDate", "2026-01-10",
+                "email", "alpha@example.com", "address", "Uran", "aadhaarNo", TestAadhaar.next())).andExpect(status().isOk());
         api.post(office, "/api/automation/students", Map.of("fullName", "Export Beta", "mobile", "9000000002", "batchId", batchId,
-                "courseId", courseId, "courseFee", 10000, "admissionDate", "2026-01-11")).andExpect(status().isOk());
+                "courseId", courseId, "courseFee", 10000, "admissionDate", "2026-01-11",
+                "email", "beta@example.com", "address", "Uran", "aadhaarNo", TestAadhaar.next())).andExpect(status().isOk());
     }
 
     @Test
     void everyReportExportsAsCsvXlsxPdfAndPrint() throws Exception {
+        // Offline academy reports: the Automation Admin's own.
         for (String report : List.of("students", "fee-collection", "receipts", "attendance", "batches", "courses-master",
-                "payment-modes", "purchases", "invoices", "communications", "ebooks")) {
-            api.get(office, "/api/automation/reports/" + report).andExpect(status().isOk());
-            api.get(office, "/api/automation/reports/" + report + "/csv").andExpect(status().isOk())
-                    .andExpect(header().string("Content-Type", org.hamcrest.Matchers.startsWith("text/csv")));
-            api.get(office, "/api/automation/reports/" + report + "/xlsx").andExpect(status().isOk())
-                    .andExpect(header().string("Content-Type", org.hamcrest.Matchers.startsWith("application/vnd.openxmlformats")));
-            api.get(office, "/api/automation/reports/" + report + "/pdf").andExpect(status().isOk())
-                    .andExpect(header().string("Content-Type", "application/pdf"));
-            api.get(office, "/api/automation/reports/" + report + "/print").andExpect(status().isOk())
-                    .andExpect(header().string("Content-Type", org.hamcrest.Matchers.startsWith("text/html")));
+                "payment-modes", "communications")) {
+            exportsInEveryFormat(office, report);
+        }
+        // Online academy reports (Purchase Reports, Invoices, ebooks) live in the Main Admin panel only.
+        for (String report : List.of("purchases", "invoices", "ebooks")) {
+            exportsInEveryFormat(mainAdmin, report);
+            for (String suffix : List.of("", "/csv", "/xlsx", "/pdf", "/print")) {
+                api.get(office, "/api/automation/reports/" + report + suffix).andExpect(status().isForbidden());
+            }
         }
         api.get(office, "/api/automation/reports/does-not-exist/xlsx").andExpect(status().isBadRequest());
+    }
+
+    private void exportsInEveryFormat(String token, String report) throws Exception {
+        api.get(token, "/api/automation/reports/" + report).andExpect(status().isOk());
+        api.get(token, "/api/automation/reports/" + report + "/csv").andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", org.hamcrest.Matchers.startsWith("text/csv")));
+        api.get(token, "/api/automation/reports/" + report + "/xlsx").andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", org.hamcrest.Matchers.startsWith("application/vnd.openxmlformats")));
+        api.get(token, "/api/automation/reports/" + report + "/pdf").andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "application/pdf"));
+        api.get(token, "/api/automation/reports/" + report + "/print").andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", org.hamcrest.Matchers.startsWith("text/html")));
     }
 
     @Test

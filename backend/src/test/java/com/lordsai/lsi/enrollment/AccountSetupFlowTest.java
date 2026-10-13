@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.lordsai.lsi.email.EmailDelivery;
 import com.lordsai.lsi.email.EmailService;
 import com.lordsai.lsi.entity.AccountToken;
+import com.lordsai.lsi.entity.StudentProfile;
 import com.lordsai.lsi.entity.User;
 import com.lordsai.lsi.entity.enums.AccountStatus;
 import com.lordsai.lsi.entity.enums.TokenPurpose;
@@ -64,10 +65,32 @@ class AccountSetupFlowTest {
     @BeforeEach
     void setUp() {
         courseId = courseRepository.findByCourseCodeIgnoreCase("SMET-MASTER").orElseThrow().getId();
-        when(emailService.sendEnrollmentEmail(any(), anyString(), anyString(), anyString(), anyString(), any()))
+        when(emailService.sendEnrollmentEmail(any(), anyString(), anyString(), anyString(), anyString(), anyString(), any()))
                 .thenReturn(EmailDelivery.sent());
         // Purchases now send the purchase-confirmation email (invoice attached); resends still use the enrollment email.
         when(emailService.sendPurchaseEmail(any())).thenReturn(EmailDelivery.sent());
+        when(emailService.sendWelcomeEmail(any(), any(), any())).thenReturn(EmailDelivery.sent());
+    }
+
+    /**
+     * A student the Main Admin added without credentials: the account waits in PENDING_SETUP until
+     * the student chooses a password from the one-time setup link in the welcome email (returned
+     * here). A purchase by a NEW email instead creates an active account and emails the User ID and
+     * a password — see LoginCredentialsEmailTest.
+     */
+    private String pendingStudent(String email) throws Exception {
+        if (userRepository.findByEmailIgnoreCase("setup.admin@test.local").isEmpty()) {
+            users.admin("setup.admin@test.local");
+        }
+        String admin = api.login("setup.admin@test.local", TestUsers.PASSWORD);
+        api.post(admin, "/api/admin/students", Map.of("fullName", "Demo Buyer", "email", email, "mobile", "9876543210"))
+                .andExpect(status().isOk());
+        assertThat(userRepository.findByEmailIgnoreCase(email).orElseThrow().getAccountStatus())
+                .isEqualTo(AccountStatus.PENDING_SETUP);
+        ArgumentCaptor<String> link = ArgumentCaptor.forClass(String.class);
+        verify(emailService).sendWelcomeEmail(any(), any(), link.capture());
+        clearInvocations(emailService);
+        return link.getValue();
     }
 
     /** Captures the setup link carried by the purchase-confirmation email model. */
@@ -86,7 +109,7 @@ class AccountSetupFlowTest {
     private String captureSetupLink(int expectedSends) {
         ArgumentCaptor<String> link = ArgumentCaptor.forClass(String.class);
         verify(emailService, times(expectedSends)).sendEnrollmentEmail(
-                any(), anyString(), anyString(), anyString(), anyString(), link.capture());
+                any(), anyString(), anyString(), anyString(), anyString(), anyString(), link.capture());
         return link.getValue();
     }
 
@@ -98,18 +121,20 @@ class AccountSetupFlowTest {
     // ---- 1-9: the complete happy path -------------------------------------------------------
 
     @Test
-    void purchaseCreatesStudentIdAndSetupLinkThatActivatesTheAccountForLogin() throws Exception {
+    void aStudentAddedByTheAdminBuysACourseAndTheSetupLinkActivatesTheAccountForLogin() throws Exception {
+        pendingStudent("chain@example.com");
+        User student = userRepository.findByEmailIgnoreCase("chain@example.com").orElseThrow();
+        String studentId = studentProfileRepository.findByUserId(student.getId()).orElseThrow().getStudentId();
+        assertThat(studentId).matches("LSI-\\d{4}-\\d{5}");
+        assertThat(student.getPasswordHash()).isNull();
+
+        // The purchase reuses the waiting account and its email carries a fresh setup link.
         JsonNode purchase = api.data(api.post(null, "/api/payments/demo-complete", buyer("chain@example.com"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.newAccount").value(true))
+                .andExpect(jsonPath("$.data.newAccount").value(false))
                 .andExpect(jsonPath("$.data.setupEmailSent").value(true)));
-
-        String studentId = purchase.path("studentId").asText();
-        assertThat(studentId).matches("LSI-\\d{4}-\\d{5}");
-
-        User student = userRepository.findByEmailIgnoreCase("chain@example.com").orElseThrow();
-        assertThat(student.getAccountStatus()).isEqualTo(AccountStatus.PENDING_SETUP);
-        assertThat(student.getPasswordHash()).isNull();
+        assertThat(purchase.path("studentId").asText()).isEqualTo(studentId);
+        assertThat(userRepository.findById(student.getId()).orElseThrow().getAccountStatus()).isEqualTo(AccountStatus.PENDING_SETUP);
         assertThat(enrollmentRepository.findByStudentIdAndCourseId(student.getId(), courseId)).isPresent();
 
         String token = rawToken(capturePurchaseSetupLink());
@@ -126,13 +151,18 @@ class AccountSetupFlowTest {
         assertThat(activated.getAccountStatus()).isEqualTo(AccountStatus.ACTIVE);
         assertThat(activated.getPasswordHash()).isNotNull().doesNotContain("Chosen0nePass");
 
-        // The Student ID survives account setup and is accepted as the login identifier.
-        assertThat(studentProfileRepository.findByUserId(student.getId()).orElseThrow().getStudentId())
-                .isEqualTo(studentId);
+        // The Student ID survives account setup; the separate User ID ("demo" + 4 digits) is the login identifier.
+        StudentProfile profile = studentProfileRepository.findByUserId(student.getId()).orElseThrow();
+        assertThat(profile.getStudentId()).isEqualTo(studentId);
+        String userId = profile.getLoginId();
+        assertThat(userId).matches("demo\\d{4}");
+        api.post(null, "/api/auth/login", Map.of("identifier", studentId, "password", "Chosen0nePass", "portal", "STUDENT"))
+                .andExpect(status().isUnauthorized());
 
         JsonNode login = api.data(api.post(null, "/api/auth/login",
-                        Map.of("identifier", studentId, "password", "Chosen0nePass", "portal", "STUDENT"))
+                        Map.of("identifier", userId, "password", "Chosen0nePass", "portal", "STUDENT"))
                 .andExpect(status().isOk()));
+        assertThat(login.path("user").path("loginUserId").asText()).isEqualTo(userId);
         assertThat(login.path("accessToken").asText()).isNotBlank();
         assertThat(login.path("redirectUrl").asText()).isEqualTo("student-dashboard.html");
         assertThat(login.path("user").path("studentId").asText()).isEqualTo(studentId);
@@ -174,8 +204,7 @@ class AccountSetupFlowTest {
 
     @Test
     void expiredSetupTokenIsRejected() throws Exception {
-        api.post(null, "/api/payments/demo-complete", buyer("expired@example.com")).andExpect(status().isOk());
-        String token = rawToken(capturePurchaseSetupLink());
+        String token = rawToken(pendingStudent("expired@example.com"));
 
         AccountToken stored = tokenRepository.findAll().stream()
                 .filter(t -> t.getPurpose() == TokenPurpose.ACCOUNT_SETUP).findFirst().orElseThrow();
@@ -192,8 +221,7 @@ class AccountSetupFlowTest {
 
     @Test
     void usedSetupTokenCannotBeReplayed() throws Exception {
-        api.post(null, "/api/payments/demo-complete", buyer("once@example.com")).andExpect(status().isOk());
-        String token = rawToken(capturePurchaseSetupLink());
+        String token = rawToken(pendingStudent("once@example.com"));
 
         api.post(null, "/api/auth/reset-password", Map.of("token", token, "newPassword", "FirstPass01"))
                 .andExpect(status().isOk());
@@ -237,6 +265,7 @@ class AccountSetupFlowTest {
 
     @Test
     void resendIssuesAFreshTokenInvalidatesTheOldOneAndCreatesNoDuplicates() throws Exception {
+        pendingStudent("resend@example.com");
         api.post(null, "/api/payments/demo-complete", buyer("resend@example.com")).andExpect(status().isOk());
         String firstToken = rawToken(capturePurchaseSetupLink());
         User student = userRepository.findByEmailIgnoreCase("resend@example.com").orElseThrow();
@@ -271,8 +300,8 @@ class AccountSetupFlowTest {
         api.post(null, "/api/auth/resend-setup", Map.of("email", "nobody@example.com"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value(
-                        "If that email has an enrollment, we have re-sent the Student ID and password setup link."));
-        verify(emailService, times(0)).sendEnrollmentEmail(any(), anyString(), anyString(), anyString(), anyString(), any());
+                        "If that email has an enrollment, we have re-sent your User ID and password setup link."));
+        verify(emailService, times(0)).sendEnrollmentEmail(any(), anyString(), anyString(), anyString(), anyString(), anyString(), any());
     }
 
     @Test
@@ -289,6 +318,7 @@ class AccountSetupFlowTest {
 
     @Test
     void adminCanResendTheSetupEmail() throws Exception {
+        pendingStudent("adminresend@example.com");
         api.post(null, "/api/payments/demo-complete", buyer("adminresend@example.com")).andExpect(status().isOk());
         User student = userRepository.findByEmailIgnoreCase("adminresend@example.com").orElseThrow();
         clearInvocations(emailService);
@@ -310,7 +340,7 @@ class AccountSetupFlowTest {
         users.admin("admin2@test.local");
         String admin = api.login("admin2@test.local", TestUsers.PASSWORD);
 
-        when(emailService.sendEnrollmentEmail(any(), anyString(), anyString(), anyString(), anyString(), any()))
+        when(emailService.sendEnrollmentEmail(any(), anyString(), anyString(), anyString(), anyString(), anyString(), any()))
                 .thenReturn(EmailDelivery.failed("MailAuthenticationException: 535 auth failed"));
 
         api.post(admin, "/api/admin/students/" + student.getId() + "/resend-setup", null)

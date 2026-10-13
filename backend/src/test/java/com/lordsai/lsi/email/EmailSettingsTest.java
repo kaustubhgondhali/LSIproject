@@ -227,7 +227,7 @@ class EmailSettingsTest {
 
     private Map<String, Object> settings(boolean enabled) {
         Map<String, Object> m = new HashMap<>();
-        m.put("senderName", "LSI VITC Administration");
+        m.put("senderName", "Lord Sai Academy Administration");
         m.put("senderEmail", "No-Reply@Example.com");
         m.put("smtpHost", "127.0.0.1");
         m.put("smtpPort", 2525);
@@ -416,7 +416,7 @@ class EmailSettingsTest {
     @Test
     void failureDescriptionsAreActionableAndSecretFree() {
         assertThat(SmtpEmailService.describe(new org.springframework.mail.MailAuthenticationException("535 5.7.8 bad creds for mailer")))
-                .isEqualTo("Authentication failed. Check the SMTP username and password.");
+                .isEqualTo(SmtpEmailService.AUTH_FAILED).startsWith("Authentication failed").contains("App Password", "Main Admin > Email Settings");
         assertThat(SmtpEmailService.describe(new org.springframework.mail.MailSendException("x",
                 new java.net.UnknownHostException("smtp.nowhere.invalid"))))
                 .isEqualTo("SMTP host not found. Check the host name.");

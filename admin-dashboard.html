@@ -59,7 +59,7 @@
 <body>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="js/api-config.js"></script>
-    <script src="js/auth.js"></script>
+    <script src="js/auth.js?v=20261001-single"></script>
     <script>LSI_Auth.requireAuth('admin');</script>
 
     <div class="adm-layout">
@@ -79,13 +79,12 @@
                 <a href="#ebooks" data-view="ebooks"><i class="fas fa-tablet-alt"></i> Ebooks</a>
                 <a href="#curriculum" data-view="curriculum"><i class="fas fa-layer-group"></i> Modules &amp; Lessons</a>
                 <a href="#enrollments" data-view="enrollments"><i class="fas fa-id-card"></i> Enrollments</a>
-                <a href="#exam-applications" data-view="exam-applications"><i class="fas fa-file-signature"></i> Exam Applications <span class="badge bg-warning text-dark ms-1 d-none" id="navPendingExamApps">0</span></a>
-                <a href="#exams" data-view="exams"><i class="fas fa-question-circle"></i> Exams</a>
-                <a href="#exam-results" data-view="exam-results"><i class="fas fa-poll"></i> Exam Results</a>
+                <a href="#certificate-requests" data-view="certificate-requests"><i class="fas fa-file-signature"></i> Certificate Requests <span class="badge bg-warning text-dark ms-1 d-none" id="navPendingCertRequests">0</span></a>
                 <a href="#certificates" data-view="certificates"><i class="fas fa-award"></i> Certificates</a>
                 <a href="#mentoring" data-view="mentoring"><i class="fas fa-comments"></i> Doubt Desk</a>
                 <div class="section-label">Business</div>
                 <a href="#payments" data-view="payments"><i class="fas fa-rupee-sign"></i> Payments</a>
+                <a href="#purchases" data-view="purchases"><i class="fas fa-shopping-cart"></i> Purchase Reports</a>
                 <a href="#invoices" data-view="invoices"><i class="fas fa-file-invoice"></i> Invoices</a>
                 <a href="#gateway" data-view="gateway"><i class="fas fa-credit-card"></i> Payment Gateway</a>
                 <a href="#reviews" data-view="reviews"><i class="fas fa-star"></i> Testimonials <span class="badge bg-warning text-dark ms-1 d-none" id="navPendingReviews">0</span></a>
@@ -148,12 +147,12 @@
                             <select class="form-select form-select-sm" id="studentStatusFilter" style="width:auto;">
                                 <option value="">All statuses</option><option value="ACTIVE">Active</option><option value="PENDING_SETUP">Pending setup</option><option value="DISABLED">Disabled</option>
                             </select>
-                            <input type="search" class="form-control form-control-sm" id="studentSearch" placeholder="Search name / email / mobile" style="width:240px;">
+                            <input type="search" class="form-control form-control-sm" id="studentSearch" placeholder="Search name / email / mobile / ID" style="width:240px;">
                             <button class="btn btn-sm btn-primary" onclick="Admin.openStudentForm()"><i class="fas fa-plus me-1"></i> Add Student</button>
                         </div>
                     </div>
                     <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0">
-                        <thead><tr><th>Student ID</th><th>Name</th><th>Email</th><th>Mobile</th><th>Courses</th><th>Status</th><th>Last Login</th><th></th></tr></thead>
+                        <thead><tr><th>Student ID</th><th>User ID (login)</th><th>Name</th><th>Email</th><th>Mobile</th><th>Courses</th><th>Status</th><th>Last Login</th><th></th></tr></thead>
                         <tbody id="studentsBody"></tbody></table></div>
                         <div class="p-2 border-top d-flex justify-content-between align-items-center"><small class="text-muted" id="studentsCount"></small><div id="studentsPager"></div></div>
                     </div>
@@ -190,9 +189,9 @@
                                     <i class="fas fa-external-link-alt me-1"></i> Preview Course Page
                                 </a>
                                 <div class="form-check form-switch m-0 ms-2" style="font-size:1.35rem;">
-                                    <input class="form-check-input" type="checkbox" role="switch" id="shareMarketPurchaseSwitch" checked style="cursor:pointer;" title="Toggle Share Market Course Purchase" onchange="window.LSI_setPurchaseSetting ? window.LSI_setPurchaseSetting(this.checked) : null">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="shareMarketPurchaseSwitch" checked style="cursor:pointer;" title="Toggle Share Market Course Purchase">
                                 </div>
-                                <button type="button" class="btn btn-sm btn-outline-secondary" id="btnToggleShareMarketPurchase" style="min-width:85px;" onclick="window.LSI_togglePurchaseSetting ? window.LSI_togglePurchaseSetting() : null">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" id="btnToggleShareMarketPurchase" style="min-width:85px;">
                                     <span id="btnToggleShareMarketPurchaseText">Turn OFF</span>
                                 </button>
                             </div>
@@ -243,89 +242,32 @@
                     </div>
                 </section>
 
-                <section class="view" id="view-exam-applications">
+                <section class="view" id="view-certificate-requests">
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                        <div><h4 class="fw-bold mb-0">Exam Applications</h4><small class="text-muted">Students who completed a course and applied for its final exam. Approve, schedule the exam window, or reject.</small></div>
+                        <div><h4 class="fw-bold mb-0">Certificate Requests</h4><small class="text-muted">Students who completed a course and applied for their Course Completion Certificate. Approving generates the certificate from the Lord Sai design; rejecting lets the student apply again.</small></div>
                         <div class="d-flex flex-wrap gap-2 align-items-center">
-                            <select class="form-select form-select-sm" id="exAppStatus" style="width:auto;"><option value="">All statuses</option><option value="PENDING">Pending</option><option value="APPROVED">Approved</option><option value="SCHEDULED">Scheduled</option><option value="COMPLETED">Completed</option><option value="REJECTED">Rejected</option></select>
-                            <select class="form-select form-select-sm" id="exAppCourse" style="width:auto;"><option value="">All courses</option></select>
-                            <input type="search" class="form-control form-control-sm" id="exAppSearch" placeholder="Student name / email" style="width:220px;">
-                            <button class="btn btn-sm btn-light" onclick="Admin.loadExamApplications(0)"><i class="fas fa-sync-alt me-1"></i> Refresh</button>
+                            <select class="form-select form-select-sm" id="certReqStatus" style="width:auto;"><option value="">All statuses</option><option value="PENDING" selected>Pending</option><option value="GENERATED">Approved / Generated</option><option value="REJECTED">Rejected</option></select>
+                            <input type="search" class="form-control form-control-sm" id="certReqSearch" placeholder="Student / Student ID / course" style="width:230px;">
+                            <button class="btn btn-sm btn-light" onclick="Admin.loadCertRequests(0)"><i class="fas fa-sync-alt me-1"></i> Refresh</button>
                         </div>
                     </div>
-                    <div class="row g-3 mb-3" id="exAppCounters"></div>
+                    <div class="row g-3 mb-3" id="certReqCounters"></div>
                     <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0">
-                        <thead><tr><th>ID</th><th>Student</th><th>Email</th><th>Course</th><th>Applied</th><th>Application Status</th><th>Exam / Schedule</th><th>Exam Status</th><th>Actions</th></tr></thead>
-                        <tbody id="examAppsBody"></tbody></table></div>
-                        <div class="p-2 border-top d-flex justify-content-between align-items-center"><small class="text-muted" id="examAppsCount"></small><div id="examAppsPager"></div></div>
-                    </div>
-                </section>
-                <section class="view" id="view-exams">
-                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                        <div><h4 class="fw-bold mb-0">Exams</h4><small class="text-muted">MCQ exams per course: total marks, passing marks, attempt limit and questions. Activate an exam before scheduling it.</small></div>
-                        <div class="d-flex gap-2 align-items-center">
-                            <select class="form-select form-select-sm" id="examCourseFilter" style="width:auto;"><option value="">All courses</option></select>
-                            <button class="btn btn-sm btn-primary" onclick="Admin.openExamForm()"><i class="fas fa-plus me-1"></i> Create Exam</button>
-                        </div>
-                    </div>
-                    <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0">
-                        <thead><tr><th>Exam</th><th>Course</th><th>Total</th><th>Passing</th><th>Max Attempts</th><th>Duration</th><th>Questions</th><th>Status</th><th>Applications / Attempts</th><th>Actions</th></tr></thead>
-                        <tbody id="examsBody"></tbody></table></div></div>
-                    <div class="adm-card mt-3 d-none" id="examQuestionsPanel">
-                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-3 border-bottom">
-                            <div><strong id="examQuestionsTitle">Questions</strong><br><small class="text-muted" id="examQuestionsMeta"></small></div>
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-sm btn-primary" id="examAddQuestionBtn"><i class="fas fa-plus me-1"></i> Add Question</button>
-                                <button class="btn btn-sm btn-light" onclick="Admin.closeExamQuestions()"><i class="fas fa-times me-1"></i> Close</button>
-                            </div>
-                        </div>
-                        <div id="examQuestionsBody"></div>
-                    </div>
-                </section>
-                <section class="view" id="view-exam-results">
-                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                        <div><h4 class="fw-bold mb-0">Exam Results</h4><small class="text-muted">Every submitted attempt, scored by the server. Results are final; certificates are issued automatically on a pass.</small></div>
-                        <div class="d-flex flex-wrap gap-2 align-items-center">
-                            <select class="form-select form-select-sm" id="exResCourse" style="width:auto;"><option value="">All courses</option></select>
-                            <select class="form-select form-select-sm" id="exResExam" style="width:auto;"><option value="">All exams</option></select>
-                            <select class="form-select form-select-sm" id="exResPassed" style="width:auto;"><option value="">Pass &amp; fail</option><option value="true">Passed</option><option value="false">Failed</option></select>
-                            <input type="search" class="form-control form-control-sm" id="exResSearch" placeholder="Student name / email" style="width:220px;">
-                            <button class="btn btn-sm btn-light" onclick="Admin.loadExamResults(0)"><i class="fas fa-sync-alt me-1"></i> Refresh</button>
-                        </div>
-                    </div>
-                    <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0">
-                        <thead><tr><th>Student</th><th>Student ID</th><th>Course</th><th>Exam</th><th>Attempt</th><th>Score</th><th>Total</th><th>Passing</th><th>Result</th><th>Submitted</th><th>Certificate</th></tr></thead>
-                        <tbody id="examResultsBody"></tbody></table></div>
-                        <div class="p-2 border-top d-flex justify-content-between align-items-center"><small class="text-muted" id="examResultsCount"></small><div id="examResultsPager"></div></div>
+                        <thead><tr><th>Student Name</th><th>Student ID</th><th>Course</th><th>Request Date</th><th>Status</th><th>Actions</th></tr></thead>
+                        <tbody id="certReqBody"></tbody></table></div>
+                        <div class="p-2 border-top d-flex justify-content-between align-items-center"><small class="text-muted" id="certReqCount"></small><div id="certReqPager"></div></div>
                     </div>
                 </section>
                 <section class="view" id="view-certificates">
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                        <div><h4 class="fw-bold mb-0">Certificates</h4><small class="text-muted">Certificate design used for new certificates, and every certificate issued to a student who passed the exam.</small></div>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-sm btn-light" onclick="Admin.previewCertificateTemplate()"><i class="fas fa-eye me-1"></i> Preview Current Design</button>
-                            <button class="btn btn-sm btn-primary" onclick="Admin.openCertificateTemplateForm()"><i class="fas fa-upload me-1"></i> Upload Template</button>
-                        </div>
-                    </div>
-                    <div class="row g-3 mb-3">
-                        <div class="col-lg-5">
-                            <div class="adm-card p-3 h-100" id="certTemplateStatus"><div class="text-muted">Loading…</div></div>
-                        </div>
-                        <div class="col-lg-7">
-                            <div class="adm-card h-100"><div class="table-responsive"><table class="table table-hover mb-0">
-                                <thead><tr><th>Template</th><th>File</th><th>Uploaded</th><th>Issued with</th><th>Status</th><th>Actions</th></tr></thead>
-                                <tbody id="certTemplatesBody"></tbody></table></div></div>
-                        </div>
-                    </div>
-                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
-                        <strong>Issued Certificates</strong>
+                        <div><h4 class="fw-bold mb-0">Certificates</h4><small class="text-muted">Every Course Completion Certificate issued to a student. Certificates are generated on approval of a certificate request.</small></div>
                         <div class="d-flex gap-2 align-items-center">
                             <select class="form-select form-select-sm" id="certCourse" style="width:auto;"><option value="">All courses</option></select>
                             <input type="search" class="form-control form-control-sm" id="certSearch" placeholder="Certificate no / student / ID" style="width:240px;">
                         </div>
                     </div>
                     <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0">
-                        <thead><tr><th>Certificate No.</th><th>Student</th><th>Student ID</th><th>Course</th><th>Exam</th><th>Score</th><th>Issued</th><th>Design</th><th>Actions</th></tr></thead>
+                        <thead><tr><th>Certificate No.</th><th>Student</th><th>Student ID</th><th>Course</th><th>Course Period</th><th>Issued</th><th>Actions</th></tr></thead>
                         <tbody id="certificatesBody"></tbody></table></div>
                         <div class="p-2 border-top d-flex justify-content-between align-items-center"><small class="text-muted" id="certificatesCount"></small><div id="certificatesPager"></div></div>
                     </div>
@@ -345,6 +287,25 @@
                         <thead><tr><th>Order Ref</th><th>Customer</th><th>Email</th><th>Product</th><th>Type</th><th>Invoice</th><th>Amount</th><th>Mode</th><th>Method</th><th>Razorpay Order</th><th>Razorpay Payment</th><th>Status</th><th>Date</th></tr></thead>
                         <tbody id="paymentsBody"></tbody></table></div>
                         <div class="p-2 border-top d-flex justify-content-between align-items-center"><small class="text-muted" id="paymentsCount"></small><div id="paymentsPager"></div></div>
+                    </div>
+                </section>
+
+                <section class="view" id="view-purchases">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <div><h4 class="fw-bold mb-0">Purchase Reports</h4><small class="text-muted">Every online course / ebook purchase made through the website.</small></div>
+                        <div class="d-flex flex-wrap gap-2 align-items-center">
+                            <select class="form-select form-select-sm" id="purProduct" style="width:auto;"><option value="">All products</option><option value="COURSE">Courses</option><option value="EBOOK">Ebooks</option></select>
+                            <select class="form-select form-select-sm" id="purStatus" style="width:auto;"><option value="">All statuses</option><option value="SUCCESS">Success</option><option value="CREATED">Pending</option><option value="FAILED">Failed</option><option value="REFUNDED">Refunded</option></select>
+                            <input type="date" class="form-control form-control-sm" id="purFrom" style="width:auto;" title="From">
+                            <input type="date" class="form-control form-control-sm" id="purTo" style="width:auto;" title="To">
+                            <input type="search" class="form-control form-control-sm" id="purSearch" placeholder="Student ID / name / email / product / invoice / txn" style="width:260px;">
+                            <button class="btn btn-sm btn-light" onclick="Admin.printReport('purchases')"><i class="fas fa-print me-1"></i> Print</button>
+                            <button class="btn btn-sm btn-light" onclick="Admin.exportReport('purchases','pdf')"><i class="fas fa-file-pdf me-1"></i> PDF</button>
+                            <button class="btn btn-sm btn-light" onclick="Admin.exportReport('purchases','xlsx')"><i class="fas fa-file-excel me-1"></i> Excel</button>
+                        </div>
+                    </div>
+                    <div class="adm-card"><div class="table-responsive"><table class="table table-hover mb-0" id="purTable"><thead></thead><tbody></tbody></table></div>
+                        <div class="p-2 border-top small" id="purTotals"></div>
                     </div>
                 </section>
 
@@ -447,11 +408,11 @@
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                         <div>
                             <h4 class="fw-bold mb-0">Success Stories</h4>
-                            <small class="text-muted">Video stories shown on the public <a href="stories.html" target="_blank" rel="noopener">Success Stories</a> page. Categories are content labels only.</small>
+                            <small class="text-muted">Video stories shown on the public <a href="stories.html?mode=academy" target="_blank" rel="noopener">Success Stories</a> page. <strong>Investors</strong> videos appear only on the <a href="stories.html?mode=mutual-fund" target="_blank" rel="noopener">Mutual Fund investor stories</a> page.</small>
                         </div>
                         <div class="d-flex gap-2">
                             <select class="form-select form-select-sm" id="storyCategoryFilter" style="width:auto;">
-                                <option value="">All categories</option><option value="STUDENTS">Students</option><option value="TEACHERS">Teachers</option><option value="PARENTS">Parents</option>
+                                <option value="">All categories</option><option value="STUDENTS">Students</option><option value="TEACHERS">Teachers</option><option value="PARENTS">Parents</option><option value="INVESTORS">Investors</option>
                             </select>
                             <button class="btn btn-sm btn-primary" onclick="Admin.openStoryForm()"><i class="fas fa-plus me-1"></i> Add Story</button>
                         </div>
@@ -796,7 +757,7 @@
                                         <div class="col-md-6"><label class="form-label small fw-bold">Sender Name</label><input type="text" class="form-control" id="emSenderName" placeholder="Lord Sai Academy" maxlength="100" required></div>
                                         <div class="col-md-6"><label class="form-label small fw-bold">Reply-To Email</label><input type="email" class="form-control" id="emReplyTo" placeholder="support@lordsaiinvestment.com" maxlength="190"><div class="form-text">Where recipient replies go (optional).</div></div>
                                         <div class="col-md-6"><label class="form-label small fw-bold">Verified Sending Domain</label><input type="text" class="form-control" id="emSendingDomain" placeholder="lordsaiinvestment.com" maxlength="190"><div class="form-text">Your custom domain for SPF/DKIM alignment.</div></div>
-                                        <div class="col-md-6"><label class="form-label small fw-bold">DKIM Selector</label><input type="text" class="form-control" id="emDkimSelector" placeholder="default (or s1, k1, resend)" maxlength="100"><div class="form-text">Selector name provided by your mail service.</div></div>
+                                        <div class="col-md-6"><label class="form-label small fw-bold">DKIM Selector</label><input type="text" class="form-control" id="emDkimSelector" placeholder="e.g. google (Google Workspace), selector1, s1, resend" maxlength="100"><div class="form-text">Selector name provided by your mail service. Leave blank for @gmail.com / @outlook.com senders — the provider manages DKIM itself.</div></div>
                                         <div class="em-smtp-only col-md-6"><label class="form-label small fw-bold">Encryption / Security</label>
                                             <select class="form-select" id="emSecurity">
                                                 <option value="STARTTLS">STARTTLS (port 587)</option>
@@ -865,43 +826,42 @@
 
                 <section class="view" id="view-whatsapp">
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                        <div><h4 class="fw-bold mb-0"><i class="fab fa-whatsapp text-success me-2"></i>WhatsApp Settings</h4><small class="text-muted">One central configuration. Used by invoice-on-WhatsApp and by Automation Admin → Email &amp; WhatsApp. The access token is stored encrypted and never shown again.</small></div>
-                        <button class="btn btn-sm btn-light" onclick="Admin.loadWhatsAppSettings()"><i class="fas fa-sync-alt me-1"></i> Refresh</button>
+                        <div><h4 class="fw-bold mb-0"><i class="fab fa-whatsapp text-success me-2"></i>WhatsApp</h4><small class="text-muted">Receipts, invoices and messages open in WhatsApp on this computer with the message already typed — you press Send. No WhatsApp Business account, no API, no cost.</small></div>
                     </div>
-                    <div class="adm-card p-4 mb-3" id="waStatusCard"><div class="text-muted">Loading…</div></div>
                     <div class="row g-3">
                         <div class="col-lg-6">
-                            <div class="adm-card p-4">
-                                <h6 class="fw-bold mb-1" id="waFormTitle">Configure WhatsApp</h6>
-                                <p class="text-muted small mb-3">From Meta Business → WhatsApp → API Setup: the <strong>Phone Number ID</strong> (a numeric ID, not the phone number) and a permanent <strong>System User access token</strong> with the <code>whatsapp_business_messaging</code> permission.</p>
-                                <form id="whatsappForm" autocomplete="off">
-                                    <div class="mb-2"><label class="form-label small fw-bold">Provider</label><select class="form-select" id="waProvider"><option value="META_CLOUD">WhatsApp Business Cloud API (Meta)</option></select></div>
-                                    <div class="mb-2"><label class="form-label small fw-bold">Access Token</label><input type="password" class="form-control" id="waToken" placeholder="Paste the access token" autocomplete="new-password"><div class="form-text" id="waTokenHelp">Required the first time. Never shown again after saving.</div></div>
-                                    <div class="mb-2"><label class="form-label small fw-bold">Phone Number ID</label><input type="text" class="form-control" id="waPhoneId" placeholder="e.g. 123456789012345" required inputmode="numeric" pattern="[0-9]+"></div>
-                                    <div class="mb-3"><label class="form-label small fw-bold">WhatsApp Business Account ID <span class="text-muted fw-normal">(optional)</span></label><input type="text" class="form-control" id="waBusinessId" placeholder="e.g. 98765432100000" inputmode="numeric" pattern="[0-9]*"></div>
-                                    <div class="alert alert-danger small py-2 d-none" id="waError"></div>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        <button type="submit" class="btn btn-primary" id="waSaveBtn"><i class="fas fa-save me-1"></i> <span id="waSaveLabel">Save WhatsApp Settings</span></button>
-                                        <button type="button" class="btn btn-outline-secondary" id="waTestConnBtn"><i class="fas fa-plug me-1"></i> Test WhatsApp Connection</button>
-                                    </div>
-                                    <div class="form-text mt-2">Saving verifies the credentials with the provider first; nothing is enabled until they are accepted.</div>
-                                </form>
+                            <div class="adm-card p-4 mb-3" id="waGuideCard">
+                                <h6 class="fw-bold mb-2">Set up once on the office computer</h6>
+                                <ol class="small text-muted mb-3 ps-3">
+                                    <li>Open <a href="https://web.whatsapp.com/" target="_blank" rel="noopener noreferrer">web.whatsapp.com</a> in this browser.</li>
+                                    <li>On the academy phone, open WhatsApp → <strong>Linked devices</strong> → <strong>Link a device</strong>, and scan the QR code shown on the screen.</li>
+                                    <li>Keep WhatsApp Web logged in on this computer. (Or install the WhatsApp app for Windows / Mac, link it the same way and choose "WhatsApp app" below.)</li>
+                                </ol>
+                                <h6 class="fw-bold mb-2">How sending works</h6>
+                                <ul class="small text-muted mb-3 ps-3">
+                                    <li><strong>Automation Admin → Email &amp; WhatsApp → Payment Receipt:</strong> one click emails the receipt PDF, copies a picture of the signed receipt and opens the student's WhatsApp chat with a short line typed. Press <strong>Ctrl + V</strong> to paste the picture, then <strong>Send</strong>.</li>
+                                    <li><strong>Invoices → WhatsApp:</strong> opens the student's chat with the invoice message and its download link. Press <strong>Send</strong>.</li>
+                                    <li><strong>Messages to several students:</strong> each chat opens one at a time with "Open next" — press Send in each.</li>
+                                    <li>The receipt picture needs no website: it travels inside WhatsApp itself. The invoice link opens the PDF for the student without a login and works for 30 days, once the website is online.</li>
+                                </ul>
+                                <p class="small text-muted mb-0">Message History shows WhatsApp messages as <em>Opened in WhatsApp</em>: the message goes from the academy's own WhatsApp when you press Send, so the system never claims it as delivered.</p>
                             </div>
                         </div>
                         <div class="col-lg-6">
                             <div class="adm-card p-4 mb-3">
-                                <h6 class="fw-bold mb-2">Actions</h6>
-                                <div class="d-flex flex-wrap gap-2" id="waActions"></div>
-                                <p class="text-muted small mt-3 mb-0">Disabling WhatsApp stops every WhatsApp send in the system (invoices and Automation Admin) until it is enabled again. Email is not affected.</p>
+                                <h6 class="fw-bold mb-2">Open WhatsApp in</h6>
+                                <div class="form-check mb-1"><input class="form-check-input" type="radio" name="waOpenMode" id="waModeWeb" value="web" checked><label class="form-check-label small" for="waModeWeb"><strong>WhatsApp Web</strong> in this browser (recommended)</label></div>
+                                <div class="form-check"><input class="form-check-input" type="radio" name="waOpenMode" id="waModeApp" value="app"><label class="form-check-label small" for="waModeApp"><strong>WhatsApp app</strong> installed on this computer</label></div>
+                                <div class="form-text">Remembered on this computer. On a phone, the WhatsApp app always opens.</div>
                             </div>
                             <div class="adm-card p-4">
-                                <h6 class="fw-bold mb-1">Send a Test WhatsApp</h6>
-                                <p class="text-muted small mb-3">Uses the configuration above. The number is not saved anywhere. Meta only delivers free-form messages to numbers that have messaged this business in the last 24 hours (or test numbers added in Meta).</p>
+                                <h6 class="fw-bold mb-1">Open a test chat</h6>
+                                <p class="text-muted small mb-3">Opens WhatsApp with this message typed for the number below — nothing is sent until you press Send there.</p>
                                 <form id="whatsappTestForm" autocomplete="off">
-                                    <div class="mb-2"><label class="form-label small fw-bold">Test recipient WhatsApp number</label><input type="text" class="form-control" id="waTestMobile" placeholder="10-digit Indian number or with country code, e.g. 919876543210" required></div>
-                                    <div class="mb-3"><label class="form-label small fw-bold">Test message</label><textarea class="form-control" id="waTestMessage" rows="2" maxlength="1000" required>Hello! This is a test message from Lord Sai Share Market Classes.</textarea></div>
+                                    <div class="mb-2"><label class="form-label small fw-bold" for="waTestMobile">WhatsApp number</label><input type="text" class="form-control" id="waTestMobile" placeholder="10-digit Indian number or with country code, e.g. 919876543210" required></div>
+                                    <div class="mb-3"><label class="form-label small fw-bold" for="waTestMessage">Test message</label><textarea class="form-control" id="waTestMessage" rows="2" maxlength="1000" placeholder="Hello! This is a test message from Lord Sai Share Market Classes."></textarea></div>
                                     <div class="alert alert-danger small py-2 d-none" id="waTestError"></div>
-                                    <button type="submit" class="btn btn-success btn-sm" id="waTestSendBtn"><i class="fab fa-whatsapp me-1"></i> Send Test WhatsApp</button>
+                                    <button type="submit" class="btn btn-success btn-sm"><i class="fab fa-whatsapp me-1"></i> Open test chat</button>
                                 </form>
                             </div>
                         </div>
@@ -947,7 +907,7 @@
                                     </div>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="form-check form-switch m-0" style="font-size: 1.25rem;">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="settingsShareMarketPurchaseSwitch" checked style="cursor:pointer;" title="Toggle Share Market Course Purchase" onchange="window.LSI_setPurchaseSetting ? window.LSI_setPurchaseSetting(this.checked) : null">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="settingsShareMarketPurchaseSwitch" checked style="cursor:pointer;" title="Toggle Share Market Course Purchase">
                                         </div>
                                         <span class="badge bg-success" id="settingsShareMarketPurchaseBadge">ON</span>
                                     </div>
@@ -1054,6 +1014,7 @@
     <div id="toast-area"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/admin-dashboard.js?v=20260923-caps"></script>
+    <script src="js/whatsapp-chat.js?v=20261009-picture"></script>
+    <script src="js/admin-dashboard.js?v=20261012-academy"></script>
 </body>
 </html>

@@ -71,7 +71,9 @@ public final class AuthDtos {
             String mobile,
             Role role,
             String studentId,
-            Instant lastLoginAt
+            Instant lastLoginAt,
+            /** Students: the User ID they sign in with (separate from the Student ID, which is only a reference). */
+            String loginUserId
     ) {
     }
 

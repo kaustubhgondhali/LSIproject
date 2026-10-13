@@ -35,12 +35,6 @@ public final class EbookDtos {
     ) {
     }
 
-    public record EbookPriceRequest(
-            @NotNull @DecimalMin(value = "0.00") @Digits(integer = 8, fraction = 2) BigDecimal price,
-            @DecimalMin(value = "0.00") @Digits(integer = 8, fraction = 2) BigDecimal discountedPrice
-    ) {
-    }
-
     public record EbookStatusRequest(@NotNull EbookStatus status) {
     }
 
@@ -109,8 +103,14 @@ public final class EbookDtos {
             Instant purchasedAt,
             Long invoiceId,
             String invoiceNumber,
-            boolean fileAvailable
+            boolean fileAvailable,
+            /** PAYMENT (bought), ADMIN_MANUAL (given by the Main Admin) or ACADEMY (free for an academy student). */
+            String source
     ) {
+    }
+
+    /** One ebook an academy student holds, for the Automation Admin's Ebook Login tab. */
+    public record AcademyEbook(Long ebookId, String title, EntitlementStatus status, String source) {
     }
 
     /** Admin listing of who owns an ebook / what a student owns. */

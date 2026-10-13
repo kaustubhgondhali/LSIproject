@@ -62,6 +62,11 @@ public class GmailOAuthService {
         return properties.isConfigured();
     }
 
+    /** Names exactly which GOOGLE_* variables are missing (never their values). */
+    public String notConfiguredMessage() {
+        return properties.notConfiguredMessage();
+    }
+
     /** The exact redirect URI this server will use, so the admin screen can show what to register. */
     public String redirectUri() {
         return properties.redirectUri();
@@ -72,8 +77,7 @@ public class GmailOAuthService {
     /** Step 1: where to send the admin's browser. Carries a signed, single-use state value. */
     public String authorizationUrl(User actor) {
         if (!configured()) {
-            throw new GoogleAuthException("Google sign-in is not configured on this server. Set GOOGLE_CLIENT_ID, "
-                    + "GOOGLE_CLIENT_SECRET and GOOGLE_REDIRECT_URI, then restart the backend.", false);
+            throw new GoogleAuthException(properties.notConfiguredMessage(), false);
         }
         return client.authorizationUrl(stateService.issue(actor.getId()));
     }

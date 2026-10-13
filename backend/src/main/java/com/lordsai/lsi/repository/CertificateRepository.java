@@ -17,13 +17,13 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
     /** Ownership-scoped lookup: a student can only ever resolve their own certificate. */
     Optional<Certificate> findByIdAndStudentId(Long id, Long studentUserId);
 
-    Optional<Certificate> findByAttemptId(Long attemptId);
-
     Optional<Certificate> findFirstByStudentIdAndCourseIdOrderByIssuedAtDesc(Long studentUserId, Long courseId);
 
     Optional<Certificate> findByCertificateNumberIgnoreCase(String certificateNumber);
 
-    long countByTemplateId(Long templateId);
+    Optional<Certificate> findByVerificationCode(String verificationCode);
+
+    boolean existsByVerificationCode(String verificationCode);
 
     @Query("""
             select c from Certificate c

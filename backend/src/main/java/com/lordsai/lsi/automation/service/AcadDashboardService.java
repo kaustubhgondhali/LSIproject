@@ -47,7 +47,8 @@ public class AcadDashboardService {
         long paid = active.stream().filter(r -> "PAID".equals(r.paymentStatus())).count();
         long partial = active.stream().filter(r -> "PARTIAL".equals(r.paymentStatus())).count();
         long pending = active.stream().filter(r -> "PENDING".equals(r.paymentStatus())).count();
-        BigDecimal fees = active.stream().map(StudentRow::courseFee).reduce(BigDecimal.ZERO, BigDecimal::add);
+        // What the active students have to pay: each fee after that student's discount.
+        BigDecimal fees = active.stream().map(StudentRow::netFee).reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal collected = active.stream().map(StudentRow::totalPaid).reduce(BigDecimal.ZERO, BigDecimal::add);
 
         long counted = records.totalCounted();

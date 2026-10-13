@@ -23,7 +23,7 @@
             SUCCESS: "success", CREATED: "warning text-dark", PENDING: "warning text-dark", FAILED: "danger", REFUNDED: "dark", DRAFT: "secondary",
             OPEN: "warning text-dark", IN_PROGRESS: "info text-dark", RESOLVED: "success",
             PAYMENT: "success", ADMIN_MANUAL: "info text-dark", DEMO: "warning text-dark", RAZORPAY: "primary",
-            STUDENTS: "info text-dark", TEACHERS: "primary", PARENTS: "success", PUBLISHED: "success", UNPUBLISHED: "secondary", APPROVED: "success", DECLINED: "danger",
+            STUDENTS: "info text-dark", TEACHERS: "primary", PARENTS: "success", INVESTORS: "warning text-dark", PUBLISHED: "success", UNPUBLISHED: "secondary", APPROVED: "success", DECLINED: "danger",
             SENT: "success", REVOKED: "danger", EMAIL: "primary", WHATSAPP: "success", COURSE: "info text-dark", EBOOK: "primary",
             SCHEDULED: "primary", REJECTED: "danger", PASSED: "success", SUBMITTED: "primary", EXPIRED: "danger", UPCOMING: "warning text-dark", CLOSED: "secondary" };
         return '<span class="badge bg-' + (map[status] || "secondary") + '">' + esc(String(status || "").replace(/_/g, " ")) + '</span>';
@@ -98,8 +98,8 @@
             enrollments: function () { loadEnrollments(0); }, payments: function () { loadPayments(0); }, stories: loadStories, reviews: function () { loadReviews(0); },
             mentoring: loadMentoring, "mf-slider": loadSlider, blogs: function () { loadBlogs(0); }, "blog-categories": loadBlogCategories,
             gateway: loadGateway, email: loadEmailSettings, audit: function () { loadAudit(0); }, settings: function () { el("settingsApiBase").innerText = LSI_Auth.apiBase; initShareMarketPurchaseToggle(); }, whatsapp: loadWhatsAppSettings,
-            ebooks: loadEbooks, invoices: function () { loadInvoices(0); },
-            "exam-applications": function () { loadExamApplications(0); }, exams: loadExams, "exam-results": function () { loadExamResults(0); }, certificates: function () { loadCertificates(0); } };
+            ebooks: loadEbooks, purchases: loadPurchases, invoices: function () { loadInvoices(0); },
+            "certificate-requests": function () { loadCertRequests(0); }, certificates: function () { loadCertificates(0); } };
         if (loaders[view]) loaders[view]();
     }
 
@@ -130,7 +130,7 @@
             ];
             renderPaymentStatus(s);
             updatePendingReviews(s.pendingReviews);
-            loadExamCounters();
+            loadCertRequestCounters();
             el("statCards").innerHTML = cards.map(function (c) {
                 return '<div class="col-xl-3 col-md-4 col-sm-6"><div class="adm-card stat-card"><div class="ico" style="background:' + c[3] + ';color:' + c[4] + '"><i class="fas ' + c[2] + '"></i></div><div><div class="val">' + esc(c[1]) + '</div><div class="lbl">' + c[0] + '</div></div></div></div>';
             }).join("");
@@ -203,13 +203,18 @@
             if (!handle(res, false)) return;
             var p = res.data;
             el("studentsBody").innerHTML = (p.content || []).map(function (s) {
-                return '<tr><td class="font-monospace small">' + esc(s.studentId || "—") + '</td><td><a href="#" data-student="' + s.id + '" class="fw-bold">' + esc(s.fullName) + '</a>' + (s.hasActiveSession ? ' <span class="badge badge-soft ms-1" title="Logged in now">online</span>' : '') + '</td><td>' + esc(s.email) + '</td><td>' + esc(s.mobile || "—") + '</td><td>' + s.enrolledCourses + '</td><td>' + badge(s.accountStatus) + '</td><td><small>' + dt(s.lastLoginAt) + '</small></td>' +
+                return '<tr><td class="font-monospace small">' + esc(s.studentId || "—") + '</td><td class="font-monospace small">' + esc(s.loginUserId || "—") + '</td><td><a href="#" data-student="' + s.id + '" class="fw-bold">' + esc(s.fullName) + '</a>' + (s.hasActiveSession ? ' <span class="badge badge-soft ms-1" title="Logged in now">online</span>' : '') + academyLabel(s) + '</td><td>' + esc(s.email) + '</td><td>' + esc(s.mobile || "—") + '</td><td>' + s.enrolledCourses + '</td><td>' + badge(s.accountStatus) + '</td><td><small>' + dt(s.lastLoginAt) + '</small></td>' +
                     '<td class="text-nowrap"><button class="btn btn-xs btn-outline-primary" data-student="' + s.id + '">Open</button></td></tr>';
-            }).join("") || '<tr><td colspan="8" class="text-muted text-center py-4">No students found.</td></tr>';
+            }).join("") || '<tr><td colspan="9" class="text-muted text-center py-4">No students found.</td></tr>';
             el("studentsCount").innerText = p.totalElements + " student(s)";
             pager("studentsPager", p, loadStudents);
             bindStudentLinks(el("studentsBody"));
         });
+    }
+
+    /** An Automation Admin (offline academy) student's free ebook login: Student ID LSA/..., ebook only. */
+    function academyLabel(s) {
+        return s.academyEbookOnly ? ' <span class="badge ms-1" style="background:#ECFDF5;color:#047857;border:1px solid #A7F3D0;font-weight:600" title="Made by the Automation Admin after the first installment; opens only the ebook">Automation Admin student (ebook only)</span>' : "";
     }
 
     function openStudentForm(existing) {
@@ -220,7 +225,7 @@
             input("location", "Location (optional)", existing && existing.location, { maxlength: 150 }) +
             (existing ? "" :
                 '<div class="form-check form-switch mb-2"><input class="form-check-input" type="checkbox" role="switch" name="sendCredentials" id="stSendCreds"><label class="form-check-label small fw-bold" for="stSendCreds">Send login credentials by email</label></div>' +
-                '<div class="alert alert-info small py-2 mb-0" id="stCredsHint">A password setup link will be emailed to the student. No password is shown to you.</div>');
+                '<div class="alert alert-info small py-2 mb-0" id="stCredsHint">The User ID and a password setup link will be emailed to the student. No password is shown to you.</div>');
         openForm(existing ? "Edit Student" : "Add Student", f, function (v) {
             return api(existing ? "/admin/students/" + existing.id : "/admin/students", { method: existing ? "PUT" : "POST", body: v }).then(function (res) {
                 if (handle(res)) { formModal.hide(); existing ? openStudent(existing.id) : loadStudents(0); }
@@ -230,8 +235,8 @@
         if (!existing && el("stSendCreds")) {
             el("stSendCreds").addEventListener("change", function () {
                 el("stCredsHint").innerText = this.checked
-                    ? "A temporary password will be generated, the account activated, and the Student ID + password emailed with the login link. The password is never shown to you."
-                    : "A password setup link will be emailed to the student. No password is shown to you.";
+                    ? "The account is activated and the User ID + a secure password setup link are emailed to the student with the login link. No password is shown to you."
+                    : "The User ID and a password setup link will be emailed to the student. No password is shown to you.";
             });
         }
     }
@@ -247,8 +252,10 @@
             var disabled = s.accountStatus === "DISABLED";
             el("studentDetail").innerHTML =
                 '<div class="adm-card p-4 mb-3"><div class="d-flex flex-wrap justify-content-between align-items-start gap-3">' +
-                '<div><h4 class="fw-bold mb-1">' + esc(s.fullName) + ' ' + badge(s.accountStatus) + '</h4>' +
-                '<div class="text-muted small">Student ID <strong class="font-monospace text-dark">' + esc(s.studentId || "—") + '</strong> · ' + esc(s.email) + ' · ' + esc(s.mobile || "") + '</div>' +
+                '<div><h4 class="fw-bold mb-1">' + esc(s.fullName) + ' ' + badge(s.accountStatus) + academyLabel(s) + '</h4>' +
+                '<div class="text-muted small">Student ID <strong class="font-monospace text-dark">' + esc(s.studentId || "—") + '</strong>' +
+                ' · User ID (login) <strong class="font-monospace text-dark">' + esc(s.loginUserId || "—") + '</strong>' +
+                ' · ' + esc(s.email) + ' · ' + esc(s.mobile || "") + '</div>' +
                 '<div class="text-muted small">Batch: ' + esc(s.batch || "—") + ' · Location: ' + esc(s.location || "—") + ' · Registered ' + d(s.registrationDate) + ' · Last login ' + dt(s.lastLoginAt) + '</div></div>' +
                 '<div class="d-flex flex-wrap gap-2">' +
                 '<button class="btn btn-sm btn-outline-primary" id="sdEdit"><i class="fas fa-edit me-1"></i> Edit</button>' +
@@ -294,7 +301,7 @@
 
             el("sdEdit").onclick = function () { openStudentForm(s); };
             el("sdReset").onclick = function () { if (confirmAction("Email a password link to " + s.email + "? Their current sessions will be ended.")) api("/admin/students/" + id + "/reset-password", { method: "POST" }).then(handle); };
-            el("sdResendSetup").onclick = function () { if (confirmAction("Re-send the enrollment email (Student ID + password setup link) to " + s.email + "?")) api("/admin/students/" + id + "/resend-setup", { method: "POST" }).then(handle); };
+            el("sdResendSetup").onclick = function () { if (confirmAction("Re-send the enrollment email (User ID + password setup link) to " + s.email + "?")) api("/admin/students/" + id + "/resend-setup", { method: "POST" }).then(handle); };
             el("sdSendCreds").onclick = function () { if (confirmAction("Generate a secure password setup link for " + s.fullName + " and email it to " + s.email + "? Their current password stops working and all sessions end.")) api("/admin/students/" + id + "/send-credentials", { method: "POST" }).then(function (r) { if (handle(r)) openStudent(id); }); };
             el("sdLogout").onclick = function () { if (confirmAction("Log this student out of all devices?")) api("/admin/students/" + id + "/force-logout", { method: "POST" }).then(function (r) { if (handle(r)) openStudent(id); }); };
 
@@ -322,144 +329,72 @@
         });
     }
 
-    // ---- Share Market Course Purchase Toggle (Frontend Setting) ------------
-    var SM_PURCHASE_STORAGE_KEY = "shareMarketCoursePurchaseEnabled";
-    var SM_CHANNEL_NAME = "lsi_purchase_channel";
+    // ---- Course Purchase switch (Share Market course) ----------------------------------------
+    // Stored on the server (PATCH /admin/courses/{id}/purchase): every visitor sees the same state on
+    // courses.html and the payment API refuses a closed course. It used to live only in this
+    // browser's storage, so it never reached other visitors.
+    var purchaseCourse = null;   // the course this switch controls (the Share Market course)
+    var purchaseSaving = false;
 
-    function isShareMarketPurchaseEnabled() {
-        try {
-            var val = localStorage.getItem(SM_PURCHASE_STORAGE_KEY);
-            if (val === "false") return false;
-            if (val === "true") return true;
-        } catch (e) {}
-        try {
-            var m = document.cookie.match(new RegExp('(?:^|;\\s*)' + SM_PURCHASE_STORAGE_KEY + '=(true|false)(?:;|$)'));
-            if (m) return m[1] !== "false";
-        } catch (e) {}
-        try {
-            var sVal = sessionStorage.getItem(SM_PURCHASE_STORAGE_KEY);
-            if (sVal === "false") return false;
-            if (sVal === "true") return true;
-        } catch (e) {}
-        return true;
+    function findPurchaseCourse(list) {
+        var hit = null;
+        (list || []).forEach(function (c) { if (!hit && /SMET/i.test(c.courseCode || "")) hit = c; });
+        return hit;
+    }
+
+    function isShareMarketPurchaseEnabled() { return !purchaseCourse || purchaseCourse.purchaseEnabled !== false; }
+
+    /** enabled: true / false, or null while unknown (not loaded yet, or no Share Market course). */
+    function updateShareMarketPurchaseUI(enabled) {
+        var known = enabled === true || enabled === false;
+        var sw = el("shareMarketPurchaseSwitch"), badgeEl = el("shareMarketPurchaseBadge"), btn = el("btnToggleShareMarketPurchase"),
+            btnText = el("btnToggleShareMarketPurchaseText"), sSw = el("settingsShareMarketPurchaseSwitch"),
+            sBadge = el("settingsShareMarketPurchaseBadge"), sStatus = el("settingsShareMarketStatusText");
+        [sw, sSw].forEach(function (s) { if (s) { s.checked = enabled === true; s.disabled = !known || purchaseSaving; } });
+        if (btn) btn.disabled = !known || purchaseSaving;
+        [badgeEl, sBadge].forEach(function (b) {
+            if (!b) return;
+            b.innerText = known ? (enabled ? "ON" : "OFF") : "…";
+            b.className = "badge " + (known ? (enabled ? "bg-success" : "bg-secondary") : "bg-light text-muted border");
+        });
+        if (btnText) btnText.innerText = enabled === false ? "Turn ON" : "Turn OFF";
+        if (sStatus) {
+            sStatus.innerText = known ? (enabled ? "Enabled" : "Disabled") : "Loading…";
+            sStatus.className = known ? (enabled ? "text-success fw-bold" : "text-danger fw-bold") : "text-muted fw-bold";
+        }
+    }
+
+    function loadShareMarketPurchase() {
+        updateShareMarketPurchaseUI(purchaseCourse ? purchaseCourse.purchaseEnabled : null);
+        return api("/admin/courses").then(function (res) {
+            if (!res.success) { updateShareMarketPurchaseUI(null); return; }
+            purchaseCourse = findPurchaseCourse(res.data);
+            updateShareMarketPurchaseUI(purchaseCourse ? purchaseCourse.purchaseEnabled : null);
+        });
     }
 
     function setShareMarketPurchaseEnabled(enabled) {
-        var isEnabled = Boolean(enabled);
-        var str = isEnabled ? "true" : "false";
-        try { localStorage.setItem(SM_PURCHASE_STORAGE_KEY, str); } catch (e) {}
-        try { sessionStorage.setItem(SM_PURCHASE_STORAGE_KEY, str); } catch (e) {}
-        try {
-            document.cookie = SM_PURCHASE_STORAGE_KEY + "=" + str + "; path=/; max-age=31536000; SameSite=Lax";
-            if (location.hostname === "localhost") {
-                document.cookie = SM_PURCHASE_STORAGE_KEY + "=" + str + "; path=/; domain=localhost; max-age=31536000; SameSite=Lax";
+        if (!purchaseCourse || purchaseSaving) return;
+        purchaseSaving = true;
+        updateShareMarketPurchaseUI(Boolean(enabled));
+        api("/admin/courses/" + purchaseCourse.id + "/purchase", { method: "PATCH", body: { enabled: Boolean(enabled) } }).then(function (res) {
+            purchaseSaving = false;
+            if (handle(res)) {
+                purchaseCourse = res.data;
+                if (el("view-courses") && el("view-courses").classList.contains("active")) loadCourses();
             }
-        } catch (e) {}
-
-        try {
-            if (typeof BroadcastChannel !== "undefined") {
-                var bc = new BroadcastChannel(SM_CHANNEL_NAME);
-                bc.postMessage({ key: SM_PURCHASE_STORAGE_KEY, enabled: isEnabled });
-            }
-        } catch (e) {}
-
-        updateShareMarketPurchaseUI(isEnabled);
-        toast(isEnabled ? "Share Market course purchase is now ENABLED." : "Share Market course purchase is now DISABLED (Admissions Closed).");
-    }
-
-    function updateShareMarketPurchaseUI(enabled) {
-        var isEnabled = enabled !== false;
-        var param = isEnabled ? "on" : "off";
-
-        // Courses view controls
-        var sw = el("shareMarketPurchaseSwitch");
-        var badgeEl = el("shareMarketPurchaseBadge");
-        var btnText = el("btnToggleShareMarketPurchaseText");
-        var linkCourses = el("adminPreviewCourseLink");
-
-        if (sw) sw.checked = isEnabled;
-        if (badgeEl) {
-            badgeEl.innerText = isEnabled ? "ON" : "OFF";
-            badgeEl.className = "badge " + (isEnabled ? "bg-success" : "bg-secondary");
-        }
-        if (btnText) {
-            btnText.innerText = isEnabled ? "Turn OFF" : "Turn ON";
-        }
-        if (linkCourses) {
-            linkCourses.href = "courses.html?purchase=" + param;
-        }
-
-        // Settings view controls
-        var sSw = el("settingsShareMarketPurchaseSwitch");
-        var sBadge = el("settingsShareMarketPurchaseBadge");
-        var sStatus = el("settingsShareMarketStatusText");
-        var linkSettings = el("settingsPreviewCourseLink");
-
-        if (sSw) sSw.checked = isEnabled;
-        if (sBadge) {
-            sBadge.innerText = isEnabled ? "ON" : "OFF";
-            sBadge.className = "badge " + (isEnabled ? "bg-success" : "bg-secondary");
-        }
-        if (sStatus) {
-            sStatus.innerText = isEnabled ? "Enabled" : "Disabled";
-            sStatus.className = isEnabled ? "text-success fw-bold" : "text-danger fw-bold";
-        }
-        if (linkSettings) {
-            linkSettings.href = "courses.html?purchase=" + param;
-        }
+            // On failure the switches go back to the state the server still has.
+            updateShareMarketPurchaseUI(purchaseCourse.purchaseEnabled);
+        });
     }
 
     function initShareMarketPurchaseToggle() {
-        var enabled = isShareMarketPurchaseEnabled();
-        updateShareMarketPurchaseUI(enabled);
-
-        var sw = el("shareMarketPurchaseSwitch");
-        if (sw && !sw._lsiBound) {
-            sw._lsiBound = true;
-            sw.addEventListener("change", function () {
-                setShareMarketPurchaseEnabled(sw.checked);
-            });
-        }
-
-        var btn = el("btnToggleShareMarketPurchase");
-        if (btn && !btn._lsiBound) {
-            btn._lsiBound = true;
-            btn.addEventListener("click", function () {
-                setShareMarketPurchaseEnabled(!isShareMarketPurchaseEnabled());
-            });
-        }
-
-        var sSw = el("settingsShareMarketPurchaseSwitch");
-        if (sSw && !sSw._lsiBound) {
-            sSw._lsiBound = true;
-            sSw.addEventListener("change", function () {
-                setShareMarketPurchaseEnabled(sSw.checked);
-            });
-        }
+        var sw = el("shareMarketPurchaseSwitch"), btn = el("btnToggleShareMarketPurchase"), sSw = el("settingsShareMarketPurchaseSwitch");
+        if (sw && !sw._lsiBound) { sw._lsiBound = true; sw.addEventListener("change", function () { setShareMarketPurchaseEnabled(sw.checked); }); }
+        if (btn && !btn._lsiBound) { btn._lsiBound = true; btn.addEventListener("click", function () { setShareMarketPurchaseEnabled(!isShareMarketPurchaseEnabled()); }); }
+        if (sSw && !sSw._lsiBound) { sSw._lsiBound = true; sSw.addEventListener("change", function () { setShareMarketPurchaseEnabled(sSw.checked); }); }
+        return loadShareMarketPurchase();
     }
-
-    // Expose helpers globally immediately
-    window.LSI_setPurchaseSetting = setShareMarketPurchaseEnabled;
-    window.LSI_togglePurchaseSetting = function () { setShareMarketPurchaseEnabled(!isShareMarketPurchaseEnabled()); };
-    window.LSI_isPurchaseEnabled = isShareMarketPurchaseEnabled;
-    window.LSI_initPurchaseToggle = initShareMarketPurchaseToggle;
-
-    // Run right away if DOM is already ready or in progress
-    initShareMarketPurchaseToggle();
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initShareMarketPurchaseToggle);
-    }
-    window.addEventListener("load", initShareMarketPurchaseToggle);
-    try {
-        if (typeof BroadcastChannel !== "undefined") {
-            var admBc = new BroadcastChannel(SM_CHANNEL_NAME);
-            admBc.onmessage = function (ev) {
-                if (ev.data && ev.data.key === SM_PURCHASE_STORAGE_KEY) {
-                    updateShareMarketPurchaseUI(ev.data.enabled);
-                }
-            };
-        }
-    } catch (e) {}
 
     // ---- courses ---------------------------------------------------------------------------
 
@@ -545,10 +480,9 @@
                     '<div><strong>' + esc(e.title) + '</strong><br><small class="text-muted">' + esc(e.author || "") + (e.category ? ' · ' + esc(e.category) : '') + '</small><br><small class="' + (e.hasPdf ? "text-success" : "text-danger") + '">' + (e.hasPdf ? '<i class="fas fa-file-pdf me-1"></i>' + esc(e.pdfOriginalName || "PDF uploaded") : "No PDF uploaded") + '</small></div></div></td>' +
                     '<td class="font-monospace small">' + esc(e.ebookCode) + '</td>' +
                     '<td>' + inr(e.effectivePrice) + (e.discountedPrice ? '<br><small class="text-muted text-decoration-line-through">' + inr(e.price) + '</small>' : '') + '</td>' +
-                    '<td>' + badge(e.status) + '</td><td>' + e.purchaseCount + '</td><td><small>' + d(e.createdAt) + '</small></td><td><small>' + d(e.updatedAt) + '</small></td>' +
+                    '<td>' + badge(e.status) + (e.status !== "ACTIVE" ? '<br><small class="text-muted">Not shown on Store</small>' : '') + '</td><td>' + e.purchaseCount + '</td><td><small>' + d(e.createdAt) + '</small></td><td><small>' + d(e.updatedAt) + '</small></td>' +
                     '<td class="text-nowrap"><div class="btn-group btn-group-sm">' +
-                    '<button class="btn btn-outline-primary" data-act="edit" data-id="' + e.id + '" title="Edit"><i class="fas fa-edit"></i></button>' +
-                    '<button class="btn btn-outline-primary" data-act="price" data-id="' + e.id + '" title="Change price"><i class="fas fa-tag"></i></button>' +
+                    '<button class="btn btn-outline-primary" data-act="edit" data-id="' + e.id + '" title="Edit name, price &amp; details"><i class="fas fa-edit"></i></button>' +
                     '<button class="btn btn-outline-primary" data-act="pdf" data-id="' + e.id + '" title="' + (e.hasPdf ? "Replace PDF" : "Upload PDF") + '"><i class="fas fa-file-upload"></i></button>' +
                     '<button class="btn btn-outline-primary" data-act="cover" data-id="' + e.id + '" title="' + (e.coverImagePath ? "Replace cover" : "Upload cover") + '"><i class="fas fa-image"></i></button>' +
                     (e.hasPdf ? '<button class="btn btn-outline-secondary" data-act="view" data-id="' + e.id + '" title="View PDF"><i class="fas fa-eye"></i></button>' : '') +
@@ -576,10 +510,6 @@
         if (act === "pdf") return uploadForm((e.hasPdf ? "Replace" : "Upload") + " Ebook PDF — " + e.title, "PDF file (max " + 100 + " MB). Existing buyers read the new file immediately.", "/admin/ebooks/" + e.id + "/pdf", "application/pdf", loadEbooks);
         if (act === "cover") return uploadForm((e.coverImagePath ? "Replace" : "Upload") + " Cover — " + e.title, "Image (JPG / PNG / WebP, max 5 MB)", "/admin/ebooks/" + e.id + "/cover", "image/jpeg,image/png,image/webp", loadEbooks);
         if (act === "view") return openProtected("/admin/ebooks/" + e.id + "/pdf");
-        if (act === "price") return openForm("Change Ebook Price", input("price", "List price (₹)", e.price, { required: true, type: "number" }) + input("discountedPrice", "Selling price (₹) — leave blank for no discount", e.discountedPrice, { type: "number" }), function (v) {
-            var body = { price: Number(v.price), discountedPrice: v.discountedPrice === "" ? null : Number(v.discountedPrice) };
-            return api("/admin/ebooks/" + e.id + "/price", { method: "PATCH", body: body }).then(function (r) { if (handle(r)) { formModal.hide(); loadEbooks(); } else formError(r.message); });
-        });
         if (act === "status") {
             var next = e.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
             if (!confirmAction((next === "ACTIVE" ? "Activate" : "Deactivate") + " '" + e.title + "'? " + (next === "ACTIVE" ? "It will be purchasable on the store page." : "It will be hidden from the store; existing buyers keep access."))) return;
@@ -591,19 +521,32 @@
         }
     }
 
+    /** Edits to an inactive ebook save fine but never reach the Store, so say so on its forms. */
+    function hiddenEbookNote(e) {
+        if (!e || e.status === "ACTIVE") return "";
+        return '<div class="alert alert-warning small py-2 px-3"><i class="fas fa-eye-slash me-1"></i> <strong>' + esc(e.title) + '</strong> is ' + esc(e.status) +
+            ' and is not shown on the Store. Changes here are saved, but visitors will not see them until you activate it (<i class="fas fa-power-off"></i> button).</div>';
+    }
+
+    /** The one place an ebook's price is set: list price plus an optional selling (discounted) price. */
     function openEbookForm(e) {
-        var f = input("title", "Ebook name / title", e && e.title, { required: true, maxlength: 200 }) +
-            input("price", "Price (₹)", e && e.price, { required: true, type: "number", min: 0, step: "0.01" }) +
+        var f = hiddenEbookNote(e) + input("title", "Ebook name / title", e && e.title, { required: true, maxlength: 200 }) +
+            '<div class="row"><div class="col-sm-6">' + input("price", "List price (₹)", e && e.price, { required: true, type: "number" }) + '</div>' +
+            '<div class="col-sm-6">' + input("discountedPrice", "Selling price (₹, optional)", e && e.discountedPrice, { type: "number" }) + '</div></div>' +
+            '<div class="form-text mt-n2 mb-3">Customers pay the selling price when it is set; leave it blank to charge the list price.</div>' +
             '<div class="mb-3"><label class="form-label small fw-bold">Cover image' + (e ? ' <span class="text-muted fw-normal">(optional replacement)</span>' : '') + '</label><input type="file" class="form-control" name="cover" accept="image/jpeg,image/png,image/webp"' + (e ? '' : ' required') + '><div class="form-text">JPG, JPEG, PNG or WebP.</div></div>' +
             '<div class="mb-3"><label class="form-label small fw-bold">Ebook PDF' + (e ? ' <span class="text-muted fw-normal">(optional replacement)</span>' : '') + '</label><input type="file" class="form-control" name="pdf" accept="application/pdf,.pdf"' + (e ? '' : ' required') + '><div class="form-text">PDF only.</div></div>' +
             input("description", "Optional information / description", e && (e.shortDescription || e.description), { type: "textarea", rows: 3, maxlength: 500 });
         openForm(e ? "Edit Ebook" : "Add Ebook", f, function (v) {
             var title = String(v.title || "").trim();
             var price = String(v.price == null ? "" : v.price).trim();
+            var selling = String(v.discountedPrice == null ? "" : v.discountedPrice).trim();
             var cover = v.cover;
             var pdf = v.pdf;
             if (!title) { formError("Ebook name is required."); return Promise.resolve(); }
             if (!price || !isFinite(Number(price)) || Number(price) < 0) { formError("Enter a valid non-negative price."); return Promise.resolve(); }
+            if (selling && (!isFinite(Number(selling)) || Number(selling) < 0)) { formError("Enter a valid selling price, or leave it blank."); return Promise.resolve(); }
+            if (selling && Number(selling) > Number(price)) { formError("Selling price cannot be higher than the list price."); return Promise.resolve(); }
             if (!e && !cover) { formError("Please upload a valid cover image."); return Promise.resolve(); }
             if (!e && !pdf) { formError("Please upload a valid PDF Ebook."); return Promise.resolve(); }
             if (cover && (!/\.(jpe?g|png|webp)$/i.test(cover.name) || !/^image\/(jpeg|png|webp)$/i.test(cover.type))) { formError("Please upload a valid cover image."); return Promise.resolve(); }
@@ -611,6 +554,7 @@
             var fd = new FormData();
             fd.append("title", title);
             fd.append("price", price);
+            if (selling) fd.append("discountedPrice", selling);   // omitted = no discount
             fd.append("description", v.description || "");
             if (cover) fd.append("cover", cover);
             if (pdf) fd.append("pdf", pdf);
@@ -631,11 +575,12 @@
         });
     }
 
-    // ---- exams: applications, exams & questions, results, certificates ---------------------------------
-    // All data comes from /api/admin/exam-*, /api/admin/exams and /api/admin/certificate*; scoring,
-    // attempt limits and certificate eligibility are decided on the backend — nothing here computes them.
+    // ---- certificate requests & certificates -----------------------------------------------------
+    // Students apply after completing a course; the admin approves (the server generates the
+    // certificate from the Lord Sai design) or rejects. Everything is decided and enforced on the
+    // backend (/api/admin/** is ADMIN-only) — nothing here decides eligibility.
 
-    var examCache = [], examQuestionsFor = null;
+    var certReqCache = [];
 
     function fillCourseSelect(id, keep) {
         var sel = el(id); if (!sel) return Promise.resolve();
@@ -644,361 +589,143 @@
         if (courseCache.length) { fill(courseCache); return Promise.resolve(); }
         return loadCourses().then(fill);
     }
-    function dtz(iso) { return dt(iso); }
-    function examWindowBadge(s) {
-        if (!s) return "";
-        var w = s.window;
-        var cls = w === "OPEN" ? "success" : w === "UPCOMING" ? "warning text-dark" : w === "CLOSED" ? "secondary" : w === "CANCELLED" ? "danger" : "primary";
-        return '<span class="badge bg-' + cls + '">' + esc(w) + '</span>';
-    }
 
-    // -- applications ------------------------------------------------------------------------
-
-    function updatePendingExamApps(n) {
+    function updatePendingCertRequests(n) {
         n = Number(n) || 0;
-        var b = el("navPendingExamApps");
+        var b = el("navPendingCertRequests");
         if (b) { b.innerText = n; b.classList.toggle("d-none", n === 0); }
     }
 
-    function loadExamCounters() {
-        return api("/admin/exam-applications/counters").then(function (res) {
+    function loadCertRequestCounters() {
+        return api("/admin/certificate-requests/counters").then(function (res) {
             if (!res.success) return;
-            var c = res.data; updatePendingExamApps(c.pending);
-            var box = el("exAppCounters"); if (!box) return;
-            box.innerHTML = [["Pending", c.pending, "#f59e0b"], ["Approved", c.approved, "#3b82f6"], ["Scheduled", c.scheduled, "#6366f1"], ["Completed", c.completed, "#10b981"], ["Rejected", c.rejected, "#ef4444"]].map(function (x) {
-                return '<div class="col-6 col-md-4 col-xl"><div class="adm-card stat-card py-2"><div class="ico" style="background:' + x[2] + '20;color:' + x[2] + '"><i class="fas fa-file-signature"></i></div><div><div class="val">' + x[1] + '</div><div class="lbl">' + x[0] + '</div></div></div></div>';
+            var c = res.data; updatePendingCertRequests(c.pending);
+            var box = el("certReqCounters"); if (!box) return;
+            box.innerHTML = [["Pending", c.pending, "#f59e0b"], ["Approved / Generated", c.generated, "#10b981"], ["Rejected", c.rejected, "#ef4444"]].map(function (x) {
+                return '<div class="col-6 col-md-4"><div class="adm-card stat-card py-2"><div class="ico" style="background:' + x[2] + '20;color:' + x[2] + '"><i class="fas fa-award"></i></div><div><div class="val">' + x[1] + '</div><div class="lbl">' + x[0] + '</div></div></div></div>';
             }).join("");
         });
     }
 
-    function loadExamApplications(page) {
-        state.examAppPage = page || 0;
-        fillCourseSelect("exAppCourse", true);
-        loadExamCounters();
-        var q = "/admin/exam-applications?page=" + state.examAppPage + "&size=20";
-        if (el("exAppStatus").value) q += "&status=" + el("exAppStatus").value;
-        if (el("exAppCourse").value) q += "&courseId=" + el("exAppCourse").value;
-        if (el("exAppSearch").value.trim()) q += "&q=" + encodeURIComponent(el("exAppSearch").value.trim());
+    function certReqBadge(s) {
+        var m = { PENDING: ["warning text-dark", "Pending"], APPROVED: ["primary", "Approved"], GENERATED: ["success", "Approved · Generated"], REJECTED: ["danger", "Rejected"] }[s] || ["secondary", s];
+        return '<span class="badge bg-' + m[0] + '">' + esc(m[1]) + '</span>';
+    }
+
+    function loadCertRequests(page) {
+        state.certReqPage = page || 0;
+        loadCertRequestCounters();
+        var q = "/admin/certificate-requests?page=" + state.certReqPage + "&size=20";
+        if (el("certReqStatus").value) q += "&status=" + el("certReqStatus").value;
+        if (el("certReqSearch").value.trim()) q += "&q=" + encodeURIComponent(el("certReqSearch").value.trim());
         return api(q).then(function (res) {
             if (!handle(res, false)) return;
             var p = res.data;
-            el("examAppsBody").innerHTML = (p.content || []).map(function (a) {
-                var s = a.schedule;
-                var examStatus = a.status === "COMPLETED" ? badge(a.result) : a.status === "SCHEDULED" && s ? examWindowBadge(s) : a.status === "REJECTED" ? '<span class="text-muted small">—</span>' : '<span class="text-muted small">Not scheduled</span>';
-                var lastAttempt = (a.attempts || []).filter(function (t) { return t.status !== "IN_PROGRESS"; }).slice(-1)[0];
-                return '<tr><td class="font-monospace small">#' + a.id + '</td>' +
-                    '<td><a href="#" data-student="' + a.studentUserId + '">' + esc(a.studentName) + '</a><br><small class="text-muted font-monospace">' + esc(a.studentId || "") + '</small></td>' +
-                    '<td><small>' + esc(a.studentEmail) + '</small></td><td>' + esc(a.courseName) + '<br><small class="text-muted">Completed ' + d(a.courseCompletedAt) + '</small></td>' +
-                    '<td><small>' + dt(a.appliedAt) + '</small></td><td>' + badge(a.status) + (a.adminRemarks ? '<br><small class="text-muted">' + esc(a.adminRemarks) + '</small>' : '') + '</td>' +
-                    '<td>' + (a.examTitle ? '<strong>' + esc(a.examTitle) + '</strong>' : '<span class="text-muted small">Exam not assigned</span>') + (s ? '<br><small>' + esc(s.examDate) + ' · ' + esc(s.startTime) + ' – ' + esc(s.endTime) + ' IST</small>' : '') +
-                    (a.maxAttempts != null ? '<br><small class="text-muted">Attempts ' + a.attemptsUsed + ' / ' + a.maxAttempts + (lastAttempt ? ' · last score ' + lastAttempt.score + '/' + lastAttempt.totalMarks : '') + '</small>' : '') + '</td>' +
-                    '<td>' + examStatus + (a.certificateNumber ? '<br><small class="font-monospace">' + esc(a.certificateNumber) + '</small>' : '') + '</td>' +
+            certReqCache = p.content || [];
+            el("certReqBody").innerHTML = certReqCache.map(function (r) {
+                return '<tr><td><a href="#" data-student="' + r.studentUserId + '">' + esc(r.studentName) + '</a><br><small class="text-muted">' + esc(r.studentEmail || "") + '</small></td>' +
+                    '<td class="font-monospace small">' + esc(r.studentId || "—") + '</td>' +
+                    '<td>' + esc(r.courseName) + '<br><small class="text-muted">Completed ' + d(r.courseCompletedAt) + '</small></td>' +
+                    '<td><small>' + dt(r.requestedAt) + '</small></td>' +
+                    '<td>' + certReqBadge(r.status) + (r.certificateNumber ? '<br><small class="font-monospace">' + esc(r.certificateNumber) + '</small>' : '') +
+                    (r.status === "REJECTED" && r.rejectionReason ? '<br><small class="text-muted">' + esc(r.rejectionReason) + '</small>' : '') + '</td>' +
                     '<td class="text-nowrap"><div class="btn-group btn-group-sm">' +
-                    (a.status === "PENDING" ? '<button class="btn btn-outline-success" data-act="approve" data-id="' + a.id + '" title="Approve"><i class="fas fa-check"></i></button>' : '') +
-                    (a.status === "PENDING" || a.status === "APPROVED" || a.status === "SCHEDULED" ? '<button class="btn btn-outline-primary" data-act="schedule" data-id="' + a.id + '" title="' + (a.status === "SCHEDULED" ? "Reschedule" : "Schedule exam") + '"><i class="fas fa-calendar-alt"></i></button>' : '') +
-                    (a.status === "SCHEDULED" ? '<button class="btn btn-outline-warning" data-act="cancel" data-id="' + a.id + '" title="Cancel schedule"><i class="fas fa-calendar-times"></i></button>' : '') +
-                    (a.status === "PENDING" || a.status === "APPROVED" || a.status === "SCHEDULED" ? '<button class="btn btn-outline-danger" data-act="reject" data-id="' + a.id + '" title="Reject"><i class="fas fa-times"></i></button>' : '') +
-                    ((a.attempts || []).length ? '<button class="btn btn-outline-secondary" data-act="attempts" data-id="' + a.id + '" title="View attempts"><i class="fas fa-list-ol"></i></button>' : '') +
+                    '<button class="btn btn-outline-secondary" data-cract="view" data-id="' + r.id + '" title="View request"><i class="fas fa-eye"></i> View</button>' +
+                    (r.status === "PENDING" ? '<button class="btn btn-outline-success" data-cract="approve" data-id="' + r.id + '" title="Approve and generate the certificate"><i class="fas fa-check"></i> Approve</button>' +
+                        '<button class="btn btn-outline-danger" data-cract="reject" data-id="' + r.id + '" title="Reject"><i class="fas fa-times"></i> Reject</button>' : '') +
+                    (r.certificateId ? '<button class="btn btn-outline-primary" data-cract="cert" data-id="' + r.id + '" title="View certificate PDF"><i class="fas fa-award"></i> View Certificate</button>' : '') +
                     '</div></td></tr>';
-            }).join("") || '<tr><td colspan="9" class="text-muted text-center py-4">No exam applications' + (el("exAppStatus").value ? ' with this status' : ' yet') + '.</td></tr>';
-            el("examAppsCount").innerText = p.totalElements + " application(s)";
-            pager("examAppsPager", p, loadExamApplications);
-            bindStudentLinks(el("examAppsBody"));
-            el("examAppsBody").querySelectorAll("[data-act]").forEach(function (b) {
-                var a = (p.content || []).find(function (x) { return String(x.id) === b.dataset.id; });
-                b.addEventListener("click", function () { examAppAction(b.dataset.act, a); });
+            }).join("") || '<tr><td colspan="6" class="text-muted text-center py-4">No certificate requests' + (el("certReqStatus").value ? ' with this status' : ' yet') + '.</td></tr>';
+            el("certReqCount").innerText = p.totalElements + " request(s)";
+            pager("certReqPager", p, loadCertRequests);
+            bindStudentLinks(el("certReqBody"));
+            el("certReqBody").querySelectorAll("[data-cract]").forEach(function (b) {
+                var r = certReqCache.find(function (x) { return String(x.id) === b.dataset.id; });
+                b.addEventListener("click", function () { certReqAction(b.dataset.cract, r); });
             });
         });
     }
 
-    function examAppAction(act, a) {
+    /** The student corrected the name for the certificate, so it differs from the account name. */
+    function certNameEdited(r) {
+        return !!(r && r.accountName && r.studentName && r.accountName.trim() !== r.studentName.trim());
+    }
+
+    function certReqAction(act, r) {
+        if (!r) return;
+        if (act === "view") {
+            var row = function (k, v) { return '<tr><th class="text-muted fw-normal" style="width:38%">' + k + '</th><td>' + v + '</td></tr>'; };
+            return openForm("Certificate Request — " + r.studentName, '<table class="table table-sm mb-0">' +
+                row("Name on certificate", '<strong>' + esc(r.studentName) + '</strong>' + (certNameEdited(r) ? ' <span class="badge bg-warning text-dark">corrected by student</span>' : '')) +
+                (certNameEdited(r) ? row("Account name", esc(r.accountName)) : '') +
+                row("Student ID", esc(r.studentId || "—")) + row("Email", esc(r.studentEmail || "—")) +
+                row("Course", esc(r.courseName)) + row("Enrollment", badge(r.enrollmentStatus)) + row("Course started", d(r.courseStartedAt)) + row("Course completed", d(r.courseCompletedAt)) +
+                row("Request Date", dt(r.requestedAt)) + row("Status", certReqBadge(r.status)) +
+                (r.reviewedAt ? row(r.status === "REJECTED" ? "Rejected" : "Approved", dt(r.reviewedAt) + (r.reviewedBy ? ' by ' + esc(r.reviewedBy) : '')) : '') +
+                (r.rejectionReason ? row("Reason", esc(r.rejectionReason)) : '') +
+                (r.certificateNumber ? row("Certificate", '<span class="font-monospace">' + esc(r.certificateNumber) + '</span> · generated ' + dt(r.generatedAt)) : '') +
+                '</table><div class="form-text mt-2">The certificate is printed with the "Name on certificate" (checked by the student when applying) and the Student ID shown above.</div>',
+                function () { formModal.hide(); return Promise.resolve(); }, { submitLabel: "Close" });
+        }
         if (act === "approve") {
-            if (!confirmAction("Approve the exam application of " + a.studentName + " for '" + a.courseName + "'? You can schedule the exam afterwards.")) return;
-            return api("/admin/exam-applications/" + a.id + "/approve", { method: "POST", body: {} }).then(function (r) { if (handle(r)) loadExamApplications(state.examAppPage); });
+            if (!confirmAction("Approve the certificate request of " + r.studentName + " (" + (r.studentId || "—") + ") for '" + r.courseName + "'?\n\nName printed on the certificate: " + r.studentName
+                    + (certNameEdited(r) ? "\n(corrected by the student — account name: " + r.accountName + ")" : "")
+                    + "\n\nThe Course Completion Certificate will be generated now and shown to the student.")) return;
+            return api("/admin/certificate-requests/" + r.id + "/approve", { method: "POST", body: {} }).then(function (res) {
+                if (handle(res)) loadCertRequests(state.certReqPage);
+            });
         }
         if (act === "reject") {
-            return openForm("Reject Exam Application — " + a.studentName, '<p class="small text-muted">The student will see the application as Rejected and can apply again later if eligible.</p>' + input("remarks", "Remarks for the student (optional)", "", { type: "textarea", rows: 3, maxlength: 500 }), function (v) {
-                return api("/admin/exam-applications/" + a.id + "/reject", { method: "POST", body: { remarks: v.remarks || null } }).then(function (r) { if (handle(r)) { formModal.hide(); loadExamApplications(state.examAppPage); } else formError(r.message); });
-            }, { submitLabel: "Reject application" });
+            return openForm("Reject Certificate Request — " + r.studentName,
+                '<p class="small text-muted">The student will see the request as Rejected, with your reason, and can apply again.</p>' +
+                '<div class="mb-3"><label class="form-label small fw-bold">Reason (shown to the student)</label><textarea class="form-control" name="reason" rows="3" maxlength="500" placeholder="e.g. Please complete your pending fee payment."></textarea></div>',
+                function (v) {
+                    return api("/admin/certificate-requests/" + r.id + "/reject", { method: "POST", body: { reason: (v.reason || "").trim() || null } }).then(function (res) {
+                        if (handle(res)) { formModal.hide(); loadCertRequests(state.certReqPage); } else formError(res.errors ? Object.values(res.errors).join(" ") : res.message);
+                    });
+                }, { submitLabel: "Reject Request" });
         }
-        if (act === "cancel") {
-            if (!confirmAction("Cancel the scheduled exam window for " + a.studentName + "? Finished attempts are kept; the application goes back to Approved and can be rescheduled.")) return;
-            return api("/admin/exam-applications/" + a.id + "/cancel-schedule", { method: "POST", body: {} }).then(function (r) { if (handle(r)) loadExamApplications(state.examAppPage); });
-        }
-        if (act === "schedule") return openScheduleForm(a);
-        if (act === "attempts") return showExamAttempts(a);
+        if (act === "cert") return openProtected("/admin/certificates/" + r.certificateId + "/pdf");
     }
 
-    function openScheduleForm(a) {
-        api("/admin/exams?courseId=" + a.courseId).then(function (res) {
-            if (!handle(res, false)) return;
-            var exams = (res.data || []).filter(function (e) { return e.status === "ACTIVE"; });
-            if (!exams.length) { toast("No ACTIVE exam exists for '" + a.courseName + "'. Create the exam, add its questions and activate it first (Exams section).", false); return; }
-            var s = a.schedule || {};
-            var today = new Date(); var pad = function (n) { return (n < 10 ? "0" : "") + n; };
-            var defDate = s.startsAt ? new Date(s.startsAt) : new Date(today.getTime() + 86400000);
-            var dateStr = defDate.getFullYear() + "-" + pad(defDate.getMonth() + 1) + "-" + pad(defDate.getDate());
-            var startStr = s.startsAt ? pad(new Date(s.startsAt).getHours()) + ":" + pad(new Date(s.startsAt).getMinutes()) : "10:00";
-            var endStr = s.endsAt ? pad(new Date(s.endsAt).getHours()) + ":" + pad(new Date(s.endsAt).getMinutes()) : "12:00";
-            var f = '<div class="small text-muted mb-3"><strong>' + esc(a.studentName) + '</strong> (' + esc(a.studentId || "") + ') · ' + esc(a.courseName) + (a.status === "SCHEDULED" ? ' · <span class="text-warning">Rescheduling (the student is notified)</span>' : '') + '</div>' +
-                input("examId", "Exam", a.examId || exams[0].id, { type: "select", options: exams.map(function (e) { return { value: e.id, label: e.title + " — " + e.totalMarks + " marks, pass " + e.passingMarks + ", " + e.maxAttempts + " attempt(s)" + (e.marksConsistent ? "" : " [questions ≠ total marks]") }; }) }) +
-                '<div class="row"><div class="col-md-4">' + input("examDate", "Exam date", dateStr, { type: "date", required: true }) + '</div>' +
-                '<div class="col-md-4">' + input("startTime", "Start time (IST)", startStr, { type: "time", required: true }) + '</div>' +
-                '<div class="col-md-4">' + input("endTime", "End time (IST)", endStr, { type: "time", required: true }) + '</div></div>' +
-                input("instructions", "Instructions for the student (optional)", s.instructions || "", { type: "textarea", rows: 3, maxlength: 5000 }) +
-                '<div class="form-text">The student can start the exam only between the start and end time on the server clock. Times are India Standard Time.</div>';
-            openForm((a.status === "SCHEDULED" ? "Reschedule" : "Schedule") + " Exam", f, function (v) {
-                if (!v.examDate || !v.startTime || !v.endTime) { formError("Exam date, start time and end time are required."); return Promise.resolve(); }
-                if (v.endTime <= v.startTime) { formError("End time must be after start time."); return Promise.resolve(); }
-                return api("/admin/exam-applications/" + a.id + "/schedule", { method: "POST", body: { examId: Number(v.examId), examDate: v.examDate, startTime: v.startTime, endTime: v.endTime, instructions: v.instructions || null } })
-                    .then(function (r) { if (handle(r)) { formModal.hide(); loadExamApplications(state.examAppPage); } else formError(r.errors ? Object.values(r.errors).join(" ") : r.message); });
-            }, { size: "modal-lg", submitLabel: a.status === "SCHEDULED" ? "Save new schedule" : "Schedule exam" });
-        });
+    function certificateFileName(c) {
+        var n = String((c && c.studentName) || "").replace(/[^A-Za-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+        return "LSA-Certificate-" + (n || (c ? c.certificateNumber : "certificate")) + ".pdf";
     }
 
-    function showExamAttempts(a) {
-        api("/admin/exam-applications/" + a.id + "/attempts").then(function (res) {
-            if (!handle(res, false)) return;
-            var rows = (res.data || []).map(function (t) {
-                return '<tr><td>' + t.attemptNumber + '</td><td>' + badge(t.status) + '</td><td><strong>' + t.score + ' / ' + t.totalMarks + '</strong></td><td>' + t.passingMarks + '</td><td>' + t.correctCount + ' / ' + t.questionCount + '</td><td>' + (t.status === "IN_PROGRESS" ? '<span class="text-muted">—</span>' : badge(t.passed ? "PASSED" : "FAILED")) + '</td><td><small>' + dt(t.startedAt) + '</small></td><td><small>' + dt(t.submittedAt) + '</small></td></tr>';
-            }).join("") || '<tr><td colspan="8" class="text-muted">No attempts.</td></tr>';
-            openForm("Attempts — " + a.studentName + " · " + (a.examTitle || a.courseName), '<div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>#</th><th>Status</th><th>Score</th><th>Passing</th><th>Correct</th><th>Result</th><th>Started</th><th>Submitted</th></tr></thead><tbody>' + rows + '</tbody></table></div><div class="form-text mt-2">Results are computed by the server and cannot be edited.</div>',
-                function () { formModal.hide(); return Promise.resolve(); }, { size: "modal-lg", submitLabel: "Close" });
-        });
-    }
-
-    // -- exams & questions -------------------------------------------------------------------
-
-    function loadExams() {
-        fillCourseSelect("examCourseFilter", true);
-        var q = "/admin/exams" + (el("examCourseFilter").value ? "?courseId=" + el("examCourseFilter").value : "");
-        return api(q).then(function (res) {
-            if (!handle(res, false)) return [];
-            examCache = res.data || [];
-            el("examsBody").innerHTML = examCache.map(function (e) {
-                return '<tr><td><strong>' + esc(e.title) + '</strong>' + (e.description ? '<br><small class="text-muted">' + esc(e.description.length > 80 ? e.description.slice(0, 80) + "…" : e.description) + '</small>' : '') + '</td>' +
-                    '<td>' + esc(e.courseName) + '<br><small class="text-muted font-monospace">' + esc(e.courseCode) + '</small></td>' +
-                    '<td>' + e.totalMarks + '</td><td>' + e.passingMarks + '</td><td>' + e.maxAttempts + '</td><td>' + (e.durationMinutes ? e.durationMinutes + ' min' : '<span class="text-muted">Window</span>') + '</td>' +
-                    '<td>' + e.questionCount + ' <small class="text-muted">(' + e.questionMarksTotal + ' marks)</small>' + (e.questionCount && !e.marksConsistent ? '<br><small class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>Questions ≠ total marks</small>' : '') + '</td>' +
-                    '<td>' + badge(e.status) + '</td><td>' + e.applicationCount + ' / ' + e.attemptCount + '</td>' +
-                    '<td class="text-nowrap"><div class="btn-group btn-group-sm">' +
-                    '<button class="btn btn-outline-primary" data-act="questions" data-id="' + e.id + '" title="Manage questions"><i class="fas fa-list"></i> Questions</button>' +
-                    '<button class="btn btn-outline-primary" data-act="edit" data-id="' + e.id + '" title="Edit exam settings"><i class="fas fa-edit"></i></button>' +
-                    '<button class="btn btn-outline-' + (e.status === "ACTIVE" ? "warning" : "success") + '" data-act="status" data-id="' + e.id + '" title="' + (e.status === "ACTIVE" ? "Deactivate" : "Activate") + '"><i class="fas fa-power-off"></i></button>' +
-                    '<button class="btn btn-outline-danger" data-act="delete" data-id="' + e.id + '" title="Delete"><i class="fas fa-trash"></i></button>' +
-                    '</div></td></tr>';
-            }).join("") || '<tr><td colspan="10" class="text-muted text-center py-4">No exams yet. Click "Create Exam".</td></tr>';
-            el("examsBody").querySelectorAll("[data-act]").forEach(function (b) {
-                b.addEventListener("click", function () { examAction(b.dataset.act, examCache.find(function (e) { return String(e.id) === b.dataset.id; })); });
-            });
-            if (examQuestionsFor) { var still = examCache.find(function (e) { return e.id === examQuestionsFor.id; }); if (still) loadExamQuestions(still); }
-            return examCache;
-        });
-    }
-
-    function examAction(act, e) {
-        if (act === "edit") return openExamForm(e);
-        if (act === "questions") return loadExamQuestions(e);
-        if (act === "status") {
-            var next = e.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
-            if (!confirmAction((next === "ACTIVE" ? "Activate" : "Deactivate") + " '" + e.title + "'? " + (next === "ACTIVE" ? "It can then be scheduled for approved applications." : "It can no longer be scheduled or started."))) return;
-            return api("/admin/exams/" + e.id + "/status", { method: "PATCH", body: { status: next } }).then(function (r) { if (handle(r)) loadExams(); });
-        }
-        if (act === "delete") {
-            if (!confirmAction("Delete '" + e.title + "' and all its questions? Only possible when no application or attempt refers to it.")) return;
-            return api("/admin/exams/" + e.id, { method: "DELETE" }).then(function (r) { if (handle(r)) { if (examQuestionsFor && examQuestionsFor.id === e.id) closeExamQuestions(); loadExams(); } });
-        }
-    }
-
-    function openExamForm(e) {
-        var run = function (courses) {
-            var opts = courses.map(function (c) { return { value: c.id, label: c.courseName + " (" + c.courseCode + ")" }; });
-            if (!opts.length) { toast("Create a course first.", false); return; }
-            var f = input("courseId", "Course", e ? e.courseId : opts[0].value, { type: "select", options: opts }) +
-                input("title", "Exam name / title", e && e.title, { required: true, maxlength: 200, placeholder: "e.g. Final Course Exam" }) +
-                '<div class="row"><div class="col-md-4">' + input("totalMarks", "Total marks", e ? e.totalMarks : 50, { type: "number", required: true }) + '</div>' +
-                '<div class="col-md-4">' + input("passingMarks", "Passing marks", e ? e.passingMarks : 30, { type: "number", required: true }) + '</div>' +
-                '<div class="col-md-4">' + input("maxAttempts", "Maximum attempts", e ? e.maxAttempts : 3, { type: "number", required: true }) + '</div></div>' +
-                input("durationMinutes", "Time limit per attempt in minutes (optional)", e && e.durationMinutes, { type: "number", help: "Leave blank to allow the whole scheduled window." }) +
-                input("description", "Instructions shown to the student (optional)", e && e.description, { type: "textarea", rows: 3, maxlength: 5000 }) +
-                '<div class="form-text">The questions you add must add up to exactly the total marks before the exam can be activated. Passing marks cannot exceed total marks.</div>';
-            openForm(e ? "Edit Exam" : "Create Exam", f, function (v) {
-                var total = Number(v.totalMarks), pass = Number(v.passingMarks), attempts = Number(v.maxAttempts);
-                if (!String(v.title || "").trim()) { formError("Exam title is required."); return Promise.resolve(); }
-                if (!(total >= 1) || total % 1 !== 0) { formError("Total marks must be a whole number of at least 1."); return Promise.resolve(); }
-                if (!(pass >= 0) || pass % 1 !== 0) { formError("Passing marks must be a whole number (0 or more)."); return Promise.resolve(); }
-                if (pass > total) { formError("Passing marks cannot be greater than total marks."); return Promise.resolve(); }
-                if (!(attempts >= 1) || attempts % 1 !== 0) { formError("Maximum attempts must be a whole number of at least 1."); return Promise.resolve(); }
-                var body = { courseId: Number(v.courseId), title: v.title.trim(), description: v.description || null, totalMarks: total, passingMarks: pass, maxAttempts: attempts, durationMinutes: v.durationMinutes ? Number(v.durationMinutes) : null };
-                return api(e ? "/admin/exams/" + e.id : "/admin/exams", { method: e ? "PUT" : "POST", body: body }).then(function (r) {
-                    if (handle(r)) { formModal.hide(); loadExams().then(function () { if (!e && r.data) loadExamQuestions(r.data); }); } else formError(r.errors ? Object.values(r.errors).join(" ") : r.message);
-                });
-            }, { size: "modal-lg", submitLabel: e ? "Save Exam" : "Create Exam" });
-        };
-        if (courseCache.length) run(courseCache); else loadCourses().then(run);
-    }
-
-    function loadExamQuestions(e) {
-        examQuestionsFor = e;
-        var panel = el("examQuestionsPanel"); panel.classList.remove("d-none");
-        el("examQuestionsTitle").innerText = "Questions — " + e.title;
-        el("examQuestionsMeta").innerHTML = esc(e.courseName) + " · total " + e.totalMarks + " marks · passing " + e.passingMarks + " · " + e.questionCount + " question(s) worth " + e.questionMarksTotal + " marks" +
-            (e.questionCount && !e.marksConsistent ? ' <span class="text-danger">— questions must add up to ' + e.totalMarks + ' marks before activation</span>' : e.questionCount ? ' <span class="text-success">— consistent</span>' : '');
-        el("examAddQuestionBtn").onclick = function () { openQuestionForm(e, null); };
-        api("/admin/exams/" + e.id + "/questions").then(function (res) {
-            if (!handle(res, false)) return;
-            var qs = res.data || [];
-            el("examQuestionsBody").innerHTML = qs.length ? qs.map(function (q, i) {
-                var opt = function (k) { return '<div class="' + (q.correctOption === k ? "text-success fw-bold" : "") + '"><span class="badge ' + (q.correctOption === k ? "bg-success" : "bg-light text-dark border") + ' me-1">' + k + '</span>' + esc(q["option" + k]) + (q.correctOption === k ? ' <i class="fas fa-check-circle"></i>' : '') + '</div>'; };
-                return '<div class="p-3 border-bottom' + (q.active ? "" : " bg-light") + '"><div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">' +
-                    '<div style="flex:1;min-width:240px"><strong>Q' + (i + 1) + '.</strong> ' + esc(q.questionText).replace(/\n/g, "<br>") + (q.active ? '' : ' <span class="badge bg-secondary">Inactive</span>') + '<div class="mt-2 small" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:4px 16px">' + opt("A") + opt("B") + opt("C") + opt("D") + '</div></div>' +
-                    '<div class="text-nowrap"><span class="badge badge-soft me-2">' + q.marks + ' mark' + (q.marks === 1 ? "" : "s") + '</span><div class="btn-group btn-group-sm">' +
-                    '<button class="btn btn-outline-primary" data-qact="edit" data-id="' + q.id + '" title="Edit"><i class="fas fa-edit"></i></button>' +
-                    '<button class="btn btn-outline-danger" data-qact="delete" data-id="' + q.id + '" title="Delete"><i class="fas fa-trash"></i></button></div></div></div>' +
-                    (q.answerCount ? '<small class="text-muted">Answered ' + q.answerCount + ' time(s) in submitted attempts — deleting will deactivate it instead.</small>' : '') + '</div>';
-            }).join("") : '<div class="p-4 text-muted text-center">No questions yet. Add MCQ questions with exactly four options and one correct answer.</div>';
-            el("examQuestionsBody").querySelectorAll("[data-qact]").forEach(function (b) {
-                var q = qs.find(function (x) { return String(x.id) === b.dataset.id; });
-                b.addEventListener("click", function () {
-                    if (b.dataset.qact === "edit") return openQuestionForm(e, q);
-                    if (!confirmAction("Delete this question?")) return;
-                    api("/admin/exams/" + e.id + "/questions/" + q.id, { method: "DELETE" }).then(function (r) { if (handle(r)) loadExams(); });
-                });
-            });
-            panel.scrollIntoView({ behavior: "smooth", block: "start" });
-        });
-    }
-
-    function closeExamQuestions() { examQuestionsFor = null; el("examQuestionsPanel").classList.add("d-none"); }
-
-    function openQuestionForm(e, q) {
-        var f = input("questionText", "Question", q && q.questionText, { type: "textarea", rows: 3, required: true, maxlength: 5000 }) +
-            '<div class="row">' + ["A", "B", "C", "D"].map(function (k) { return '<div class="col-md-6">' + input("option" + k, "Option " + k, q && q["option" + k], { required: true, maxlength: 1000 }) + '</div>'; }).join("") + '</div>' +
-            '<div class="row"><div class="col-md-6">' + input("correctOption", "Correct answer", q ? q.correctOption : "", { type: "select", options: [{ value: "", label: "— select —" }, { value: "A", label: "A" }, { value: "B", label: "B" }, { value: "C", label: "C" }, { value: "D", label: "D" }] }) + '</div>' +
-            '<div class="col-md-6">' + input("marks", "Marks", q ? q.marks : 1, { type: "number", required: true }) + '</div></div>' +
-            '<div class="form-text">All four options are required and must be different. The correct answer is stored on the server and never sent to students.</div>';
-        openForm((q ? "Edit" : "Add") + " Question — " + e.title, f, function (v) {
-            var opts = ["A", "B", "C", "D"];
-            if (!String(v.questionText || "").trim()) { formError("Question is required."); return Promise.resolve(); }
-            for (var i = 0; i < 4; i++) { if (!String(v["option" + opts[i]] || "").trim()) { formError("Option " + opts[i] + " is required."); return Promise.resolve(); } }
-            var seen = {}; for (var j = 0; j < 4; j++) { var t = v["option" + opts[j]].trim().toLowerCase(); if (seen[t]) { formError("Option " + opts[j] + " duplicates another option. All four options must be different."); return Promise.resolve(); } seen[t] = true; }
-            if (!v.correctOption) { formError("Select the correct answer (A, B, C or D)."); return Promise.resolve(); }
-            var marks = Number(v.marks); if (!(marks >= 1) || marks % 1 !== 0) { formError("Marks must be a whole number of at least 1."); return Promise.resolve(); }
-            var body = { questionText: v.questionText.trim(), optionA: v.optionA.trim(), optionB: v.optionB.trim(), optionC: v.optionC.trim(), optionD: v.optionD.trim(), correctOption: v.correctOption, marks: marks };
-            return api(q ? "/admin/exams/" + e.id + "/questions/" + q.id : "/admin/exams/" + e.id + "/questions", { method: q ? "PUT" : "POST", body: body }).then(function (r) {
-                if (handle(r)) { formModal.hide(); loadExams(); } else formError(r.errors ? Object.values(r.errors).join(" ") : r.message);
-            });
-        }, { size: "modal-lg", submitLabel: q ? "Save Question" : "Add Question" });
-    }
-
-    // -- results -----------------------------------------------------------------------------
-
-    function loadExamResults(page) {
-        state.examResultPage = page || 0;
-        fillCourseSelect("exResCourse", true);
-        if (!examCache.length || el("exResExam").options.length <= 1) {
-            api("/admin/exams").then(function (r) { if (r.success) { examCache = r.data || []; var cur = el("exResExam").value; el("exResExam").innerHTML = '<option value="">All exams</option>' + examCache.map(function (e) { return '<option value="' + e.id + '"' + (String(e.id) === cur ? " selected" : "") + '>' + esc(e.title) + ' (' + esc(e.courseCode) + ')</option>'; }).join(""); } });
-        }
-        var q = "/admin/exam-results?page=" + state.examResultPage + "&size=20";
-        if (el("exResCourse").value) q += "&courseId=" + el("exResCourse").value;
-        if (el("exResExam").value) q += "&examId=" + el("exResExam").value;
-        if (el("exResPassed").value) q += "&passed=" + el("exResPassed").value;
-        if (el("exResSearch").value.trim()) q += "&q=" + encodeURIComponent(el("exResSearch").value.trim());
-        return api(q).then(function (res) {
-            if (!handle(res, false)) return;
-            var p = res.data;
-            el("examResultsBody").innerHTML = (p.content || []).map(function (r) {
-                return '<tr><td><a href="#" data-student="' + r.studentUserId + '">' + esc(r.studentName) + '</a><br><small class="text-muted">' + esc(r.studentEmail) + '</small></td><td class="font-monospace small">' + esc(r.studentId || "") + '</td>' +
-                    '<td>' + esc(r.courseName) + '</td><td>' + esc(r.examTitle) + '</td><td>' + r.attemptNumber + ' / ' + r.maxAttempts + '</td><td><strong>' + r.score + '</strong></td><td>' + r.totalMarks + '</td><td>' + r.passingMarks + '</td>' +
-                    '<td>' + (r.status === "EXPIRED" ? badge("EXPIRED") : badge(r.passed ? "PASSED" : "FAILED")) + '</td><td><small>' + dt(r.submittedAt) + '</small></td>' +
-                    '<td>' + (r.certificateId ? '<a href="#" class="font-monospace small" data-cert-pdf="' + r.certificateId + '">' + esc(r.certificateNumber) + '</a>' : (r.passed ? '<span class="text-success small">Eligible</span>' : '<span class="text-muted small">Not eligible</span>')) + '</td></tr>';
-            }).join("") || '<tr><td colspan="11" class="text-muted text-center py-4">No submitted attempts match.</td></tr>';
-            el("examResultsCount").innerText = p.totalElements + " attempt(s)";
-            pager("examResultsPager", p, loadExamResults);
-            bindStudentLinks(el("examResultsBody"));
-            bindCertificateLinks(el("examResultsBody"));
-        });
-    }
-
-    // -- certificates & templates ------------------------------------------------------------
-
-    function bindCertificateLinks(root) {
+    function bindCertificateLinks(root, list) {
         root.querySelectorAll("[data-cert-pdf]").forEach(function (a) {
             a.addEventListener("click", function (e) { e.preventDefault(); openProtected("/admin/certificates/" + a.dataset.certPdf + "/pdf"); });
+        });
+        root.querySelectorAll("[data-cert-download]").forEach(function (a) {
+            var c = (list || []).find(function (x) { return String(x.id) === a.dataset.certDownload; });
+            a.addEventListener("click", function (e) { e.preventDefault(); openProtected("/admin/certificates/" + a.dataset.certDownload + "/pdf?download=true", true, certificateFileName(c)); });
         });
     }
 
     function loadCertificates(page) {
         state.certPage = page || 0;
         fillCourseSelect("certCourse", true);
-        loadCertificateTemplates();
         var q = "/admin/certificates?page=" + state.certPage + "&size=20";
         if (el("certCourse").value) q += "&courseId=" + el("certCourse").value;
         if (el("certSearch").value.trim()) q += "&q=" + encodeURIComponent(el("certSearch").value.trim());
         return api(q).then(function (res) {
             if (!handle(res, false)) return;
-            var p = res.data;
-            el("certificatesBody").innerHTML = (p.content || []).map(function (c) {
+            var p = res.data, list = p.content || [];
+            el("certificatesBody").innerHTML = list.map(function (c) {
                 return '<tr><td class="font-monospace small">' + esc(c.certificateNumber) + '</td><td><a href="#" data-student="' + c.studentUserId + '">' + esc(c.studentName) + '</a></td><td class="font-monospace small">' + esc(c.studentId || "") + '</td>' +
-                    '<td>' + esc(c.courseName) + '</td><td>' + esc(c.examTitle) + '<br><small class="text-muted">Attempt ' + c.attemptNumber + '</small></td><td>' + c.score + ' / ' + c.totalMarks + '<br><small class="text-muted">pass ' + c.passingMarks + '</small></td>' +
-                    '<td><small>' + dt(c.issuedAt) + '</small></td><td><small>' + esc(c.templateName) + '</small></td>' +
-                    '<td class="text-nowrap"><div class="btn-group btn-group-sm"><button class="btn btn-outline-primary" data-cert-pdf="' + c.id + '" title="View certificate PDF"><i class="fas fa-eye"></i> View</button></div></td></tr>';
-            }).join("") || '<tr><td colspan="9" class="text-muted text-center py-4">No certificates issued yet. Certificates are issued automatically when a student passes an exam.</td></tr>';
+                    '<td>' + esc(c.courseName) + '</td><td><small>' + esc(c.coursePeriod || "—") + '</small></td><td><small>' + dt(c.issuedAt) + '</small></td>' +
+                    '<td class="text-nowrap"><div class="btn-group btn-group-sm"><button class="btn btn-outline-primary" data-cert-pdf="' + c.id + '" title="View certificate PDF"><i class="fas fa-eye"></i> View</button>' +
+                    '<button class="btn btn-outline-secondary" data-cert-download="' + c.id + '" title="Download certificate PDF"><i class="fas fa-download"></i></button>' +
+                    (c.verifyUrl ? '<a class="btn btn-outline-secondary" href="' + esc(c.verifyUrl) + '" target="_blank" rel="noopener" title="Open the verification page its QR code points to"><i class="fas fa-qrcode"></i> Verify</a>' : '') +
+                    '</div></td></tr>';
+            }).join("") || '<tr><td colspan="7" class="text-muted text-center py-4">No certificates issued yet. A certificate is generated when you approve a certificate request.</td></tr>';
             el("certificatesCount").innerText = p.totalElements + " certificate(s)";
             pager("certificatesPager", p, loadCertificates);
             bindStudentLinks(el("certificatesBody"));
-            bindCertificateLinks(el("certificatesBody"));
+            bindCertificateLinks(el("certificatesBody"), list);
         });
     }
-
-    function loadCertificateTemplates() {
-        return api("/admin/certificate-templates").then(function (res) {
-            if (!handle(res, false)) return;
-            var s = res.data;
-            el("certTemplateStatus").innerHTML = '<h6 class="fw-bold mb-2"><i class="fas fa-award me-2 text-warning"></i>Active certificate design</h6>' +
-                '<div class="d-flex align-items-center gap-2 mb-2"><span class="badge bg-' + (s.usingDefault ? "primary" : "success") + '">' + (s.usingDefault ? "DEFAULT" : "CUSTOM") + '</span><strong>' + esc(s.activeTemplateName) + '</strong></div>' +
-                '<p class="small text-muted mb-3">' + (s.usingDefault ? 'New certificates use the built-in Lord Sai certificate (blue frame, Lord Sai logo, founder signature block). It is always available and cannot be deleted.'
-                    : 'New certificates are rendered on the uploaded background "' + esc(s.activeTemplateName) + '" with the student, course and result text laid over it. Certificates already issued are not changed.') + '</p>' +
-                '<div class="d-flex flex-wrap gap-2"><button class="btn btn-sm btn-light" onclick="Admin.previewCertificateTemplate()"><i class="fas fa-eye me-1"></i> Preview</button>' +
-                (s.usingDefault ? '' : '<button class="btn btn-sm btn-outline-primary" onclick="Admin.useDefaultCertificateTemplate()"><i class="fas fa-undo me-1"></i> Use default Lord Sai certificate</button>') + '</div>' +
-                '<div class="form-text mt-3">Upload a JPG or PNG designed as A4 landscape (297 × 210 mm, e.g. 3508 × 2480 px). Keep the middle area free — the student name, course and result are printed there.</div>';
-            el("certTemplatesBody").innerHTML = (s.templates || []).map(function (t) {
-                return '<tr><td><strong>' + esc(t.name) + '</strong><br><small class="text-muted">by ' + esc(t.uploadedBy || "—") + '</small></td><td><small>' + esc(t.originalName || "") + (t.sizeBytes ? ' · ' + Math.round(t.sizeBytes / 1024) + ' KB' : '') + '</small></td><td><small>' + d(t.createdAt) + '</small></td><td>' + t.certificatesIssued + '</td>' +
-                    '<td>' + (t.active ? '<span class="badge bg-success">ACTIVE</span>' : '<span class="badge bg-secondary">INACTIVE</span>') + '</td>' +
-                    '<td class="text-nowrap"><div class="btn-group btn-group-sm">' +
-                    '<button class="btn btn-outline-secondary" data-tact="view" data-id="' + t.id + '" title="View image"><i class="fas fa-image"></i></button>' +
-                    (t.active ? '' : '<button class="btn btn-outline-success" data-tact="activate" data-id="' + t.id + '" title="Activate"><i class="fas fa-check"></i></button>') +
-                    '<button class="btn btn-outline-danger" data-tact="delete" data-id="' + t.id + '" title="Delete"><i class="fas fa-trash"></i></button></div></td></tr>';
-            }).join("") + '<tr class="table-light"><td><strong>' + esc(s.defaultTemplateName) + '</strong><br><small class="text-muted">built-in</small></td><td><small>classpath template</small></td><td>—</td><td>—</td><td>' + (s.usingDefault ? '<span class="badge bg-success">ACTIVE</span>' : '<span class="badge bg-secondary">FALLBACK</span>') + '</td><td>' + (s.usingDefault ? '' : '<button class="btn btn-sm btn-outline-success" onclick="Admin.useDefaultCertificateTemplate()"><i class="fas fa-check"></i></button>') + '</td></tr>';
-            el("certTemplatesBody").querySelectorAll("[data-tact]").forEach(function (b) {
-                var t = (s.templates || []).find(function (x) { return String(x.id) === b.dataset.id; });
-                b.addEventListener("click", function () {
-                    if (b.dataset.tact === "view") return openProtected("/admin/certificate-templates/" + t.id + "/image");
-                    if (b.dataset.tact === "activate") { if (!confirmAction("Use '" + t.name + "' for all new certificates?")) return; return api("/admin/certificate-templates/" + t.id + "/activate", { method: "PATCH" }).then(function (r) { if (handle(r)) loadCertificateTemplates(); }); }
-                    if (b.dataset.tact === "delete") { if (!confirmAction("Delete template '" + t.name + "'? If certificates were issued with it, it is deactivated instead. The default Lord Sai certificate is used when no design is active.")) return; return api("/admin/certificate-templates/" + t.id, { method: "DELETE" }).then(function (r) { if (handle(r)) loadCertificateTemplates(); }); }
-                });
-            });
-        });
-    }
-
-    function openCertificateTemplateForm() {
-        openForm("Upload Certificate Template", input("name", "Template name", "", { required: true, maxlength: 150, placeholder: "e.g. Gold border design 2026" }) +
-            '<div class="mb-3"><label class="form-label small fw-bold">Background image (JPG / PNG, A4 landscape, max 10 MB)</label><input type="file" class="form-control" name="file" accept="image/jpeg,image/png" required></div>' +
-            '<div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="activate" id="ctActivate" checked><label class="form-check-label small" for="ctActivate">Activate immediately (new certificates use this design)</label></div>' +
-            '<div class="form-text">The default Lord Sai certificate stays available; you can switch back at any time.</div>', function (v) {
-            if (!v.file) { formError("Choose a JPG or PNG image."); return Promise.resolve(); }
-            if (!/\.(jpe?g|png)$/i.test(v.file.name)) { formError("Only JPG and PNG images are supported."); return Promise.resolve(); }
-            var fd = new FormData(); fd.append("file", v.file); fd.append("name", v.name || ""); fd.append("activate", v.activate ? "true" : "false");
-            return api("/admin/certificate-templates", { method: "POST", body: fd }).then(function (r) { if (handle(r)) { formModal.hide(); loadCertificateTemplates(); } else formError(r.message); });
-        }, { submitLabel: "Upload" });
-    }
-
-    function useDefaultCertificateTemplate() {
-        if (!confirmAction("Switch new certificates to the default Lord Sai certificate?")) return;
-        api("/admin/certificate-templates/use-default", { method: "POST", body: {} }).then(function (r) { if (handle(r)) loadCertificateTemplates(); });
-    }
-
-    function previewCertificateTemplate() { openProtected("/admin/certificate-templates/preview"); }
 
     // ---- protected downloads (bearer header, never a plain link) ----------------------------------
 
@@ -1020,6 +747,38 @@
     function bindInvoiceLinks(root) {
         root.querySelectorAll("[data-invoice-pdf]").forEach(function (a) {
             a.addEventListener("click", function (e) { e.preventDefault(); openProtected("/automation/invoices/" + a.dataset.invoicePdf + "/pdf"); });
+        });
+    }
+
+    // ---- purchase reports (moved here from the Automation Admin) ------------------------------------
+
+    function purchaseQuery() {
+        var q = {};
+        if (el("purProduct").value) q.productType = el("purProduct").value;
+        if (el("purStatus").value) q.status = el("purStatus").value;
+        if (el("purFrom").value) q.from = el("purFrom").value;
+        if (el("purTo").value) q.to = el("purTo").value;
+        if (el("purSearch").value.trim()) q.q = el("purSearch").value.trim();
+        return q;
+    }
+
+    function loadPurchases() {
+        api("/automation/reports/purchases?" + qs(purchaseQuery())).then(function (res) {
+            if (!handle(res, false)) return;
+            var t = res.data, cols = t.columns || [];
+            var amountCol = cols.indexOf("Amount"), statusCol = cols.indexOf("Payment Status"), monoCols = ["Student ID", "Invoice Number", "Transaction ID", "Order Ref"];
+            el("purTable").querySelector("thead").innerHTML = "<tr>" + cols.map(function (c) { return "<th>" + esc(c) + "</th>"; }).join("") + "</tr>";
+            el("purTable").querySelector("tbody").innerHTML = (t.rows || []).map(function (r) {
+                return "<tr>" + r.map(function (c, i) {
+                    if (i === amountCol) return '<td class="text-nowrap">' + inr(c) + "</td>";
+                    if (i === statusCol) return "<td>" + badge(c) + "</td>";
+                    return "<td" + (monoCols.indexOf(cols[i]) >= 0 ? ' class="font-monospace small"' : "") + ">" + esc(c === "" ? "—" : c) + "</td>";
+                }).join("") + "</tr>";
+            }).join("") || '<tr><td colspan="' + Math.max(cols.length, 1) + '" class="text-muted text-center py-4">No purchases match these filters.</td></tr>';
+            var tot = t.totals || {};
+            el("purTotals").innerHTML = '<span class="me-3"><strong>Purchases:</strong> ' + (tot.purchases || 0) + '</span>' +
+                '<span class="me-3"><strong>Successful:</strong> ' + (tot.successful || 0) + '</span>' +
+                '<span><strong>Collected:</strong> ' + inr(tot.collected || 0) + '</span>';
         });
     }
 
@@ -1049,7 +808,7 @@
                     '<button class="btn btn-outline-primary" data-inv="download" data-id="' + i.id + '" data-no="' + esc(i.invoiceNumber) + '" title="Download PDF"><i class="fas fa-download"></i></button>' +
                     '<button class="btn btn-outline-secondary" data-inv="print" data-id="' + i.id + '" title="Print"><i class="fas fa-print"></i></button>' +
                     '<button class="btn btn-outline-success" data-inv="email" data-id="' + i.id + '" title="Resend email"><i class="fas fa-envelope"></i></button>' +
-                    '<button class="btn btn-outline-success" data-inv="whatsapp" data-id="' + i.id + '" title="Send via WhatsApp"><i class="fab fa-whatsapp"></i></button>' +
+                    '<button class="btn btn-outline-success" data-inv="whatsapp" data-id="' + i.id + '" title="Open WhatsApp with the invoice message and PDF link"><i class="fab fa-whatsapp"></i></button>' +
                     '</div></td></tr>';
             }).join("") || '<tr><td colspan="11" class="text-muted text-center py-4">No invoices match these filters.</td></tr>';
             el("invoicesCount").innerText = p.totalElements + " invoice(s)";
@@ -1062,7 +821,15 @@
                     else if (act === "download") openProtected("/automation/invoices/" + id + "/pdf?download=true", true, b.dataset.no + ".pdf");
                     else if (act === "print") printProtected("/automation/invoices/" + id + "/print");
                     else if (act === "email") { if (confirmAction("Email this invoice (PDF attached) to the student again?")) api("/automation/invoices/" + id + "/resend-email", { method: "POST" }).then(function (r) { if (handle(r)) loadInvoices(state.invoicePage); }); }
-                    else if (act === "whatsapp") { if (confirmAction("Send this invoice PDF to the student on WhatsApp?")) api("/automation/invoices/" + id + "/whatsapp", { method: "POST" }).then(function (r) { handle(r); }); }
+                    else if (act === "whatsapp") {
+                        // WhatsApp's own click to chat (no Business API): the tab is reserved inside this click,
+                        // then pointed at the student's chat with the invoice message and PDF link typed in.
+                        var wa = LSI_WhatsAppChat.prepare();
+                        api("/automation/invoices/" + id + "/whatsapp", { method: "POST" }).then(function (r) {
+                            if (r.success && r.data) { LSI_WhatsAppChat.openPrepared(wa, r.data.phone, r.data.text); toast(r.message, true); }
+                            else { LSI_WhatsAppChat.cancel(wa); handle(r); }
+                        });
+                    }
                 });
             });
         });
@@ -1081,6 +848,7 @@
 
     function reportQueryFor(report) {
         if (report === "invoices") return invoiceQuery();
+        if (report === "purchases") return purchaseQuery();
         return {};
     }
     function exportReport(report, format) {
@@ -1480,7 +1248,9 @@
     // ---- success stories -------------------------------------------------------------------
 
     var storyCache = [];
-    var STORY_CATEGORIES = [{ value: "STUDENTS", label: "Students" }, { value: "TEACHERS", label: "Teachers" }, { value: "PARENTS", label: "Parents" }];
+    // INVESTORS = Mutual Fund investor video reviews: shown only on stories.html?mode=mutual-fund.
+    var STORY_CATEGORIES = [{ value: "STUDENTS", label: "Students" }, { value: "TEACHERS", label: "Teachers" }, { value: "PARENTS", label: "Parents" },
+        { value: "INVESTORS", label: "Investors (Mutual Fund website)" }];
 
     function loadStories() {
         api("/admin/stories").then(function (res) {
@@ -2145,89 +1915,30 @@
         });
     }
 
-    // ---- whatsapp settings (central configuration; the token never reaches the browser) -----
+    // ---- whatsapp (WhatsApp's own "click to chat": no WhatsApp Business account or API) --------
 
+    /** Shows where WhatsApp opens on this computer (remembered per computer). */
     function loadWhatsAppSettings() {
-        api("/admin/whatsapp").then(function (res) {
-            if (!handle(res, false)) { el("waStatusCard").innerHTML = '<div class="text-danger">' + esc(res.message) + '</div>'; return; }
-            renderWhatsAppStatus(res.data);
-        });
+        var m = LSI_WhatsAppChat.mode();
+        document.querySelectorAll('input[name="waOpenMode"]').forEach(function (r) { r.checked = r.value === m; });
     }
 
-    function renderWhatsAppStatus(w) {
-        var on = w.configured;
-        el("waStatusCard").innerHTML =
-            '<div class="d-flex flex-wrap align-items-center gap-3">' +
-            '<div class="rounded-circle d-flex align-items-center justify-content-center" style="width:56px;height:56px;font-size:24px;background:' + (on ? "rgba(16,185,129,.15);color:#10b981" : "rgba(245,158,11,.15);color:#f59e0b") + '"><i class="fab fa-whatsapp"></i></div>' +
-            '<div class="flex-grow-1"><div class="fw-bold" style="font-size:18px">WhatsApp Status<br><span style="font-size:15px">' + (on ? "🟢 Connected" : "🟡 Not Configured") + '</span></div>' +
-            '<div class="text-muted">' + esc(w.message) + '</div></div>' +
-            '<div class="text-end small text-muted">' +
-            (w.provider ? '<div>Provider <code>' + esc(w.provider) + '</code>' + (w.credentialSource ? " · Source: " + esc(w.credentialSource === "ADMIN" ? "Admin panel" : "Server environment") : "") + '</div>' : "") +
-            (w.phoneNumberId ? '<div>Phone Number ID <code>' + esc(w.phoneNumberId) + '</code>' + (w.displayPhoneNumber ? " · " + esc(w.displayPhoneNumber) : "") + '</div>' : "") +
-            '<div>Access Token: ' + (w.accessTokenMasked ? esc(w.accessTokenMasked) : "—") + '</div>' +
-            (w.recordExists ? '<div>Status: ' + (w.enabled ? '<span class="badge bg-success">Enabled</span>' : '<span class="badge bg-secondary">Disabled</span>') + (w.validatedAt ? " · Verified " + dt(w.validatedAt) : "") + '</div><div>Updated ' + dt(w.updatedAt) + (w.updatedBy ? " by " + esc(w.updatedBy) : "") + '</div>' : "") +
-            '</div></div>';
-
-        el("waProvider").value = w.provider || "META_CLOUD";
-        el("waPhoneId").value = w.recordExists ? w.phoneNumberId : "";
-        el("waBusinessId").value = w.recordExists ? (w.businessAccountId || "") : "";
-        el("waToken").value = "";
-        el("waToken").placeholder = w.recordExists ? w.accessTokenMasked : "Paste the access token";
-        el("waToken").required = !w.recordExists;
-        el("waTokenHelp").innerText = w.recordExists ? "Saved and encrypted. Leave blank to keep it; paste a new token to replace it." : "Required the first time. Never shown again after saving.";
-        el("waFormTitle").innerText = w.recordExists ? "Update WhatsApp Settings" : "Configure WhatsApp";
-        el("waSaveLabel").innerText = w.recordExists ? "Save Changes" : "Save WhatsApp Settings";
-        el("waError").classList.add("d-none"); el("waTestError").classList.add("d-none");
-        el("waTestSendBtn").disabled = !on;
-
-        var acts = el("waActions"); acts.innerHTML = "";
-        if (w.recordExists) {
-            if (w.enabled) acts.insertAdjacentHTML("beforeend", '<button class="btn btn-outline-warning btn-sm" data-wa="disable"><i class="fas fa-pause me-1"></i> Disable WhatsApp</button>');
-            else acts.insertAdjacentHTML("beforeend", '<button class="btn btn-outline-success btn-sm" data-wa="enable"><i class="fas fa-play me-1"></i> Enable WhatsApp</button>');
-            acts.insertAdjacentHTML("beforeend", '<button class="btn btn-outline-danger btn-sm" data-wa="remove"><i class="fas fa-trash me-1"></i> Remove Configuration</button>');
-        } else {
-            acts.innerHTML = '<span class="text-muted small">No configuration saved yet. ' + (w.credentialSource === "ENVIRONMENT" ? "WhatsApp is currently working through server environment variables; saving settings here will take precedence." : "Fill in the form to connect WhatsApp.") + '</span>';
-        }
-        acts.querySelectorAll("[data-wa]").forEach(function (b) {
-            b.addEventListener("click", function () {
-                var a = b.dataset.wa;
-                var msg = a === "disable" ? "Disable WhatsApp? Invoice-on-WhatsApp and Automation Admin WhatsApp sends will stop until it is enabled again."
-                        : a === "enable" ? "Re-enable WhatsApp? The saved credentials will be verified with the provider first."
-                        : "Remove the WhatsApp configuration entirely? You can enter it again later.";
-                if (!confirmAction(msg)) return;
-                var call = a === "remove" ? api("/admin/whatsapp", { method: "DELETE" }) : api("/admin/whatsapp/" + a, { method: "PATCH" });
-                call.then(function (r) { if (handle(r)) loadWhatsAppSettings(); });
+    function initWhatsAppView() {
+        document.querySelectorAll('input[name="waOpenMode"]').forEach(function (r) {
+            r.addEventListener("change", function () {
+                if (!this.checked) return;
+                LSI_WhatsAppChat.setMode(this.value);
+                toast(this.value === "app" ? "WhatsApp will open in the WhatsApp app on this computer." : "WhatsApp will open in WhatsApp Web in this browser.", true);
             });
         });
-    }
-
-    function saveWhatsAppSettings(e) {
-        e.preventDefault();
-        var body = { provider: el("waProvider").value, accessToken: el("waToken").value, phoneNumberId: el("waPhoneId").value.trim(), businessAccountId: el("waBusinessId").value.trim() };
-        var btn = el("waSaveBtn"); btn.disabled = true; el("waError").classList.add("d-none");
-        api("/admin/whatsapp", { method: "PUT", body: body }).then(function (r) {
-            btn.disabled = false; el("waToken").value = "";
-            if (!r.success) { el("waError").innerText = r.errors ? Object.values(r.errors).join(" ") : r.message; el("waError").classList.remove("d-none"); return; }
-            toast(r.message); loadWhatsAppSettings();
-        });
-    }
-
-    function testWhatsAppConnection() {
-        var btn = el("waTestConnBtn"); btn.disabled = true; el("waError").classList.add("d-none");
-        api("/admin/whatsapp/test-connection", { method: "POST" }).then(function (r) {
-            btn.disabled = false;
-            if (!r.success) { el("waError").innerText = r.message; el("waError").classList.remove("d-none"); return; }
-            toast(r.message); loadWhatsAppSettings();
-        });
-    }
-
-    function sendWhatsAppTest(e) {
-        e.preventDefault();
-        var btn = el("waTestSendBtn"); btn.disabled = true; el("waTestError").classList.add("d-none");
-        api("/admin/whatsapp/test-message", { method: "POST", body: { mobile: el("waTestMobile").value.trim(), message: el("waTestMessage").value.trim() } }).then(function (r) {
-            btn.disabled = false;
-            if (!r.success) { el("waTestError").innerText = r.errors ? Object.values(r.errors).join(" ") : r.message; el("waTestError").classList.remove("d-none"); return; }
-            toast(r.message);
+        el("whatsappTestForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            var mobile = el("waTestMobile").value.trim(), err = el("waTestError");
+            err.classList.add("d-none");
+            if (!LSI_WhatsAppChat.number(mobile)) { err.innerText = "Enter a valid mobile number (10 digits, or with the country code)."; err.classList.remove("d-none"); return; }
+            var text = el("waTestMessage").value.trim() || el("waTestMessage").placeholder;   // empty -> the sample shown as the hint
+            if (!LSI_WhatsAppChat.open(mobile, text)) { err.innerText = "The browser blocked the new tab. Allow pop-ups for this site and try again."; err.classList.remove("d-none"); return; }
+            toast("WhatsApp opened with the test message — press Send there.", true);
         });
     }
 
@@ -2679,6 +2390,12 @@
             var statusBadge = function (st) {
                 if (st === "PASS") return '<span class="badge bg-success">PASS</span>';
                 if (st === "WARNING") return '<span class="badge bg-warning text-dark">WARNING</span>';
+                // DKIM only: signed by gmail.com / outlook.com etc. themselves — nothing to configure.
+                if (st === "PROVIDER_MANAGED") return '<span class="badge bg-success">MANAGED BY PROVIDER</span>';
+                // DKIM only: no selector entered for a custom domain, so nothing was looked up — not a failure.
+                if (st === "NOT_CHECKED") return '<span class="badge bg-secondary">NOT CHECKED</span>';
+                // The DNS query itself timed out / failed; the record may well exist.
+                if (st === "CHECK_FAILED") return '<span class="badge bg-warning text-dark">CHECK FAILED</span>';
                 return '<span class="badge bg-danger">FAIL</span>';
             };
             var rowsHtml = checks.map(function (c) {
@@ -2767,9 +2484,7 @@
         el("globalSearch").addEventListener("input", function () { var q = this.value.trim(); clearTimeout(searchTimer); searchTimer = setTimeout(function () { globalSearch(q); }, 300); });
         document.addEventListener("click", function (e) { if (!e.target.closest("#searchResults") && !e.target.closest("#globalSearch")) el("searchResults").style.display = "none"; });
         el("gatewayForm").addEventListener("submit", saveGateway);
-        el("whatsappForm").addEventListener("submit", saveWhatsAppSettings);
-        el("waTestConnBtn").addEventListener("click", testWhatsAppConnection);
-        el("whatsappTestForm").addEventListener("submit", sendWhatsAppTest);
+        initWhatsAppView();
         el("emailForm").addEventListener("submit", saveEmailSettings);
         el("emTestBtn").addEventListener("click", sendTestEmail);
         el("emRemoveBtn").addEventListener("click", removeEmailSettings);
@@ -2918,14 +2633,13 @@
         if (el("blogCategoryFilter")) loadBlogCategoryFilterOptions();
 
         ["invProduct", "invStatus", "invFrom", "invTo"].forEach(function (id) { el(id).addEventListener("change", function () { loadInvoices(0); }); });
-        ["exAppStatus", "exAppCourse"].forEach(function (id) { el(id).addEventListener("change", function () { loadExamApplications(0); }); });
-        var exAppTimer; el("exAppSearch").addEventListener("input", function () { clearTimeout(exAppTimer); exAppTimer = setTimeout(function () { loadExamApplications(0); }, 350); });
-        el("examCourseFilter").addEventListener("change", loadExams);
-        ["exResCourse", "exResExam", "exResPassed"].forEach(function (id) { el(id).addEventListener("change", function () { loadExamResults(0); }); });
-        var exResTimer; el("exResSearch").addEventListener("input", function () { clearTimeout(exResTimer); exResTimer = setTimeout(function () { loadExamResults(0); }, 350); });
+        el("certReqStatus").addEventListener("change", function () { loadCertRequests(0); });
+        var certReqTimer; el("certReqSearch").addEventListener("input", function () { clearTimeout(certReqTimer); certReqTimer = setTimeout(function () { loadCertRequests(0); }, 350); });
         el("certCourse").addEventListener("change", function () { loadCertificates(0); });
         var certTimer; el("certSearch").addEventListener("input", function () { clearTimeout(certTimer); certTimer = setTimeout(function () { loadCertificates(0); }, 350); });
         var invTimer; el("invSearch").addEventListener("input", function () { clearTimeout(invTimer); invTimer = setTimeout(function () { loadInvoices(0); }, 350); });
+        ["purProduct", "purStatus", "purFrom", "purTo"].forEach(function (id) { el(id).addEventListener("change", loadPurchases); });
+        var purTimer; el("purSearch").addEventListener("input", function () { clearTimeout(purTimer); purTimer = setTimeout(loadPurchases, 350); });
 
         el("changePasswordForm").addEventListener("submit", function (e) {
             e.preventDefault();
@@ -2954,12 +2668,6 @@
             el("adminCurrentUserId").value = adminSession.profile.email.split("@")[0];
         }
 
-        initShareMarketPurchaseToggle();
-        window.addEventListener("storage", function (e) {
-            if (e.key === SM_PURCHASE_STORAGE_KEY) {
-                updateShareMarketPurchaseUI(isShareMarketPurchaseEnabled());
-            }
-        });
 
         // A return trip from Google lands here; go straight to Email Settings and say what happened.
         var googleOutcome = consumeGoogleCallbackResult();
@@ -2973,6 +2681,5 @@
         openStoryForm: openStoryForm, openSliderForm: openSliderForm, openReviewForm: openReviewForm, loadReviews: loadReviews, openManualEnroll: openManualEnroll, loadAudit: loadAudit, loadGateway: loadGateway, loadEmailSettings: loadEmailSettings, loadWhatsAppSettings: loadWhatsAppSettings,
         openBlogForm: openBlogForm, openCategoryForm: openCategoryForm, loadBlogs: loadBlogs, loadBlogCategories: loadBlogCategories,
         openEbookForm: openEbookForm, loadEbooks: loadEbooks, loadInvoices: loadInvoices, exportReport: exportReport, printReport: printReport,
-        loadExamApplications: loadExamApplications, openExamForm: openExamForm, closeExamQuestions: closeExamQuestions, loadExamResults: loadExamResults,
-        openCertificateTemplateForm: openCertificateTemplateForm, useDefaultCertificateTemplate: useDefaultCertificateTemplate, previewCertificateTemplate: previewCertificateTemplate };
+        loadCertRequests: loadCertRequests, loadCertificates: loadCertificates };
 })(window);

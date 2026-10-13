@@ -24,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Arrays;
@@ -137,6 +138,22 @@ public class AcadMasterService {
         auditService.record(actor, id == null ? "ACAD_COURSE_CREATED" : "ACAD_COURSE_UPDATED", "AcadCourse", c.getId(),
                 name + " (fee " + req.defaultFee() + ")", ip);
         return toDto(c, 0);
+    }
+
+    /**
+     * Automation Admin > Course Price: the academy's own price for a course. Website course prices
+     * are separate and never change here. New admissions get this price; students already
+     * admitted keep the fee they were admitted with (a discount changes one student's fee).
+     */
+    @Transactional
+    public CourseDto setCoursePrice(Long id, BigDecimal price, User actor, String ip) {
+        AcadCourse c = requireCourse(id);
+        BigDecimal before = c.getDefaultFee();
+        c.setDefaultFee(price);
+        courses.save(c);
+        auditService.record(actor, "ACAD_COURSE_PRICE_CHANGED", "AcadCourse", c.getId(),
+                c.getName() + ": price ₹" + AcadReceiptPdfService.indian(before) + " -> ₹" + AcadReceiptPdfService.indian(price), ip);
+        return listCourses().stream().filter(x -> x.id().equals(id)).findFirst().orElseThrow();
     }
 
     @Transactional(readOnly = true)

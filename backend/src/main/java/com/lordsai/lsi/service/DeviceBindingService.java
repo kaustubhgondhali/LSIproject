@@ -96,25 +96,31 @@ public class DeviceBindingService {
             String tempToken,
             String emailMasked,
             String registeredDeviceName,
-            String message
+            String message,
+            /** Set when this login registered the device with a NEW secret the browser must store. */
+            String issuedDeviceToken
     ) {
         public static DeviceCheckResult allow(StudentDevice device) {
-            return new DeviceCheckResult(true, "AUTHENTICATED", device, null, null, null, null);
+            return new DeviceCheckResult(true, "AUTHENTICATED", device, null, null, null, null, null);
+        }
+
+        public static DeviceCheckResult allowNewlyIssued(StudentDevice device, String issuedDeviceToken) {
+            return new DeviceCheckResult(true, "AUTHENTICATED", device, null, null, null, null, issuedDeviceToken);
         }
 
         public static DeviceCheckResult registrationRequired(String tempToken, String emailMasked) {
             return new DeviceCheckResult(false, "DEVICE_REGISTRATION_REQUIRED", null, tempToken, emailMasked, null,
-                    "This account requires device registration. A verification code has been sent to your email.");
+                    "This account requires device registration. A verification code has been sent to your email.", null);
         }
 
         public static DeviceCheckResult linkRequired(String tempToken, String emailMasked, String registeredDeviceName) {
             return new DeviceCheckResult(false, "DEVICE_LINK_REQUIRED", null, tempToken, emailMasked, registeredDeviceName,
-                    "This account is registered to " + registeredDeviceName + ". If you are using this same computer, enter the verification code sent to your email to link this browser.");
+                    "This account is registered to " + registeredDeviceName + ". If you are using this same computer, enter the verification code sent to your email to link this browser.", null);
         }
 
         public static DeviceCheckResult blocked(String registeredDeviceName) {
             return new DeviceCheckResult(false, "DEVICE_BLOCKED", null, null, null, registeredDeviceName,
-                    "This account is already registered to another device.");
+                    "This account is already registered to another device.", null);
         }
     }
 
@@ -132,12 +138,14 @@ public class DeviceBindingService {
             Optional<StudentDevice> registered = studentDeviceRepository.findByUserId(user.getId());
             StudentDevice device;
             if (registered.isEmpty()) {
-                String devId = (providedDeviceId != null && !providedDeviceId.isBlank())
-                        ? providedDeviceId
-                        : "dev_" + UUID.randomUUID().toString().replace("-", "");
-                String devSecret = (providedDeviceToken != null && !providedDeviceToken.isBlank())
-                        ? providedDeviceToken
-                        : TokenUtil.generateOpaqueToken();
+                // The browser keeps one binding for whoever logged in on it before. Reuse it only when no
+                // other account owns that device id (device ids are unique); otherwise this student gets
+                // a fresh id + secret, returned so the browser stores them.
+                boolean reuse = providedDeviceId != null && !providedDeviceId.isBlank()
+                        && providedDeviceToken != null && !providedDeviceToken.isBlank()
+                        && studentDeviceRepository.findByDeviceId(providedDeviceId).isEmpty();
+                String devId = reuse ? providedDeviceId : "dev_" + UUID.randomUUID().toString().replace("-", "");
+                String devSecret = reuse ? providedDeviceToken : TokenUtil.generateOpaqueToken();
                 device = new StudentDevice();
                 device.setUser(user);
                 device.setDeviceId(devId);
@@ -151,11 +159,11 @@ public class DeviceBindingService {
                 device.setLastSeenAt(now);
                 device.setLastVerifiedAt(now);
                 studentDeviceRepository.save(device);
-            } else {
-                device = registered.get();
-                device.setLastSeenAt(Instant.now());
-                studentDeviceRepository.save(device);
+                return reuse ? DeviceCheckResult.allow(device) : DeviceCheckResult.allowNewlyIssued(device, devSecret);
             }
+            device = registered.get();
+            device.setLastSeenAt(Instant.now());
+            studentDeviceRepository.save(device);
             return DeviceCheckResult.allow(device);
         }
 
@@ -280,7 +288,7 @@ public class DeviceBindingService {
     @Transactional
     public String initiateDeviceReset(String identifier, String ipAddress) {
         User user = userRepository.findByEmailIgnoreCase(identifier.trim())
-                .or(() -> studentProfileRepository.findByStudentIdIgnoreCase(identifier.trim()).map(StudentProfile::getUser))
+                .or(() -> studentProfileRepository.findByLoginIdIgnoreCase(identifier.trim()).map(StudentProfile::getUser))
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "No student account found with that identifier."));
 
         if (user.getRole() != Role.STUDENT) {
@@ -492,7 +500,8 @@ public class DeviceBindingService {
                 user.getMobile(),
                 user.getRole(),
                 p != null ? p.getStudentId() : null,
-                user.getLastLoginAt()
+                user.getLastLoginAt(),
+                p != null ? p.userId() : null
         );
     }
 }

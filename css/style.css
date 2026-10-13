@@ -237,6 +237,39 @@ section,
     color: #FFFFFF !important;
 }
 
+/* Student portal CTA — sits beside Enquire in the Share Market navbar */
+.btn-student-login {
+    display: inline-flex;
+    align-items: center;
+    background: transparent !important;
+    color: #7dd3fc !important;
+    font-weight: 700;
+    padding: 9px 18px;
+    border-radius: 50px;
+    border: 1.5px solid rgba(125, 211, 252, 0.65);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: var(--lsi-transition);
+}
+.btn-student-login:hover,
+.btn-student-login:focus {
+    background: rgba(125, 211, 252, 0.12) !important;
+    color: #FFFFFF !important;
+    border-color: #7dd3fc;
+    transform: translateY(-2px);
+}
+.navbar-light .btn-student-login {
+    color: var(--lsi-blue) !important;
+    border-color: rgba(0, 119, 182, 0.45);
+}
+.navbar-light .btn-student-login:hover,
+.navbar-light .btn-student-login:focus {
+    background: rgba(0, 119, 182, 0.08) !important;
+    color: var(--lsi-blue-dark) !important;
+    border-color: var(--lsi-blue);
+}
+
 .btn-square { width: 36px; height: 36px; padding: 0; }
 .btn-sm-square { width: 32px; height: 32px; padding: 0; }
 .btn-md-square { width: 44px; height: 44px; padding: 0; }
@@ -2220,11 +2253,55 @@ body.mode-mutual-fund .d-inline-block[data-mode="mutual-fund"] {
 }
 
 .topbar-switch-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
     border-color: #F59E0B;
     color: #F59E0B;
     font-weight: 600;
+    line-height: 1;
     white-space: nowrap;
+    vertical-align: middle;
     transition: var(--lsi-transition);
+}
+
+/* Align icon+label inside visible mode spans (do not set display — mode CSS controls show/hide) */
+.topbar-switch-btn > span {
+    align-items: center;
+    gap: 0.4rem;
+    line-height: 1;
+}
+
+.navbar-switch-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    line-height: 1;
+}
+
+.topbar-switch-btn i,
+.topbar-switch-btn .fas,
+.navbar-switch-item i,
+.navbar-switch-item .fas {
+    display: inline-block;
+    line-height: 1;
+    font-size: 0.85em;
+    width: 1em;
+    height: 1em;
+    margin: 0 !important;
+    padding: 0;
+    vertical-align: middle;
+    /* FA th-large glyph sits optically high in its em-box */
+    transform: translateY(0.08em);
+}
+
+.topbar-switch-btn i::before,
+.topbar-switch-btn .fas::before,
+.navbar-switch-item i::before,
+.navbar-switch-item .fas::before {
+    display: block;
+    line-height: 1;
 }
 
 .topbar-switch-btn:hover {
@@ -2308,6 +2385,61 @@ body.mode-mutual-fund .navbar-light .navbar-nav .nav-link.active {
 html.mode-mutual-fund .navbar-light .navbar-nav .nav-link.active::after,
 body.mode-mutual-fund .navbar-light .navbar-nav .nav-link.active::after {
     background: #2EC4B6 !important;
+}
+
+/* Mutual Fund mode has more menu items (SIP, SWP, SIP Calculator, Insurance ...) and the NJ Wealth
+   logo, so on 1200-1399px screens the desktop menu was wider than the screen and the page scrolled
+   sideways (Contact and "Open SIP Account" were cut off on 1280px laptops). Only the spacing is
+   tightened there; phones, large screens and Academy mode are unchanged. */
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+    html.mode-mutual-fund .navbar-light .navbar-nav .nav-link,
+    body.mode-mutual-fund .navbar-light .navbar-nav .nav-link {
+        padding-left: 6px;
+        padding-right: 6px;
+        font-size: 13px;
+    }
+    html.mode-mutual-fund .navbar-brand-wrapper,
+    body.mode-mutual-fund .navbar-brand-wrapper {
+        gap: 8px;
+    }
+    html.mode-mutual-fund .navbar-nj-logo,
+    body.mode-mutual-fund .navbar-nj-logo {
+        height: 30px;
+        padding: 2px 4px;
+    }
+    html.mode-mutual-fund .brand-name,
+    body.mode-mutual-fund .brand-name {
+        font-size: 16px;
+    }
+    html.mode-mutual-fund .btn-enquire,
+    body.mode-mutual-fund .btn-enquire {
+        padding: 8px 14px;
+        font-size: 13px;
+    }
+}
+@media (min-width: 1200px) and (max-width: 1299.98px) {
+    html.mode-mutual-fund .navbar-light .navbar-nav .nav-link,
+    body.mode-mutual-fund .navbar-light .navbar-nav .nav-link {
+        padding-left: 4px;
+        padding-right: 4px;
+    }
+}
+@media (min-width: 992px) and (max-width: 1099.98px) {
+    html.mode-mutual-fund .navbar-light .navbar-nav .nav-link,
+    body.mode-mutual-fund .navbar-light .navbar-nav .nav-link {
+        padding-left: 4px;
+        padding-right: 4px;
+        font-size: 12px;
+    }
+    html.mode-mutual-fund .brand-name,
+    body.mode-mutual-fund .brand-name {
+        font-size: 15px;
+    }
+    html.mode-mutual-fund .btn-enquire,
+    body.mode-mutual-fund .btn-enquire {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
 }
 
 html.mode-mutual-fund .dropdown-menu,

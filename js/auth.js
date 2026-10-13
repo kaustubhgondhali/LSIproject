@@ -14,6 +14,10 @@
  * New:
  *   LSI_Auth.api(path, options) -> fetch with bearer token and JSON handling
  *   LSI_Auth.refreshProfile()   -> re-validates the token against /auth/me
+ *
+ * One login per account: a newer login on another device or browser ends this one on the server.
+ * Protected pages (those calling requireAuth) re-check their login every 30 seconds and whenever
+ * the tab is shown again, and log themselves out with the reason as soon as it has ended.
  */
 (function (window, $) {
     "use strict";
@@ -22,6 +26,43 @@
     var STORAGE_KEY_REDIRECT = "lsi_auth_redirect_target";
     var STORAGE_KEY_DEVICE = "lsi_device_binding";
     var API_BASE = (window.LSI_CONFIG && window.LSI_CONFIG.API_BASE) || "/api";
+    var SESSION_CHECK_MS = 30000;
+
+    /** Set by requireAuth on protected pages: where to send the user when their login ends. */
+    var guard = null;
+    var sessionEndedHere = false;
+
+    /**
+     * Leaves a protected page whose login has ended. reason "SIGNED_IN_ELSEWHERE" (from the server)
+     * means the same account signed in on another device or browser; anything else is a generic end.
+     */
+    function endSession(reason) {
+        if (!guard || sessionEndedHere) return;
+        sessionEndedHere = true;
+        clearSession();
+        sessionStorage.setItem(STORAGE_KEY_REDIRECT, window.location.pathname.split("/").pop());
+        window.location.replace(guard.loginPage + guard.sep
+            + (reason === "SIGNED_IN_ELSEWHERE" ? "signed_in_elsewhere=1" : "session_expired=1"));
+    }
+
+    /**
+     * Re-checks the login every 30 seconds and whenever the tab becomes visible or focused again, so a
+     * page left open on an old device logs itself out shortly after the account signs in elsewhere.
+     */
+    function watchSession() {
+        var lastCheck = 0;
+        function check() {
+            if (sessionEndedHere) return;
+            if (!readSession()) { endSession(null); return; }   // logged out in another tab of this browser
+            var now = Date.now();
+            if (now - lastCheck < 5000) return;
+            lastCheck = now;
+            api("/auth/session");   // a 401 ends the session above, with the reason
+        }
+        window.setInterval(check, SESSION_CHECK_MS);
+        document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") check(); });
+        window.addEventListener("focus", check);
+    }
 
     function storage() {
         return localStorage.getItem(STORAGE_KEY_SESSION) ? localStorage : sessionStorage;
@@ -134,6 +175,8 @@
                 data.status = response.status;
                 if (response.status === 401 && session && !options.skipAuthRedirect) {
                     clearSession();
+                    // On a protected page the login is gone for good: leave with the reason.
+                    endSession(data.errors && data.errors.reason);
                 }
                 return data;
             });
@@ -163,7 +206,7 @@
                 skipAuthRedirect: true
             }).then(function (res) {
                 if (!res.success || !res.data) {
-                    return { success: false, message: res.message || "Invalid email/student ID or password." };
+                    return { success: false, message: res.message || "Invalid email/User ID or password." };
                 }
                 if (res.data.deviceStatus && res.data.deviceStatus !== "AUTHENTICATED") {
                     return {
@@ -231,6 +274,7 @@
         },
 
         logout: function (loginUrl) {
+            sessionEndedHere = true;   // a deliberate logout: the login check must not redirect elsewhere
             var finish = function () {
                 clearSession();
                 sessionStorage.removeItem(STORAGE_KEY_REDIRECT);
@@ -267,12 +311,11 @@
                 return false;
             }
 
+            guard = { loginPage: loginPage, sep: sep };
             LSI_Auth.refreshProfile().then(function (profile) {
-                if (!profile) {
-                    sessionStorage.setItem(STORAGE_KEY_REDIRECT, window.location.pathname.split("/").pop());
-                    window.location.replace(loginPage + sep + "session_expired=1");
-                }
+                if (!profile) endSession(null);   // no-op when the 401 already ended it with a reason
             });
+            watchSession();
             // A page restored from the back/forward cache (Back button after logout) does not
             // re-run the guard above, so re-check the stored session whenever it is shown again.
             window.addEventListener("pageshow", function (ev) {
@@ -282,6 +325,9 @@
             });
             return true;
         },
+
+        /** Stops the periodic login check (used by pages that are about to leave on purpose). */
+        stopSessionWatch: function () { sessionEndedHere = true; },
 
         updateNavUI: function () {
             var session = readSession();
@@ -294,6 +340,11 @@
                 });
                 $('.navbar-nav a[href="student-login.html"]').each(function () {
                     $(this).text('Dashboard (' + first + ')').attr('href', targetDashboard);
+                });
+                $('a.btn-student-login[href="student-login.html"]').each(function () {
+                    $(this).html('<i class="fas fa-user-check me-1"></i> ' + first + ' · Dashboard')
+                        .attr('href', targetDashboard)
+                        .attr('title', 'Open your dashboard');
                 });
             }
         },

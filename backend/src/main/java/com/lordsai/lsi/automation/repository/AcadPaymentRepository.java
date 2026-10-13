@@ -24,6 +24,7 @@ import java.util.Optional;
 public interface AcadPaymentRepository extends JpaRepository<AcadPayment, Long> {
     List<AcadPayment> findByStudentIdOrderByInstallmentNoAsc(Long studentId);
     boolean existsByStudentIdAndInstallmentNo(Long studentId, int installmentNo);
+    long countByStudentId(Long studentId);
     Optional<AcadPayment> findByPaymentNo(String paymentNo);
 
     @Query("select coalesce(sum(p.amount), 0) from AcadPayment p where p.student.id = :studentId")
@@ -36,7 +37,7 @@ public interface AcadPaymentRepository extends JpaRepository<AcadPayment, Long> 
     BigDecimal collectedBetween(@Param("from") LocalDate from, @Param("to") LocalDate to);
 
     /** Per-student totals in one query, so lists and dashboard cards never loop over students. */
-    @Query("select p.student.id, sum(p.amount), max(p.paymentDate) from AcadPayment p group by p.student.id")
+    @Query("select p.student.id, sum(p.amount), max(p.paymentDate), count(p) from AcadPayment p group by p.student.id")
     List<Object[]> totalsByStudent();
 
     @Query("""

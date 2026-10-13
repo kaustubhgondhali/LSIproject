@@ -70,14 +70,14 @@ class AuthFlowTest {
         mockMvc.perform(login("wrongpw@example.com", "not-the-password"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.success").value(false))
-                .andExpect(jsonPath("$.message").value("Invalid email/student ID or password."));
+                .andExpect(jsonPath("$.message").value("Invalid email/User ID or password."));
     }
 
     @Test
     void unknownUserGetsSameMessageAsWrongPassword() throws Exception {
         mockMvc.perform(login("nobody@example.com", "whatever1"))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message").value("Invalid email/student ID or password."));
+                .andExpect(jsonPath("$.message").value("Invalid email/User ID or password."));
     }
 
     @Test
@@ -91,15 +91,42 @@ class AuthFlowTest {
     }
 
     @Test
-    void studentCanLoginNormallyOnMultipleDevicesWithoutADeviceLimit() throws Exception {
+    void loggingInOnAnotherDeviceLogsOutThePreviousLogin() throws Exception {
         testUsers.student("twodevices@example.com");
 
-        mockMvc.perform(login("twodevices@example.com", TestUsers.PASSWORD))
+        String first = tokenFrom(mockMvc.perform(login("twodevices@example.com", TestUsers.PASSWORD))
+                .andExpect(status().isOk()).andReturn());
+        mockMvc.perform(get("/api/auth/session").header("Authorization", "Bearer " + first))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(login("twodevices@example.com", TestUsers.PASSWORD))
+        // The same account signs in on another device / browser: that login works...
+        String second = tokenFrom(mockMvc.perform(login("twodevices@example.com", TestUsers.PASSWORD))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.redirectUrl").value("student-dashboard.html"));
+                .andExpect(jsonPath("$.data.redirectUrl").value("student-dashboard.html")).andReturn());
+        mockMvc.perform(get("/api/auth/session").header("Authorization", "Bearer " + second))
+                .andExpect(status().isOk());
+        mockMvc.perform(get("/api/student/profile").header("Authorization", "Bearer " + second))
+                .andExpect(status().isOk());
+
+        // ...and the earlier one is logged out, with the reason the old device shows to the student.
+        for (String path : new String[]{"/api/auth/session", "/api/auth/me", "/api/student/profile"}) {
+            mockMvc.perform(get(path).header("Authorization", "Bearer " + first))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(jsonPath("$.message").value(com.lordsai.lsi.security.JwtAuthenticationFilter.SIGNED_IN_ELSEWHERE_MESSAGE))
+                    .andExpect(jsonPath("$.errors.reason").value("SIGNED_IN_ELSEWHERE"));
+        }
+
+        // A plain logout is not reported as "signed in elsewhere".
+        mockMvc.perform(post("/api/auth/logout").header("Authorization", "Bearer " + second)).andExpect(status().isOk());
+        mockMvc.perform(get("/api/auth/session").header("Authorization", "Bearer " + second))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Authentication required. Please sign in."))
+                .andExpect(jsonPath("$.errors").doesNotExist());
+    }
+
+    @Test
+    void sessionCheckNeedsALogin() throws Exception {
+        mockMvc.perform(get("/api/auth/session")).andExpect(status().isUnauthorized());
     }
 
     @Test

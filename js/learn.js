@@ -48,7 +48,7 @@
         el("courseProgressText").innerText = percent + "%";
         el("courseDone").innerText = done;
         el("courseTotal").innerText = total;
-        // The exam application itself is gated by the backend; this banner only points to My Exams.
+        // The certificate application itself is gated by the backend; this banner only points to Certificate.
         var banner = el("learnCompleteBanner");
         if (banner) banner.classList.toggle("d-none", !(total > 0 && done >= total));
     }

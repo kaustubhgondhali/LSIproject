@@ -10,6 +10,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -30,6 +32,14 @@ import java.util.Optional;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+
+    /** Request attribute naming why the bearer token was refused, so the 401 can tell the browser (SecurityConfig). */
+    public static final String REJECTION_REASON = "lsi.auth.rejectionReason";
+    /** The token's session was ended by a newer login of the same account on another device or browser. */
+    public static final String SIGNED_IN_ELSEWHERE = "SIGNED_IN_ELSEWHERE";
+    public static final String SIGNED_IN_ELSEWHERE_MESSAGE =
+            "You were logged out because your account was signed in on another device or browser.";
     private static final String BEARER_PREFIX = "Bearer ";
 
     private final JwtService jwtService;
@@ -73,34 +83,38 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private Optional<AuthUser> resolve(String token, HttpServletRequest request) {
         Optional<Claims> parsed = jwtService.parse(token);
         if (parsed.isEmpty()) {
-            return Optional.empty();
+            return rejected(request, "token invalid or expired");
         }
         Claims claims = parsed.get();
 
         Optional<UserSession> session = sessionService.findActive(claims.getId());
         if (session.isEmpty()) {
-            return Optional.empty();
+            if (sessionService.replacedByNewLogin(claims.getId())) {
+                request.setAttribute(REJECTION_REASON, SIGNED_IN_ELSEWHERE);
+                return rejected(request, "signed in on another device or browser (a newer login replaced this session)");
+            }
+            return rejected(request, "login session ended (logged out, revoked or expired)");
         }
 
         Long userId;
         try {
             userId = Long.valueOf(claims.getSubject());
         } catch (NumberFormatException ex) {
-            return Optional.empty();
+            return rejected(request, "malformed subject");
         }
 
         Optional<User> user = userRepository.findById(userId);
         if (user.isEmpty() || !user.get().isActive() || !user.get().getRole().isUsable()) {
-            return Optional.empty();
+            return rejected(request, "account " + userId + " missing, inactive or not allowed to sign in");
         }
 
         Integer tokenVersion = claims.get(JwtService.CLAIM_TOKEN_VERSION, Integer.class);
         if (tokenVersion == null || tokenVersion != user.get().getTokenVersion()) {
-            return Optional.empty();
+            return rejected(request, "password changed since this login (user " + userId + ")");
         }
 
         if (!session.get().getUser().getId().equals(userId)) {
-            return Optional.empty();
+            return rejected(request, "session belongs to another account");
         }
 
         User u = user.get();
@@ -112,19 +126,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (sessionDevId != null) {
                 if (!deviceBindingService.validateActiveDevice(u.getId(), sessionDevId)) {
-                    return Optional.empty(); // Device reset or revoked
+                    return rejected(request, "device reset or revoked (user " + userId + ")");
                 }
                 if (path != null && path.startsWith("/api/student") && !path.endsWith("/video")) {
                     if (deviceIdHeader == null || deviceTokenHeader == null) {
-                        return Optional.empty(); // Stolen token without device binding headers
+                        return rejected(request, "device headers missing (user " + userId + ")");
                     }
                     if (!deviceBindingService.verifyDeviceToken(u.getId(), deviceIdHeader, deviceTokenHeader)) {
-                        return Optional.empty(); // Invalid device credentials
+                        return rejected(request, "device credentials do not match (user " + userId + ")");
                     }
                 }
             } else if (path != null && path.startsWith("/api/student") && !path.endsWith("/video")) {
                 if (deviceBindingService.getStudentDevice(u.getId()).isPresent()) {
-                    return Optional.empty(); // Session not bound to active device
+                    return rejected(request, "session not bound to the registered device (user " + userId + ")");
                 }
             }
         }
@@ -132,5 +146,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         sessionService.touch(session.get());
 
         return Optional.of(new AuthUser(u.getId(), u.getEmail(), u.getFullName(), u.getRole(), session.get().getId()));
+    }
+
+    /** Logs why a bearer token was not accepted (never the token itself), so a 401 can be explained. */
+    private static Optional<AuthUser> rejected(HttpServletRequest request, String reason) {
+        log.info("[AUTH] Token not accepted for {} {}: {}", request.getMethod(), request.getRequestURI(), reason);
+        return Optional.empty();
     }
 }

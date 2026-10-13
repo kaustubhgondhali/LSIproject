@@ -189,13 +189,13 @@ public class EnrollmentService {
         String amount = latest == null || latest.getPayment() == null
                 ? "—" : "₹" + latest.getPayment().getAmount().toPlainString();
 
-        return sendEnrollmentEmail(student, profile.getStudentId(), courseName, orderRef, amount, setupLink);
+        return sendEnrollmentEmail(student, profile.getStudentId(), profile.userId(), courseName, orderRef, amount, setupLink);
     }
 
-    private EmailDelivery sendEnrollmentEmail(User student, String studentId, String courseName,
+    private EmailDelivery sendEnrollmentEmail(User student, String studentId, String userId, String courseName,
                                               String orderRef, String amount, String setupLink) {
-        log.info("[EMAIL] Sending enrollment email to {} (studentId={})", student.getEmail(), studentId);
-        EmailDelivery delivery = emailService.sendEnrollmentEmail(student, studentId, courseName,
+        log.info("[EMAIL] Sending enrollment email to {} (studentId={}, userId={})", student.getEmail(), studentId, userId);
+        EmailDelivery delivery = emailService.sendEnrollmentEmail(student, studentId, userId, courseName,
                 orderRef, amount, setupLink);
         if (delivery.delivered()) {
             log.info("[EMAIL] Enrollment email sent successfully to {}", student.getEmail());

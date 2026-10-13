@@ -25,7 +25,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Template Stylesheet -->
-    <link href="css/style.css?v=20260924l" rel="stylesheet">
+    <link href="css/style.css?v=20261012-nav" rel="stylesheet">
 </head>
 
 <body>
@@ -56,7 +56,6 @@
                         <i class="fas fa-th-large me-1"></i> Invest & Wealth Manager
                     </a>
                     <a href="https://wa.me/919920254354" target="_blank" class="btn btn-sm btn-outline-light rounded-pill py-1 px-3 me-3" data-i18n="topbar.whatsapp"><i class="fab fa-whatsapp text-success me-1"></i> WhatsApp Support</a>
-                    <a href="student-login.html" class="text-light small text-warning fw-bold" data-i18n="topbar.studentLogin"><i class="fas fa-user-lock text-warning me-1"></i> Student Login</a>
                 </div>
             </div>
         </div>
@@ -133,7 +132,8 @@
                     <a href="contact.html" class="nav-item nav-link" data-i18n="nav.contact">Contact</a>
                     <a href="student-login.html" class="nav-item nav-link d-lg-none active" data-i18n="nav.studentLogin">Student Login</a>
                 </div>
-                <div class="ms-lg-3 my-2 my-lg-0">
+                <div class="ms-lg-3 my-2 my-lg-0 d-flex flex-wrap align-items-center gap-2">
+                    <a href="student-login.html" class="btn btn-student-login mode-academy-only" data-i18n="nav.studentLogin" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
                     <a href="contact.html#enquiry-section" class="btn btn-enquire" data-i18n="nav.enquireNow">
                         <i class="fas fa-bolt me-1"></i> Enquire Now
                     </a>
@@ -196,7 +196,7 @@
 
                         <!-- Error Alert -->
                         <div class="alert alert-danger py-2 px-3 small d-none mb-3" id="loginErrorAlert" role="alert">
-                            <i class="fas fa-exclamation-circle me-1"></i> <span id="loginErrorText">Invalid email/student ID or password. Please check your credentials and try again.</span>
+                            <i class="fas fa-exclamation-circle me-1"></i> <span id="loginErrorText">Invalid email/User ID or password. Please check your credentials and try again.</span>
                         </div>
 
                         <!-- Success Alert -->
@@ -206,12 +206,12 @@
 
                         <form id="studentLoginForm" novalidate>
                             <div class="mb-3">
-                                <label class="form-label fw-bold small text-muted">Email / Student ID <span class="text-danger">*</span></label>
+                                <label class="form-label fw-bold small text-muted">Email / User ID <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-user"></i></span>
-                                    <input type="text" class="form-control border-start-0 ps-0" id="studentId" placeholder="e.g. you@example.com or LSI-2026-00001" required>
+                                    <input type="text" class="form-control border-start-0 ps-0" id="studentId" placeholder="e.g. you@example.com or your User ID" required>
                                 </div>
-                                <div class="invalid-feedback">Please enter your email or Student ID.</div>
+                                <div class="invalid-feedback">Please enter your email or User ID.</div>
                             </div>
 
                             <div class="mb-3">
@@ -255,7 +255,7 @@
                             <!-- Never received the enrollment email / link expired (inline, revealed on demand) -->
                             <div class="p-3 bg-light rounded-3 border mt-3 text-start small d-none" id="resendSetupPanel">
                                 <strong class="text-dark d-block mb-2"><i class="fas fa-id-card text-primary me-1"></i> Resend account setup email</strong>
-                                <p class="text-muted mb-2" style="font-size: 12px;">Enter the email you used when you purchased the course. If an enrollment exists, we will email your Student ID and a fresh password setup link.</p>
+                                <p class="text-muted mb-2" style="font-size: 12px;">Enter the email you used when you purchased the course. If an enrollment exists, we will email your User ID and a fresh password setup link.</p>
                                 <div class="input-group input-group-sm">
                                     <input type="email" class="form-control" id="resendSetupEmail" placeholder="you@example.com">
                                     <button type="button" class="btn btn-primary" id="resendSetupBtn">Send</button>
@@ -264,8 +264,8 @@
                             </div>
 
                             <div class="text-center text-muted mt-4" style="font-size: 12px;">
-                                To log in you need your <strong>Student ID</strong> (or registered email) and the <strong>password you created</strong> from the setup link.<br>
-                                New student? Your Student ID and password setup link are emailed automatically after course purchase.<br>
+                                To log in you need your <strong>User ID</strong> (or registered email) and the <strong>password you created</strong> from the setup link.<br>
+                                New student? Your User ID is emailed with your password setup link after purchase. Your Student ID is only a reference number — it does not sign in.<br>
                                 <a href="#" id="resendSetupLink" class="text-primary text-decoration-none">Didn't receive it, or has your link expired?</a>
                             </div>
                         </form>
@@ -578,6 +578,7 @@
                         <a href="investments.html"><i class="fas fa-angle-right me-1"></i> Investments</a>
                         <a href="insurance.html"><i class="fas fa-angle-right me-1"></i> Insurance</a>
                         <a href="financial-planning.html"><i class="fas fa-angle-right me-1"></i> Financial Planning</a>
+                        <a href="student-login.html" class="mode-academy-only" data-i18n="nav.studentLogin"><i class="fas fa-angle-right me-1"></i> Student Login</a>
                         <a href="contact.html"><i class="fas fa-angle-right me-1"></i> Contact</a>
                     </div>
                 </div>
@@ -639,8 +640,8 @@
                     has been independently assessed and found to be in compliance with the requirement of the standard:
                 </p>
                 <p class="lsi-accred-standard">ISO 9001:2015</p>
-                <p class="lsi-accred-scope-label">For the following scope of activities:</p>
-                <p class="lsi-accred-scope">
+                <p class="lsi-accred-scope-label mode-academy-only">For the following scope of activities:</p>
+                <p class="lsi-accred-scope mode-academy-only">
                     Share Market Basic to Advance Course
                     <span class="lsi-accred-scope-note">(Only Educational Purpose)</span>
                 </p>
@@ -653,7 +654,6 @@
     <div class="container-fluid copyright py-3">
         <div class="container text-center">
             <span>&copy; Lord Sai Share Market Classes (Class). All Rights Reserved.</span>
-            <a href="student-login.html" class="btn btn-sm btn-outline-info rounded-pill px-3 ms-3 lsi-student-link mode-academy-only" title="Student portal login"><i class="fas fa-user-graduate me-1"></i> Student Login</a>
         </div>
     </div>
     <!-- Copyright End -->
@@ -745,7 +745,7 @@
                                 A verification code will be sent to your registered email to unbind your previous computer.
                             </p>
                             <div class="mb-3 text-start">
-                                <label class="form-label small fw-bold text-muted">Email / Student ID <span class="text-danger">*</span></label>
+                                <label class="form-label small fw-bold text-muted">Email / User ID <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="resetIdentifier" placeholder="e.g. you@example.com">
                             </div>
                             <button type="button" class="btn btn-warning w-100 py-2 rounded-pill fw-bold text-dark" id="btnSendResetOtp">
@@ -798,11 +798,11 @@
 
     <!-- Authentication Engine -->
     <script src="js/api-config.js"></script>
-    <script src="js/auth.js"></script>
+    <script src="js/auth.js?v=20261001-single"></script>
 
     <!-- Multilingual Engine -->
     <script src="js/translations.js?v=20260923-caps"></script>
-    <script src="js/lang.js?v=20260924-i18n2"></script>
+    <script src="js/lang.js?v=20261001-single"></script>
 
     <!-- Template Javascript & Student Login Handler -->
     <script src="js/mode.js"></script>
@@ -859,11 +859,15 @@
                 }
             }
 
-            if (urlParams.get('session_expired') === '1' && infoAlert && infoText) {
+            if (urlParams.get('signed_in_elsewhere') === '1' && infoAlert && infoText) {
+                // One login per account: a newer login on another device or browser ended this one.
+                infoText.innerText = "You were logged out because your account was signed in on another device or browser. Only one login at a time is allowed — sign in again to continue here.";
+                infoAlert.classList.remove('d-none');
+            } else if (urlParams.get('session_expired') === '1' && infoAlert && infoText) {
                 infoText.innerText = "Your session has ended (logged out elsewhere, password changed, or expired). Please sign in again.";
                 infoAlert.classList.remove('d-none');
             } else if (urlParams.get('password_set') === '1' && infoAlert && infoText) {
-                infoText.innerText = "Your password has been set. Sign in with your Student ID or email.";
+                infoText.innerText = "Your password has been set. Sign in with your User ID or email.";
                 infoAlert.classList.remove('d-none');
             }
 
@@ -1017,7 +1021,7 @@
 
                             // Show clear professional error message
                             if (errorAlert && errorText) {
-                                errorText.innerText = res.message || "Invalid email/student ID or password. Please check your credentials and try again.";
+                                errorText.innerText = res.message || "Invalid email/User ID or password. Please check your credentials and try again.";
                                 errorAlert.classList.remove('d-none');
                             }
 
@@ -1191,7 +1195,7 @@
                     hideDevModalAlert();
                     var idVal = (document.getElementById('resetIdentifier').value || '').trim();
                     if (!idVal) {
-                        showDevModalAlert('Please enter your email or Student ID.');
+                        showDevModalAlert('Please enter your email or User ID.');
                         return;
                     }
                     btnSendResetOtp.disabled = true;

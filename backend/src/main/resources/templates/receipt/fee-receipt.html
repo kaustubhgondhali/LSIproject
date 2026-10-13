@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<!--
+  Automation Admin fee receipt as a PDF, for sending by email / WhatsApp. It is the SAME receipt
+  the Receipts screen shows (receiptHtml in js/automation-admin.js + .au-receipt in automation.css):
+  same fields, same order, same values from the stored receipt snapshot (ReceiptDto), the payment
+  history up to this installment, and the academy stamp beside the signature. Only the medium
+  differs. Rendered by PdfRenderer, so markup must stay well-formed XHTML.
+-->
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="'Fee Receipt ' + ${r.receiptNo}">Fee Receipt</title>
+    <style>
+        @page { size: A4; margin: 14mm; }
+        body { font-family: 'Noto Sans', 'Segoe UI', Arial, sans-serif; font-size: 10pt; color: #0f172a; margin: 0; background: #ffffff; }
+        .receipt { border: 2px solid #1B2A47; border-radius: 6px; padding: 14px 16px; }
+        .rh { width: 100%; border-collapse: collapse; border-bottom: 1px solid #E3E8F0; margin-bottom: 8px; }
+        .rh td { vertical-align: middle; padding: 0 0 10px 0; }
+        .rh td.logo { width: 1%; padding-right: 12px; white-space: nowrap; }
+        .rh img { height: 52px; }
+        .rh .n { font-weight: 700; font-size: 12.5pt; line-height: 1.2; color: #1B2A47; }
+        .rh .s { font-size: 9pt; color: #64748B; }
+        .addr { text-align: center; font-size: 9pt; color: #334155; line-height: 1.4; margin-bottom: 8px; }
+        .title-wrap { text-align: center; }
+        .title { display: inline-block; white-space: nowrap; background: #1B2A47; color: #ffffff; font-weight: 700; letter-spacing: 1px; padding: 5px 22px; border-radius: 4px; margin: 4px 0 10px; }
+        .top { width: 100%; border-collapse: collapse; font-size: 10pt; margin-bottom: 2px; }
+        .top td { padding: 0; }
+        .top b, .meta b { color: #334155; font-weight: 700; }
+        .meta { font-size: 10pt; line-height: 1.7; }
+        .meta b { display: inline-block; width: 112px; }
+        table.amt { width: 100%; border-collapse: collapse; margin: 10px 0 8px; font-size: 10pt; }
+        table.amt th, table.amt td { border: 1px solid #94A3B8; padding: 6px 10px; }
+        table.amt th { background: #F1F5FB; text-align: left; }
+        table.amt .num { text-align: right; }
+        .words { font-size: 9.5pt; margin: 4px 0 8px; }
+        .hist-title { font-weight: 700; font-size: 10pt; color: #1B2A47; margin: 10px 0 0; }
+        table.hist { width: 100%; border-collapse: collapse; margin: 4px 0 8px; font-size: 9pt; }
+        table.hist th, table.hist td { border: 1px solid #94A3B8; padding: 4px 8px; }
+        table.hist th { background: #F1F5FB; text-align: left; }
+        table.hist .num { text-align: right; }
+        table.hist tr.cur td { background: #EEF4FF; font-weight: 700; }
+        table.hist .this { font-weight: 400; color: #475569; font-size: 8pt; }
+        .thanks { text-align: center; font-size: 9.5pt; color: #334155; }
+        table.foot { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 10pt; }
+        table.foot td { padding: 0; vertical-align: middle; }
+        table.foot td.stamp { width: 140px; text-align: center; }
+        table.foot td.stamp img { width: 118px; height: auto; }
+        table.foot td.sig { width: 180px; text-align: center; vertical-align: bottom; }
+        .sig img { display: block; width: 140px; height: auto; margin: 0 auto 2px; }
+        .sig .line { border-top: 1px solid #334155; padding-top: 4px; text-align: center; }
+        .sig small { font-size: 8.5pt; }
+    </style>
+</head>
+<body>
+<div class="receipt">
+    <table class="rh"><tr>
+        <td class="logo"><img th:if="${logoDataUri != null and logoDataUri != ''}" th:src="${logoDataUri}" alt=""/></td>
+        <td><div class="n" th:text="${r.academyName}">LORD SAI INVESTMENT AND SHARE MARKET ACADEMY</div><div class="s" th:text="${r.academyTagline}">Learn • Invest • Grow Together</div></td>
+    </tr></table>
+    <div class="addr"><span th:text="${r.academyAddress}">Address</span><br/>Email: <span th:text="${r.academyEmail}">email</span> · Mob: <span th:text="${r.academyPhone}">phone</span></div>
+    <div class="title-wrap"><span class="title">FEE RECEIPT</span></div>
+
+    <table class="top"><tr>
+        <td><b>Receipt No.</b>: <strong th:text="${r.receiptNo}">LSR/2026/0001</strong></td>
+        <td style="text-align:center"><b>Payment No.</b>: <span th:text="${r.paymentNo}">LSP/2026/0001</span></td>
+        <td style="text-align:right"><b>Date</b>: <span th:text="${dateText}">01/01/2026</span></td>
+    </tr></table>
+    <div class="meta">
+        <div><b>Student ID</b>: <span th:text="${r.studentCode}">LSA/2026/0001</span></div>
+        <div><b>Student Name</b>: <span th:text="${r.studentName}">Name</span></div>
+        <div><b>Mobile No.</b>: <span th:text="${r.studentMobile != null ? r.studentMobile : '—'}">—</span></div>
+        <div><b>Course</b>: <span th:text="${r.courseName != null ? r.courseName : '—'}">—</span></div>
+        <div><b>Batch / Class</b>: <span th:text="${(r.batchName != null ? r.batchName : '—') + (r.batchSchedule != null ? ' (' + r.batchSchedule + ')' : '')}">—</span></div>
+        <div><b>Installment</b>: <span th:text="${installmentText}">1st Installment</span></div>
+        <div><b>Payment Mode</b>: <span th:text="${r.paymentMode}">CASH</span></div>
+        <div th:if="${r.referenceNo != null}"><b>Transaction Ref.</b>: <span th:text="${r.referenceNo}">REF</span></div>
+    </div>
+
+    <table class="amt">
+        <thead><tr><th>Particulars</th><th class="num">Amount (₹)</th></tr></thead>
+        <tbody>
+            <tr><td>Course Fee</td><td class="num" th:text="${totalFeeText}">10,000</td></tr>
+            <th:block th:if="${hasDiscount}">
+                <tr><td>Discount</td><td class="num" th:text="${'− ' + discountText}">&#8722; 2,000</td></tr>
+                <tr><td><strong>Fee after Discount (to pay)</strong></td><td class="num"><strong th:text="${netFeeText}">8,000</strong></td></tr>
+            </th:block>
+            <tr><td>Amount Paid (this receipt)</td><td class="num" th:text="${amountPaidText}">5,000</td></tr>
+            <tr><td>Total Paid to Date</td><td class="num" th:text="${totalPaidText}">5,000</td></tr>
+            <tr><td><strong>Balance Amount</strong></td><td class="num"><strong th:text="${balanceText}">5,000</strong></td></tr>
+        </tbody>
+    </table>
+    <div class="words"><strong>Amount in Words:</strong> <span th:text="${r.amountInWords}">Rupees Five Thousand Only</span></div>
+
+    <th:block th:if="${history != null and !history.isEmpty()}">
+        <div class="hist-title">Payment History</div>
+        <table class="hist">
+            <thead><tr><th>Installment</th><th>Payment No.</th><th>Payment Date</th><th>Mode</th><th class="num">Amount Paid (₹)</th></tr></thead>
+            <tbody>
+                <tr th:each="h : ${history}" th:class="${h.current} ? 'cur' : null">
+                    <td><span th:text="${h.installment}">1st Installment</span><span class="this" th:if="${h.current}"> (this receipt)</span></td>
+                    <td th:text="${h.paymentNo}">PAY/2026/00001</td>
+                    <td th:text="${h.date}">01/01/2026</td>
+                    <td th:text="${h.mode}">CASH</td>
+                    <td class="num" th:text="${h.amount}">2,000</td>
+                </tr>
+            </tbody>
+        </table>
+    </th:block>
+
+    <div class="thanks">Thank you for being a part of our academy!</div>
+    <table class="foot"><tr>
+        <td></td>
+        <td class="stamp"><img th:if="${stampDataUri != null and stampDataUri != ''}" th:src="${stampDataUri}" alt="Academy stamp"/></td>
+        <td class="sig">
+            <img th:if="${signatureDataUri != null and signatureDataUri != ''}" th:src="${signatureDataUri}" alt="Signature"/>
+            <div class="line"><strong th:text="${signatoryName}">Vaibhav S. Pawar</strong><br/><small th:text="${signatoryRole}">Proprietor</small></div>
+        </td>
+    </tr></table>
+</div>
+</body>
+</html>

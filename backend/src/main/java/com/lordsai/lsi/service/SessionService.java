@@ -2,7 +2,6 @@ package com.lordsai.lsi.service;
 
 import com.lordsai.lsi.entity.User;
 import com.lordsai.lsi.entity.UserSession;
-import com.lordsai.lsi.entity.enums.Role;
 import com.lordsai.lsi.entity.enums.SessionRevokeReason;
 import com.lordsai.lsi.exception.ApiException;
 import com.lordsai.lsi.repository.UserSessionRepository;
@@ -28,17 +27,22 @@ public class SessionService {
         this.sessionRepository = sessionRepository;
     }
 
+    /** Removes the login history of an account that is being deleted. */
+    @Transactional
+    public void deleteHistory(Long userId) {
+        sessionRepository.deleteByUserId(userId);
+    }
+
     /**
-     * Opens a new authenticated session for a successful login.
-     * Legitimate students may log in normally from multiple devices; only the actual account
-     * status and token security are enforced here.
+     * Opens a new authenticated session for a successful login. One login per account, for every
+     * role: a new login ends the account's earlier sessions (reason NEW_LOGIN), so signing in on
+     * another device or browser signs the old one out — and the old one is told why (see
+     * {@link #replacedByNewLogin}).
      */
     @Transactional
     public UserSession open(User user, Duration ttl, String deviceInfo, String ipAddress) {
         Instant now = Instant.now();
-        if (user.getRole() != Role.STUDENT) {
-            revokeAll(user.getId(), SessionRevokeReason.NEW_LOGIN);
-        }
+        revokeAll(user.getId(), SessionRevokeReason.NEW_LOGIN);
 
         UserSession session = new UserSession();
         session.setUser(user);
@@ -54,6 +58,20 @@ public class SessionService {
     public Optional<UserSession> findActive(String tokenId) {
         return sessionRepository.findByTokenIdAndActiveTrue(tokenId)
                 .filter(s -> !s.isExpired());
+    }
+
+    /** True when the account is logged in somewhere right now (an active, unexpired session). */
+    @Transactional(readOnly = true)
+    public boolean hasActiveSession(Long userId) {
+        return sessionRepository.findFirstByUserIdAndActiveTrueAndExpiresAtAfter(userId, Instant.now()).isPresent();
+    }
+
+    /** True when this token's session was ended because the same account logged in on another device or browser. */
+    @Transactional(readOnly = true)
+    public boolean replacedByNewLogin(String tokenId) {
+        return tokenId != null && sessionRepository.findByTokenId(tokenId)
+                .filter(s -> !s.isActive() && s.getRevokeReason() == SessionRevokeReason.NEW_LOGIN)
+                .isPresent();
     }
 
     @Transactional(readOnly = true)

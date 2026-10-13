@@ -2,6 +2,7 @@ package com.lordsai.lsi.email;
 
 import com.lordsai.lsi.dto.admin.EmailSettingsDtos.DnsCheckResult;
 import com.lordsai.lsi.dto.admin.EmailSettingsDtos.DomainDnsStatus;
+import com.lordsai.lsi.email.MailProviderRegistry.MailProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -15,13 +16,16 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Performs safe, read-only DNS checks for SPF, DKIM, DMARC, and MX records using the JDK's
  * built-in JNDI DNS context (no third-party DNS library required).
  *
  * <p>Never attempts to create or modify DNS records (which require registrar/DNS zone access).
- * Returns clear diagnostic statuses: PASS, FAIL, NOT_CONFIGURED, or CHECK_FAILED.
+ * Returns clear diagnostic statuses: PASS, FAIL, NOT_CONFIGURED, or CHECK_FAILED — and for DKIM
+ * also NOT_CHECKED (no selector entered for a custom domain) or PROVIDER_MANAGED (gmail.com etc.).
  */
 @Service
 public class DnsDiagnosticsService {
@@ -32,6 +36,20 @@ public class DnsDiagnosticsService {
     private static final String STATUS_FAIL = "FAIL";
     private static final String STATUS_NOT_CONFIGURED = "NOT_CONFIGURED";
     private static final String STATUS_CHECK_FAILED = "CHECK_FAILED";
+    /** DKIM only: no selector was entered for a custom domain, so nothing was looked up (not a failure). */
+    private static final String STATUS_NOT_CHECKED = "NOT_CHECKED";
+    /** DKIM only: a public mailbox domain (gmail.com, outlook.com, …) whose DKIM keys the provider signs and rotates itself. */
+    private static final String STATUS_PROVIDER_MANAGED = "PROVIDER_MANAGED";
+
+    /**
+     * Selectors a provider uses by default, probed ONLY to report a record that is actually
+     * published — never filled in or assumed. Google Workspace: "google"; Microsoft 365:
+     * "selector1"/"selector2"; Zoho: "zmail".
+     */
+    private static final Map<String, List<String>> PROVIDER_DEFAULT_SELECTORS = Map.of(
+            "GMAIL", List.of("google"),
+            "OUTLOOK", List.of("selector1", "selector2"),
+            "ZOHO", List.of("zmail"));
 
     private final MxResolver mxResolver;
 
@@ -57,21 +75,23 @@ public class DnsDiagnosticsService {
         }
 
         List<DnsCheckResult> checks = new ArrayList<>();
+        List<String> mxHosts = mxResolver.lookup(cleanDomain);
 
         // 1. SPF Check
         checks.add(checkSpf(cleanDomain));
 
         // 2. DKIM Check
-        checks.add(checkDkim(cleanDomain, selector));
+        checks.add(checkDkim(cleanDomain, selector, mxHosts));
 
         // 3. DMARC Check
         checks.add(checkDmarc(cleanDomain));
 
         // 4. MX Check
-        checks.add(checkMx(cleanDomain));
+        checks.add(checkMx(cleanDomain, mxHosts));
 
+        // A provider-managed DKIM (gmail.com etc.) is as good as a verified one: nothing to fix.
         boolean allPassed = checks.stream()
-                .allMatch(c -> STATUS_PASS.equals(c.status()));
+                .allMatch(c -> STATUS_PASS.equals(c.status()) || STATUS_PROVIDER_MANAGED.equals(c.status()));
 
         String summary = allPassed
                 ? "All domain authentication records (SPF, DKIM, DMARC, MX) are active and verified for @" + cleanDomain + "."
@@ -115,15 +135,21 @@ public class DnsDiagnosticsService {
         }
     }
 
-    private DnsCheckResult checkDkim(String domain, String selector) {
+    private DnsCheckResult checkDkim(String domain, String selector, List<String> mxHosts) {
         if (selector.isBlank()) {
-            return new DnsCheckResult(
-                    "DKIM",
-                    "<selector>._domainkey." + domain,
-                    STATUS_NOT_CONFIGURED,
-                    "DKIM selector not specified. Enter the selector (e.g. 'default', 's1', 'k1', or 'resend') provided by your email provider.",
-                    List.of()
-            );
+            Optional<MailProvider> publicMailbox = MailProviderRegistry.byDomain(domain);
+            if (publicMailbox.isPresent()) {
+                return new DnsCheckResult(
+                        "DKIM",
+                        domain,
+                        STATUS_PROVIDER_MANAGED,
+                        "@" + domain + " is a " + publicMailbox.get().label() + " address: " + publicMailbox.get().label()
+                                + " signs every message with its own DKIM key and rotates it automatically, so there is no selector or DNS record for you to set up."
+                                + " A DKIM selector is only needed when you send from your own domain.",
+                        List.of()
+                );
+            }
+            return dkimNotChecked(domain, mxHosts);
         }
 
         String dkimHost = selector + "._domainkey." + domain;
@@ -190,8 +216,39 @@ public class DnsDiagnosticsService {
         }
     }
 
-    private DnsCheckResult checkMx(String domain) {
-        List<String> mxHosts = mxResolver.lookup(domain);
+    /**
+     * A custom domain with no selector entered: nothing is looked up under a guessed name. The
+     * provider hosting the domain's mail (from its MX records) decides the guidance, and that
+     * provider's default selector is probed only to report a record that really exists.
+     */
+    private DnsCheckResult dkimNotChecked(String domain, List<String> mxHosts) {
+        Optional<MailProvider> host = MailProviderRegistry.byMx(mxHosts);
+        StringBuilder msg = new StringBuilder("DKIM not checked: no DKIM selector entered. The selector is issued by the service that sends your mail and cannot be guessed; "
+                + "that service also gives you the TXT record to publish at <selector>._domainkey." + domain + ".");
+        List<String> found = new ArrayList<>();
+        if (host.isPresent()) {
+            if ("GMAIL".equals(host.get().code())) {
+                msg.append(" Your domain's mail is hosted by Google Workspace: generate the key in Google Admin console → Apps → Google Workspace → Gmail → Authenticate email, publish the TXT record it shows, then click Start authentication.");
+            }
+            for (String candidate : PROVIDER_DEFAULT_SELECTORS.getOrDefault(host.get().code(), List.of())) {
+                String candidateHost = candidate + "._domainkey." + domain;
+                try {
+                    if (queryTxt(candidateHost).stream().anyMatch(r -> r.toLowerCase(Locale.ROOT).contains("v=dkim1"))) {
+                        found.add(candidate);
+                    }
+                } catch (NamingException ignored) {
+                    // Not published under this name; nothing to report.
+                }
+            }
+        }
+        if (!found.isEmpty()) {
+            msg.append(" A DKIM key IS already published at ").append(found.get(0)).append("._domainkey.").append(domain)
+                    .append(" — enter '").append(found.get(0)).append("' as the DKIM selector and verify again.");
+        }
+        return new DnsCheckResult("DKIM", "<selector>._domainkey." + domain, STATUS_NOT_CHECKED, msg.toString(), List.of());
+    }
+
+    private DnsCheckResult checkMx(String domain, List<String> mxHosts) {
         if (mxHosts.isEmpty()) {
             return new DnsCheckResult(
                     "MX",

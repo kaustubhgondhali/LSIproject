@@ -20,10 +20,10 @@ public class LoggingEmailService implements EmailService {
     private static final Logger log = LoggerFactory.getLogger(LoggingEmailService.class);
 
     @Override
-    public EmailDelivery sendEnrollmentEmail(User student, String studentId, String courseName,
+    public EmailDelivery sendEnrollmentEmail(User student, String studentId, String userId, String courseName,
                                              String orderRef, String amountDisplay, String setupLink) {
-        log.warn("[EMAIL:DEV-SINK] Enrollment email NOT sent (no SMTP configured). to={} studentId={} course='{}' order={} amount={}",
-                student.getEmail(), studentId, courseName, orderRef, amountDisplay);
+        log.warn("[EMAIL:DEV-SINK] Enrollment email NOT sent (no SMTP configured). to={} studentId={} userId={} course='{}' order={} amount={}",
+                student.getEmail(), studentId, userId, courseName, orderRef, amountDisplay);
         if (setupLink != null) {
             log.warn("[EMAIL:DEV-SINK] Password setup link for {} (development only): {}", student.getEmail(), setupLink);
         }
@@ -31,7 +31,7 @@ public class LoggingEmailService implements EmailService {
     }
 
     @Override
-    public EmailDelivery sendWelcomeEmail(User user, String setupLink) {
+    public EmailDelivery sendWelcomeEmail(User user, String userId, String setupLink) {
         log.warn("[EMAIL:DEV-SINK] Welcome email NOT sent (no SMTP configured). to={}", user.getEmail());
         log.warn("[EMAIL:DEV-SINK] Password setup link for {} (development only): {}", user.getEmail(), setupLink);
         return EmailDelivery.disabled();
@@ -79,7 +79,7 @@ public class LoggingEmailService implements EmailService {
     }
 
     @Override
-    public EmailDelivery sendFeeReceipt(String toEmail, java.util.Map<String, Object> model) {
+    public EmailDelivery sendFeeReceipt(String toEmail, java.util.Map<String, Object> model, EmailAttachment receiptPdf) {
         log.warn("[EMAIL:DEV-SINK] Fee receipt NOT sent (no SMTP configured). to={}", toEmail);
         return EmailDelivery.disabled();
     }
