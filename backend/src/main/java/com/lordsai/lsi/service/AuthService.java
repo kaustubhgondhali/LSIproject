@@ -1,5 +1,6 @@
 package com.lordsai.lsi.service;
 
+import com.lordsai.lsi.automation.repository.AcadStudentRepository;
 import com.lordsai.lsi.dto.auth.AuthDtos.LoginResponse;
 import com.lordsai.lsi.dto.auth.AuthDtos.TokenCheckResponse;
 import com.lordsai.lsi.dto.auth.AuthDtos.UserSummary;
@@ -18,6 +19,7 @@ import com.lordsai.lsi.repository.UserRepository;
 import com.lordsai.lsi.security.AuthUser;
 import com.lordsai.lsi.security.JwtService;
 import com.lordsai.lsi.security.LoginAttemptService;
+import com.lordsai.lsi.security.SecretCrypto;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -56,6 +58,8 @@ public class AuthService {
     private final EnrollmentService enrollmentService;
     private final EbookEntitlementService ebookEntitlementService;
     private final DeviceBindingService deviceBindingService;
+    private final AcadStudentRepository acadStudents;
+    private final SecretCrypto crypto;
 
     public AuthService(UserRepository userRepository,
                        StudentProfileRepository studentProfileRepository,
@@ -68,7 +72,9 @@ public class AuthService {
                        EmailService emailService,
                        EnrollmentService enrollmentService,
                        EbookEntitlementService ebookEntitlementService,
-                       DeviceBindingService deviceBindingService) {
+                       DeviceBindingService deviceBindingService,
+                       AcadStudentRepository acadStudents,
+                       SecretCrypto crypto) {
         this.userRepository = userRepository;
         this.studentProfileRepository = studentProfileRepository;
         this.passwordEncoder = passwordEncoder;
@@ -81,6 +87,8 @@ public class AuthService {
         this.enrollmentService = enrollmentService;
         this.ebookEntitlementService = ebookEntitlementService;
         this.deviceBindingService = deviceBindingService;
+        this.acadStudents = acadStudents;
+        this.crypto = crypto;
     }
 
     @Transactional(noRollbackFor = ApiException.class)
@@ -403,6 +411,12 @@ public class AuthService {
         user.setPasswordHash(passwordEncoder.encode(newPassword));
         user.setTokenVersion(user.getTokenVersion() + 1);
         sessionService.revokeAll(user.getId(), SessionRevokeReason.PASSWORD_CHANGED);
+        // Automation Admin Ebook Login shows the current password; keep the encrypted copy in sync
+        // when an academy free-ebook student changes it in Settings (or via a reset link).
+        acadStudents.findByPortalUserId(user.getId()).ifPresent(s -> {
+            s.setPortalPasswordEnc(crypto.encrypt(newPassword));
+            acadStudents.save(s);
+        });
     }
 
     private static Role portalRole(String portal) {

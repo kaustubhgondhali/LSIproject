@@ -260,7 +260,7 @@
     $(document).on('submit', '#demoRegistrationForm, #webinarBannerForm, #contactInquiryForm', function(e) {
         e.preventDefault();
         var form = $(this);
-        if (!window.LSI_Enquiry) { window.open('https://wa.me/919920254354', '_blank'); return; }
+        if (!window.LSI_Enquiry) { window.open(window.LSI_SiteWhatsApp ? window.LSI_SiteWhatsApp.link() : 'https://wa.me/919987049070', '_blank'); return; }
         var first = function (sel) { return form.find(sel).first()[0] || null; };
         window.LSI_Enquiry.submit(this, {
             name: first('input[type="text"]:not([name="website"])'),

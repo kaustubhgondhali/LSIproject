@@ -57,7 +57,7 @@
                         <span class="mode-mf-only"><i class="fas fa-th-large me-1"></i> Share Market Class</span>
                         <span class="mode-academy-only"><i class="fas fa-th-large me-1"></i> Invest & Wealth Manager</span>
                     </a>
-                    <a href="https://wa.me/919920254354" target="_blank" class="btn btn-sm btn-outline-light rounded-pill py-1 px-3 me-3" data-i18n="topbar.whatsapp"><i class="fab fa-whatsapp text-success me-1"></i> WhatsApp Support</a>
+                    <a href="https://wa.me/919987049070" target="_blank" class="btn btn-sm btn-outline-light rounded-pill py-1 px-3 me-3" data-i18n="topbar.whatsapp"><i class="fab fa-whatsapp text-success me-1"></i> WhatsApp Support</a>
                 </div>
             </div>
         </div>
@@ -213,7 +213,7 @@
                                 <a href="https://p.njw.bz/33377" target="_blank" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold">
                                     <i class="fas fa-user-plus me-1"></i> Open NJ E-Wealth Account
                                 </a>
-                                <a href="https://wa.me/919920254354?text=Hi%20Vaibhav%20Sir,%20I%20want%20to%20schedule%20a%20Mutual%20Fund%20Consultation" target="_blank" class="btn btn-sm btn-outline-success rounded-pill px-3">
+                                <a href="https://wa.me/919987049070?text=Hi%20Vaibhav%20Sir,%20I%20want%20to%20schedule%20a%20Mutual%20Fund%20Consultation" target="_blank" class="btn btn-sm btn-outline-success rounded-pill px-3">
                                     <i class="fab fa-whatsapp me-1"></i> WhatsApp Consultation
                                 </a>
                             </div>
@@ -244,7 +244,7 @@
                         <h5 class="fw-bold text-dark mb-1">WhatsApp Desk</h5>
                         <p class="text-muted small mb-3">Quick inquiries, batch schedules & syllabus PDF</p>
                         <h4 class="fw-bold text-success mb-3">9920 254 354</h4>
-                        <a href="https://wa.me/919920254354?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20enquire%20about%20your%20upcoming%20courses" target="_blank" class="btn btn-success rounded-pill px-4 mt-auto">
+                        <a href="https://wa.me/919987049070?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20enquire%20about%20your%20upcoming%20courses" target="_blank" class="btn btn-success rounded-pill px-4 mt-auto">
                             <i class="fab fa-whatsapp me-1"></i> WhatsApp Desk
                         </a>
                     </div>
@@ -325,7 +325,7 @@
 
                             <!-- Client-Side Feedback Alert (Backend-ready) -->
                             <div class="alert alert-success d-none mt-3 mb-0" id="contactSuccessMsg" role="alert">
-                                <i class="fas fa-check-circle me-1"></i> Thank you for reaching out! For the fastest response, please message us on <a href="https://wa.me/919920254354" target="_blank" rel="noopener" class="alert-link">WhatsApp (+91 99202 54354)</a> or call us during working hours.
+                                <i class="fas fa-check-circle me-1"></i> Thank you for reaching out! For the fastest response, please message us on <a href="https://wa.me/919987049070" target="_blank" rel="noopener" class="alert-link">WhatsApp (<span data-site-whatsapp-display>+91 99870 49070</span>)</a> or call us during working hours.
                             </div>
                         </form>
                     </div>
@@ -432,7 +432,7 @@
                     <a href="tel:9920254354" class="btn btn-enquire btn-lg px-5">
                         <i class="fas fa-phone-alt me-2"></i> Call 9920 254 354
                     </a>
-                    <a href="https://wa.me/919920254354?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20schedule%20a%20classroom%20visit" target="_blank" class="btn btn-outline-light btn-lg rounded-pill px-4">
+                    <a href="https://wa.me/919987049070?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20schedule%20a%20classroom%20visit" target="_blank" class="btn btn-outline-light btn-lg rounded-pill px-4">
                         <i class="fab fa-whatsapp text-success me-2"></i> WhatsApp Consultation
                     </a>
                 </div>
@@ -668,7 +668,7 @@
     <!-- Copyright End -->
 
     <!-- Floating WhatsApp Support Button -->
-    <a href="https://wa.me/919920254354?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20enquire%20about%20your%20stock%20market%20and%20investment%20classes" target="_blank" class="floating-whatsapp" title="Chat on WhatsApp">
+    <a href="https://wa.me/919987049070?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20enquire%20about%20your%20stock%20market%20and%20investment%20classes" target="_blank" class="floating-whatsapp" title="Chat on WhatsApp">
         <span class="whatsapp-pulse"></span>
         <i class="fab fa-whatsapp"></i>
     </a>
@@ -690,13 +690,14 @@
 
     <!-- Template Javascript & Contact Form Validation -->
     <script src="js/api-config.js"></script>
+    <script src="js/site-whatsapp.js?v=20261014"></script>
     <script src="js/auth.js?v=20261001-single"></script>
     <script src="js/translations.js?v=20260923-caps"></script>
     <script src="js/lang.js?v=20260930-enquiry"></script>
     <script src="js/mode.js"></script>
     <!-- Enquiry forms: emailed through the LSI backend + WhatsApp pre-filled (js/enquiry.js) -->
-    <script src="js/enquiry.js?v=20260930-enquiry"></script>
-    <script src="js/main.js?v=20260930-enquiry"></script>
+    <script src="js/enquiry.js?v=20261014-site-wa"></script>
+    <script src="js/main.js?v=20261014-site-wa"></script>
     <script>
         // Contact form: checked, emailed to the owner through the LSI backend, then WhatsApp opens
         // with the same enquiry for the visitor to send (js/enquiry.js).
@@ -706,7 +707,7 @@
             contactForm.addEventListener('submit', function(event) {
                 event.preventDefault();
                 event.stopPropagation();
-                if (!window.LSI_Enquiry) { window.open('https://wa.me/919920254354', '_blank'); return; }
+                if (!window.LSI_Enquiry) { window.open(window.LSI_SiteWhatsApp ? LSI_SiteWhatsApp.link() : 'https://wa.me/919987049070', '_blank'); return; }
                 var byId = function (id) { return document.getElementById(id); };
                 LSI_Enquiry.submit(contactForm, {
                     name: byId('contactName'),

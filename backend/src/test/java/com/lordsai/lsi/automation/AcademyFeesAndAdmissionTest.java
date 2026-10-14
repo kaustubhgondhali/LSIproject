@@ -288,6 +288,88 @@ class AcademyFeesAndAdmissionTest {
                 .anyMatch(x -> x.startsWith("ACAD_DISCOUNT_REMOVED"));
     }
 
+    @Test
+    void deletingOneStudentRemovesOnlyTheirOwnRecords() throws Exception {
+        long a = create(student("Rohan Delete", "9876511106")).path("id").asLong();
+        long b = create(student("Sana Keep", "9876511107")).path("id").asLong();
+        String codeA = api.data(api.get(office, STUDENTS + "/" + a)).path("studentId").asText();
+        pay(a, 1, "2026-09-01", 3000); pay(a, 2, "2026-09-08", 1000);
+        long receiptB = pay(b, 1, "2026-09-01", 2500).path("receiptId").asLong();
+        api.put(office, STUDENTS + "/" + a + "/discount", Map.of("amount", 500, "reason", "A")).andExpect(status().isOk());
+        api.put(office, STUDENTS + "/" + b + "/discount", Map.of("amount", 700, "reason", "B")).andExpect(status().isOk());
+        long session = api.data(api.post(office, "/api/automation/attendance/sessions", Map.of("batchId", batch, "sessionDate", "2026-09-06")))
+                .path("session").path("id").asLong();
+        api.post(office, "/api/automation/attendance/save", Map.of("sessionId", session, "marks", List.of(
+                Map.of("studentId", a, "status", "PRESENT"), Map.of("studentId", b, "status", "PRESENT")))).andExpect(status().isOk());
+
+        // The Student ID must be typed to confirm.
+        api.delete(office, STUDENTS + "/" + a + "/permanent").andExpect(status().isBadRequest());
+        api.delete(office, STUDENTS + "/" + a + "/permanent?confirm=WRONG").andExpect(status().isBadRequest());
+        api.get(office, STUDENTS + "/" + a).andExpect(status().isOk());
+
+        api.delete(office, STUDENTS + "/" + a + "/permanent?confirm=" + codeA.toLowerCase()).andExpect(status().isOk());
+        api.get(office, STUDENTS + "/" + a).andExpect(status().isNotFound());
+        assertThat(api.data(api.get(office, "/api/automation/payments")).findValuesAsText("studentCode")).doesNotContain(codeA);
+
+        // The other student is exactly as before.
+        JsonNode pb = api.data(api.get(office, STUDENTS + "/" + b + "/profile"));
+        assertThat(pb.path("payments")).hasSize(1);
+        assertThat(pb.path("receipts")).hasSize(1);
+        assertThat(pb.path("fees").path("discount").decimalValue()).isEqualByComparingTo("700");
+        assertThat(pb.path("fees").path("balance").decimalValue()).isEqualByComparingTo("6800");
+        assertThat(pb.path("attendance").path("sessionsTotal").asInt()).isEqualTo(1);
+        assertThat(api.data(api.get(office, "/api/automation/receipts/" + receiptB)).path("balance").decimalValue()).isEqualByComparingTo("6800");
+        assertThat(pdfText(receiptB)).contains("Sana Keep");
+        assertThat(auditLogs.findAll()).anyMatch(x -> "ACAD_STUDENT_DELETED".equals(x.getAction()) && x.getDescription().contains(codeA));
+    }
+
+    @Test
+    void aDiscountAtALaterInstallmentShowsOnlyFromThatReceiptOn() throws Exception {
+        long id = create(student("Kiran Patil", "9876511105")).path("id").asLong();
+        String discountUrl = STUDENTS + "/" + id + "/discount";
+        long r1 = pay(id, 1, "2026-09-01", 2000).path("receiptId").asLong();
+        long r2 = pay(id, 2, "2026-09-08", 2000).path("receiptId").asLong();
+
+        // Only an installment already paid or the next one (3rd).
+        api.put(office, discountUrl, Map.of("amount", 500, "reason", "x", "installmentNo", 4)).andExpect(status().isBadRequest());
+
+        // Discount at the 3rd installment: the balance drops now, receipts 1 and 2 stay as they were.
+        JsonNode f = api.data(api.put(office, discountUrl, Map.of("amount", 1000, "reason", "Loyalty", "installmentNo", 3)).andExpect(status().isOk()));
+        assertThat(f.path("discount").decimalValue()).isEqualByComparingTo("1000");
+        assertThat(f.path("balance").decimalValue()).isEqualByComparingTo("5000");
+        assertThat(f.path("discounts")).hasSize(1);
+        assertThat(f.path("discounts").get(0).path("installmentNo").asInt()).isEqualTo(3);
+        JsonNode rec2 = api.data(api.get(office, "/api/automation/receipts/" + r2));
+        assertThat(rec2.path("discount").decimalValue()).isEqualByComparingTo("0");
+        assertThat(rec2.path("balance").decimalValue()).isEqualByComparingTo("6000");
+        assertThat(pdfText(r2)).doesNotContain("Discount");
+
+        long r3 = pay(id, 3, "2026-09-15", 2000).path("receiptId").asLong();
+        JsonNode rec3 = api.data(api.get(office, "/api/automation/receipts/" + r3));
+        assertThat(rec3.path("discount").decimalValue()).isEqualByComparingTo("1000");
+        assertThat(rec3.path("netFee").decimalValue()).isEqualByComparingTo("9000");
+        assertThat(rec3.path("balance").decimalValue()).isEqualByComparingTo("3000");
+        assertThat(pdfText(r3)).contains("Discount (3rd Installment)", "1,000", "Fee after Discount (to pay)", "9,000");
+
+        // A second discount at the 4th installment; together they can be at most what is still owed.
+        api.put(office, discountUrl, Map.of("amount", 3001, "reason", "x", "installmentNo", 4)).andExpect(status().isBadRequest());
+        api.put(office, discountUrl, Map.of("amount", 500, "reason", "Topper", "installmentNo", 4)).andExpect(status().isOk());
+        long r4 = pay(id, 4, "2026-09-22", 1000).path("receiptId").asLong();
+        assertThat(api.data(api.get(office, "/api/automation/receipts/" + r3)).path("discount").decimalValue()).isEqualByComparingTo("1000");
+        JsonNode rec4 = api.data(api.get(office, "/api/automation/receipts/" + r4));
+        assertThat(rec4.path("discount").decimalValue()).isEqualByComparingTo("1500");
+        assertThat(rec4.path("balance").decimalValue()).isEqualByComparingTo("1500");
+        assertThat(pdfText(r4)).contains("Discount (3rd Installment)", "Discount (4th Installment)", "8,500");
+        assertThat(api.data(api.get(office, "/api/automation/receipts/" + r1)).path("discount").decimalValue()).isEqualByComparingTo("0");
+
+        // Removing the 3rd installment's discount leaves the 4th's.
+        f = api.data(api.delete(office, discountUrl + "?installmentNo=3").andExpect(status().isOk()));
+        assertThat(f.path("discount").decimalValue()).isEqualByComparingTo("500");
+        assertThat(api.data(api.get(office, "/api/automation/receipts/" + r3)).path("discount").decimalValue()).isEqualByComparingTo("0");
+        assertThat(api.data(api.get(office, "/api/automation/receipts/" + r4)).path("balance").decimalValue()).isEqualByComparingTo("2500");
+        api.delete(office, discountUrl + "?installmentNo=3").andExpect(status().isBadRequest());
+    }
+
     // ---- 4. pending fees ---------------------------------------------------------------------------
 
     @Test

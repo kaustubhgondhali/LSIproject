@@ -32,6 +32,10 @@ public class AcadReceiptPdfService {
     public record HistoryRow(String installment, String paymentNo, String date, String mode, String amount, boolean current) {
     }
 
+    /** One discount line of the receipt, formatted as printed. */
+    public record DiscountRow(String label, String amount) {
+    }
+
     private static final String TEMPLATE = "receipt/fee-receipt";
     /** Sharp enough to read on a phone, and still within the size WhatsApp sends without shrinking. */
     private static final float PICTURE_DPI = 180f;
@@ -60,7 +64,7 @@ public class AcadReceiptPdfService {
         model.put("totalFeeText", indian(r.totalFee()));
         boolean hasDiscount = r.discount() != null && r.discount().signum() > 0;
         model.put("hasDiscount", hasDiscount);
-        model.put("discountText", hasDiscount ? indian(r.discount()) : "0");
+        model.put("discountRows", hasDiscount ? discountRows(r) : List.of());
         model.put("netFeeText", indian(r.netFee() != null ? r.netFee() : r.totalFee()));
         model.put("amountPaidText", indian(r.amountPaid()));
         model.put("totalPaidText", indian(r.totalPaid()));
@@ -80,6 +84,20 @@ public class AcadReceiptPdfService {
         return r.history().stream()
                 .map(h -> new HistoryRow(ordinal(h.installmentNo()) + " Installment", h.paymentNo(),
                         h.paymentDate() == null ? "—" : h.paymentDate().format(DMY), h.paymentMode(), indian(h.amount()), h.current()))
+                .toList();
+    }
+
+    /**
+     * A single discount at the 1st installment prints as plain "Discount", as before; otherwise each
+     * line names the installment it was given at.
+     */
+    static List<DiscountRow> discountRows(ReceiptDto r) {
+        if (r.discounts() == null || r.discounts().isEmpty()) {
+            return List.of(new DiscountRow("Discount", indian(r.discount())));
+        }
+        boolean plain = r.discounts().size() == 1 && r.discounts().get(0).installmentNo() == 1;
+        return r.discounts().stream()
+                .map(d -> new DiscountRow(plain ? "Discount" : "Discount (" + ordinal(d.installmentNo()) + " Installment)", indian(d.amount())))
                 .toList();
     }
 

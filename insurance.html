@@ -216,7 +216,7 @@
                     <a href="index.html" class="btn btn-sm btn-outline-warning rounded-pill py-1 px-3 me-3 topbar-switch-btn" title="Switch to Share Market Class" data-i18n="topbar.switch">
                         <i class="fas fa-th-large me-1"></i> Share Market Class
                     </a>
-                    <a href="https://wa.me/919920254354" target="_blank" class="btn btn-sm btn-outline-light rounded-pill py-1 px-3 me-3" data-i18n="topbar.whatsapp"><i class="fab fa-whatsapp text-success me-1"></i> WhatsApp Support</a>
+                    <a href="https://wa.me/919987049070" target="_blank" class="btn btn-sm btn-outline-light rounded-pill py-1 px-3 me-3" data-i18n="topbar.whatsapp"><i class="fab fa-whatsapp text-success me-1"></i> WhatsApp Support</a>
                 </div>
             </div>
         </div>
@@ -386,7 +386,7 @@
                         <li><i class="fas fa-check-circle text-primary me-2"></i> <strong>Human Life Value (HLV):</strong> Calculating coverage based on 10x to 15x your annual income.</li>
                         <li><i class="fas fa-check-circle text-primary me-2"></i> <strong>Debt & Mortgage Coverage:</strong> Ensuring family assets are never lost to lender claims.</li>
                     </ul>
-                    <a href="https://wa.me/919920254354?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20understand%20Term%20Insurance%20calculation" target="_blank" class="btn btn-primary rounded-pill px-4">
+                    <a href="https://wa.me/919987049070?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20understand%20Term%20Insurance%20calculation" target="_blank" class="btn btn-primary rounded-pill px-4">
                         <i class="fab fa-whatsapp me-2"></i> Inquire on Term Insurance
                     </a>
                 </div>
@@ -504,7 +504,7 @@
                         <li><i class="fas fa-check-circle text-success me-2"></i> <strong>Super Top-Up Plans:</strong> High sum insured protection at minimal additional expense.</li>
                         <li><i class="fas fa-check-circle text-success me-2"></i> <strong>Pre & Post Hospitalization:</strong> Coverage for diagnostics, medication, and recovery expenses.</li>
                     </ul>
-                    <a href="https://wa.me/919920254354?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20evaluate%20my%20Family%20Health%20Insurance%20coverage" target="_blank" class="btn btn-outline-success rounded-pill px-4">
+                    <a href="https://wa.me/919987049070?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20evaluate%20my%20Family%20Health%20Insurance%20coverage" target="_blank" class="btn btn-outline-success rounded-pill px-4">
                         <i class="fab fa-whatsapp me-2"></i> Evaluate Health Cover
                     </a>
                 </div>
@@ -1182,7 +1182,7 @@
                     <button type="button" class="btn btn-enquire btn-lg px-5" data-bs-toggle="modal" data-bs-target="#demoModal">
                         <i class="fas fa-bolt me-2"></i> Enquire Now
                     </button>
-                    <a href="https://wa.me/919920254354?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20discuss%20Insurance%20Planning" target="_blank" class="btn btn-outline-light btn-lg rounded-pill px-4">
+                    <a href="https://wa.me/919987049070?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20discuss%20Insurance%20Planning" target="_blank" class="btn btn-outline-light btn-lg rounded-pill px-4">
                         <i class="fab fa-whatsapp text-success me-2"></i> WhatsApp Consultation
                     </a>
                 </div>
@@ -1351,7 +1351,7 @@
     <!-- Copyright End -->
 
     <!-- Floating WhatsApp Support Button -->
-    <a href="https://wa.me/919920254354?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20enquire%20about%20your%20stock%20market%20and%20investment%20classes" target="_blank" class="floating-whatsapp" title="Chat on WhatsApp">
+    <a href="https://wa.me/919987049070?text=Hi%20Lord%20Sai%20Academy,%20I%20want%20to%20enquire%20about%20your%20stock%20market%20and%20investment%20classes" target="_blank" class="floating-whatsapp" title="Chat on WhatsApp">
         <span class="whatsapp-pulse"></span>
         <i class="fab fa-whatsapp"></i>
     </a>
@@ -1453,7 +1453,7 @@
                                     <i class="fas fa-envelope"></i>
                                     <span>Email</span>
                                 </a>
-                                <a href="https://wa.me/919920254354" id="insEnquireWhatsapp" class="ins-enquire-btn ins-enquire-btn-wa" target="_blank" rel="noopener">
+                                <a href="https://wa.me/919987049070" id="insEnquireWhatsapp" class="ins-enquire-btn ins-enquire-btn-wa" target="_blank" rel="noopener">
                                     <i class="fab fa-whatsapp"></i>
                                     <span>WhatsApp</span>
                                 </a>
@@ -1487,6 +1487,7 @@
 
     <!-- Authentication Engine -->
     <script src="js/api-config.js"></script>
+    <script src="js/site-whatsapp.js?v=20261014"></script>
     <script src="js/auth.js?v=20261001-single"></script>
 
     <!-- Multilingual Engine -->
@@ -1494,8 +1495,8 @@
     <script src="js/lang.js?v=20260930-enquiry"></script>
     <script src="js/mode.js"></script>
     <!-- Enquiry forms: emailed through the LSI backend + WhatsApp pre-filled (js/enquiry.js) -->
-    <script src="js/enquiry.js?v=20260930-enquiry"></script>
-    <script src="js/main.js?v=20260930-enquiry"></script>
+    <script src="js/enquiry.js?v=20261014-site-wa"></script>
+    <script src="js/main.js?v=20261014-site-wa"></script>
     <script src="js/mf-plant-video.js"></script>
     <!-- Insurance product detail modal: fills the modal and points the Email/WhatsApp actions at the selected product -->
     <script>
@@ -1770,7 +1771,7 @@
             el('insEnquireEmail').href = 'mailto:lordsai.academy@gmail.com'
                 + '?subject=' + encodeURIComponent(subject)
                 + '&body=' + encodeURIComponent(body);
-            el('insEnquireWhatsapp').href = 'https://wa.me/919920254354?text='
+            el('insEnquireWhatsapp').href = 'https://wa.me/919987049070?text='
                 + encodeURIComponent('Hi Lord Sai Academy, I want to enquire about ' + p.title + '.');
         }
 

@@ -13,6 +13,9 @@
  *   - Zero watermark: videos, handouts, and UI remain 100% visually clean with NO watermarks.
  *   - Detection & suppression of screenshot keys (PrintScreen, PrtSc, Cmd+Shift+3/4/5),
  *     save shortcuts (Ctrl/Cmd+S), print attempts (Ctrl/Cmd+P), and devtools chords.
+ *   - Capture lock (N x 5 minutes for the Nth attempt in 24 h, course and ebook counted separately):
+ *     a detected capture shortcut blurs lesson videos and handouts, or the ebook
+ *     reader behind a countdown. The lock survives reloads and new tabs (localStorage + server copy).
  *   - Public pages (home, courses, about, login) are completely unaffected.
  *
  * TECHNICAL REALITY NOTICE:
@@ -41,7 +44,21 @@
         shield: null,
         modal: null,
         inactive: null,
-        locals: []
+        locals: [],
+        lockUntil: { COURSE: 0, EBOOK: 0 },
+        penaltyTimer: null,
+        chord: null
+    };
+    /** Each capture attempt adds 5 minutes: 5, 10, 15 … (matches the server). */
+    var PENALTY_STEP_MS = 5 * 60 * 1000;
+    /** Strikes reset 24 hours after the first attempt (matches the server). */
+    var STRIKE_WINDOW_MS = 24 * 60 * 60 * 1000;
+    var SCOPES = ["COURSE", "EBOOK"];
+    var IS_APPLE = /Mac|iPhone|iPad|iPod/i.test(navigator.platform || navigator.userAgent || "");
+    /** Containers blurred during a capture lock, per scope. Course and ebook locks are independent. */
+    var PENALTY_TARGETS = {
+        COURSE: ["#playerShell", "#materialViewer"],
+        EBOOK: ["#ebookReaderModal .modal-body"]
     };
     var EDITABLE = 'input, textarea, select, option, [contenteditable=""], [contenteditable="true"], .lsi-allow-select';
 
@@ -65,16 +82,17 @@
 
     // ---- audit reporting (throttled per type; never sends tokens) ------------------------------
 
-    function report(type, detail) {
+    function report(type, detail, scope) {
         if (!state.active || !Auth || !Auth.api) return;
         var now = Date.now();
         var gap = type === "PROTECTED_CONTENT_BLUR" ? 60000 : 8000;
-        if (state.lastEvent[type] && now - state.lastEvent[type] < gap) return;
-        state.lastEvent[type] = now;
+        var throttleKey = type + "|" + (scope || "");
+        if (state.lastEvent[throttleKey] && now - state.lastEvent[throttleKey] < gap) return;
+        state.lastEvent[throttleKey] = now;
         try {
             Auth.api("/student/protection-events", {
                 method: "POST", skipAuthRedirect: true,
-                body: { type: type, courseId: state.courseId, lessonId: state.lessonId, detail: String(detail || "").slice(0, 200) }
+                body: { type: type, courseId: state.courseId, lessonId: state.lessonId, detail: String(detail || "").slice(0, 200), scope: scope || null }
             });
         } catch (e) { /* reporting must never break the page */ }
     }
@@ -159,7 +177,7 @@
     }
 
     function handleMediaOnRestore() {
-        if (state.videoState && state.videoState.wasPlaying) {
+        if (state.videoState && state.videoState.wasPlaying && !penaltyActive("COURSE")) {
             var videos = document.querySelectorAll("video");
             videos.forEach(function (v) {
                 try {
@@ -231,15 +249,179 @@
         }
     }
 
+    // ---- capture lock: the Nth attempt within 24 h blurs that content for N x 5 minutes ----------
+    // Course (lesson video + handouts) and ebook are separate scopes with separate strikes and timers.
+
+    function storageKey(kind, scope) {
+        var s = session();
+        var sid = (state.profile && state.profile.studentId) || (s && s.profile && (s.profile.studentId || s.profile.email)) || "me";
+        return "lsi_capture_" + kind + ":" + sid + ":" + scope;
+    }
+
+    function saveLock(scope) {
+        try { localStorage.setItem(storageKey("lock", scope), String(state.lockUntil[scope])); } catch (e) { /* storage may be blocked */ }
+    }
+
+    function loadLock(scope) {
+        try { return parseInt(localStorage.getItem(storageKey("lock", scope)), 10) || 0; } catch (e) { return 0; }
+    }
+
+    /** Counts this attempt for the scope and returns the lock length: 5 min x attempts in the 24 h window. */
+    function nextPenaltyMs(scope) {
+        var key = storageKey("strikes", scope);
+        var now = Date.now(), strikes = null;
+        try { strikes = JSON.parse(localStorage.getItem(key)); } catch (e) { /* fresh start */ }
+        if (!strikes || !strikes.windowStart || now - strikes.windowStart >= STRIKE_WINDOW_MS) {
+            strikes = { count: 0, windowStart: now };
+        }
+        strikes.count += 1;
+        try { localStorage.setItem(key, JSON.stringify(strikes)); } catch (e) { /* storage may be blocked */ }
+        return strikes.count * PENALTY_STEP_MS;
+    }
+
+    /** What the student is looking at right now: the open ebook reader, the lesson page, or neither. */
+    function currentScope() {
+        var reader = el("ebookReaderModal");
+        if (reader && reader.classList.contains("show")) return "EBOOK";
+        if (el("playerShell") || el("materialViewer")) return "COURSE";
+        return null;
+    }
+
+    function mountPenaltyCovers(scope) {
+        PENALTY_TARGETS[scope].forEach(function (sel) {
+            var box = document.querySelector(sel);
+            if (!box || box.querySelector(":scope > .lsi-penalty-cover")) return;
+            if (getComputedStyle(box).position === "static") box.style.position = "relative";
+            var cover = document.createElement("div");
+            cover.className = "lsi-penalty-cover";
+            cover.setAttribute("data-scope", scope);
+            cover.setAttribute("role", "alert");
+            cover.innerHTML = '<div class="lsi-penalty-card"><i class="fas fa-user-shield"></i>' +
+                '<strong>Screen capture detected</strong>' +
+                '<span>' + (scope === "EBOOK" ? "This ebook" : "Course content") + ' is hidden for <b class="lsi-penalty-time"></b></span>' +
+                '<small>Each further attempt within 24 hours adds 5 more minutes. Screenshots and screen recordings of LSI VITC ' +
+                (scope === "EBOOK" ? "ebooks" : "course videos and handouts") + ' are not permitted.</small></div>';
+            box.appendChild(cover);
+        });
+    }
+
+    function pauseAllMedia() {
+        document.querySelectorAll("video, audio").forEach(function (m) { try { if (!m.paused) m.pause(); } catch (e) { /* ignore */ } });
+    }
+
+    function penaltyActive(scope) { return state.lockUntil[scope || "COURSE"] > Date.now(); }
+
+    function tickPenalty() {
+        var running = false;
+        SCOPES.forEach(function (scope) {
+            var left = state.lockUntil[scope] - Date.now();
+            var cls = "lsi-lock-" + scope.toLowerCase();
+            if (left <= 0) {
+                if (document.body.classList.contains(cls)) {
+                    state.lockUntil[scope] = 0;
+                    saveLock(scope);
+                    document.body.classList.remove(cls);
+                }
+                return;
+            }
+            running = true;
+            document.body.classList.add(cls);
+            mountPenaltyCovers(scope);
+            var sec = Math.ceil(left / 1000);
+            var label = Math.floor(sec / 60) + ":" + ("0" + (sec % 60)).slice(-2);
+            document.querySelectorAll('.lsi-penalty-cover[data-scope="' + scope + '"] .lsi-penalty-time')
+                .forEach(function (n) { n.textContent = label; });
+        });
+        if (!running) { clearInterval(state.penaltyTimer); state.penaltyTimer = null; }
+    }
+
+    function showPenalty(scope) {
+        if (scope === "COURSE") pauseAllMedia();
+        tickPenalty();
+        if (!state.penaltyTimer) state.penaltyTimer = setInterval(tickPenalty, 1000);
+    }
+
+    /** Locks the content in view (course or ebook) and tells the server, which keeps its own copy. */
+    function startPenalty(detail) {
+        if (!state.active) return;
+        var scope = currentScope();
+        if (!scope) { report("SCREEN_CAPTURE_ATTEMPT", detail); return; }
+        if (!penaltyActive(scope)) {
+            state.lockUntil[scope] = Date.now() + nextPenaltyMs(scope);
+            saveLock(scope);
+        }
+        showPenalty(scope);
+        report("SCREEN_CAPTURE_ATTEMPT", detail, scope);
+    }
+
+    /** Restores running locks after reload / in another tab: local copy first, then the server's. */
+    function restorePenalty() {
+        SCOPES.forEach(function (scope) {
+            var local = loadLock(scope);
+            if (local > Date.now()) { state.lockUntil[scope] = local; showPenalty(scope); }
+        });
+        if (!Auth || !Auth.api) return;
+        Auth.api("/student/protection-lock", { skipAuthRedirect: true }).then(function (res) {
+            var data = (res && res.data) || {};
+            SCOPES.forEach(function (scope) {
+                var secs = data[scope];
+                if (secs > 0) {
+                    state.lockUntil[scope] = Math.max(state.lockUntil[scope], Date.now() + secs * 1000);
+                    saveLock(scope);
+                    showPenalty(scope);
+                }
+            });
+        }).catch(function () { /* offline: the local copy still applies */ });
+    }
+
+    function onPlayDuringPenalty(e) {
+        if (penaltyActive("COURSE") && e.target && e.target.pause) e.target.pause();
+    }
+
+    function onStorage(e) {
+        SCOPES.forEach(function (scope) {
+            if (e.key !== storageKey("lock", scope)) return;
+            var until = parseInt(e.newValue, 10) || 0;
+            if (until > Date.now()) { state.lockUntil[scope] = until; showPenalty(scope); }
+        });
+    }
+
+    /**
+     * OS capture shortcuts (Win+Shift+S, Win+Alt+R, Win+G, Cmd+Shift+3/4/5) are usually swallowed by the
+     * system, so the page only sees the modifiers. Modifiers held and then an immediate focus loss is
+     * treated as a capture tool opening.
+     */
+    function trackChord(e) {
+        var k = e.key || "";
+        var isMod = k === "Meta" || k === "OS" || k === "Shift" || k === "Alt" || k === "Control";
+        if (!isMod) { state.chord = null; return; }
+        if (e.metaKey && (e.shiftKey || e.altKey)) {
+            state.chord = { at: Date.now(), name: e.shiftKey ? "Win/Cmd+Shift" : "Win/Cmd+Alt" };
+        }
+    }
+
+    function chordJustUsed() {
+        return !!(state.chord && Date.now() - state.chord.at < 1500);
+    }
+
     // ---- event handlers --------------------------------------------------------------------------
 
     function onKeyDown(e) {
         var k = (e.key || "").toLowerCase();
         var mod = e.ctrlKey || e.metaKey;
+        trackChord(e);
+
+        if (!IS_APPLE && e.metaKey && !e.ctrlKey && (k === "g" || (e.altKey && (k === "r" || k === "printscreen")) || (e.shiftKey && (k === "s" || k === "r")))) {
+            e.preventDefault();
+            applyBlackout(true, null, null, 2500);
+            startPenalty("Capture shortcut Win+" + (e.altKey ? "Alt+" : "") + (e.shiftKey ? "Shift+" : "") + e.key);
+            return;
+        }
 
         if (e.key === "PrintScreen" || e.key === "Snapshot") {
             e.preventDefault();
-            applyBlackout(true, "SCREEN_CAPTURE_ATTEMPT", "PrintScreen key", 2500);
+            applyBlackout(true, null, null, 2500);
+            startPenalty("PrintScreen key");
             try {
                 if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText("Screen capture of LSI VITC course content is not permitted.").catch(function () {});
@@ -249,9 +431,10 @@
         }
 
         // macOS screen capture chords
-        if (e.metaKey && e.shiftKey && (k === "3" || k === "4" || k === "5")) {
+        if (e.metaKey && e.shiftKey && (k === "3" || k === "4" || k === "5" || k === "6")) {
             e.preventDefault();
-            applyBlackout(true, "SCREEN_CAPTURE_ATTEMPT", "Cmd+Shift+" + k, 2500);
+            applyBlackout(true, null, null, 2500);
+            startPenalty("Cmd+Shift+" + k);
             return;
         }
 
@@ -286,7 +469,8 @@
 
     function onKeyUp(e) {
         if (e.key === "PrintScreen" || e.key === "Snapshot") {
-            applyBlackout(true, "SCREEN_CAPTURE_ATTEMPT", "PrintScreen key (keyup)", 2500);
+            applyBlackout(true, null, null, 2500);
+            startPenalty("PrintScreen key (keyup)");
             try {
                 if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText("Screen capture of LSI VITC course content is not permitted.").catch(function () {});
@@ -327,8 +511,14 @@
     }
 
     function onBlur() {
+        var chord = chordJustUsed() ? state.chord.name : null;
+        state.chord = null;
         clearTimeout(state.blurTimer);
         state.blurTimer = setTimeout(function () {
+            // A tab switch hides the document; a capture overlay steals focus but leaves the page visible.
+            if (chord && !document.hidden) {
+                startPenalty(chord + " shortcut followed by focus loss (system capture tool)");
+            }
             if (document.hidden || !isPageOrIframeFocused()) {
                 applyBlackout(true, "PROTECTED_CONTENT_BLUR", "window blurred");
             }
@@ -371,6 +561,9 @@
         window.addEventListener("focus", onFocus);
         window.addEventListener("beforeprint", onBeforePrint);
         window.addEventListener("afterprint", onAfterPrint);
+        window.addEventListener("storage", onStorage);
+        document.addEventListener("play", onPlayDuringPenalty, true);
+        restorePenalty();
 
         try {
             console.log("%cLSI VITC — Protected Student Portal", "font-size:16px;font-weight:700;color:#0077B6");
@@ -395,6 +588,8 @@
         lockdown: lockdown,
         applyBlackout: applyBlackout,
         isActive: function () { return state.active; },
+        /** True while the capture lock keeps videos and ebooks blurred. */
+        isCaptureLocked: function (scope) { return penaltyActive(scope); },
         /** Safe no-op to ensure course handouts and videos remain 100% visually clean without watermarks. */
         stampCanvas: function (canvas) {}
     };

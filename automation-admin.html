@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/automation.css?v=20261012-stage2b" rel="stylesheet">
+    <link href="css/automation.css?v=20261014-fullguide" rel="stylesheet">
 </head>
 <body class="au-app">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
@@ -21,7 +21,7 @@
         <button class="au-menu-btn" id="menuBtn" aria-label="Menu"><i class="fas fa-bars"></i></button>
         <a href="#dashboard" class="au-brand" data-view="dashboard">
             <img src="img/lord-sai-logo.png" alt="Lord Sai">
-            <div><div class="t1">LORD SAI INVESTMENT AND SHARE MARKET ACADEMY</div><div class="t2">Learn &nbsp;•&nbsp; Invest &nbsp;•&nbsp; Grow Together</div></div>
+            <div><div class="t1">LORD SAI SHARE MARKET ACADEMY</div><div class="t2">Learn &nbsp;•&nbsp; Invest &nbsp;•&nbsp; Grow Together</div></div>
         </a>
         <div class="au-search">
             <i class="fas fa-search"></i>
@@ -49,6 +49,7 @@
             <a href="#communication" data-view="communication"><i class="fas fa-paper-plane"></i> Email &amp; WhatsApp</a>
             <a href="#comm-history" data-view="comm-history"><i class="fas fa-history"></i> Message History</a>
             <a href="#settings" data-view="settings"><i class="fas fa-cog"></i> Settings</a>
+            <a href="#website-instructions" data-view="website-instructions"><i class="fas fa-book-reader"></i> Website Instructions</a>
             <div class="spacer"></div>
             <a href="#" class="danger" onclick="LSI_Auth.logout('student-login.html?portal=automation'); return false;"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </nav>
@@ -419,7 +420,7 @@
                 </div>
                 <div class="au-card pad">
                     <h5 class="fw-bold">Student ID Series</h5>
-                    <p class="text-muted small">Control where the Student ID numbering picks up for new students this year. This keeps the current prefix and digit format (e.g. <code>LSA/YYYY/</code>) and changes only the next number; to use a different format, use <strong>Add Student → Change Student ID series</strong>. Existing Student IDs are never altered, and a number already in use can never be reissued.</p>
+                    <p class="text-muted small">Student IDs are always <code>LSA/YYYY/NNNN</code>: <strong>LSA</strong> is fixed, <strong>YYYY</strong> is the current calendar year (updates automatically each year), and only the owner can change the next four-digit serial. Existing Student IDs are never altered, and a number already in use can never be reissued.</p>
                     <div class="au-kv mb-3" id="studentIdSeriesInfo" style="grid-template-columns:1fr 1fr">
                         <div><span>Current Next Student ID</span><strong id="sidCurrentNext">—</strong></div>
                         <div><span>Highest Existing ID (this year)</span><strong id="sidHighestExisting">—</strong></div>
@@ -434,6 +435,523 @@
                     <h5 class="fw-bold">Session</h5>
                     <p class="text-muted small">Signed in as <strong id="automationSessionUser">Automation Admin</strong>. Logging out ends this session on the server and returns you to the Automation Admin login. It does not affect the Main Admin.</p>
                     <button type="button" class="au-btn danger" id="automationLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== WEBSITE INSTRUCTIONS ===================== -->
+        <section class="au-view" id="view-website-instructions">
+            <div class="au-card pad">
+                <h5 class="fw-bold mb-2">Website Instructions</h5>
+                <div class="lsi-guide">
+                    <p class="guide-intro">Automation Admin — every action you can do is listed below (not only the 12 menu tabs). Type what you want in the search box (example: <em>“I want to give discount”</em> or <em>“reset ebook password”</em>) and follow the numbered steps.</p>
+                    <div class="guide-search-wrap">
+                        <i class="fas fa-search"></i>
+                        <input type="search" class="guide-search" placeholder='Type what you want… e.g. "I want to add student", "send fee reminder", "block ebook"' autocomplete="off">
+                    </div>
+                    <p class="guide-search-meta"></p>
+                    <div class="guide-search-empty d-none">No matching topic. Try: add student, discount, record payment, receipt, attendance, ebook password, fee reminder, archive, delete, report.</div>
+
+                    <div class="guide-block" data-keywords="1 dashboard home overview quick buttons stats needs attention">
+                        <h3><span class="guide-num">1</span> Use the Dashboard</h3>
+                        <p><strong>Where:</strong> Left menu → Dashboard</p>
+                        <ol>
+                            <li>Open <strong>Dashboard</strong>.</li>
+                            <li>Read summary cards (students, fees, attention items).</li>
+                            <li>Use quick buttons: Add Student, Record Payment, Generate Receipt, Mark Attendance, Search Student, Export Report.</li>
+                            <li>Filter the student list by batch or payment status.</li>
+                            <li>Click a student to open their profile, or use View / Pay / Edit on a row.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="2 search student header global find name mobile id">
+                        <h3><span class="guide-num">2</span> Search any student (top bar)</h3>
+                        <p><strong>Where:</strong> Search box in the top header</p>
+                        <ol>
+                            <li>Click the header search box.</li>
+                            <li>Type Student ID, name, mobile or email.</li>
+                            <li>Click the matching result to open that student’s profile.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="3 add student create new admission enroll register aadhaar form lsa">
+                        <h3><span class="guide-num">3</span> Add a new student (admission)</h3>
+                        <p><strong>Where:</strong> Students → Add Student (or Dashboard quick button)</p>
+                        <ol>
+                            <li>Click <strong>Add Student</strong>.</li>
+                            <li>Fill required fields: Full name, Date, Address, Contact No., E-mail ID, Aadhaar, Course, Batch.</li>
+                            <li>Fill other admission details now or later (education, employment, trading experience, etc.).</li>
+                            <li>Check Student ID preview: <code>LSA/YYYY/NNNN</code> (LSA fixed, year = current year).</li>
+                            <li>Click Save. The Student ID is assigned automatically.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="4 change next serial owner student id series four digit number">
+                        <h3><span class="guide-num">4</span> Change next Student ID serial (owner only)</h3>
+                        <p><strong>Where:</strong> Add Student form → Change next serial (owner) · or Settings → Student ID Series</p>
+                        <ol>
+                            <li>Open Add Student (or Settings).</li>
+                            <li>Click <strong>Change next serial (owner)</strong>.</li>
+                            <li>See prefix <code>LSA/current-year/</code> (not editable).</li>
+                            <li>Enter the next four-digit number (must be higher than any serial already used this year).</li>
+                            <li>Click Set serial / Update Series.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="5 find filter students list batch course payment year status archived">
+                        <h3><span class="guide-num">5</span> Find and filter students</h3>
+                        <p><strong>Where:</strong> Students</p>
+                        <ol>
+                            <li>Open <strong>Students</strong>.</li>
+                            <li>Type in Search (name, ID, mobile, email, batch).</li>
+                            <li>Optionally filter Batch, Course, Payment status, Admission Year, Status (Active / Archived / All).</li>
+                            <li>Use pager at the bottom if there are many rows.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="6 export students print pdf excel download list">
+                        <h3><span class="guide-num">6</span> Export / print the students list</h3>
+                        <p><strong>Where:</strong> Students or Dashboard student table → Print / PDF / Excel</p>
+                        <ol>
+                            <li>Apply the filters you want first (export uses what is on screen).</li>
+                            <li>Click <strong>Print</strong>, <strong>PDF</strong> or <strong>Excel</strong>.</li>
+                            <li>Save or print the file.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="7 view student profile overview tabs admission fees">
+                        <h3><span class="guide-num">7</span> Open a student profile</h3>
+                        <p><strong>Where:</strong> Students → View · or search result</p>
+                        <ol>
+                            <li>Find the student and click <strong>View</strong> (or the name).</li>
+                            <li>Use tabs: Overview, Admission, Fees, Ebook Login, Payments, Receipts, Attendance, Course, Documents, Activity.</li>
+                            <li>Use top buttons: Edit, Discount, Record Payment, Latest Receipt, Mark Attendance, Archive, Delete.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="8 edit student update details mobile email aadhaar address batch course">
+                        <h3><span class="guide-num">8</span> Edit student details</h3>
+                        <p><strong>Where:</strong> Student profile → Edit · or Students list → Edit</p>
+                        <ol>
+                            <li>Open the student.</li>
+                            <li>Click <strong>Edit</strong>.</li>
+                            <li>Change the fields you need (Student ID stays locked).</li>
+                            <li>Save.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="9 give discount change remove percent installment fee reduce sibling">
+                        <h3><span class="guide-num">9</span> Give, change or remove a discount</h3>
+                        <p><strong>Where:</strong> Student profile → Discount · or Fees tab → Give discount</p>
+                        <ol>
+                            <li>Open the student profile.</li>
+                            <li>Click <strong>Discount</strong> (or Fees tab → Give discount).</li>
+                            <li>Choose which installment the discount applies at.</li>
+                            <li>Enter amount in ₹ or as %, and a reason for office records.</li>
+                            <li>Save. Fee after discount updates; later receipts show it.</li>
+                            <li>To change/remove: use Change / Remove on that discount line.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="10 record payment fees installment cash upi save generate receipt">
+                        <h3><span class="guide-num">10</span> Record a fee payment</h3>
+                        <p><strong>Where:</strong> Fees &amp; Payments · student profile → Record Payment · Dashboard quick button</p>
+                        <ol>
+                            <li>Open <strong>Fees &amp; Payments</strong> (or click Record Payment on the student).</li>
+                            <li>Search and select the student.</li>
+                            <li>Confirm fee / discount summary shown.</li>
+                            <li>Choose installment, amount, date, payment mode.</li>
+                            <li>Optional: transaction reference and notes.</li>
+                            <li>Click <strong>Save Payment &amp; Generate Receipt</strong>.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="11 edit payment correct amount mode date change payment">
+                        <h3><span class="guide-num">11</span> Edit an existing payment</h3>
+                        <p><strong>Where:</strong> Fees &amp; Payments list · or student → Payments tab</p>
+                        <ol>
+                            <li>Find the payment row.</li>
+                            <li>Click Edit.</li>
+                            <li>Correct amount, mode, date, reference or notes.</li>
+                            <li>Save.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="12 view fees installments balance paid student fees tab">
+                        <h3><span class="guide-num">12</span> Check fees &amp; installments for one student</h3>
+                        <p><strong>Where:</strong> Student profile → Fees tab</p>
+                        <ol>
+                            <li>Open the student.</li>
+                            <li>Open the <strong>Fees</strong> tab.</li>
+                            <li>See course fee, discount, paid, balance and each installment status.</li>
+                            <li>Use Record next installment if still due.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="13 ebook login create first installment password visible portal">
+                        <h3><span class="guide-num">13</span> Create / view Ebook Login</h3>
+                        <p><strong>Where:</strong> Student profile → Ebook Login tab</p>
+                        <ol>
+                            <li>Record at least the first installment (ebook login is made after first payment).</li>
+                            <li>Open the student → <strong>Ebook Login</strong>.</li>
+                            <li>If status is READY, click <strong>Create ebook login</strong>.</li>
+                            <li>If NEEDS EMAIL, Edit the student and add an email first.</li>
+                            <li>When active, see User ID and password (until the student changes it).</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="14 ebook share copy whatsapp email print login details send">
+                        <h3><span class="guide-num">14</span> Share ebook login details</h3>
+                        <p><strong>Where:</strong> Student → Ebook Login</p>
+                        <ol>
+                            <li>Open <strong>Ebook Login</strong>.</li>
+                            <li>Click <strong>Copy login details</strong> to paste somewhere.</li>
+                            <li>Or <strong>Send on WhatsApp</strong> (needs mobile) — press Send in WhatsApp.</li>
+                            <li>Or <strong>Email login details</strong> (when password is on file).</li>
+                            <li>Or <strong>Print</strong> a paper copy for the student.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="15 ebook reset password forgot change office password">
+                        <h3><span class="guide-num">15</span> Reset ebook password</h3>
+                        <p><strong>Where:</strong> Student → Ebook Login → Reset password</p>
+                        <ol>
+                            <li>Open Ebook Login.</li>
+                            <li>Click <strong>Reset password</strong>.</li>
+                            <li>Confirm. A new password is shown to the office.</li>
+                            <li>Share it with the student (WhatsApp / Email / Copy).</li>
+                            <li>Click Refresh if the student later changes password themselves — the new password appears here.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="16 ebook reset device binding new phone login device">
+                        <h3><span class="guide-num">16</span> Reset ebook device binding</h3>
+                        <p><strong>Where:</strong> Student → Ebook Login → Reset device</p>
+                        <ol>
+                            <li>Open Ebook Login.</li>
+                            <li>Click <strong>Reset device</strong> if the student changed phone / browser and cannot sign in.</li>
+                            <li>Ask them to log in again on the new device.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="17 ebook block unblock stop access ban">
+                        <h3><span class="guide-num">17</span> Block or unblock ebook access</h3>
+                        <p><strong>Where:</strong> Student → Ebook Login → Block / Unblock ebook</p>
+                        <ol>
+                            <li>Open Ebook Login.</li>
+                            <li>Click <strong>Block ebook</strong> to stop access (student sees a blocked message).</li>
+                            <li>Click <strong>Unblock ebook</strong> to restore access.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="18 archive restore student inactive hide">
+                        <h3><span class="guide-num">18</span> Archive or restore a student</h3>
+                        <p><strong>Where:</strong> Student profile → Archive / Restore</p>
+                        <ol>
+                            <li>Open the student.</li>
+                            <li>Click <strong>Archive</strong> to hide from Active lists (records stay).</li>
+                            <li>To bring back: set Status filter to Archived, open student, click <strong>Restore</strong>.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="19 delete student permanently remove all records confirm">
+                        <h3><span class="guide-num">19</span> Delete a student permanently</h3>
+                        <p><strong>Where:</strong> Student profile → Delete</p>
+                        <ol>
+                            <li>Open the student.</li>
+                            <li>Click <strong>Delete</strong>.</li>
+                            <li>Read the warning (payments, receipts, attendance, messages will be removed).</li>
+                            <li>Type the Student ID exactly to confirm.</li>
+                            <li>Confirm delete. This cannot be undone.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="20 pending fees balance due outstanding find filter">
+                        <h3><span class="guide-num">20</span> Find students with pending fees</h3>
+                        <p><strong>Where:</strong> Pending Fees</p>
+                        <ol>
+                            <li>Open <strong>Pending Fees</strong>.</li>
+                            <li>Read the balance summary cards.</li>
+                            <li>Search or filter by batch, course, paid-so-far status.</li>
+                            <li>Highest balances appear first.</li>
+                            <li>Open the student or record payment from there.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="21 fee reminder whatsapp email send pending dues reminder">
+                        <h3><span class="guide-num">21</span> Send a fee reminder</h3>
+                        <p><strong>Where:</strong> Pending Fees → WhatsApp / Email on a row</p>
+                        <ol>
+                            <li>Open Pending Fees.</li>
+                            <li>Find the student.</li>
+                            <li>Click <strong>WhatsApp</strong> — chat opens with reminder text; press Send there.</li>
+                            <li>Or click <strong>Email</strong> and confirm to send the reminder email now.</li>
+                            <li>Check Message History if you need proof it was sent.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="22 export pending fees print pdf excel">
+                        <h3><span class="guide-num">22</span> Export pending fees list</h3>
+                        <p><strong>Where:</strong> Pending Fees → Print / PDF / Excel</p>
+                        <ol>
+                            <li>Apply filters.</li>
+                            <li>Click Print, PDF or Excel.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="23 open receipt preview list find receipt number">
+                        <h3><span class="guide-num">23</span> Open and preview a receipt</h3>
+                        <p><strong>Where:</strong> Receipts · student → Receipts · Latest Receipt button</p>
+                        <ol>
+                            <li>Open <strong>Receipts</strong> (or student Receipts tab).</li>
+                            <li>Search by receipt no / student; optional date range.</li>
+                            <li>Click Open / select the row.</li>
+                            <li>Preview appears on the right.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="24 print download pdf email receipt">
+                        <h3><span class="guide-num">24</span> Print, PDF or email a receipt</h3>
+                        <p><strong>Where:</strong> Receipts → preview actions</p>
+                        <ol>
+                            <li>Select a receipt so preview loads.</li>
+                            <li>Click <strong>Print</strong>, <strong>Download PDF</strong>, or <strong>Email</strong>.</li>
+                            <li>Email sends the receipt PDF to the student’s email on file.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="25 share payment receipt whatsapp picture email pdf paste ctrl">
+                        <h3><span class="guide-num">25</span> Share payment receipt (Email + WhatsApp picture)</h3>
+                        <p><strong>Where:</strong> Email &amp; WhatsApp → Payment Receipt card · or Communication row → Receipt</p>
+                        <ol>
+                            <li>Open <strong>Email &amp; WhatsApp</strong>.</li>
+                            <li>In Payment Receipt, search and select the student.</li>
+                            <li>Select the payment receipt.</li>
+                            <li>One click emails the PDF and opens WhatsApp with a picture ready.</li>
+                            <li>In WhatsApp press <strong>Ctrl + V</strong> to paste the picture, then Send.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="26 mark attendance session sheet present absent late batch date">
+                        <h3><span class="guide-num">26</span> Mark attendance for a class</h3>
+                        <p><strong>Where:</strong> Attendance · or student → Mark Attendance</p>
+                        <ol>
+                            <li>Open <strong>Attendance</strong>.</li>
+                            <li>Select Batch, Session Date, Session Type; optional Instructor.</li>
+                            <li>Click <strong>Open Attendance Sheet</strong>.</li>
+                            <li>Mark each student Present / Absent / Late (or Excused if shown).</li>
+                            <li>Optional: Mark All Present / Mark All Absent / Clear.</li>
+                            <li>Click <strong>Save Attendance</strong>.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="27 reopen recent attendance session edit history">
+                        <h3><span class="guide-num">27</span> Reopen a recent attendance session</h3>
+                        <p><strong>Where:</strong> Attendance → Recent Sessions</p>
+                        <ol>
+                            <li>On Attendance, look at Recent Sessions (filter by batch if needed).</li>
+                            <li>Click Open on the session.</li>
+                            <li>Adjust marks and Save again.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="28 export attendance sessions print pdf excel">
+                        <h3><span class="guide-num">28</span> Export attendance sessions</h3>
+                        <p><strong>Where:</strong> Attendance → Recent Sessions → Print / PDF / Excel</p>
+                        <ol>
+                            <li>Filter batch if needed.</li>
+                            <li>Click Print, PDF or Excel.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="29 add edit batch schedule masters">
+                        <h3><span class="guide-num">29</span> Add or edit a batch</h3>
+                        <p><strong>Where:</strong> Batches &amp; Courses → Batches</p>
+                        <ol>
+                            <li>Open <strong>Batches &amp; Courses</strong>.</li>
+                            <li>Click <strong>Add Batch</strong> (or Edit on a row).</li>
+                            <li>Enter name, schedule, start date, active status.</li>
+                            <li>Save. Assign students to this batch during admission / edit.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="30 add edit academy course default fee duration masters">
+                        <h3><span class="guide-num">30</span> Add or edit an academy course</h3>
+                        <p><strong>Where:</strong> Batches &amp; Courses → Courses</p>
+                        <ol>
+                            <li>Open Batches &amp; Courses.</li>
+                            <li>Click <strong>Add Course</strong> (or Edit).</li>
+                            <li>Enter name, default fee, duration, status.</li>
+                            <li>Save. Set / update price details under Course Price if needed.</li>
+                        </ol>
+                        <div class="guide-tip">These are classroom academy courses — not the website LMS courses in Master Admin.</div>
+                    </div>
+
+                    <div class="guide-block" data-keywords="31 add payment mode cash upi master">
+                        <h3><span class="guide-num">31</span> Add a payment mode</h3>
+                        <p><strong>Where:</strong> Batches &amp; Courses → Payment Modes → Add</p>
+                        <ol>
+                            <li>Click <strong>Add</strong> under Payment Modes.</li>
+                            <li>Enter code and label (e.g. UPI, CASH).</li>
+                            <li>Save. It appears in Record Payment.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="32 add session type class workshop master attendance">
+                        <h3><span class="guide-num">32</span> Add a session type</h3>
+                        <p><strong>Where:</strong> Batches &amp; Courses → Session Types → Add</p>
+                        <ol>
+                            <li>Click <strong>Add</strong> under Session Types.</li>
+                            <li>Enter code and label (e.g. CLASS).</li>
+                            <li>Save. It appears when marking attendance.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="33 course price set fee installment slots new admissions">
+                        <h3><span class="guide-num">33</span> Set course price (for new admissions)</h3>
+                        <p><strong>Where:</strong> Course Price</p>
+                        <ol>
+                            <li>Open <strong>Course Price</strong>.</li>
+                            <li>Find the course → Edit / set price.</li>
+                            <li>Enter total fee (and installment plan if the form shows slots).</li>
+                            <li>Save.</li>
+                            <li>Remember: already-admitted students keep their old fee — use Discount for one student.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="34 run reports student batch fee collection outstanding payment history attendance low">
+                        <h3><span class="guide-num">34</span> Run a report</h3>
+                        <p><strong>Where:</strong> Reports</p>
+                        <ol>
+                            <li>Open <strong>Reports</strong>.</li>
+                            <li>Choose report type: Student, Batch-wise, Fee Collection, Outstanding, Payment History, Receipts, Attendance, Low Attendance.</li>
+                            <li>Set filters: batch, course, mode, date range / quick range.</li>
+                            <li>For Low Attendance, set Threshold %.</li>
+                            <li>Click <strong>Run</strong>.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="35 export report csv print pdf excel download">
+                        <h3><span class="guide-num">35</span> Export a report</h3>
+                        <p><strong>Where:</strong> Reports → CSV / Print / PDF / Excel</p>
+                        <ol>
+                            <li>Run the report first.</li>
+                            <li>Click CSV, Print, PDF or Excel.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="36 bulk email whatsapp send message notice selected filtered students">
+                        <h3><span class="guide-num">36</span> Send bulk Email / WhatsApp messages</h3>
+                        <p><strong>Where:</strong> Email &amp; WhatsApp → Automation table</p>
+                        <ol>
+                            <li>Open <strong>Email &amp; WhatsApp</strong>.</li>
+                            <li>Filter students (search, batch, course, status).</li>
+                            <li>Tick students, or Select all (filtered), or use Send to all filtered.</li>
+                            <li>Choose Email and/or WhatsApp, write subject/message, attach if needed.</li>
+                            <li>Preview, confirm, send.</li>
+                            <li>For WhatsApp: each chat opens with text ready — you press Send.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="37 send one student email whatsapp from communication row">
+                        <h3><span class="guide-num">37</span> Message one student from Communication</h3>
+                        <p><strong>Where:</strong> Email &amp; WhatsApp table → Email / WhatsApp buttons</p>
+                        <ol>
+                            <li>Find the student in the communication list.</li>
+                            <li>Click <strong>Email</strong> or <strong>WhatsApp</strong> on that row.</li>
+                            <li>Write and send (WhatsApp: press Send in the chat window).</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="38 message history find failed retry status export">
+                        <h3><span class="guide-num">38</span> Check Message History / retry failed</h3>
+                        <p><strong>Where:</strong> Message History</p>
+                        <ol>
+                            <li>Open <strong>Message History</strong>.</li>
+                            <li>Filter by channel, status, dates; search recipient / subject / Student ID.</li>
+                            <li>Open a row for details / error.</li>
+                            <li>Retry if a failed action offers retry.</li>
+                            <li>Export with Print / PDF / Excel if needed.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="39 settings change user id login username automation admin">
+                        <h3><span class="guide-num">39</span> Change Automation Admin User ID</h3>
+                        <p><strong>Where:</strong> Settings</p>
+                        <ol>
+                            <li>Open <strong>Settings</strong>.</li>
+                            <li>Enter current User ID, new User ID, current password.</li>
+                            <li>Submit. Use the new User ID next login.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="40 settings change password security logout">
+                        <h3><span class="guide-num">40</span> Change Automation Admin password</h3>
+                        <p><strong>Where:</strong> Settings → Change Password</p>
+                        <ol>
+                            <li>Enter current password, new password, confirm.</li>
+                            <li>Submit — this account logs out everywhere.</li>
+                            <li>Sign in again. Main Admin is not affected.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="41 settings student id series serial year lsa update">
+                        <h3><span class="guide-num">41</span> Update Student ID series in Settings</h3>
+                        <p><strong>Where:</strong> Settings → Student ID Series</p>
+                        <ol>
+                            <li>See Current Next Student ID and Highest Existing ID.</li>
+                            <li>Enter New Next Number (greater than highest existing this year).</li>
+                            <li>Click Update Series.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="42 logout sign out session end">
+                        <h3><span class="guide-num">42</span> Logout</h3>
+                        <p><strong>Where:</strong> Left menu Logout · or Settings → Logout</p>
+                        <ol>
+                            <li>Click <strong>Logout</strong>.</li>
+                            <li>You return to the Automation Admin login page.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="43 export payments history print pdf excel filter dates">
+                        <h3><span class="guide-num">43</span> Export payment history</h3>
+                        <p><strong>Where:</strong> Fees &amp; Payments → Payments list → Print / PDF / Excel</p>
+                        <ol>
+                            <li>Filter by batch, mode, from/to dates.</li>
+                            <li>Refresh if needed.</li>
+                            <li>Click Print, PDF or Excel.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="44 export receipts list print pdf excel">
+                        <h3><span class="guide-num">44</span> Export receipts list</h3>
+                        <p><strong>Where:</strong> Receipts → Print / PDF / Excel</p>
+                        <ol>
+                            <li>Filter/search receipts.</li>
+                            <li>Click Print, PDF or Excel.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="45 student attendance history profile tab percent">
+                        <h3><span class="guide-num">45</span> See one student’s attendance history</h3>
+                        <p><strong>Where:</strong> Student profile → Attendance tab</p>
+                        <ol>
+                            <li>Open the student.</li>
+                            <li>Open the <strong>Attendance</strong> tab.</li>
+                            <li>Review past sessions and percentage.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="46 student activity log timeline profile">
+                        <h3><span class="guide-num">46</span> See student activity timeline</h3>
+                        <p><strong>Where:</strong> Student profile → Activity tab</p>
+                        <ol>
+                            <li>Open the student.</li>
+                            <li>Open <strong>Activity</strong>.</li>
+                            <li>Read payments, admission and other office events for that student.</li>
+                        </ol>
+                    </div>
                 </div>
             </div>
         </section>
@@ -466,6 +984,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/whatsapp-chat.js?v=20261009-picture"></script>
-    <script src="js/automation-admin.js?v=20261013-discount"></script>
+    <script src="js/website-instructions.js?v=20261014-allpanels"></script>
+    <script src="js/automation-admin.js?v=20261014-guide"></script>
 </body>
 </html>

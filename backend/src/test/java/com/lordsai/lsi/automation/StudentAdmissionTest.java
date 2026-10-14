@@ -93,43 +93,41 @@ class StudentAdmissionTest {
     // ---- the office decides the Student ID series -----------------------------------------------------
 
     @Test
-    void theOfficeCanSetTheStudentIdSeriesAndLaterIdsFollowIt() throws Exception {
+    void theOfficeCanSetTheStudentIdSerialAndYearAlwaysFollowsTheCalendar() throws Exception {
         int year = api.data(api.get(auto, SERIES)).path("year").asInt();
         String before = create(core("Default Series", "9876500020"));
         assertThat(before).isEqualTo("LSA/" + year + "/0001");
 
-        // The website's format (LSI...) is refused, so academy and website Student IDs never clash.
+        // Website format and custom academy formats are refused — only LSA/{current year}/{serial}.
         api.put(auto, SERIES, Map.of("nextStudentId", "lsi-b3-0100")).andExpect(status().isBadRequest());
-        // A new format: the next student gets exactly the typed ID, later ones count up from it.
-        api.put(auto, SERIES, Map.of("nextStudentId", "lsa-b3-0100")).andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.nextStudentId").value("LSA-B3-0100"));
-        api.get(auto, "/api/automation/lookups").andExpect(jsonPath("$.data.nextStudentId").value("LSA-B3-0100"));
+        api.put(auto, SERIES, Map.of("nextStudentId", "LSA-B3-0100")).andExpect(status().isBadRequest());
+        api.put(auto, SERIES, Map.of("nextStudentId", "LSA/" + (year - 1) + "/0100")).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("current year")));
+
+        api.put(auto, SERIES, Map.of("nextStudentId", "LSA/" + year + "/0100")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.nextStudentId").value("LSA/" + year + "/0100"));
         String first = create(core("Series One", "9876500021"));
         String second = create(core("Series Two", "9876500022"));
-        assertThat(first).isEqualTo("LSA-B3-0100");
-        assertThat(second).isEqualTo("LSA-B3-0101");
-        api.get(auto, SERIES).andExpect(jsonPath("$.data.nextStudentId").value("LSA-B3-0102"))
-                .andExpect(jsonPath("$.data.highestExistingStudentId").value("LSA-B3-0101"));
+        assertThat(first).isEqualTo("LSA/" + year + "/0100");
+        assertThat(second).isEqualTo("LSA/" + year + "/0101");
+        api.get(auto, SERIES).andExpect(jsonPath("$.data.nextStudentId").value("LSA/" + year + "/0102"))
+                .andExpect(jsonPath("$.data.highestExistingStudentId").value("LSA/" + year + "/0101"));
 
-        // An issued ID (or one below the highest in the series) is never generated again.
-        api.put(auto, SERIES, Map.of("nextStudentId", "LSA-B3-0101")).andExpect(status().isConflict());
-        api.put(auto, SERIES, Map.of("nextStudentId", "LSA-B3-0050")).andExpect(status().isConflict());
-        // Settings "next number" keeps the chosen prefix and digit width.
+        api.put(auto, SERIES, Map.of("nextStudentId", "LSA/" + year + "/0101")).andExpect(status().isConflict());
         api.put(auto, SERIES, Map.of("nextNumber", 500)).andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.nextStudentId").value("LSA-B3-0500"));
-        assertThat(create(core("Series Three", "9876500023"))).isEqualTo("LSA-B3-0500");
+                .andExpect(jsonPath("$.data.nextStudentId").value("LSA/" + year + "/0500"));
+        assertThat(create(core("Series Three", "9876500023"))).isEqualTo("LSA/" + year + "/0500");
 
-        for (String bad : new String[]{"LSA/2026/", "LSI B3 01", "ABC%12", "ABC_12", "A".repeat(25) + "1", "X-0"}) {
+        for (String bad : new String[]{"LSA/" + year + "/", "LSA-B3-0001", "ABC%12", "X-0"}) {
             api.put(auto, SERIES, Map.of("nextStudentId", bad)).andExpect(status().isBadRequest());
         }
 
-        // Back to the original LSA format, continuing after the IDs already issued in it.
         api.put(auto, SERIES, Map.of("nextStudentId", "LSA/" + year + "/0001")).andExpect(status().isConflict());
-        api.put(auto, SERIES, Map.of("nextStudentId", "LSA/" + year + "/0200")).andExpect(status().isOk());
-        assertThat(create(core("Back To Default", "9876500024"))).isEqualTo("LSA/" + year + "/0200");
+        // Must be above the highest issued serial (0500); jumping backward is refused.
+        api.put(auto, SERIES, Map.of("nextStudentId", "LSA/" + year + "/0600")).andExpect(status().isOk());
+        assertThat(create(core("Back To Default", "9876500024"))).isEqualTo("LSA/" + year + "/0600");
 
-        // Existing Student IDs never change.
-        api.get(auto, "/api/automation/search?q=Series One").andExpect(jsonPath("$.data[0].studentId").value("LSA-B3-0100"));
+        api.get(auto, "/api/automation/search?q=Series One").andExpect(jsonPath("$.data[0].studentId").value("LSA/" + year + "/0100"));
         api.get(auto, "/api/automation/search?q=Default Series").andExpect(jsonPath("$.data[0].studentId").value(before));
     }
 

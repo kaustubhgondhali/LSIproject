@@ -85,7 +85,7 @@ public class AutomationLedgerController {
         return ApiResponse.ok(paymentService.feeSummary(id));
     }
 
-    /** Gives or changes this student's discount; their receipts are refreshed to show it. */
+    /** Gives or changes this student's discount at one installment; the receipts from that installment on show it. */
     @PutMapping("/students/{id}/discount")
     public ApiResponse<FeeSummary> discount(@PathVariable Long id, @Valid @RequestBody DiscountRequest body, HttpServletRequest req) {
         FeeSummary f = paymentService.setDiscount(id, body, actor(), RequestUtil.clientIp(req));
@@ -93,9 +93,11 @@ public class AutomationLedgerController {
                 + ", balance \u20b9" + f.balance().stripTrailingZeros().toPlainString() + ".", f);
     }
 
+    /** Removes the discount at {@code installmentNo}, or all of the student's discounts without it. */
     @DeleteMapping("/students/{id}/discount")
-    public ApiResponse<FeeSummary> removeDiscount(@PathVariable Long id, HttpServletRequest req) {
-        return ApiResponse.ok("Discount removed.", paymentService.removeDiscount(id, actor(), RequestUtil.clientIp(req)));
+    public ApiResponse<FeeSummary> removeDiscount(@PathVariable Long id, @RequestParam(required = false) Integer installmentNo,
+                                                  HttpServletRequest req) {
+        return ApiResponse.ok("Discount removed.", paymentService.removeDiscount(id, installmentNo, actor(), RequestUtil.clientIp(req)));
     }
 
     // ---- pending fees ------------------------------------------------------------------------

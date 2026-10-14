@@ -10,15 +10,16 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
-    <link href="css/lms.css?v=20260930-userid" rel="stylesheet">
+    <link href="css/lms.css?v=20261014-allpanels" rel="stylesheet">
 </head>
 <body class="lms-app">
     <div id="capture-protection-overlay" aria-hidden="true"><div class="capture-protection-blackout"></div></div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="js/api-config.js"></script>
+    <script src="js/site-whatsapp.js?v=20261014"></script>
     <script src="js/auth.js?v=20261001-single"></script>
     <script>LSI_Auth.requireAuth('student');</script>
-    <script src="js/student-protect.js?v=20260919"></script>
+    <script src="js/student-protect.js?v=20261014-capture-scopes"></script>
 
     <header class="lms-topbar">
         <button class="lms-menu-btn" id="lmsMenuBtn" aria-label="Menu"><i class="fas fa-bars"></i></button>
@@ -55,6 +56,7 @@
             <div class="lms-nav-label">Account</div>
             <a href="#profile" data-view="profile"><i class="fas fa-user"></i> Profile</a>
             <a href="#settings" data-view="settings"><i class="fas fa-cog"></i> Settings</a>
+            <a href="#website-instructions" data-view="website-instructions"><i class="fas fa-book-reader"></i> Website Instructions</a>
             <a href="#" class="danger" onclick="LSI_Auth.logout(); return false;"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </nav>
     </aside>
@@ -92,7 +94,7 @@
         <section class="lms-view" id="view-ebooks">
             <h1 class="lms-page-title">My Ebooks</h1>
             <p class="lms-page-sub">Purchased ebooks open inside the portal. Files are protected — they are streamed only to your logged-in account.</p>
-            <div class="alert alert-success small py-2" id="ebookOnlyNote" hidden><i class="fas fa-gift me-1"></i> Your LORD SAI Academy login gives you <strong>free access to the ebook</strong>. Courses are not part of this login.</div>
+            <div class="alert alert-success small py-2" id="ebookOnlyNote" hidden><i class="fas fa-gift me-1"></i> Your LORD SAI Academy login gives you <strong>free access to the ebook</strong> and the <strong>Student Journal</strong>. Courses are not part of this login.</div>
             <div class="lms-grid" id="ebooksGrid"><div class="lms-card lms-empty" style="grid-column:1/-1"><span class="spinner-border spinner-border-sm"></span></div></div>
 
             <!-- Course students can buy ebooks here directly; a bought ebook lands in My Ebooks above. -->
@@ -272,11 +274,252 @@
                         <hr>
                         <strong class="d-block mb-2"><i class="fas fa-headset me-2" style="color:var(--lms-primary)"></i>Need help?</strong>
                         <div class="d-flex flex-wrap gap-2">
-                            <a href="https://wa.me/919920254354" target="_blank" class="lms-btn ghost"><i class="fab fa-whatsapp text-success"></i> WhatsApp</a>
+                            <a href="https://wa.me/919987049070" target="_blank" class="lms-btn ghost"><i class="fab fa-whatsapp text-success"></i> WhatsApp</a>
                             <a href="tel:9920254354" class="lms-btn ghost"><i class="fas fa-phone-alt"></i> 9920 254 354</a>
                             <a href="mailto:lordsai.academy@gmail.com" class="lms-btn ghost"><i class="fas fa-envelope"></i> Email</a>
                         </div>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="lms-view" id="view-website-instructions">
+            <h1 class="lms-page-title">Website Instructions</h1>
+            <p class="lms-page-sub">Every action in your Student Panel — search what you want, then follow the steps.</p>
+            <div class="lsi-guide">
+                <p class="guide-intro">Type a request like <em>“I want to apply for certificate”</em> or <em>“change my password”</em>. If you only have academy ebook access, some course menus stay hidden — that is normal; ebook, journal, profile and settings still work.</p>
+                <div class="guide-search-wrap">
+                    <i class="fas fa-search"></i>
+                    <input type="search" class="guide-search" placeholder='Type what you want… e.g. "I want to buy ebook", "ask a doubt", "download invoice"' autocomplete="off">
+                </div>
+                <p class="guide-search-meta"></p>
+                <div class="guide-search-empty d-none">No match. Try: course, ebook, certificate, password, user id, journal, doubt, invoice, progress.</div>
+
+                <div class="guide-block" data-keywords="1 dashboard home continue learning welcome">
+                    <h3><span class="guide-num">1</span> Use the Dashboard</h3>
+                    <p><strong>Where:</strong> Dashboard</p>
+                    <ol>
+                        <li>Open <strong>Dashboard</strong> after login.</li>
+                        <li>Continue a course from Continue Learning.</li>
+                        <li>Jump to Doubt Desk or other shortcuts shown.</li>
+                    </ol>
+                </div>
+
+                <div class="guide-block" data-keywords="2 search courses lessons ebooks top bar">
+                    <h3><span class="guide-num">2</span> Search inside the panel</h3>
+                    <p><strong>Where:</strong> Top search box</p>
+                    <ol>
+                        <li>Type a course, lesson or ebook name.</li>
+                        <li>Click a result to open it.</li>
+                    </ol>
+                </div>
+
+                <div class="guide-block" data-keywords="3 my courses list enrolled open">
+                    <h3><span class="guide-num">3</span> Open My Courses</h3>
+                    <p><strong>Where:</strong> My Courses</p>
+                    <ol>
+                        <li>Open <strong>My Courses</strong>.</li>
+                        <li>See every course you are enrolled in.</li>
+                        <li>Click a course to open lessons.</li>
+                    </ol>
+                </div>
+
+                <div class="guide-block" data-keywords="4 watch lesson video play module learning path">
+                    <h3><span class="guide-num">4</span> Watch a lesson</h3>
+                    <p><strong>Where:</strong> My Courses → course → lesson</p>
+                    <ol>
+                        <li>Open your course.</li>
+                        <li>Open modules in order.</li>
+                        <li>Play each lesson. Progress saves automatically.</li>
+                    </ol>
+                </div>
+
+                <div class="guide-block" data-keywords="5 my ebooks read view open pdf">
+                    <h3><span class="guide-num">5</span> Read an ebook you own</h3>
+                    <p><strong>Where:</strong> My Ebooks → Read / View</p>
+                    <ol>
+                        <li>Open <strong>My Ebooks</strong>.</li>
+                        <li>Click <strong>Read / View</strong> on an active ebook.</li>
+                        <li>Read inside the panel (download may be blocked for protection).</li>
+                    </ol>
+                    <div class="guide-tip">If the academy blocked your ebook, contact the office — you will see a blocked message.</div>
+                </div>
+
+                <div class="guide-block" data-keywords="6 buy ebook purchase pay razorpay demo shop">
+                    <h3><span class="guide-num">6</span> Buy an ebook</h3>
+                    <p><strong>Where:</strong> My Ebooks shop · or Discover</p>
+                    <ol>
+                        <li>On My Ebooks, scroll to ebooks on sale (or open Discover).</li>
+                        <li>Click <strong>Buy Ebook</strong>.</li>
+                        <li>Confirm your name/email shown (purchase is always for your account).</li>
+                        <li>Pay with Demo or Razorpay as shown.</li>
+                        <li>After success, open the ebook from My Ebooks.</li>
+                    </ol>
+                </div>
+
+                <div class="guide-block" data-keywords="7 my invoices download view bill receipt">
+                    <h3><span class="guide-num">7</span> View or download an invoice</h3>
+                    <p><strong>Where:</strong> My Invoices</p>
+                    <ol>
+                        <li>Open <strong>My Invoices</strong>.</li>
+                        <li>Find the purchase.</li>
+                        <li>Open / download the invoice PDF.</li>
+                    </ol>
+                </div>
+
+                <div class="guide-block" data-keywords="8 discover browse courses ebooks enroll buy">
+                    <h3><span class="guide-num">8</span> Discover courses &amp; ebooks</h3>
+                    <p><strong>Where:</strong> Discover</p>
+                    <ol>
+                        <li>Open <strong>Discover</strong>.</li>
+                        <li>Browse available courses and ebooks.</li>
+                        <li>Enroll or Buy when the button is available.</li>
+                        <li>Return to My Courses / My Ebooks after purchase.</li>
+                    </ol>
+                </div>
+
+                <div class="guide-block" data-keywords="9 progress completion percent how much finished">
+                    <h3><span class="guide-num">9</span> Check course progress</h3>
+                    <p><strong>Where:</strong> Progress</p>
+                    <ol>
+                        <li>Open <strong>Progress</strong>.</li>
+                        <li>See how much of each course is complete.</li>
+                        <li>Finish remaining lessons before applying for a certificate.</li>
+                    </ol>
+                </div>
+
+                <div class="guide-block" data-keywords="10 certificate apply request name spelling completion">
+                    <h3><span class="guide-num">10</span> Apply for a certificate</h3>
+                    <p><strong>Where:</strong> Certificate → Apply</p>
+                    <ol>
+                        <li>Finish the course (check Progress).</li>
+                        <li>Open <strong>Certificate</strong>.</li>
+                        <li>Click Apply for that course.</li>
+                        <li>Check <strong>Name on certificate</strong> spelling carefully.</li>
+                        <li>Tick the confirmation checkbox and Submit.</li>
+                        <li>Wait for Master Admin approval.</li>
+                    </ol>
+                </div>
+
+                <div class="guide-block" data-keywords="11 certificate download pdf view issued">
+                    <h3><span class="guide-num">11</span> Download your certificate</h3>
+                    <p><strong>Where:</strong> Certificate</p>
+                    <ol>
+                        <li>Open <strong>Certificate</strong> after approval.</li>
+                        <li>View or download the PDF.</li>
+                    </ol>
+                </div>
+
+                <div class="guide-block" data-keywords="12 student journal add trade save buy sell pnl">
+                    <h3><span class="guide-num">12</span> Add a trade in Student Journal</h3>
+                    <p><strong>Where:</strong> Student Journal</p>
+                    <ol>
+                        <li>Open <strong>Student Journal</strong>.</li>
+                        <li>Fill date, segment, symbol, Buy/Sell, entry, exit, quantity.</li>
+                        <li>Add strategy / why / outcome notes if you want.</li>
+                        <li>Check the live P&amp;L preview.</li>
+                        <li>Click <strong>Save Trade</strong>.</li>
+                    </ol>
+                </div>
+
+                <div class="guide-block" data-keywords="13 student journal edit update trade">
+                    <h3><span class="guide-num">13</span> Edit a journal trade</h3>
+                    <p><strong>Where:</strong> Student Journal → Edit on a row</p>
+                    <ol>
+                        <li>Find the trade in your list.</li>
+                        <li>Click Edit.</li>
+                        <li>Change fields and click <strong>Update Trade</strong>.</li>
+                    </ol>
+                </div>
+
+                <div class="guide-block" data-keywords="14 student journal delete remove trade">
+                    <h3><span class="guide-num">14</span> Delete a journal trade</h3>
+                    <p><strong>Where:</strong> Student Journal</p>
+                    <ol>
+                        <li>Find the trade.</li>
+                        <li>Click Delete and confirm.</li>
+                    </ol>
+                </div>
+
+                <div class="guide-block" data-keywords="15 doubt desk ask question submit mentor">
+                    <h3><span class="guide-num">15</span> Ask a doubt</h3>
+                    <p><strong>Where:</strong> Doubt Desk</p>
+                    <ol>
+                        <li>Open <strong>Doubt Desk</strong>.</li>
+                        <li>Choose the related course if asked.</li>
+                        <li>Write your question clearly.</li>
+                        <li>Submit.</li>
+                    </ol>
+                </div>
+
+                <div class="guide-block" data-keywords="16 doubt desk read reply answer mentor thread">
+                    <h3><span class="guide-num">16</span> Read mentor replies</h3>
+                    <p><strong>Where:</strong> Doubt Desk</p>
+                    <ol>
+                        <li>Open Doubt Desk.</li>
+                        <li>Open your thread.</li>
+                        <li>Read the mentor reply.</li>
+                    </ol>
+                </div>
+
+                <div class="guide-block" data-keywords="17 profile view name email student id enrollments">
+                    <h3><span class="guide-num">17</span> View your profile</h3>
+                    <p><strong>Where:</strong> Profile</p>
+                    <ol>
+                        <li>Open <strong>Profile</strong>.</li>
+                        <li>Check name, Student ID, email, enrollments.</li>
+                        <li>Contact the academy office if name/email must change.</li>
+                    </ol>
+                </div>
+
+                <div class="guide-block" data-keywords="18 settings change password security logout">
+                    <h3><span class="guide-num">18</span> Change your password</h3>
+                    <p><strong>Where:</strong> Settings → Change password</p>
+                    <ol>
+                        <li>Open <strong>Settings</strong>.</li>
+                        <li>Enter current password, new password, confirm (8+ chars, letter + number).</li>
+                        <li>Submit — you are signed out everywhere.</li>
+                        <li>Log in again with the new password.</li>
+                    </ol>
+                </div>
+
+                <div class="guide-block" data-keywords="19 settings change user id login username">
+                    <h3><span class="guide-num">19</span> Change your User ID</h3>
+                    <p><strong>Where:</strong> Settings → Change User ID</p>
+                    <ol>
+                        <li>Enter current User ID, new User ID, confirm, and current password.</li>
+                        <li>Submit. This does <strong>not</strong> change your Student ID or courses.</li>
+                        <li>Next login use the new User ID (or email).</li>
+                    </ol>
+                </div>
+
+                <div class="guide-block" data-keywords="20 logout sign out device session">
+                    <h3><span class="guide-num">20</span> Logout</h3>
+                    <p><strong>Where:</strong> Settings → Log out · or sidebar Logout</p>
+                    <ol>
+                        <li>Click Logout / Log out of this device.</li>
+                        <li>Only one device can stay signed in; logging in elsewhere ends this session.</li>
+                    </ol>
+                </div>
+
+                <div class="guide-block" data-keywords="21 ebook only academy free journal limited menu">
+                    <h3><span class="guide-num">21</span> If you only see Ebooks (academy ebook login)</h3>
+                    <p><strong>What:</strong> After first academy fee installment you may get ebook-only access.</p>
+                    <ol>
+                        <li>You will mainly see My Ebooks, Student Journal, Profile, Settings, Website Instructions.</li>
+                        <li>Course menus stay hidden until you have a full course enrollment.</li>
+                        <li>Contact the academy office for fee / access questions.</li>
+                    </ol>
+                </div>
+
+                <div class="guide-block" data-keywords="22 contact help whatsapp phone email support">
+                    <h3><span class="guide-num">22</span> Get help from the academy</h3>
+                    <p><strong>Where:</strong> Settings → Need help?</p>
+                    <ol>
+                        <li>Open Settings.</li>
+                        <li>Use WhatsApp, phone or email links under Need help.</li>
+                        <li>Or ask via Doubt Desk if you have course access.</li>
+                    </ol>
                 </div>
             </div>
         </section>
@@ -424,6 +667,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/student-dashboard.js?v=20261012-ebookonly2"></script>
+    <script src="js/website-instructions.js?v=20261014-allpanels"></script>
+    <script src="js/student-dashboard.js?v=20261014-guide"></script>
 </body>
 </html>

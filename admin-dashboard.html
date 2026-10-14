@@ -54,6 +54,24 @@
             .adm-content { padding: 14px 12px; }
             .stat-card { padding: 14px; }
         }
+        .lsi-guide { max-width: 960px; }
+        .lsi-guide .guide-intro { color: #64748b; font-size: 15px; margin-bottom: 1rem; }
+        .lsi-guide .guide-search-wrap { position: relative; margin-bottom: 10px; }
+        .lsi-guide .guide-search-wrap > i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+        .lsi-guide .guide-search { width: 100%; height: 46px; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0 14px 0 42px; font-size: 15px; background: #fff; }
+        .lsi-guide .guide-search:focus { outline: none; border-color: #0F9F90; box-shadow: 0 0 0 3px rgba(15,159,144,.15); }
+        .lsi-guide .guide-search-meta { font-size: 13px; color: #64748b; margin-bottom: 14px; }
+        .lsi-guide .guide-search-empty { background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; border-radius: 10px; padding: 12px 14px; font-size: 14px; margin-bottom: 14px; }
+        .lsi-guide .guide-block { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px 20px; margin-bottom: 14px; }
+        .lsi-guide .guide-block h3 { font-size: 16px; font-weight: 800; color: #0A1128; margin: 0 0 10px; display: flex; align-items: center; gap: 10px; }
+        .lsi-guide .guide-num { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 8px; background: #0F9F90; color: #fff; font-size: 13px; font-weight: 800; }
+        .lsi-guide .guide-block p { margin: 0 0 8px; font-size: 14px; color: #334155; line-height: 1.55; }
+        .lsi-guide .guide-block ol { margin: 0; padding-left: 1.35rem; font-size: 14px; color: #334155; line-height: 1.65; }
+        .lsi-guide .guide-block li { margin-bottom: 6px; }
+        .lsi-guide .guide-tip { background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 10px; padding: 10px 14px; font-size: 13px; color: #0f766e; margin-top: 10px; }
+        .lsi-guide .guide-sub { font-weight: 700; color: #0A1128; margin: 12px 0 6px; font-size: 14px; }
+        .lsi-guide .guide-block.guide-best { border-color: #0F9F90; box-shadow: 0 0 0 2px rgba(15,159,144,.18); }
+        .lsi-guide .guide-best-badge { margin-left: auto; font-size: 11px; font-weight: 700; color: #0F9F90; background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 999px; padding: 2px 10px; }
     </style>
 </head>
 <body>
@@ -99,6 +117,7 @@
                 <a href="#email" data-view="email"><i class="fas fa-envelope"></i> Email Settings</a>
                 <a href="#whatsapp" data-view="whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp Settings</a>
                 <a href="#settings" data-view="settings"><i class="fas fa-cog"></i> Settings</a>
+                <a href="#website-instructions" data-view="website-instructions"><i class="fas fa-book-reader"></i> Website Instructions</a>
                 <a href="#" onclick="LSI_Auth.logout(); return false;" class="text-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </nav>
         </aside>
@@ -828,6 +847,21 @@
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                         <div><h4 class="fw-bold mb-0"><i class="fab fa-whatsapp text-success me-2"></i>WhatsApp</h4><small class="text-muted">Receipts, invoices and messages open in WhatsApp on this computer with the message already typed — you press Send. No WhatsApp Business account, no API, no cost.</small></div>
                     </div>
+                    <div class="adm-card p-4 mb-3 border-success" id="waWebsiteNumberCard">
+                        <h6 class="fw-bold mb-1"><i class="fab fa-whatsapp text-success me-1"></i> Website WhatsApp number</h6>
+                        <p class="text-muted small mb-3">Enquiry forms on both websites and every WhatsApp icon / button open a chat with this number. Phone numbers and addresses shown on the website do not change.</p>
+                        <form id="waWebsiteNumberForm" class="row g-2 align-items-end" autocomplete="off">
+                            <div class="col-sm-7 col-md-5">
+                                <label class="form-label small fw-bold" for="waWebsiteNumber">Receiver WhatsApp number</label>
+                                <input type="text" class="form-control" id="waWebsiteNumber" placeholder="e.g. 9987049070" maxlength="20" required>
+                                <div class="form-text">10-digit Indian mobile, or with the country code. Currently: <strong id="waWebsiteNumberNow">—</strong></div>
+                            </div>
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-success"><i class="fas fa-save me-1"></i> Save number</button>
+                            </div>
+                        </form>
+                        <div class="alert alert-danger small py-2 mt-2 mb-0 d-none" id="waWebsiteNumberError"></div>
+                    </div>
                     <div class="row g-3">
                         <div class="col-lg-6">
                             <div class="adm-card p-4 mb-3" id="waGuideCard">
@@ -918,6 +952,416 @@
                                 <p class="small text-muted mb-2">Database and JWT settings are supplied through environment variables on the server (see <code>backend/.env.example</code>) and are intentionally not editable here. Razorpay keys are managed under <a href="#gateway" data-view="gateway">Payment Gateway</a>, SMTP under <a href="#email" data-view="email">Email Settings</a> and WhatsApp under <a href="#whatsapp" data-view="whatsapp">WhatsApp Settings</a>.</p>
                                 <div class="small"><strong>API base:</strong> <code id="settingsApiBase"></code></div>
                             </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="view" id="view-website-instructions">
+                    <h4 class="fw-bold mb-2">Website Instructions</h4>
+                    <div class="lsi-guide">
+                        <p class="guide-intro">Master Admin — every action you can do is listed below (not only the menu tabs). Type what you want (example: <em>“I want to approve a certificate”</em> or <em>“grant ebook”</em>) and follow the numbered steps. Classroom fees/attendance are in Automation Admin.</p>
+                        <div class="guide-search-wrap">
+                            <i class="fas fa-search"></i>
+                            <input type="search" class="guide-search" placeholder='Type what you want… e.g. "approve certificate", "add course", "configure razorpay"' autocomplete="off">
+                        </div>
+                        <p class="guide-search-meta"></p>
+                        <div class="guide-search-empty d-none">No match. Try: student, enroll, ebook, module, certificate, razorpay, blog, testimonial, invoice, doubt.</div>
+
+                        <div class="guide-block" data-keywords="1 dashboard home stats revenue overview search">
+                            <h3><span class="guide-num">1</span> Use the Dashboard</h3>
+                            <p><strong>Where:</strong> Dashboard</p>
+                            <ol>
+                                <li>Open <strong>Dashboard</strong>.</li>
+                                <li>Read stat cards (students, courses, revenue, pending reviews, doubts, ebooks).</li>
+                                <li>Use the top search bar for student / course / payment.</li>
+                                <li>Check recent enrollments and payments below.</li>
+                                <li>If payment mode is Demo, use the button to open Payment Gateway.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="2 search student course payment global top bar">
+                            <h3><span class="guide-num">2</span> Global search</h3>
+                            <p><strong>Where:</strong> Top search box</p>
+                            <ol>
+                                <li>Type student name, ID, email, course or payment ID.</li>
+                                <li>Click a result to open that record.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="3 find filter students list online website">
+                            <h3><span class="guide-num">3</span> Find website students</h3>
+                            <p><strong>Where:</strong> Students</p>
+                            <ol>
+                                <li>Open <strong>Students</strong>.</li>
+                                <li>Search / filter the list.</li>
+                                <li>Click <strong>Open</strong> on a row.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="4 add student create account new">
+                            <h3><span class="guide-num">4</span> Add a website student</h3>
+                            <p><strong>Where:</strong> Students → Add</p>
+                            <ol>
+                                <li>Click Add Student (if shown).</li>
+                                <li>Enter name, email, mobile and required fields.</li>
+                                <li>Save. Student gets an online account (LSI-style ID).</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="5 edit student profile details">
+                            <h3><span class="guide-num">5</span> Edit a student</h3>
+                            <p><strong>Where:</strong> Student detail → Edit</p>
+                            <ol>
+                                <li>Open the student.</li>
+                                <li>Click <strong>Edit</strong>.</li>
+                                <li>Update fields and Save.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="6 enroll student in course grant enrollment">
+                            <h3><span class="guide-num">6</span> Enroll student in a course</h3>
+                            <p><strong>Where:</strong> Student detail → Courses &amp; Progress → + Enroll</p>
+                            <ol>
+                                <li>Open the student.</li>
+                                <li>Click <strong>+ Enroll in course</strong>.</li>
+                                <li>Select the course and confirm.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="7 grant ebook access admin manual revoke restore">
+                            <h3><span class="guide-num">7</span> Grant or revoke ebook access</h3>
+                            <p><strong>Where:</strong> Student detail → Ebooks</p>
+                            <ol>
+                                <li>Open the student.</li>
+                                <li>Click <strong>+ Grant ebook</strong>, choose ebook, Grant access.</li>
+                                <li>To stop access: click <strong>Revoke</strong> on that ebook row.</li>
+                                <li>To give it back: click <strong>Restore</strong>.</li>
+                            </ol>
+                            <div class="guide-tip">Manual grant does not create a payment or invoice.</div>
+                        </div>
+
+                        <div class="guide-block" data-keywords="8 send password link reset password email student">
+                            <h3><span class="guide-num">8</span> Send password reset link</h3>
+                            <p><strong>Where:</strong> Student detail → Send Password Link</p>
+                            <ol>
+                                <li>Open the student.</li>
+                                <li>Click <strong>Send Password Link</strong>.</li>
+                                <li>Student receives email to set a new password.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="9 resend setup email pending account">
+                            <h3><span class="guide-num">9</span> Resend setup email</h3>
+                            <p><strong>Where:</strong> Student detail → Resend Setup Email</p>
+                            <ol>
+                                <li>Open the student (pending setup).</li>
+                                <li>Click <strong>Resend Setup Email</strong>.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="10 send login credentials email password">
+                            <h3><span class="guide-num">10</span> Send login credentials email</h3>
+                            <p><strong>Where:</strong> Student detail → Send Login Credentials</p>
+                            <ol>
+                                <li>Open the student.</li>
+                                <li>Click <strong>Send Login Credentials</strong>.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="11 logout all devices force sign out">
+                            <h3><span class="guide-num">11</span> Logout student from all devices</h3>
+                            <p><strong>Where:</strong> Student detail → Logout All Devices</p>
+                            <ol>
+                                <li>Open the student.</li>
+                                <li>Click <strong>Logout All Devices</strong>.</li>
+                                <li>Confirm. Their sessions end everywhere.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="12 reset device binding student laptop phone">
+                            <h3><span class="guide-num">12</span> Reset student device binding</h3>
+                            <p><strong>Where:</strong> Student detail → Reset Device Binding</p>
+                            <ol>
+                                <li>Open the student.</li>
+                                <li>Click <strong>Reset Device Binding</strong> (or Reset Binding on the device card).</li>
+                                <li>Student can sign in on a new device.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="13 activate deactivate disable enable student account">
+                            <h3><span class="guide-num">13</span> Activate or deactivate a student</h3>
+                            <p><strong>Where:</strong> Student detail → Activate / Deactivate</p>
+                            <ol>
+                                <li>Open the student.</li>
+                                <li>Click <strong>Deactivate</strong> to block login, or <strong>Activate</strong> to restore.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="14 delete student permanently remove account">
+                            <h3><span class="guide-num">14</span> Delete a website student</h3>
+                            <p><strong>Where:</strong> Student detail → Delete</p>
+                            <ol>
+                                <li>Open the student.</li>
+                                <li>Click <strong>Delete</strong>.</li>
+                                <li>Confirm. Only works if there are no payments/enrollments.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="15 add course create website lms">
+                            <h3><span class="guide-num">15</span> Add a course</h3>
+                            <p><strong>Where:</strong> Courses → Add Course</p>
+                            <ol>
+                                <li>Open <strong>Courses</strong>.</li>
+                                <li>Click Add Course.</li>
+                                <li>Enter name, price, description, status.</li>
+                                <li>Save.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="16 edit rename course price thumbnail activate deactivate delete">
+                            <h3><span class="guide-num">16</span> Edit / rename / price / thumbnail a course</h3>
+                            <p><strong>Where:</strong> Courses row actions</p>
+                            <ol>
+                                <li>Open Courses.</li>
+                                <li>Use Edit, Rename, Change price, or Upload thumbnail on the row.</li>
+                                <li>Use power icon to Activate/Deactivate.</li>
+                                <li>Use trash to Delete (removes modules &amp; lessons too).</li>
+                                <li>Use modules icon to jump to curriculum for that course.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="17 share market purchase toggle enable disable buy">
+                            <h3><span class="guide-num">17</span> Turn Share Market course purchase on/off</h3>
+                            <p><strong>Where:</strong> Courses page toggle · or Settings</p>
+                            <ol>
+                                <li>Open Courses or Settings.</li>
+                                <li>Toggle <strong>Share Market Course Purchase</strong> ON or OFF.</li>
+                                <li>Preview the public course page to confirm.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="18 add ebook upload pdf cover price">
+                            <h3><span class="guide-num">18</span> Add an ebook</h3>
+                            <p><strong>Where:</strong> Ebooks → Add Ebook</p>
+                            <ol>
+                                <li>Open <strong>Ebooks</strong>.</li>
+                                <li>Click Add Ebook; enter title, price, details.</li>
+                                <li>Save, then upload PDF and cover with the row buttons.</li>
+                                <li>Activate so it appears in the store / Discover.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="19 edit ebook replace pdf cover activate deactivate delete">
+                            <h3><span class="guide-num">19</span> Manage an ebook (edit / PDF / cover / status)</h3>
+                            <p><strong>Where:</strong> Ebooks row actions</p>
+                            <ol>
+                                <li>Edit name/price/details.</li>
+                                <li>Upload or replace PDF / cover.</li>
+                                <li>View PDF if uploaded.</li>
+                                <li>Activate/Deactivate or Delete (delete only if nobody purchased).</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="20 modules lessons curriculum add reorder video chapter">
+                            <h3><span class="guide-num">20</span> Build modules &amp; lessons</h3>
+                            <p><strong>Where:</strong> Modules &amp; Lessons · or course → modules icon</p>
+                            <ol>
+                                <li>Select the course.</li>
+                                <li>Add a Module (chapter).</li>
+                                <li>Inside it, Add lessons (video/content).</li>
+                                <li>Use Up/Down to reorder; Edit to rename; power to activate/deactivate.</li>
+                                <li>Save changes as you go.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="21 enrollments list check paid cannot open">
+                            <h3><span class="guide-num">21</span> Check enrollments</h3>
+                            <p><strong>Where:</strong> Enrollments</p>
+                            <ol>
+                                <li>Open <strong>Enrollments</strong>.</li>
+                                <li>Filter by course/student.</li>
+                                <li>Confirm source (purchase / admin grant) if access is disputed.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="22 certificate requests approve reject pending generate">
+                            <h3><span class="guide-num">22</span> Approve or reject certificate requests</h3>
+                            <p><strong>Where:</strong> Certificate Requests</p>
+                            <ol>
+                                <li>Open <strong>Certificate Requests</strong> (badge = pending count).</li>
+                                <li>Click View to read name on certificate.</li>
+                                <li>Click <strong>Approve</strong> to generate the PDF, or <strong>Reject</strong> with reason.</li>
+                                <li>After approve, open certificate from the request or Certificates tab.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="23 certificates view download verify pdf qr">
+                            <h3><span class="guide-num">23</span> View / download issued certificates</h3>
+                            <p><strong>Where:</strong> Certificates</p>
+                            <ol>
+                                <li>Open <strong>Certificates</strong>.</li>
+                                <li>Search student or course.</li>
+                                <li>View or Download PDF.</li>
+                                <li>Optional: open Verify link (QR target).</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="24 doubt desk reply mentoring resolve answer">
+                            <h3><span class="guide-num">24</span> Answer doubts (Doubt Desk)</h3>
+                            <p><strong>Where:</strong> Doubt Desk</p>
+                            <ol>
+                                <li>Open <strong>Doubt Desk</strong>.</li>
+                                <li>Open an open thread.</li>
+                                <li>Reply and mark resolved when done.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="25 payments lookup order status failed success demo">
+                            <h3><span class="guide-num">25</span> Look up online payments</h3>
+                            <p><strong>Where:</strong> Payments</p>
+                            <ol>
+                                <li>Open <strong>Payments</strong>.</li>
+                                <li>Search order ref / name / email.</li>
+                                <li>Check status (success, pending, failed, demo).</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="26 purchase reports sales summary">
+                            <h3><span class="guide-num">26</span> View purchase reports</h3>
+                            <p><strong>Where:</strong> Purchase Reports</p>
+                            <ol>
+                                <li>Open <strong>Purchase Reports</strong>.</li>
+                                <li>Review course/ebook sales summary.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="27 invoices view download print email whatsapp resend">
+                            <h3><span class="guide-num">27</span> Manage invoices</h3>
+                            <p><strong>Where:</strong> Invoices</p>
+                            <ol>
+                                <li>Open <strong>Invoices</strong>.</li>
+                                <li>View / Download / Print PDF.</li>
+                                <li>Resend by Email, or open WhatsApp with invoice message + link.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="28 payment gateway razorpay demo live keys configure">
+                            <h3><span class="guide-num">28</span> Configure Payment Gateway (Razorpay / Demo)</h3>
+                            <p><strong>Where:</strong> Payment Gateway</p>
+                            <ol>
+                                <li>Open <strong>Payment Gateway</strong>.</li>
+                                <li>Keep Demo for testing (no real money).</li>
+                                <li>For live: enter Razorpay Key ID and Secret.</li>
+                                <li>Save and confirm mode is live.</li>
+                                <li>Do a small test payment.</li>
+                            </ol>
+                            <div class="guide-tip">Never share Razorpay secrets outside this panel.</div>
+                        </div>
+
+                        <div class="guide-block" data-keywords="29 testimonials reviews approve decline pending">
+                            <h3><span class="guide-num">29</span> Approve or decline testimonials</h3>
+                            <p><strong>Where:</strong> Testimonials</p>
+                            <ol>
+                                <li>Open <strong>Testimonials</strong> (badge = pending).</li>
+                                <li>Approve to publish on the website, or Decline spam/bad reviews.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="30 success stories add video marketing">
+                            <h3><span class="guide-num">30</span> Manage success stories</h3>
+                            <p><strong>Where:</strong> Success Stories</p>
+                            <ol>
+                                <li>Open <strong>Success Stories</strong>.</li>
+                                <li>Add title, media, order.</li>
+                                <li>Turn off items you no longer want public.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="31 mf homepage slider banner images upload order">
+                            <h3><span class="guide-num">31</span> Update MF Homepage Slider</h3>
+                            <p><strong>Where:</strong> MF Homepage Slider</p>
+                            <ol>
+                                <li>Open <strong>MF Homepage Slider</strong>.</li>
+                                <li>Upload images and set display order.</li>
+                                <li>Save to publish on the site.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="32 all blogs list edit delete publish draft">
+                            <h3><span class="guide-num">32</span> Manage all blogs</h3>
+                            <p><strong>Where:</strong> All Blogs</p>
+                            <ol>
+                                <li>Open <strong>All Blogs</strong>.</li>
+                                <li>Edit, publish/unpublish, or delete posts.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="33 add blog write new article post publish">
+                            <h3><span class="guide-num">33</span> Add / write a blog post</h3>
+                            <p><strong>Where:</strong> Add Blog</p>
+                            <ol>
+                                <li>Open <strong>Add Blog</strong> (create Categories first if needed).</li>
+                                <li>Enter title, content, category, images.</li>
+                                <li>Save as Draft or Publish.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="34 blog categories tags topics add">
+                            <h3><span class="guide-num">34</span> Manage blog categories</h3>
+                            <p><strong>Where:</strong> Categories</p>
+                            <ol>
+                                <li>Open <strong>Categories</strong>.</li>
+                                <li>Add or edit category names.</li>
+                                <li>Use them when writing posts.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="35 audit logs security history who did what">
+                            <h3><span class="guide-num">35</span> Read audit logs</h3>
+                            <p><strong>Where:</strong> Audit Logs</p>
+                            <ol>
+                                <li>Open <strong>Audit Logs</strong>.</li>
+                                <li>Filter by date/user/action.</li>
+                                <li>See who changed what.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="36 email settings smtp test mail configure">
+                            <h3><span class="guide-num">36</span> Configure Email (SMTP)</h3>
+                            <p><strong>Where:</strong> Email Settings</p>
+                            <ol>
+                                <li>Open <strong>Email Settings</strong>.</li>
+                                <li>Enter host, port, username, password.</li>
+                                <li>Save and send a test email.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="37 whatsapp settings website number chat button">
+                            <h3><span class="guide-num">37</span> Set website WhatsApp number</h3>
+                            <p><strong>Where:</strong> WhatsApp Settings</p>
+                            <ol>
+                                <li>Open <strong>WhatsApp Settings</strong>.</li>
+                                <li>Enter number in international format.</li>
+                                <li>Save and test Chat on WhatsApp on the public site.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="38 settings change password user id admin account">
+                            <h3><span class="guide-num">38</span> Change Master Admin User ID or password</h3>
+                            <p><strong>Where:</strong> Settings</p>
+                            <ol>
+                                <li>Open <strong>Settings</strong>.</li>
+                                <li>Change User ID (needs current password) or Change Password.</li>
+                                <li>Password change logs you out everywhere — sign in again.</li>
+                            </ol>
+                        </div>
+
+                        <div class="guide-block" data-keywords="39 logout master admin sign out">
+                            <h3><span class="guide-num">39</span> Logout</h3>
+                            <p><strong>Where:</strong> Left menu → Logout</p>
+                            <ol>
+                                <li>Click <strong>Logout</strong>.</li>
+                            </ol>
                         </div>
                     </div>
                 </section>
@@ -1015,6 +1459,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/whatsapp-chat.js?v=20261009-picture"></script>
-    <script src="js/admin-dashboard.js?v=20261012-academy"></script>
+    <script src="js/website-instructions.js?v=20261014-allpanels"></script>
+    <script src="js/admin-dashboard.js?v=20261014-guide"></script>
 </body>
 </html>

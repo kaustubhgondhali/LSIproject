@@ -5,7 +5,8 @@
  *   1. the fields are checked here (the server checks them again);
  *   2. POST /api/public/enquiry emails the enquiry to the academy inbox through the backend's
  *      email system (Main Admin > Email Settings) — no mail credentials in the browser;
- *   3. WhatsApp opens with the same enquiry typed in, addressed to the owner's number: the app on
+ *   3. WhatsApp opens with the same enquiry typed in, addressed to the website WhatsApp number
+ *      (Main Admin > WhatsApp Settings, via js/site-whatsapp.js): the app on
  *      phones, WhatsApp Web on computers. A website cannot send it by itself — the visitor presses
  *      Send.
  * WhatsApp is a separate channel: if the email could not go out, the visitor is told so honestly
@@ -26,7 +27,10 @@
 (function (window, document) {
     "use strict";
 
-    var OWNER_WHATSAPP = "919920254354";                          // same number as the site's WhatsApp buttons
+    /** The website WhatsApp number (Main Admin > WhatsApp Settings), via js/site-whatsapp.js. */
+    function ownerWhatsApp() {
+        return (window.LSI_SiteWhatsApp && window.LSI_SiteWhatsApp.number()) || "919987049070";
+    }
     var MAX_MESSAGE = 3000;
     var TIMEOUT_MS = 30000;
     var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;                // same rules as the backend
@@ -78,12 +82,12 @@
     function whatsappUrl(text) {
         var t = encodeURIComponent(text);
         return isMobile()
-            ? "https://wa.me/" + OWNER_WHATSAPP + "?text=" + t
-            : "https://web.whatsapp.com/send?phone=" + OWNER_WHATSAPP + "&text=" + t;
+            ? "https://wa.me/" + ownerWhatsApp() + "?text=" + t
+            : "https://web.whatsapp.com/send?phone=" + ownerWhatsApp() + "&text=" + t;
     }
 
     /** Works everywhere (wa.me offers the app or WhatsApp Web) — used for the fallback link. */
-    function fallbackUrl(text) { return "https://wa.me/" + OWNER_WHATSAPP + "?text=" + encodeURIComponent(text); }
+    function fallbackUrl(text) { return "https://wa.me/" + ownerWhatsApp() + "?text=" + encodeURIComponent(text); }
 
     /** Opened during the click so pop-up blockers allow it; pointed at WhatsApp later. */
     function openPlaceholder() {
@@ -373,6 +377,6 @@
         whatsappUrl: whatsappUrl,
         fallbackUrl: fallbackUrl,
         validate: validate,
-        OWNER_WHATSAPP: OWNER_WHATSAPP
+        ownerWhatsApp: ownerWhatsApp
     };
 })(window, document);

@@ -167,18 +167,25 @@ public final class AutomationDtos {
                              Instant discountAt, String discountBy,
                              BigDecimal totalPaid, BigDecimal balance, String paymentStatus,
                              List<InstallmentSlot> installments, Integer nextInstallmentNo,
-                             String feeReceiptNo, int installmentsRecorded) {
+                             String feeReceiptNo, int installmentsRecorded,
+                             /** Every discount given, by installment; {@code discount} is their total. */
+                             List<DiscountLine> discounts) {
+    }
+
+    public record DiscountLine(int installmentNo, String label, BigDecimal amount, String reason, Instant givenAt, String givenBy) {
     }
 
     /**
-     * Give / change one student's discount: either a rupee {@code amount} or a {@code percent} of
-     * the course fee (exactly one), with the reason for the office's records.
+     * Give / change the discount at one installment of a student: either a rupee {@code amount} or a
+     * {@code percent} of the course fee (exactly one), with the reason for the office's records.
+     * Without {@code installmentNo} it is the 1st installment's discount.
      */
     public record DiscountRequest(
             @DecimalMin(value = "0.01", message = "The discount must be more than zero.") BigDecimal amount,
             @DecimalMin(value = "0.01", message = "The discount must be more than zero.")
             @DecimalMax(value = "100", message = "A percentage discount cannot be more than 100%.") BigDecimal percent,
-            @NotBlank(message = "Enter the reason for the discount.") @Size(max = 200) String reason
+            @NotBlank(message = "Enter the reason for the discount.") @Size(max = 200) String reason,
+            @Min(value = 1, message = "Choose the installment.") @Max(value = 20, message = "Choose the installment.") Integer installmentNo
     ) {
     }
 
@@ -257,8 +264,13 @@ public final class AutomationDtos {
             Instant issuedAt, String issuedBy, Instant emailedAt,
             String academyName, String academyTagline, String academyAddress, String academyEmail, String academyPhone, String signatory,
             /** The student's payments up to and including this receipt's installment, in installment order. */
-            List<ReceiptPaymentLine> history
+            List<ReceiptPaymentLine> history,
+            /** The discounts given at this receipt's installment and the earlier ones; their total is {@code discount}. */
+            List<ReceiptDiscountLine> discounts
     ) {
+    }
+
+    public record ReceiptDiscountLine(int installmentNo, BigDecimal amount) {
     }
 
     /** One installment in a receipt's payment history; {@code current} marks the receipt's own payment. */
@@ -319,8 +331,8 @@ public final class AutomationDtos {
     }
 
     /**
-     * Either {@code nextNumber} (Settings: move the current series forward) or {@code nextStudentId}
-     * (Add Student: the full next ID, whose prefix and digit width become the series).
+     * Either {@code nextNumber} (owner sets the next four-digit serial) or {@code nextStudentId}
+     * (must be LSA/{current year}/{serial}; LSA and year are fixed).
      */
     public record UpdateStudentIdSeriesRequest(@Min(1) @Max(999999) Integer nextNumber,
                                                @Size(max = 30, message = "A Student ID can be at most 30 characters.") String nextStudentId) {

@@ -81,7 +81,7 @@
         <tbody>
             <tr><td>Course Fee</td><td class="num" th:text="${totalFeeText}">10,000</td></tr>
             <th:block th:if="${hasDiscount}">
-                <tr><td>Discount</td><td class="num" th:text="${'− ' + discountText}">&#8722; 2,000</td></tr>
+                <tr th:each="dr : ${discountRows}"><td th:text="${dr.label}">Discount</td><td class="num" th:text="${'− ' + dr.amount}">&#8722; 2,000</td></tr>
                 <tr><td><strong>Fee after Discount (to pay)</strong></td><td class="num"><strong th:text="${netFeeText}">8,000</strong></td></tr>
             </th:block>
             <tr><td>Amount Paid (this receipt)</td><td class="num" th:text="${amountPaidText}">5,000</td></tr>

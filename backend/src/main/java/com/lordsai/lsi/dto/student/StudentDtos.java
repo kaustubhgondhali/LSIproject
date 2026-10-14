@@ -135,7 +135,9 @@ public final class StudentDtos {
             @jakarta.validation.constraints.NotNull ProtectionEventType type,
             Long courseId,
             Long lessonId,
-            @jakarta.validation.constraints.Size(max = 200) String detail
+            @jakarta.validation.constraints.Size(max = 200) String detail,
+            /** For SCREEN_CAPTURE_ATTEMPT: which content gets locked. Null means no lock. */
+            com.lordsai.lsi.entity.enums.CaptureScope scope
     ) {
     }
 

@@ -51,6 +51,8 @@ public class CertificateService {
     private static final DateTimeFormatter LONG_DATE = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.ENGLISH);
     private static final String CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O, 1/I lookalikes
     private static final SecureRandom RANDOM = new SecureRandom();
+    /** Stored PDFs drawn before this moment use an older design (with the QR code) and are re-drawn. */
+    private static final Instant CURRENT_DESIGN_SINCE = Instant.parse("2026-10-14T01:30:00Z");
 
     private final CertificateRepository certificateRepository;
     private final CertificateSequenceRepository sequenceRepository;
@@ -175,13 +177,15 @@ public class CertificateService {
     // ---- PDF -------------------------------------------------------------------------------
 
     /**
-     * The stored PDF. Re-drawn when the file is missing, or when a legacy certificate still has no
-     * verification code (so the QR / public verify link can be created and printed).
+     * The stored PDF. Re-drawn when the file is missing, was drawn with an older certificate design,
+     * or when a legacy certificate still has no verification code (so the public verify link exists).
      */
     @Transactional
     public byte[] pdfBytes(Certificate certificate) {
         boolean hasFile = certificate.getPdfPath() != null && storage.exists(certificate.getPdfPath());
-        if (hasFile && certificate.getVerificationCode() != null) {
+        boolean currentDesign = certificate.getPdfGeneratedAt() != null
+                && !certificate.getPdfGeneratedAt().isBefore(CURRENT_DESIGN_SINCE);
+        if (hasFile && currentDesign && certificate.getVerificationCode() != null) {
             return storage.readBytes(certificate.getPdfPath());
         }
         return renderAndStore(certificate);

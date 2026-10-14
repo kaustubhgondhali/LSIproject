@@ -7,11 +7,14 @@ import com.lordsai.lsi.dto.admin.WhatsAppDtos.WhatsAppStatus;
 import com.lordsai.lsi.dto.admin.WhatsAppDtos.WhatsAppTestResult;
 import com.lordsai.lsi.entity.User;
 import com.lordsai.lsi.security.CurrentUser;
+import com.lordsai.lsi.service.SiteSettingsService;
 import com.lordsai.lsi.service.UserService;
 import com.lordsai.lsi.service.WhatsAppConfigService;
 import com.lordsai.lsi.util.RequestUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -20,6 +23,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 /**
  * Main Admin -> Settings -> WhatsApp Settings. Main-admin only (enforced by the /api/admin/**
@@ -31,10 +36,27 @@ public class AdminWhatsAppController {
 
     private final WhatsAppConfigService service;
     private final UserService userService;
+    private final SiteSettingsService siteSettings;
 
-    public AdminWhatsAppController(WhatsAppConfigService service, UserService userService) {
+    public AdminWhatsAppController(WhatsAppConfigService service, UserService userService, SiteSettingsService siteSettings) {
         this.service = service;
         this.userService = userService;
+        this.siteSettings = siteSettings;
+    }
+
+    public record WebsiteNumberRequest(@NotBlank @Size(max = 20) String number) {
+    }
+
+    /** The website WhatsApp number: receives enquiry forms and every "Chat on WhatsApp" click. */
+    @GetMapping("/website-number")
+    public ApiResponse<Map<String, String>> websiteNumber() {
+        return ApiResponse.ok(Map.of("number", siteSettings.websiteWhatsAppNumber()));
+    }
+
+    @PutMapping("/website-number")
+    public ApiResponse<Map<String, String>> saveWebsiteNumber(@Valid @RequestBody WebsiteNumberRequest body, HttpServletRequest req) {
+        String number = siteSettings.updateWebsiteWhatsAppNumber(body.number(), actor(), RequestUtil.clientIp(req));
+        return ApiResponse.ok("Website WhatsApp number saved.", Map.of("number", number));
     }
 
     @GetMapping

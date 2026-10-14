@@ -13,6 +13,7 @@ import com.lordsai.lsi.dto.student.StudentDtos.ProgressResponse;
 import com.lordsai.lsi.dto.student.StudentDtos.ProtectionEventRequest;
 import com.lordsai.lsi.entity.Lesson;
 import com.lordsai.lsi.entity.User;
+import com.lordsai.lsi.entity.enums.CaptureScope;
 import com.lordsai.lsi.exception.ApiException;
 import com.lordsai.lsi.security.AuthUser;
 import com.lordsai.lsi.security.CurrentUser;
@@ -184,6 +185,15 @@ public class StudentController {
     public ApiResponse<Void> protectionEvent(@Valid @RequestBody ProtectionEventRequest body, HttpServletRequest request) {
         protectionEvents.recordFromBrowser(me(), body, RequestUtil.clientIp(request));
         return ApiResponse.message("Recorded.");
+    }
+
+    /** Remaining capture-lock seconds per scope; the portal keeps that content blurred while above zero. */
+    @GetMapping("/protection-lock")
+    public ApiResponse<Map<String, Long>> protectionLock() {
+        Long userId = me();
+        return ApiResponse.ok(Map.of(
+                "COURSE", protectionEvents.captureLockRemainingSeconds(userId, CaptureScope.COURSE),
+                "EBOOK", protectionEvents.captureLockRemainingSeconds(userId, CaptureScope.EBOOK)));
     }
 
     /** The enrollment gate, with a denied attempt written to the audit log before the 403 goes out. */

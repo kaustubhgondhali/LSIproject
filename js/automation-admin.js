@@ -257,13 +257,14 @@
         var html =
             '<div class="hint mb-3">' + (adding ? "Required: Full name, Date, Address, Contact No., E-mail ID, Aadhaar Number, Course and Batch." : "Required: Full name, Date, Contact No., Aadhaar Number, Course and Batch.") + ' The other admission details can be filled in now or later.</div>' +
             formSection("Personal Information") +
-            '<div class="row-2">' + fld("srNo", "Sr. No.", srNo(existing ? existing.studentId : L.nextStudentId), { readonly: true, hint: existing ? "" : "Follows the Student ID series." }) +
-            (existing ? fld("studentId", "Student ID", existing.studentId, { readonly: true }) : fld("studentId", "Student ID (generated automatically)", L.nextStudentId, { readonly: true, hint: "Assigned on save — never typed by hand." })) + '</div>' +
-            (adding ? '<div class="au-series-bar"><button type="button" class="au-btn light sm" id="sfSeriesToggle"><i class="fas fa-sliders-h"></i> Change Student ID series</button></div>' +
-                '<div class="au-series d-none" id="sfSeries"><label for="sfSeriesInput">Next Student ID</label>' +
-                '<div class="d-flex flex-wrap gap-2"><input type="text" id="sfSeriesInput" maxlength="30" autocomplete="off" style="flex:1 1 220px" placeholder="e.g. LSA/2026/0100 or LSA-B3-0001">' +
-                '<button type="button" class="au-btn primary sm" id="sfSeriesApply">Set series</button><button type="button" class="au-btn ghost sm" id="sfSeriesCancel">Cancel</button></div>' +
-                '<div class="hint">Type the Student ID the next student should get; later students continue from it (…0101, …0102). It must be higher than any ID already used with that prefix, so no ID is ever issued twice. Existing Student IDs do not change.</div></div>' : "") +
+            '<div class="row-2">' + fld("srNo", "Sr. No.", srNo(existing ? existing.studentId : L.nextStudentId), { readonly: true, hint: existing ? "" : "Four-digit serial — only the owner can change the next one." }) +
+            (existing ? fld("studentId", "Student ID", existing.studentId, { readonly: true }) : fld("studentId", "Student ID (generated automatically)", L.nextStudentId, { readonly: true, hint: "LSA is fixed · year = current calendar year · serial from the series." })) + '</div>' +
+            (adding ? '<div class="au-series-bar"><button type="button" class="au-btn light sm" id="sfSeriesToggle"><i class="fas fa-sliders-h"></i> Change next serial (owner)</button></div>' +
+                '<div class="au-series d-none" id="sfSeries"><label for="sfSeriesInput">Next four-digit number</label>' +
+                '<div class="d-flex flex-wrap align-items-center gap-2"><span class="mono fw-semibold" id="sfSeriesPrefix">LSA/' + new Date().getFullYear() + '/</span>' +
+                '<input type="number" id="sfSeriesInput" min="1" max="999999" step="1" autocomplete="off" style="width:120px" placeholder="e.g. 100">' +
+                '<button type="button" class="au-btn primary sm" id="sfSeriesApply">Set serial</button><button type="button" class="au-btn ghost sm" id="sfSeriesCancel">Cancel</button></div>' +
+                '<div class="hint"><strong>LSA</strong> is fixed. The year is always the <strong>current calendar year</strong> (updates automatically each year). Only the owner can change the four-digit serial. It must be higher than any serial already used this year. Existing Student IDs do not change.</div></div>' : "") +
             '<div class="row-2">' + fld("admissionDate", "Date (admission date)", existing ? (existing.admissionDate || "") : today(), { type: "date", required: true, hint: existing && existing.admissionDateRaw ? "Workbook value '" + existing.admissionDateRaw + "' could not be read — enter the correct date." : "" }) +
             fld("fullName", "Full name", existing && existing.fullName, { required: true, max: 150, pattern: NAME_PATTERN, title: "Letters, spaces, dots, apostrophes and hyphens only." }) + '</div>' +
             fld("address", adding ? "Address" : "Address (optional)", existing && existing.address, { type: "textarea", max: 500, required: adding }) +
@@ -327,34 +328,41 @@
     }
 
     /**
-     * Add Student > "Change Student ID series": saves the typed next ID as the series (same
-     * endpoint as Settings > Student ID Series) and refreshes the ID shown in the open form.
-     * The inputs have no name, so they are never sent with the student itself.
+     * Add Student > "Change next serial (owner)": only the four-digit number is editable.
+     * LSA and the current year come from the server; they are never typed.
      */
     function bindStudentIdSeries(form) {
-        var box = el("sfSeries"), input = el("sfSeriesInput"), apply = el("sfSeriesApply");
+        var box = el("sfSeries"), input = el("sfSeriesInput"), apply = el("sfSeriesApply"), prefix = el("sfSeriesPrefix");
         el("sfSeriesToggle").addEventListener("click", function () {
             box.classList.toggle("d-none");
-            if (!box.classList.contains("d-none")) { input.value = form.querySelector('[name="studentId"]').value; input.focus(); input.select(); }
+            if (!box.classList.contains("d-none")) {
+                api("/automation/settings/student-id-sequence").then(function (r) {
+                    if (!r.success) return;
+                    if (prefix) prefix.textContent = "LSA/" + r.data.year + "/";
+                    input.min = r.data.highestExistingNumber + 1;
+                    input.value = r.data.nextNumber;
+                    input.focus(); input.select();
+                });
+            }
         });
         el("sfSeriesCancel").addEventListener("click", function () { box.classList.add("d-none"); });
         function save() {
-            var next = input.value.trim();
-            if (!next) { formError("Enter the next Student ID, e.g. LSA/2026/0100."); return; }
+            var next = Number(input.value);
+            if (!next || next < 1) { formError("Enter the next four-digit serial number, e.g. 100."); return; }
             apply.disabled = true;
-            api("/automation/settings/student-id-sequence", { method: "PUT", body: { nextStudentId: next } }).then(function (r) {
+            api("/automation/settings/student-id-sequence", { method: "PUT", body: { nextNumber: next } }).then(function (r) {
                 apply.disabled = false;
                 if (!r.success) { formError(errText(r)); return; }
                 L.nextStudentId = r.data.nextStudentId;
                 form.querySelector('[name="studentId"]').value = r.data.nextStudentId;
                 form.querySelector('[name="srNo"]').value = srNo(r.data.nextStudentId);
+                if (prefix) prefix.textContent = "LSA/" + r.data.year + "/";
                 box.classList.add("d-none");
                 el("formModalError").classList.add("d-none");
-                toast(r.message || "Student ID series updated.", true);
+                toast(r.message || "Student ID serial updated.", true);
             });
         }
         apply.addEventListener("click", save);
-        // Enter here sets the series; it must not submit (create) the student.
         input.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); save(); } });
     }
 
@@ -392,7 +400,8 @@
                 '<div class="text-muted mt-1">Student ID <strong class="mono" style="color:var(--au-navy)">' + esc(s.studentId) + '</strong> · Batch <strong>' + esc(s.batchName || "—") + '</strong> · ' + esc(s.courseName || "—") + (p.fees.feeReceiptNo ? ' · Fee Receipt No <strong class="mono" style="color:var(--au-navy)">' + esc(p.fees.feeReceiptNo) + '</strong>' : "") + '</div>' +
                 (s.reviewNote ? '<div class="alert alert-warning small py-2 mt-2 mb-0"><i class="fas fa-flag me-1"></i> Needs review: ' + esc(s.reviewNote) + ' — open Edit to correct it.</div>' : "") + '</div>' +
                 '<div class="au-actions"><button class="au-btn ghost" id="spEdit"><i class="fas fa-edit"></i> Edit</button><button class="au-btn ghost" id="spDiscount" title="Give this student a discount on the course fee"><i class="fas fa-percent"></i> Discount</button><button class="au-btn success" id="spPay"><i class="fas fa-rupee-sign"></i> Record Payment</button><button class="au-btn primary" id="spReceipt"' + (p.receipts.length ? "" : " disabled") + '><i class="fas fa-file-invoice"></i> Latest Receipt</button><button class="au-btn ghost" id="spAtt"><i class="fas fa-calendar-check"></i> Mark Attendance</button>' +
-                '<button class="au-btn ' + (s.status === "ARCHIVED" ? "success" : "danger") + '" id="spArchive">' + (s.status === "ARCHIVED" ? '<i class="fas fa-undo"></i> Restore' : '<i class="fas fa-archive"></i> Archive') + '</button></div></div></div>';
+                '<button class="au-btn ' + (s.status === "ARCHIVED" ? "success" : "danger") + '" id="spArchive">' + (s.status === "ARCHIVED" ? '<i class="fas fa-undo"></i> Restore' : '<i class="fas fa-archive"></i> Archive') + '</button>' +
+                '<button class="au-btn danger" id="spDelete" title="Permanently delete this student and all of their records"><i class="fas fa-trash"></i> Delete</button></div></div></div>';
             var tabs = ["Overview", "Admission", "Fees", "Ebook Login", "Payments", "Receipts", "Attendance", "Course", "Documents", "Activity"];
             var body = '<div class="au-card"><div class="au-tabs">' + tabs.map(function (t, i) { return '<button data-tab="' + i + '" class="' + (i === 0 ? "on" : "") + '">' + t + '</button>'; }).join("") + '</div><div class="p-3" id="spTab"></div></div>';
             el("studentProfile").innerHTML = head + body;
@@ -428,8 +437,7 @@
                 el("spTab").innerHTML = panes[i]();
                 el("spTab").querySelectorAll("[data-receipt]").forEach(function (b) { b.addEventListener("click", function () { go("receipts", b.dataset.receipt); }); });
                 var pay2 = el("spPay2"); if (pay2) pay2.addEventListener("click", function () { startPaymentFor(s.id); });
-                var disc2 = el("spDiscount2"); if (disc2) disc2.addEventListener("click", function () { openDiscountForm(p.fees, function () { openStudent(id); }); });
-                var discOff = el("spDiscountRemove"); if (discOff) discOff.addEventListener("click", function () { removeDiscount(p.fees, function () { openStudent(id); }); });
+                bindDiscountBox(el("spTab"), p.fees, function () { openStudent(id); });
                 bindPaymentRowActions(el("spTab"), function () { openStudent(id); });
                 if (i === 3) loadEbookAccess(s.id);
             }
@@ -445,7 +453,27 @@
                 if (!confirm(arch ? "Archive " + s.fullName + "? Payments, receipts and attendance are kept; the student is hidden from active lists." : "Restore " + s.fullName + " to the active list?")) return;
                 api("/automation/students/" + s.id + "/archive?archived=" + arch, { method: "PATCH" }).then(function (r) { if (handle(r)) openStudent(s.id); });
             });
+            el("spDelete").addEventListener("click", function () { openDeleteStudent(s, p); });
         });
+    }
+
+    /**
+     * Permanently deletes one student and only their own records. The office must type the
+     * Student ID, so a different student can never be deleted by a slip.
+     */
+    function openDeleteStudent(s, p) {
+        var paid = p.fees ? p.fees.totalPaid : 0;
+        var html = '<div class="alert alert-danger small"><i class="fas fa-exclamation-triangle me-1"></i><strong>This cannot be undone.</strong> ' +
+            'It permanently deletes <strong>' + esc(s.fullName) + '</strong> (' + esc(s.studentId) + ') with all of their payments (' + p.payments.length + ', ' + inr(paid) + '), receipts (' + p.receipts.length + '), discounts, attendance marks and message history. ' +
+            'Their ebook login loses the academy ebook. No other student\'s data is changed.</div>' +
+            '<div class="small text-muted mb-2">To keep the history instead, use <strong>Archive</strong>.</div>' +
+            fld("confirm", "Type the Student ID " + s.studentId + " to confirm", "", { required: true, max: 40, placeholder: s.studentId });
+        openForm("Delete Student — " + s.fullName, html, function (v) {
+            if (v.confirm.trim().toUpperCase() !== String(s.studentId).toUpperCase()) { formError("The Student ID does not match. Type " + s.studentId + " exactly."); return; }
+            return api("/automation/students/" + s.id + "/permanent?confirm=" + encodeURIComponent(v.confirm.trim()), { method: "DELETE" }).then(function (r) {
+                if (handle(r)) { formModal.hide(); loadLookups(); go("students"); } else formError(errText(r));
+            });
+        }, "Delete permanently");
     }
     /** The fee the student has to pay; with a discount, a note that it is after the discount. */
     function feeCell(r) {
@@ -469,58 +497,98 @@
             stat("c-blue", "fa-check", "Total Paid", inr(f.totalPaid)) + stat("c-amber", "fa-hourglass-half", "Balance", inr(f.balance)) + '</div>';
     }
 
+    /** The highest installment already paid (0 before the first payment); a discount can go up to the next one. */
+    function lastPaidInstallment(f) {
+        return (f.installments || []).reduce(function (m, i) { return i.paid ? Math.max(m, i.installmentNo) : m; }, 0);
+    }
+    function discountAt(f, n) { return (f.discounts || []).find(function (x) { return x.installmentNo === n; }); }
+
+    /** Each discount with the installment it was given at; Change / Remove per installment. */
     function discountBoxHtml(f) {
-        var on = f.discount > 0;
-        return '<div class="au-discount mb-3"><div>' + (on
+        var list = f.discounts || [];
+        return '<div class="au-discount mb-3"><div>' + (list.length
             ? '<i class="fas fa-percent me-1"></i><strong>Discount ' + inr(f.discount) + '</strong> — fee after discount <strong>' + inr(f.netFee) + '</strong>' +
-              (f.discountReason ? '<div class="small text-muted">Reason: ' + esc(f.discountReason) + '</div>' : "") +
-              (f.discountBy ? '<div class="small text-muted">Given by ' + esc(f.discountBy) + (f.discountAt ? ' on ' + dt(f.discountAt) : "") + '</div>' : "")
+              list.map(function (x) {
+                  return '<div class="small mt-1 d-flex flex-wrap align-items-center gap-2"><span><strong>' + esc(x.label) + ':</strong> − ' + inr(x.amount) +
+                      (x.reason ? ' <span class="text-muted">· ' + esc(x.reason) + '</span>' : "") +
+                      (x.givenBy ? ' <span class="text-muted">· ' + esc(x.givenBy) + (x.givenAt ? ', ' + dt(x.givenAt) : "") + '</span>' : "") + '</span>' +
+                      '<button type="button" class="au-btn light sm" data-dchange="' + x.installmentNo + '" title="Change"><i class="fas fa-edit"></i></button>' +
+                      '<button type="button" class="au-btn light sm" data-dremove="' + x.installmentNo + '" title="Remove"><i class="fas fa-times text-danger"></i></button></div>';
+              }).join("")
             : '<span class="text-muted"><i class="fas fa-percent me-1"></i>No discount. The full course fee applies.</span>') + '</div>' +
-            '<div class="au-actions"><button type="button" class="au-btn light sm" id="spDiscount2"><i class="fas fa-percent"></i> ' + (on ? "Change discount" : "Give discount") + '</button>' +
-            (on ? '<button type="button" class="au-btn light sm" id="spDiscountRemove"><i class="fas fa-times text-danger"></i> Remove</button>' : "") + '</div></div>';
+            '<div class="au-actions"><button type="button" class="au-btn light sm" id="spDiscount2"><i class="fas fa-percent"></i> Give discount</button></div></div>';
+    }
+
+    function bindDiscountBox(root, f, done) {
+        var give = root.querySelector("#spDiscount2"); if (give) give.addEventListener("click", function () { openDiscountForm(f, done); });
+        root.querySelectorAll("[data-dchange]").forEach(function (b) { b.addEventListener("click", function () { openDiscountForm(f, done, Number(b.dataset.dchange)); }); });
+        root.querySelectorAll("[data-dremove]").forEach(function (b) { b.addEventListener("click", function () { removeDiscount(f, done, Number(b.dataset.dremove)); }); });
     }
 
     /**
-     * Give / change one student's discount: rupees or a percentage of the course fee, with a reason
-     * (kept for the office, not printed). It can be at most what the student still owes.
+     * Give / change the discount at one installment: rupees or a percentage of the course fee, with a
+     * reason (kept for the office, not printed). Any installment already paid or the next one; all
+     * discounts together can be at most what the student still owes. The receipts from that
+     * installment on show it; earlier receipts stay as they were.
      */
-    function openDiscountForm(f, done) {
-        var owed = Math.max(0, Number(f.courseFee) - Number(f.totalPaid));
-        var html = '<div class="au-kv mb-3" style="grid-template-columns:repeat(3,1fr)"><div><span>Course Fee</span><strong>' + inr(f.courseFee) + '</strong></div><div><span>Paid so far</span><strong>' + inr(f.totalPaid) + '</strong></div><div><span>Discount can be up to</span><strong>' + inr(owed) + '</strong></div></div>' +
+    function openDiscountForm(f, done, installmentNo) {
+        var last = lastPaidInstallment(f), n0 = installmentNo || last + 1, options = "";
+        for (var n = 1; n <= Math.min(last + 1, 20); n++) {
+            options += '<option value="' + n + '"' + (n === n0 ? " selected" : "") + '>' + ordinal(n) + ' Installment' +
+                (n <= last ? (discountAt(f, n) ? " (paid · has discount)" : " (paid)") : " (next)") + '</option>';
+        }
+        var html = '<div class="au-kv mb-3" style="grid-template-columns:repeat(3,1fr)"><div><span>Course Fee</span><strong>' + inr(f.courseFee) + '</strong></div><div><span>Paid so far</span><strong>' + inr(f.totalPaid) + '</strong></div><div><span>Discount can be up to</span><strong id="dOwed"></strong></div></div>' +
+            fld("dInst", "Give the discount at", null, { type: "select", options: options, hint: "The receipt of this installment and the later ones show the discount; earlier receipts stay as they were." }) +
             '<div class="row-2">' + fld("dType", "Discount in", null, { type: "select", options: '<option value="amount">Rupees (₹)</option><option value="percent">Percent (%) of the course fee</option>' }) +
-            fld("dValue", "Discount", f.discount > 0 ? f.discount : "", { type: "number", min: 0.01, step: "0.01", required: true }) + '</div>' +
-            fld("reason", "Reason (for the office's records; not printed on the receipt)", f.discountReason || "", { max: 200, required: true, placeholder: "e.g. Sibling discount, early full payment" }) +
+            fld("dValue", "Discount", "", { type: "number", min: 0.01, step: "0.01", required: true }) + '</div>' +
+            fld("reason", "Reason (for the office's records; not printed on the receipt)", "", { max: 200, required: true, placeholder: "e.g. Sibling discount, early full payment" }) +
             '<div class="alert alert-light border small mb-0" id="dPreview"></div>';
-        openForm((f.discount > 0 ? "Change Discount — " : "Give Discount — ") + f.fullName, html, function (v) {
-            var body = { reason: v.reason };
+        openForm((discountAt(f, n0) ? "Change Discount — " : "Give Discount — ") + f.fullName, html, function (v) {
+            var body = { reason: v.reason, installmentNo: Number(v.dInst) };
             body[v.dType === "percent" ? "percent" : "amount"] = Number(v.dValue);
             return api("/automation/students/" + f.studentId + "/discount", { method: "PUT", body: body }).then(function (r) {
                 if (handle(r)) { formModal.hide(); if (done) done(); } else formError(errText(r));
             });
         }, "Save Discount");
-        var form = el("formModalForm");
+        var form = el("formModalForm"), q = function (name) { return form.querySelector('[name="' + name + '"]'); };
+        function owedAt(n) { var cur = discountAt(f, n); return Math.max(0, Number(f.courseFee) - Number(f.totalPaid) - Number(f.discount || 0) + (cur ? Number(cur.amount) : 0)); }
+        function fill() {
+            var cur = discountAt(f, Number(q("dInst").value));
+            q("dType").value = "amount"; q("dValue").value = cur ? cur.amount : ""; q("reason").value = cur ? cur.reason || "" : "";
+            el("formModalTitle").innerText = (cur ? "Change Discount — " : "Give Discount — ") + f.fullName;
+            preview();
+        }
         function preview() {
-            var type = form.querySelector('[name="dType"]').value, val = Number(form.querySelector('[name="dValue"]').value) || 0;
+            var n = Number(q("dInst").value), cur = discountAt(f, n), owed = owedAt(n);
+            var type = q("dType").value, val = Number(q("dValue").value) || 0;
             var amt = type === "percent" ? Math.round(Number(f.courseFee) * val) / 100 : val;
-            var net = Number(f.courseFee) - amt;
+            var total = Number(f.discount || 0) - (cur ? Number(cur.amount) : 0) + amt, net = Number(f.courseFee) - total;
+            el("dOwed").innerText = inr(owed);
             el("dPreview").innerHTML = amt > owed
                 ? '<span class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>The discount can be at most ' + inr(owed) + ' (what the student still owes).</span>'
-                : 'Course fee ' + inr(f.courseFee) + ' − discount ' + inr(amt) + ' = <strong>' + inr(net) + ' to pay</strong>. Paid so far ' + inr(f.totalPaid) +
-                  ' → balance <strong>' + inr(net - Number(f.totalPaid)) + '</strong>. All of this student\'s receipts will show the discount.';
+                : 'Course fee ' + inr(f.courseFee) + ' − discount' + (total !== amt ? 's' : '') + ' ' + inr(total) + ' = <strong>' + inr(net) + ' to pay</strong>. Paid so far ' + inr(f.totalPaid) +
+                  ' → balance <strong>' + inr(net - Number(f.totalPaid)) + '</strong>. Receipts from the ' + ordinal(n) + ' Installment on will show this discount.';
         }
+        q("dInst").addEventListener("change", fill);
         form.querySelectorAll('[name="dType"],[name="dValue"]').forEach(function (i) { i.addEventListener("input", preview); i.addEventListener("change", preview); });
-        preview();
+        fill();
     }
 
-    function removeDiscount(f, done) {
-        if (!confirm("Remove the " + inr(f.discount) + " discount for " + f.fullName + "? The fee goes back to " + inr(f.courseFee) + " and the receipts are updated.")) return;
-        api("/automation/students/" + f.studentId + "/discount", { method: "DELETE" }).then(function (r) { if (handle(r) && done) done(); });
+    function removeDiscount(f, done, installmentNo) {
+        var cur = installmentNo ? discountAt(f, installmentNo) : null;
+        var what = cur ? "the " + inr(cur.amount) + " discount given at the " + cur.label : "the " + inr(f.discount) + " discount";
+        if (!confirm("Remove " + what + " for " + f.fullName + "? The balance goes up by that amount and the receipts are updated.")) return;
+        api("/automation/students/" + f.studentId + "/discount" + (installmentNo ? "?installmentNo=" + installmentNo : ""), { method: "DELETE" }).then(function (r) { if (handle(r) && done) done(); });
     }
 
-    /** Receipt lines for a discount: Discount and Fee after Discount, right under Course Fee. */
+    /** Receipt lines for the discounts up to this installment, then Fee after Discount, right under Course Fee. */
     function receiptDiscountRows(r) {
         if (!(r.discount > 0)) return "";
-        return '<tr><td>Discount</td><td class="num">− ' + Number(r.discount).toLocaleString("en-IN") + '</td></tr><tr><td><strong>Fee after Discount (to pay)</strong></td><td class="num"><strong>' + Number(r.netFee).toLocaleString("en-IN") + '</strong></td></tr>';
+        var list = r.discounts && r.discounts.length ? r.discounts : [{ installmentNo: 1, amount: r.discount }];
+        var plain = list.length === 1 && list[0].installmentNo === 1;
+        return list.map(function (x) {
+            return '<tr><td>Discount' + (plain ? "" : " (" + ordinal(x.installmentNo) + " Installment)") + '</td><td class="num">− ' + Number(x.amount).toLocaleString("en-IN") + '</td></tr>';
+        }).join("") + '<tr><td><strong>Fee after Discount (to pay)</strong></td><td class="num"><strong>' + Number(r.netFee).toLocaleString("en-IN") + '</strong></td></tr>';
     }
 
     // ---- free ebook login (Student Panel, ebook only) -----------------------------------------------
@@ -539,14 +607,14 @@
         return "Dear " + a.fullName + ",\nYour free ebook login for the LORD SAI Student Panel:\n" +
             "Sign in: " + a.loginUrl + "\nUser ID: " + a.userId + "\n" +
             (a.password ? "Password: " + a.password + "\n" : "Password: the one you set\n") +
-            "After signing in, open My Ebooks to read the ebook." + (a.password ? " Please change your password in Settings." : "") +
+            "After signing in, open My Ebooks and Student Journal." + (a.password ? " Please change your password in Settings." : "") +
             "\n\nRegards,\nLORD SAI Investment & Share Market Academy";
     }
 
     function renderEbookAccess(a, studentId) {
         var box = el("spEbook"); if (!box) return;
         var head = '<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"><div><h6 class="fw-bold mb-0">Free ebook login (Student Panel)</h6>' +
-            '<small class="text-muted">Made when the first installment is paid. It opens only the ebook — never courses.</small></div>' +
+            '<small class="text-muted">Made when the first installment is paid. Opens My Ebooks and Student Journal — never courses.</small></div>' +
             (a.state === "ACTIVE" || a.state === "BLOCKED" ? badge(a.blocked ? "BLOCKED" : "ACTIVE") : "") + '</div>';
         var blockBtn = '<button type="button" class="au-btn ' + (a.blocked ? "success" : "danger") + ' sm" data-eb="block">' + (a.blocked ? '<i class="fas fa-unlock"></i> Unblock ebook' : '<i class="fas fa-ban"></i> Block ebook') + '</button>';
         var html;
@@ -558,16 +626,20 @@
         } else {
             var pwd = a.password ? '<span class="mono au-secret">' + esc(a.password) + '</span>'
                 : a.linkedAccount ? '<span class="text-muted">Their own website password (this email already had a login)</span>'
-                : '<span class="text-muted">The student has set their own password</span>';
+                : '<span class="text-muted">Password not on file — use Reset password to issue one the office can see</span>';
             var books = (a.ebooks || []).length ? a.ebooks.map(function (b) { return '<div>' + esc(b.title) + ' ' + badge(b.status === "ACTIVE" ? "ACTIVE" : "BLOCKED") + (b.source && b.source !== "ACADEMY" ? ' <small class="text-muted">(' + (b.source === "PAYMENT" ? "bought online" : "given by Main Admin") + ')</small>' : "") + '</div>'; }).join("")
                 : '<span class="text-muted">No ebook is on sale yet — it is added here automatically once one is.</span>';
-            var kv = [["Student ID", '<span class="mono">' + esc(a.studentId) + '</span>'], ["User ID (sign in)", '<span class="mono au-secret">' + esc(a.userId || "—") + '</span>'], ["Password", pwd],
+            var kv = [["Student ID", '<span class="mono">' + esc(a.studentId) + '</span>'],
+                ["User ID (sign in)", '<span class="mono au-secret">' + esc(a.userId || "—") + '</span>'],
+                ["Password", pwd],
                 ["Email", esc(a.email || "—")], ["Sign-in page", '<span class="small">' + esc(a.loginUrl) + '</span>'], ["Created", a.createdAt ? dt(a.createdAt) : "—"],
                 ["Login details emailed", a.emailedAt ? dt(a.emailedAt) : '<span class="text-danger">Not emailed yet</span>'], ["Last sign-in", a.lastLoginAt ? dt(a.lastLoginAt) : "Not yet"],
                 ["Device", esc(a.deviceName || "No device yet")], ["Ebook", books]];
             html = head + (a.blocked ? '<div class="alert alert-danger small py-2"><i class="fas fa-ban me-1"></i>Ebook access is blocked. The student sees: “Your ebook access is blocked. Please contact the academy.”</div>' : "") +
+                '<div class="small text-muted mb-2"><i class="fas fa-sync-alt me-1"></i>User ID and password update here when the student changes them in Settings. Click Refresh if this tab was already open.</div>' +
                 '<div class="au-kv au-ebook-kv">' + kv.map(function (x) { return '<div><span>' + x[0] + '</span><strong>' + x[1] + '</strong></div>'; }).join("") + '</div>' +
                 '<div class="au-actions mt-3">' +
+                '<button type="button" class="au-btn light sm" data-eb="refresh"><i class="fas fa-sync-alt"></i> Refresh</button>' +
                 '<button type="button" class="au-btn light sm" data-eb="copy"><i class="fas fa-copy"></i> Copy login details</button>' +
                 '<button type="button" class="au-btn light sm" data-eb="whatsapp"' + (a.mobile ? "" : " disabled title=\"No mobile number\"") + '><i class="fab fa-whatsapp text-success"></i> Send on WhatsApp</button>' +
                 '<button type="button" class="au-btn light sm" data-eb="print"><i class="fas fa-print"></i> Print</button>' +
@@ -582,7 +654,9 @@
     function ebookAction(action, a, studentId) {
         var base = "/automation/students/" + studentId + "/ebook-access";
         var done = function (res) { if (handle(res)) renderEbookAccess(res.data, studentId); };
-        if (action === "edit") {
+        if (action === "refresh") {
+            loadEbookAccess(studentId);
+        } else if (action === "edit") {
             api("/automation/students/" + studentId).then(function (r) { if (r.success) openStudentForm(r.data); });
         } else if (action === "create") {
             api(base, { method: "POST" }).then(done);
@@ -617,7 +691,7 @@
             '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><img src="' + location.href.replace(/[^/]*$/, "") + 'img/lord-sai-logo.png" style="height:44px" alt=""><div><div style="font-weight:800;color:#1B2A47">LORD SAI INVESTMENT AND SHARE MARKET ACADEMY</div><div style="font-size:12px;color:#64748B">Free ebook login — Student Panel</div></div></div>' +
             '<p style="margin:0 0 10px">Dear <strong>' + esc(a.fullName) + '</strong>, use these details to read the academy ebook:</p>' +
             '<table style="border-collapse:collapse;width:100%;background:#F8FAFC;border:1px solid #E2E8F0">' + row("Sign in at", a.loginUrl) + row("User ID", a.userId) + row("Password", a.password || "(the one you set)") + row("Student ID", a.studentId) + '</table>' +
-            '<p style="font-size:13px;color:#475569;margin:12px 0 0">After signing in, open <strong>My Ebooks</strong>. Please change your password in Settings and do not share it.</p></div>' +
+            '<p style="font-size:13px;color:#475569;margin:12px 0 0">After signing in, open <strong>My Ebooks</strong> and <strong>Student Journal</strong>. Please change your password in Settings and do not share it.</p></div>' +
             '<script>window.onload=function(){window.print();}<\/script></body></html>');
         w.document.close();
     }
@@ -643,10 +717,11 @@
             el("payStudentCard").innerHTML = '<div class="au-card pad" style="background:#F8FAFF"><div class="au-kv" style="grid-template-columns:repeat(3,1fr)">' +
                 '<div><span>Student ID</span><strong class="mono">' + esc(f.studentCode) + '</strong></div><div><span>Name</span><strong>' + esc(f.fullName) + '</strong></div><div><span>Batch</span><strong>' + esc(f.batchName || "—") + '</strong></div>' +
                 '<div><span>Course</span><strong>' + esc(f.courseName || "—") + '</strong></div><div><span>' + (f.discount > 0 ? "Fee to pay (after discount)" : "Course Fee") + '</span><strong>' + inr(f.netFee) + (f.discount > 0 ? ' <small class="text-success">(' + inr(f.courseFee) + ' − ' + inr(f.discount) + ')</small>' : "") + '</strong></div><div><span>Paid / Balance</span><strong>' + inr(f.totalPaid) + ' / <span style="color:' + (f.balance > 0 ? "#DC2626" : "#16A34A") + '">' + inr(f.balance) + '</span> ' + badge(f.paymentStatus) + '</strong></div></div>' +
-                payDiscountHtml(f) + '</div>';
-            bindPayDiscount(f);
+                '<div id="payDiscountSlot"></div></div>';
             renderPayDiscountBox(f);
             el("payInstallment").innerHTML = f.installments.map(function (i) { return '<option value="' + i.installmentNo + '"' + (i.paid ? " disabled" : "") + (i.installmentNo === f.nextInstallmentNo ? " selected" : "") + '>' + esc(i.label) + (i.paid ? " — paid " + inr(i.amount) + " on " + d(i.paymentDate) : "") + '</option>'; }).join("") + '<option value="' + (f.installments.length + 1) + '">' + ordinal(f.installments.length + 1) + ' Installment</option>';
+            el("payInstallment").onchange = function () { renderPayDiscount(f); };
+            renderPayDiscount(f);
             el("payInstallmentHint").innerText = f.nextInstallmentNo ? "Next due: " + f.installments[f.nextInstallmentNo - 1].label : "All fees paid — no further installment is due.";
             el("payAmount").value = f.balance > 0 ? f.balance : ""; el("payAmount").max = f.balance;
             el("payAmountHint").innerText = "Outstanding balance " + inr(f.balance) + " — the amount cannot exceed it.";
@@ -654,26 +729,31 @@
         });
     }
 
-    /** Discount at first installment: apply before saving the payment so the receipt shows the reduced fee. */
-    function payDiscountHtml(f) {
-        if (Number(f.totalPaid) > 0) return "";
-        var on = f.discount > 0;
-        return '<div class="au-discount mt-3 mb-0"><div>' + (on
-            ? '<i class="fas fa-percent me-1"></i><strong>Discount ' + inr(f.discount) + '</strong> — fee after discount <strong>' + inr(f.netFee) + '</strong>' +
-              (f.discountReason ? '<div class="small text-muted">Reason: ' + esc(f.discountReason) + '</div>' : "")
-            : '<span><i class="fas fa-percent me-1"></i><strong>First installment</strong> — give a discount now if needed (before saving the payment).</span>') +
+    /**
+     * Discount at the installment being recorded (1st, 2nd, 3rd ...): apply it before saving the
+     * payment so this installment's receipt shows the reduced fee.
+     */
+    function renderPayDiscount(f) {
+        var slot = el("payDiscountSlot");
+        if (!slot) return;
+        var n = Number(el("payInstallment").value) || f.nextInstallmentNo || 1;
+        var label = ordinal(n) + " Installment";
+        if (n > lastPaidInstallment(f) + 1 || !(f.balance > 0 || discountAt(f, n))) { slot.innerHTML = ""; return; }
+        var cur = discountAt(f, n);
+        slot.innerHTML = '<div class="au-discount mt-3 mb-0"><div>' +
+            (f.discount > 0 ? '<i class="fas fa-percent me-1"></i><strong>Discount ' + inr(f.discount) + '</strong> — fee after discount <strong>' + inr(f.netFee) + '</strong>' +
+                (f.discounts || []).map(function (x) { return '<div class="small text-muted">' + esc(x.label) + ': − ' + inr(x.amount) + (x.reason ? ' · ' + esc(x.reason) : "") + '</div>'; }).join("") +
+                '<div class="small mt-1">' : '<span>') +
+            '<i class="fas fa-percent me-1"></i><strong>' + esc(label) + '</strong> — ' + (cur ? "discount " + inr(cur.amount) + " given at this installment." : "give a discount now if needed (before saving the payment).") +
+            (f.discount > 0 ? '</div>' : '</span>') +
             '</div><div class="au-actions">' +
-            '<button type="button" class="au-btn primary sm" id="payDiscountBtn"><i class="fas fa-percent"></i> ' + (on ? "Change discount" : "Give discount") + '</button>' +
-            (on ? '<button type="button" class="au-btn light sm" id="payDiscountRemove"><i class="fas fa-times text-danger"></i> Remove</button>' : "") +
+            '<button type="button" class="au-btn primary sm" id="payDiscountBtn"><i class="fas fa-percent"></i> ' + (cur ? "Change discount" : "Give discount") + '</button>' +
+            (cur ? '<button type="button" class="au-btn light sm" id="payDiscountRemove"><i class="fas fa-times text-danger"></i> Remove</button>' : "") +
             '</div></div>';
-    }
-
-    function bindPayDiscount(f) {
         var refresh = function () { selectPayStudent({ id: f.studentId, studentId: f.studentCode, fullName: f.fullName }); };
-        var btn = el("payDiscountBtn");
-        if (btn) btn.addEventListener("click", function () { openDiscountForm(f, refresh); });
+        el("payDiscountBtn").addEventListener("click", function () { openDiscountForm(f, refresh, n); });
         var rem = el("payDiscountRemove");
-        if (rem) rem.addEventListener("click", function () { removeDiscount(f, refresh); });
+        if (rem) rem.addEventListener("click", function () { removeDiscount(f, refresh, n); });
     }
 
     function renderPayDiscountBox(f) {

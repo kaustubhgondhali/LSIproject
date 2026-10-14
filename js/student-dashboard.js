@@ -58,7 +58,7 @@
     // ---- navigation ------------------------------------------------------------------------
 
     // An Automation Admin student's free ebook login (with no course) sees only these sections.
-    var EBOOK_ONLY_VIEWS = ["ebooks", "profile", "settings"];
+    var EBOOK_ONLY_VIEWS = ["ebooks", "journal", "profile", "settings", "website-instructions"];
     function ebookOnly() { return !!(state.overview && state.overview.ebookOnly); }
 
     function applyEbookOnly() {
@@ -66,8 +66,10 @@
         document.querySelectorAll(".lms-nav a[data-view]").forEach(function (a) {
             if (EBOOK_ONLY_VIEWS.indexOf(a.dataset.view) < 0) a.style.display = on ? "none" : "";
         });
+        // Support stays visible so Student Journal keeps its label; Doubt Desk itself stays hidden.
+        // Account label stays visible so Website Instructions / Profile / Settings remain grouped.
         document.querySelectorAll(".lms-nav .lms-nav-label").forEach(function (l) {
-            if (/support/i.test(l.textContent)) l.style.display = on ? "none" : "";
+            if (/support|account/i.test(l.textContent)) l.style.display = "";
         });
         var note = el("ebookOnlyNote"); if (note) note.hidden = !on;
         var search = el("lmsSearch"); if (search) search.placeholder = on ? "Search your ebooks..." : "Search your courses, lessons and resources...";
@@ -1187,7 +1189,7 @@
             if ((c.courseName + " " + c.certificateNumber).toLowerCase().indexOf(q) >= 0) hits.push({ t: c.certificateNumber, s: "Certificate · " + c.courseName, href: "#certificates", view: "certificates", i: "fa-award" });
         });
         if (!ebookOnly() && ("certificate".indexOf(q) >= 0 || "course completion certificate".indexOf(q) >= 0)) hits.push({ t: "Certificate", s: "Apply for, view and download your course completion certificate", href: "#certificates", view: "certificates", i: "fa-award" });
-        if (!ebookOnly() && ("student general".indexOf(q) >= 0 || "student journal".indexOf(q) >= 0 || "trading journal".indexOf(q) >= 0)) hits.push({ t: "Student Journal", s: "Daily trading journal", href: "#journal", view: "journal", i: "fa-book-open" });
+        if ("student general".indexOf(q) >= 0 || "student journal".indexOf(q) >= 0 || "trading journal".indexOf(q) >= 0) hits.push({ t: "Student Journal", s: "Daily trading journal", href: "#journal", view: "journal", i: "fa-book-open" });
         box.innerHTML = hits.slice(0, 12).map(function (h) { return '<a href="' + h.href + '"' + (h.view ? ' data-view="' + h.view + '"' : "") + '><i class="fas ' + h.i + ' me-2 text-muted"></i>' + esc(h.t) + '<br><small>' + esc(h.s) + '</small></a>'; }).join("") || '<a href="#" class="text-muted">No matches</a>';
         box.style.display = "block";
         bindViewLinks(box);

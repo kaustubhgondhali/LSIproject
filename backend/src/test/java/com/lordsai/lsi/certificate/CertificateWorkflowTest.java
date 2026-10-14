@@ -41,6 +41,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -223,7 +224,7 @@ class CertificateWorkflowTest {
         api.get(null, "/api/student/certificates/" + c.getId() + "/pdf").andExpect(status().isUnauthorized());
         api.get(admin, "/api/admin/certificates/" + c.getId() + "/pdf").andExpect(status().isOk());
 
-        // The PDF: master page size, the student's real details, and a QR that scans to its verification link
+        // The PDF: master page size, the student's real details, and no QR code
         String issue = DateTimeFormatter.ofPattern("MMM yyyy", Locale.ENGLISH).format(c.getIssuedAt().atZone(INDIA));
         try (PDDocument doc = Loader.loadPDF(pdf)) {
             assertThat(doc.getNumberOfPages()).isEqualTo(1);
@@ -239,10 +240,10 @@ class CertificateWorkflowTest {
             assertThat(page.getWidth()).isEqualTo(2400);
             BufferedImage qr = page.getSubimage(1650, 1110, 290, 290);
             int[] pixels = qr.getRGB(0, 0, qr.getWidth(), qr.getHeight(), null, 0, qr.getWidth());
-            String decoded = new QRCodeReader().decode(
+            assertThatThrownBy(() -> new QRCodeReader().decode(
                     new BinaryBitmap(new HybridBinarizer(new RGBLuminanceSource(qr.getWidth(), qr.getHeight(), pixels))),
-                    Map.of(DecodeHintType.TRY_HARDER, Boolean.TRUE)).getText();
-            assertThat(decoded).endsWith("/verify-certificate.html?c=" + c.getVerificationCode());
+                    Map.of(DecodeHintType.TRY_HARDER, Boolean.TRUE)))
+                    .isInstanceOf(com.google.zxing.NotFoundException.class);
         }
 
         // Public verification: only what is printed on the certificate

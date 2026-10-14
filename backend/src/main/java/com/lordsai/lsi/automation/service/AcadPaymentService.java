@@ -1,16 +1,20 @@
 package com.lordsai.lsi.automation.service;
 
+import com.lordsai.lsi.automation.dto.AutomationDtos.DiscountLine;
 import com.lordsai.lsi.automation.dto.AutomationDtos.DiscountRequest;
 import com.lordsai.lsi.automation.dto.AutomationDtos.FeeSummary;
 import com.lordsai.lsi.automation.dto.AutomationDtos.InstallmentSlot;
 import com.lordsai.lsi.automation.dto.AutomationDtos.PaymentDto;
+import com.lordsai.lsi.automation.dto.AutomationDtos.ReceiptDiscountLine;
 import com.lordsai.lsi.automation.dto.AutomationDtos.ReceiptDto;
 import com.lordsai.lsi.automation.dto.AutomationDtos.ReceiptPaymentLine;
 import com.lordsai.lsi.automation.dto.AutomationDtos.RecordPaymentRequest;
 import com.lordsai.lsi.automation.dto.AutomationDtos.UpdatePaymentRequest;
+import com.lordsai.lsi.automation.entity.AcadDiscount;
 import com.lordsai.lsi.automation.entity.AcadPayment;
 import com.lordsai.lsi.automation.entity.AcadReceipt;
 import com.lordsai.lsi.automation.entity.AcadStudent;
+import com.lordsai.lsi.automation.repository.AcadDiscountRepository;
 import com.lordsai.lsi.automation.repository.AcadPaymentRepository;
 import com.lordsai.lsi.automation.repository.AcadReceiptRepository;
 import com.lordsai.lsi.automation.repository.AcadStudentRepository;
@@ -56,6 +60,7 @@ public class AcadPaymentService {
     private static final DateTimeFormatter DMY = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
     private final AcadPaymentRepository payments;
+    private final AcadDiscountRepository discounts;
     private final AcadReceiptRepository receipts;
     private final AcadStudentRepository students;
     private final AcadMasterService master;
@@ -66,11 +71,13 @@ public class AcadPaymentService {
     /** Looked up lazily: the PDF service itself depends on this service (for the receipt snapshot). */
     private final ObjectProvider<AcadReceiptPdfService> receiptPdf;
 
-    public AcadPaymentService(AcadPaymentRepository payments, AcadReceiptRepository receipts, AcadStudentRepository students,
+    public AcadPaymentService(AcadPaymentRepository payments, AcadDiscountRepository discounts, AcadReceiptRepository receipts,
+                              AcadStudentRepository students,
                               AcadMasterService master, AcadSequenceService sequences, AuditService auditService,
                               EmailService emailService, AppProperties properties,
                               ObjectProvider<AcadReceiptPdfService> receiptPdf) {
         this.payments = payments;
+        this.discounts = discounts;
         this.receipts = receipts;
         this.students = students;
         this.master = master;
@@ -118,7 +125,11 @@ public class AcadPaymentService {
                 s.getCourseFee(), s.getDiscountAmount(), netFee, s.getDiscountReason(), s.getDiscountAt(),
                 s.getDiscountBy() == null ? null : s.getDiscountBy().getFullName(),
                 paid, balance, AcadRowMapper.paymentStatus(netFee, paid), slots,
-                balance.signum() > 0 ? (next == null ? maxSlots + 1 : next) : null, s.getFeeReceiptNo(), list.size());
+                balance.signum() > 0 ? (next == null ? maxSlots + 1 : next) : null, s.getFeeReceiptNo(), list.size(),
+                discounts.findByStudentIdOrderByInstallmentNoAsc(s.getId()).stream()
+                        .map(d -> new DiscountLine(d.getInstallmentNo(), master.installmentLabel(d.getInstallmentNo()), d.getAmount(),
+                                d.getReason(), d.getUpdatedAt(), d.getGivenBy() == null ? null : d.getGivenBy().getFullName()))
+                        .toList());
     }
 
     // ---- record / edit / delete ------------------------------------------------------------------
@@ -242,11 +253,12 @@ public class AcadPaymentService {
         r.setCourseName(s.getCourse() == null ? null : s.getCourse().getName());
         r.setBatchName(s.getBatch() == null ? null : s.getBatch().getName());
         r.setBatchSchedule(s.getBatch() == null ? null : s.getBatch().getSchedule());
+        BigDecimal discount = discountUpTo(s, p.getInstallmentNo());
         r.setTotalFee(s.getCourseFee());
-        r.setDiscount(s.getDiscountAmount());
+        r.setDiscount(discount);
         r.setAmountPaid(p.getAmount());
         r.setTotalPaid(totalPaid);
-        r.setBalance(s.netFee().subtract(totalPaid));
+        r.setBalance(s.getCourseFee().subtract(discount).subtract(totalPaid));
         r.setPaymentDate(p.getPaymentDate());
         r.setPaymentMode(p.getPaymentMode());
         r.setReferenceNo(p.getReferenceNo());
@@ -273,10 +285,11 @@ public class AcadPaymentService {
     }
 
     /**
-     * Gives (or changes) one student's discount — a rupee amount or a percentage of their course
-     * fee. It can be at most what the student still owes, so the balance never goes below zero.
-     * Every receipt of the student is refreshed under the same number so it shows Course Fee,
-     * Discount and Fee after Discount.
+     * Gives (or changes) the discount at one installment of a student — a rupee amount or a
+     * percentage of their course fee. It can be given at any installment already paid or the next
+     * one, and all discounts together can be at most what the student still owes, so the balance
+     * never goes below zero. The receipts of that installment and later ones are refreshed under
+     * the same number to show it; earlier receipts stay as they were.
      */
     @Transactional
     public FeeSummary setDiscount(Long studentId, DiscountRequest req, User actor, String ip) {
@@ -284,60 +297,103 @@ public class AcadPaymentService {
         if ((req.amount() == null) == (req.percent() == null)) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Enter the discount either in rupees or as a percentage.");
         }
+        int installmentNo = req.installmentNo() == null ? 1 : req.installmentNo();
+        int lastPaid = payments.findByStudentIdOrderByInstallmentNoAsc(s.getId()).stream().mapToInt(AcadPayment::getInstallmentNo).max().orElse(0);
+        if (installmentNo > lastPaid + 1) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "A discount can be given at an installment already paid or the next one ("
+                    + master.installmentLabel(lastPaid + 1) + "), not at the " + master.installmentLabel(installmentNo) + ".");
+        }
         BigDecimal amount = (req.amount() != null ? req.amount()
                 : s.getCourseFee().multiply(req.percent()).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP))
                 .setScale(2, RoundingMode.HALF_UP);
         if (amount.signum() <= 0) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "The discount must be more than zero.");
         }
+        AcadDiscount d = discounts.findByStudentIdAndInstallmentNo(s.getId(), installmentNo).orElse(null);
+        BigDecimal before = d == null ? BigDecimal.ZERO : d.getAmount();
+        BigDecimal others = discounts.findByStudentIdOrderByInstallmentNoAsc(s.getId()).stream()
+                .filter(x -> x.getInstallmentNo() != installmentNo).map(AcadDiscount::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal paid = totalPaid(s);
-        BigDecimal owed = s.getCourseFee().subtract(paid);
+        BigDecimal owed = s.getCourseFee().subtract(paid).subtract(others);
         if (amount.compareTo(owed) > 0) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "The discount can be at most ₹" + AcadReceiptPdfService.indian(owed.max(BigDecimal.ZERO))
                     + " — what " + s.getFullName() + " still owes (course fee ₹" + AcadReceiptPdfService.indian(s.getCourseFee())
-                    + " less ₹" + AcadReceiptPdfService.indian(paid) + " already paid).");
+                    + " less ₹" + AcadReceiptPdfService.indian(paid) + " already paid"
+                    + (others.signum() > 0 ? " and ₹" + AcadReceiptPdfService.indian(others) + " other discounts" : "") + ").");
         }
-        BigDecimal before = s.getDiscountAmount();
-        s.setDiscountAmount(amount);
-        s.setDiscountReason(req.reason().trim());
-        s.setDiscountAt(Instant.now());
-        s.setDiscountBy(actor);
-        students.save(s);
+        if (d == null) {
+            d = new AcadDiscount();
+            d.setStudent(s);
+            d.setInstallmentNo(installmentNo);
+        }
+        d.setAmount(amount);
+        d.setReason(req.reason().trim());
+        d.setGivenBy(actor);
+        discounts.save(d);
+        syncStudentDiscount(s, actor);
         refreshReceiptFees(s);
         auditService.record(actor, before.signum() > 0 ? "ACAD_DISCOUNT_CHANGED" : "ACAD_DISCOUNT_GIVEN", "AcadStudent", s.getId(),
-                s.getStudentId() + ": discount " + (before.signum() > 0 ? "₹" + AcadReceiptPdfService.indian(before) + " -> " : "")
+                s.getStudentId() + ": discount at " + master.installmentLabel(installmentNo) + " "
+                        + (before.signum() > 0 ? "₹" + AcadReceiptPdfService.indian(before) + " -> " : "")
                         + "₹" + AcadReceiptPdfService.indian(amount)
                         + (req.percent() != null ? " (" + req.percent().stripTrailingZeros().toPlainString() + "% of ₹"
                         + AcadReceiptPdfService.indian(s.getCourseFee()) + ")" : "")
-                        + ", fee after discount ₹" + AcadReceiptPdfService.indian(s.netFee()) + " — reason: " + s.getDiscountReason(), ip);
+                        + ", fee after discount ₹" + AcadReceiptPdfService.indian(s.netFee()) + " — reason: " + d.getReason(), ip);
         return feeSummary(s);
     }
 
+    /** Removes the discount at one installment, or every discount of the student when {@code installmentNo} is null. */
     @Transactional
-    public FeeSummary removeDiscount(Long studentId, User actor, String ip) {
+    public FeeSummary removeDiscount(Long studentId, Integer installmentNo, User actor, String ip) {
         AcadStudent s = requireStudent(studentId);
-        BigDecimal before = s.getDiscountAmount();
-        if (before == null || before.signum() <= 0) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, s.getFullName() + " has no discount.");
+        List<AcadDiscount> gone = installmentNo == null
+                ? discounts.findByStudentIdOrderByInstallmentNoAsc(s.getId())
+                : discounts.findByStudentIdAndInstallmentNo(s.getId(), installmentNo).map(List::of).orElse(List.of());
+        if (gone.isEmpty()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, s.getFullName() + " has no discount"
+                    + (installmentNo == null ? "." : " at the " + master.installmentLabel(installmentNo) + "."));
         }
-        s.setDiscountAmount(BigDecimal.ZERO);
-        s.setDiscountReason(null);
-        s.setDiscountAt(Instant.now());
-        s.setDiscountBy(actor);
-        students.save(s);
+        BigDecimal before = gone.stream().map(AcadDiscount::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        discounts.deleteAll(gone);
+        discounts.flush();
+        syncStudentDiscount(s, actor);
         refreshReceiptFees(s);
         auditService.record(actor, "ACAD_DISCOUNT_REMOVED", "AcadStudent", s.getId(),
-                s.getStudentId() + ": discount of ₹" + AcadReceiptPdfService.indian(before) + " removed, fee ₹"
+                s.getStudentId() + ": discount of ₹" + AcadReceiptPdfService.indian(before)
+                        + (installmentNo == null ? "" : " at " + master.installmentLabel(installmentNo)) + " removed, fee ₹"
                         + AcadReceiptPdfService.indian(s.netFee()), ip);
         return feeSummary(s);
     }
 
-    /** Every receipt of the student shows the current fee and discount; each keeps its own "total paid as of then". */
+    /** The student's discount columns hold the total of their discounts and the latest one's reason, date and giver. */
+    private void syncStudentDiscount(AcadStudent s, User actor) {
+        List<AcadDiscount> all = discounts.findByStudentIdOrderByInstallmentNoAsc(s.getId());
+        AcadDiscount latest = all.stream().max(java.util.Comparator.comparing(AcadDiscount::getUpdatedAt,
+                java.util.Comparator.nullsFirst(java.util.Comparator.naturalOrder()))).orElse(null);
+        s.setDiscountAmount(all.stream().map(AcadDiscount::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add));
+        s.setDiscountReason(latest == null ? null : latest.getReason());
+        s.setDiscountAt(latest == null || latest.getUpdatedAt() == null ? Instant.now() : latest.getUpdatedAt());
+        s.setDiscountBy(latest == null ? actor : latest.getGivenBy());
+        students.save(s);
+    }
+
+    /** The discounts a receipt of this installment shows: the ones given at it and before it. */
+    private List<AcadDiscount> discountsUpTo(AcadStudent s, int installmentNo) {
+        return discounts.findByStudentIdOrderByInstallmentNoAsc(s.getId()).stream()
+                .filter(d -> d.getInstallmentNo() <= installmentNo).toList();
+    }
+
+    private BigDecimal discountUpTo(AcadStudent s, int installmentNo) {
+        return discountsUpTo(s, installmentNo).stream().map(AcadDiscount::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    /** Every receipt shows the current fee and the discounts up to its installment; each keeps its own "total paid as of then". */
     private void refreshReceiptFees(AcadStudent s) {
         for (AcadReceipt r : receipts.findByStudentIdOrderByIssuedAtDesc(s.getId())) {
+            BigDecimal discount = discountUpTo(s, r.getPayment().getInstallmentNo());
             r.setTotalFee(s.getCourseFee());
-            r.setDiscount(s.getDiscountAmount());
-            r.setBalance(s.netFee().subtract(r.getTotalPaid()));
+            r.setDiscount(discount);
+            r.setBalance(s.getCourseFee().subtract(discount).subtract(r.getTotalPaid()));
             receipts.save(r);
         }
     }
@@ -437,7 +493,8 @@ public class AcadPaymentService {
                 r.getAmountPaid(), r.getTotalPaid(), r.getBalance(), r.getPaymentDate(), r.getPaymentMode(),
                 r.getReferenceNo(), p.getInstallmentNo(), r.getAmountInWords(), r.getIssuedAt(),
                 r.getIssuedBy() == null ? "import" : r.getIssuedBy().getFullName(), r.getEmailedAt(),
-                ACADEMY_NAME, ACADEMY_TAGLINE, ACADEMY_ADDRESS, ACADEMY_EMAIL, ACADEMY_PHONE, SIGNATORY, history(r));
+                ACADEMY_NAME, ACADEMY_TAGLINE, ACADEMY_ADDRESS, ACADEMY_EMAIL, ACADEMY_PHONE, SIGNATORY, history(r),
+                discountsUpTo(s, p.getInstallmentNo()).stream().map(d -> new ReceiptDiscountLine(d.getInstallmentNo(), d.getAmount())).toList());
     }
 
     /**

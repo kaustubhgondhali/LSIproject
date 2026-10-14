@@ -23,6 +23,7 @@ import com.lordsai.lsi.automation.service.AcadDashboardService;
 import com.lordsai.lsi.automation.service.AcadImportService;
 import com.lordsai.lsi.automation.service.AcadMasterService;
 import com.lordsai.lsi.automation.service.AcadSequenceService;
+import com.lordsai.lsi.automation.service.AcadStudentDeletionService;
 import com.lordsai.lsi.automation.service.AcadStudentService;
 import com.lordsai.lsi.dto.ApiResponse;
 import com.lordsai.lsi.entity.User;
@@ -62,11 +63,13 @@ public class AutomationController {
     private final AcadSequenceService sequenceService;
     private final UserService userService;
     private final AcadEbookAccessService ebookAccess;
+    private final AcadStudentDeletionService deletion;
 
     public AutomationController(AcadDashboardService dashboard, AcadStudentService studentService, AcadMasterService master,
                                 AcadImportService importService, AcadSequenceService sequenceService, UserService userService,
-                                AcadEbookAccessService ebookAccess) {
+                                AcadEbookAccessService ebookAccess, AcadStudentDeletionService deletion) {
         this.ebookAccess = ebookAccess;
+        this.deletion = deletion;
         this.dashboard = dashboard;
         this.studentService = studentService;
         this.master = master;
@@ -240,6 +243,12 @@ public class AutomationController {
     public ApiResponse<StudentRow> deleteAlias(@PathVariable Long id, HttpServletRequest req) {
         // Deleting is never destructive here: it archives (the ledger keeps every payment and receipt).
         return ApiResponse.ok("Student archived.", studentService.setStatus(id, true, actor(), RequestUtil.clientIp(req)));
+    }
+
+    /** Permanently deletes this one student and their own records; {@code confirm} must be their Student ID. */
+    @DeleteMapping("/students/{id}/permanent")
+    public ApiResponse<Void> deletePermanently(@PathVariable Long id, @RequestParam(required = false) String confirm, HttpServletRequest req) {
+        return ApiResponse.ok(deletion.delete(id, confirm, actor(), RequestUtil.clientIp(req)), null);
     }
 
     // ---- settings: Student ID series ---------------------------------------------------------

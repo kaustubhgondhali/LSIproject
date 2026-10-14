@@ -19,7 +19,8 @@ import java.util.regex.Pattern;
 
 /**
  * Generates the academy's business numbers, unique under concurrent use:
- *   students  LSA/YYYY/0001   (the workbook's own convention)
+ *   students  LSA/YYYY/0001 — LSA is fixed; YYYY is the current calendar year (Asia/Kolkata);
+ *                             only the four-digit serial is changed by the office
  *   receipts  LSR/YYYY/0001
  *   payments  PAY/YYYY/00001
  */
@@ -32,14 +33,13 @@ public class AcadSequenceService {
 
     private static final ZoneId INDIA = ZoneId.of("Asia/Kolkata");
     private static final Pattern STUDENT_ID = Pattern.compile("^LSA/?(\\d{4})/(\\d{1,6})$", Pattern.CASE_INSENSITIVE);
-    /** An office-chosen next Student ID: an optional prefix of [A-Z0-9/.-] ending in its number. */
-    private static final Pattern SERIES_ID = Pattern.compile("^([A-Z0-9/.\\-]*?)(\\d{1,9})$");
+    /** Owner-typed next Student ID: must be LSA/{current year}/{serial}. */
+    private static final Pattern SERIES_ID = Pattern.compile("^LSA/(\\d{4})/(\\d{1,6})$", Pattern.CASE_INSENSITIVE);
     private static final int DEFAULT_WIDTH = 4;
     /** Website (online) Student IDs are LSI-YYYY-NNNNN; academy Student IDs must never look like them. */
     static final String WEBSITE_PREFIX = "LSI";
     static final String WEBSITE_PREFIX_MESSAGE = "Student IDs starting with LSI belong to the website's online students. "
-            + "Use an academy format such as LSA/2026/0100 or LSA-B3-0001, so the two never clash.";
-    private static final int MAX_PREFIX = 24;
+            + "Academy Student IDs are always LSA/YYYY/0001 (YYYY = the current calendar year).";
     /** acad_students.student_id is VARCHAR(30). */
     private static final int MAX_STUDENT_ID = 30;
 
@@ -67,11 +67,12 @@ public class AcadSequenceService {
         int n = seq.getLastNumber() + 1;
         if (STUDENT.equals(kind)) {
             // Never collide with IDs that were imported from the workbook (or typed in) ahead of the counter.
-            n = Math.max(n, highestExistingStudentNumber(studentPrefix(seq, year)) + 1);
+            n = Math.max(n, highestExistingStudentNumber(defaultStudentPrefix(year)) + 1);
+            clearCustomStudentFormat(seq);
         }
         seq.setLastNumber(n);
         sequences.save(seq);
-        return STUDENT.equals(kind) ? formatStudent(seq, year, n) : format(kind, year, n);
+        return STUDENT.equals(kind) ? formatStudent(year, n) : format(kind, year, n);
     }
 
     /** A preview for the form ("your next Student ID will be …"); nothing is reserved. */
@@ -81,8 +82,8 @@ public class AcadSequenceService {
         AcadSequence seq = sequences.findByKindAndYear(kind, year).orElse(null);
         int n = (seq == null ? 0 : seq.getLastNumber()) + 1;
         if (STUDENT.equals(kind)) {
-            n = Math.max(n, highestExistingStudentNumber(studentPrefix(seq, year)) + 1);
-            return formatStudent(seq, year, n);
+            n = Math.max(n, highestExistingStudentNumber(defaultStudentPrefix(year)) + 1);
+            return formatStudent(year, n);
         }
         return format(kind, year, n);
     }
@@ -102,37 +103,31 @@ public class AcadSequenceService {
     public StudentIdSeriesInfo studentIdSeriesInfo() {
         int year = LocalDate.now(INDIA).getYear();
         AcadSequence seq = sequences.findByKindAndYear(STUDENT, year).orElse(null);
-        int highest = highestExistingStudentNumber(studentPrefix(seq, year));
+        int highest = highestExistingStudentNumber(defaultStudentPrefix(year));
         int configured = seq == null ? 0 : seq.getLastNumber();
         int next = Math.max(configured, highest) + 1;
-        return new StudentIdSeriesInfo(year, next, formatStudent(seq, year, next), highest,
-                highest == 0 ? null : formatStudent(seq, year, highest));
+        return new StudentIdSeriesInfo(year, next, formatStudent(year, next), highest,
+                highest == 0 ? null : formatStudent(year, highest));
     }
 
     /**
-     * Sets the next Student ID number the office wants to start issuing from (Automation Admin
-     * -> Settings -> Student ID Series). Runs in its own transaction — this is a standalone admin
-     * action, not part of creating a student. The row lock held for the update means a student
-     * being created at the same moment either fully happens before or fully after this change.
-     *
-     * <p>Rejects any value that would let the very next generated ID collide with (or fall
-     * behind) an ID already in use this year: the new next number must be strictly greater than
-     * the highest existing Student ID number for the year. Existing Student IDs are never
-     * touched — only future generation is affected.
+     * Sets the next four-digit serial the office wants to start issuing from (Automation Admin
+     * → Settings / Add Student → Change Student ID series). LSA and the current year are fixed;
+     * only this number moves. Existing Student IDs are never touched.
      */
     @Transactional
     public StudentIdSeriesInfo setNextStudentNumber(int newNextNumber, User actor, String ip) {
-        if (newNextNumber < 1) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "The next Student ID number must be 1 or greater.");
+        if (newNextNumber < 1 || newNextNumber > 999999) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "The next Student ID number must be between 1 and 999999.");
         }
         int year = LocalDate.now(INDIA).getYear();
         AcadSequence seq = sequences.findForUpdate(STUDENT, year)
                 .orElseGet(() -> sequences.saveAndFlush(new AcadSequence(STUDENT, year)));
-        // Keeps the series' current prefix and width; only the number moves.
-        int highest = highestExistingStudentNumber(studentPrefix(seq, year));
+        clearCustomStudentFormat(seq);
+        int highest = highestExistingStudentNumber(defaultStudentPrefix(year));
         if (newNextNumber <= highest) {
-            throw new ApiException(HttpStatus.CONFLICT, "Student ID " + formatStudent(seq, year, newNextNumber)
-                    + " is already in use (or below the highest existing ID, " + formatStudent(seq, year, highest)
+            throw new ApiException(HttpStatus.CONFLICT, "Student ID " + formatStudent(year, newNextNumber)
+                    + " is already in use (or below the highest existing ID, " + formatStudent(year, highest)
                     + "). Choose a number greater than " + highest + " so no existing Student ID can be reused.");
         }
         int before = seq.getLastNumber();
@@ -140,57 +135,42 @@ public class AcadSequenceService {
         sequences.save(seq);
         auditService.record(actor, "ACAD_STUDENT_ID_SEQUENCE_CHANGED", "AcadSequence", seq.getId(),
                 "Student ID series for " + year + ": next number changed from " + (before + 1) + " to " + newNextNumber
-                        + " (" + formatStudent(seq, year, newNextNumber) + ")", ip);
-        return new StudentIdSeriesInfo(year, newNextNumber, formatStudent(seq, year, newNextNumber), highest,
-                highest == 0 ? null : formatStudent(seq, year, highest));
+                        + " (" + formatStudent(year, newNextNumber) + ")", ip);
+        return new StudentIdSeriesInfo(year, newNextNumber, formatStudent(year, newNextNumber), highest,
+                highest == 0 ? null : formatStudent(year, highest));
     }
 
     /**
-     * Automation Admin > Add Student > "Change series": the office types the Student ID the NEXT
-     * student should get (e.g. "LSA/2026/0100" or a new format such as "LSA-B3-0001"). Its
-     * prefix and digit width become this year's series and later students count up from it
-     * ("LSA-B3-0002", …). An ID starting with "LSI" is refused: that is the website's (online
-     * students') format, and the two series must never clash. Refused when that ID, or a higher one in the same series, already
-     * exists, so an issued Student ID can never be generated again. Existing IDs are not touched.
+     * Automation Admin > Add Student > "Change Student ID series": the owner types the next full
+     * Student ID as LSA/{current year}/{serial}. LSA and the year cannot be chosen — they must match
+     * the current calendar year. Only the serial is stored. Custom formats (e.g. LSA-B3-0001) and
+     * website IDs (LSI...) are refused. Existing IDs are not touched.
      */
     @Transactional
     public StudentIdSeriesInfo setNextStudentId(String nextStudentId, User actor, String ip) {
         String typed = nextStudentId == null ? "" : nextStudentId.trim().toUpperCase(Locale.ROOT);
-        Matcher m = SERIES_ID.matcher(typed);
-        if (!m.matches()) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "Enter the next Student ID, ending in its number — for example LSA/2026/0100 or LSA-B3-0001."
-                    + " Use only letters, digits, '/', '-' and '.'.");
-        }
         if (typed.startsWith(WEBSITE_PREFIX)) {
             throw new ApiException(HttpStatus.BAD_REQUEST, WEBSITE_PREFIX_MESSAGE);
         }
-        String prefix = m.group(1);
-        String digits = m.group(2);
-        if (prefix.length() > MAX_PREFIX || typed.length() > MAX_STUDENT_ID) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "A Student ID can be at most " + MAX_STUDENT_ID
-                    + " characters, with a prefix of at most " + MAX_PREFIX + ".");
+        Matcher m = SERIES_ID.matcher(typed);
+        int year = LocalDate.now(INDIA).getYear();
+        if (!m.matches()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Enter the next Student ID as LSA/" + year
+                    + "/0001 — LSA is fixed, the year is the current year, and only the four-digit number can be chosen.");
         }
-        int number = Integer.parseInt(digits);
+        int typedYear = Integer.parseInt(m.group(1));
+        if (typedYear != year) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "The year in the Student ID must be the current year ("
+                    + year + "), not " + typedYear + ". LSA/" + year + "/" + m.group(2) + " is the correct form.");
+        }
+        int number = Integer.parseInt(m.group(2));
         if (number < 1) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "The number part of the Student ID must be 1 or greater.");
         }
-        int year = LocalDate.now(INDIA).getYear();
-        AcadSequence seq = sequences.findForUpdate(STUDENT, year)
-                .orElseGet(() -> sequences.saveAndFlush(new AcadSequence(STUDENT, year)));
-        int highest = highestExistingStudentNumber(prefix);
-        if (number <= highest) {
-            throw new ApiException(HttpStatus.CONFLICT, "Student ID " + typed + " is already in use (or below the highest existing ID in this series, "
-                    + prefix + pad(highest, digits.length()) + "). Choose a number greater than " + highest + " so no Student ID is issued twice.");
+        if (typed.length() > MAX_STUDENT_ID) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "A Student ID can be at most " + MAX_STUDENT_ID + " characters.");
         }
-        String before = formatStudent(seq, year, Math.max(seq.getLastNumber(), highestExistingStudentNumber(studentPrefix(seq, year))) + 1);
-        boolean isDefault = prefix.equals(defaultStudentPrefix(year)) && digits.length() == DEFAULT_WIDTH;
-        seq.setPrefix(isDefault ? null : prefix);
-        seq.setPadWidth(isDefault ? null : digits.length());
-        seq.setLastNumber(number - 1);
-        sequences.save(seq);
-        auditService.record(actor, "ACAD_STUDENT_ID_SEQUENCE_CHANGED", "AcadSequence", seq.getId(),
-                "Student ID series for " + year + ": next ID changed from " + before + " to " + typed, ip);
-        return new StudentIdSeriesInfo(year, number, typed, highest, highest == 0 ? null : prefix + pad(highest, digits.length()));
+        return setNextStudentNumber(number, actor, ip);
     }
 
     /** Highest number already used by a Student ID made of this prefix followed only by digits. */
@@ -213,15 +193,16 @@ public class AcadSequenceService {
         return "LSA/" + year + "/";
     }
 
-    private static String studentPrefix(AcadSequence seq, int year) {
-        // A website-style prefix (LSI...) is never used for an academy student, even if one was saved before this rule.
-        return seq != null && seq.getPrefix() != null && !seq.getPrefix().toUpperCase(Locale.ROOT).startsWith(WEBSITE_PREFIX)
-                ? seq.getPrefix() : defaultStudentPrefix(year);
+    /** Always LSA/{current-or-given year}/{4 digits} — custom prefixes from older series edits are ignored. */
+    private static String formatStudent(int year, int n) {
+        return defaultStudentPrefix(year) + pad(n, DEFAULT_WIDTH);
     }
 
-    private static String formatStudent(AcadSequence seq, int year, int n) {
-        int width = seq != null && seq.getPadWidth() != null ? seq.getPadWidth() : DEFAULT_WIDTH;
-        return studentPrefix(seq, year) + pad(n, width);
+    private static void clearCustomStudentFormat(AcadSequence seq) {
+        if (seq.getPrefix() != null || seq.getPadWidth() != null) {
+            seq.setPrefix(null);
+            seq.setPadWidth(null);
+        }
     }
 
     private static String pad(int n, int width) {

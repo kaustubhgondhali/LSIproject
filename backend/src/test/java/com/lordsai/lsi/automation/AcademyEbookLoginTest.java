@@ -183,24 +183,69 @@ class AcademyEbookLoginTest {
         String first = a.path("password").asText();
         api.post(office, "/api/automation/students/" + id + "/ebook-access/email", null).andExpect(status().isOk());
 
-        // The student sets their own password: the office no longer sees one.
+        // The student sets their own password: the Ebook Login tab shows that new password.
         String pupil = api.login(userId, first);
         api.post(pupil, "/api/auth/change-password", Map.of("currentPassword", first, "newPassword", "MyOwnPass9")).andExpect(status().isOk());
         JsonNode changed = access(id);
-        assertThat(changed.path("password").isNull()).isTrue();
-        assertThat(changed.path("passwordChanged").asBoolean()).isTrue();
-        api.post(office, "/api/automation/students/" + id + "/ebook-access/email", null).andExpect(status().isBadRequest());
+        assertThat(changed.path("password").asText()).isEqualTo("MyOwnPass9");
+        assertThat(changed.path("passwordChanged").asBoolean()).isFalse();
+        assertThat(students.findById(id).orElseThrow().getPortalPasswordEnc()).isNotBlank();
+        api.post(office, "/api/automation/students/" + id + "/ebook-access/email", null).andExpect(status().isOk());
 
         // Reset password: a new one is shown and emailed; the old one stops working.
         JsonNode reset = api.data(api.post(office, "/api/automation/students/" + id + "/ebook-access/reset-password", null).andExpect(status().isOk()));
         String fresh = reset.path("password").asText();
-        assertThat(fresh).hasSize(12).isNotEqualTo(first);
+        assertThat(fresh).hasSize(12).isNotEqualTo("MyOwnPass9");
         api.post(null, "/api/auth/login", Map.of("identifier", userId, "password", "MyOwnPass9", "portal", "STUDENT")).andExpect(status().isUnauthorized());
         assertThat(api.login(userId, fresh)).isNotBlank();
 
         // Reset device: the registered device is cleared.
         api.post(office, "/api/automation/students/" + id + "/ebook-access/reset-device", null).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.deviceName").doesNotExist());
+    }
+
+    @Test
+    void studentUserIdAndJournalSyncWithTheOfficeEbookLogin() throws Exception {
+        emailWorks();
+        long id = student("Neha More", "9876522211", "neha.more@example.com").path("id").asLong();
+        pay(id, 1, 3000);
+        JsonNode a = access(id);
+        String oldUserId = a.path("userId").asText();
+        String password = a.path("password").asText();
+        String pupil = api.login(oldUserId, password);
+
+        // Academy ebook logins can keep a Student Journal (same API as course students).
+        Map<String, Object> trade = new HashMap<>();
+        trade.put("tradeDate", "2026-10-14");
+        trade.put("segment", "Equity");
+        trade.put("symbol", "NIFTY");
+        trade.put("tradeType", "BUY");
+        trade.put("entryPrice", 100);
+        trade.put("exitPrice", 110);
+        trade.put("quantity", 2);
+        trade.put("tradingType", "EQUITIES");
+        trade.put("strategy", "Breakout");
+        trade.put("result", "PROFIT");
+        api.post(pupil, "/api/student/journal", trade).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.symbol").value("NIFTY"));
+        api.get(pupil, "/api/student/journal/summary").andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.totalTrades").value(1));
+
+        // Changing User ID / password in Settings is what the Ebook Login tab shows next.
+        api.post(pupil, "/api/student/change-user-id", Map.of(
+                "currentUserId", oldUserId, "newUserId", "neha.trader", "confirmUserId", "neha.trader",
+                "currentPassword", password)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.userId").value("neha.trader"));
+        assertThat(access(id).path("userId").asText()).isEqualTo("neha.trader");
+
+        pupil = api.login("neha.trader", password);
+        api.post(pupil, "/api/auth/change-password", Map.of("currentPassword", password, "newPassword", "NehaPass99")).andExpect(status().isOk());
+        JsonNode after = access(id);
+        assertThat(after.path("userId").asText()).isEqualTo("neha.trader");
+        assertThat(after.path("password").asText()).isEqualTo("NehaPass99");
+        assertThat(api.login("neha.trader", "NehaPass99")).isNotBlank();
+        api.post(null, "/api/auth/login", Map.of("identifier", oldUserId, "password", "NehaPass99", "portal", "STUDENT"))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -320,13 +365,18 @@ class AcademyEbookLoginTest {
 
     @Test
     void academyAndWebsiteStudentIdsNeverClash() throws Exception {
+        int year = api.data(api.get(office, "/api/automation/settings/student-id-sequence")).path("year").asInt();
         api.put(office, "/api/automation/settings/student-id-sequence", Map.of("nextStudentId", "LSI-B3-0001"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("belong to the website")));
         api.put(office, "/api/automation/settings/student-id-sequence", Map.of("nextStudentId", "lsi-2026-00099"))
                 .andExpect(status().isBadRequest());
-        api.put(office, "/api/automation/settings/student-id-sequence", Map.of("nextStudentId", "LSA-B3-0001")).andExpect(status().isOk());
-        assertThat(student("Sagar Naik", "9876522208", "sagar.naik@example.com").path("studentId").asText()).isEqualTo("LSA-B3-0001");
+        // Custom academy formats are refused; only LSA/{current year}/{serial} is allowed.
+        api.put(office, "/api/automation/settings/student-id-sequence", Map.of("nextStudentId", "LSA-B3-0001"))
+                .andExpect(status().isBadRequest());
+        api.put(office, "/api/automation/settings/student-id-sequence", Map.of("nextNumber", 8801)).andExpect(status().isOk());
+        assertThat(student("Sagar Naik", "9876522208", "sagar.naik@example.com").path("studentId").asText())
+                .isEqualTo("LSA/" + year + "/8801");
 
         // The startup repair of website Student IDs never touches an academy login (LSA/...).
         emailWorks();
@@ -338,7 +388,7 @@ class AcademyEbookLoginTest {
         profiles.saveAndFlush(p);
         studentIdRepair.repair();
         StudentProfile again = profiles.findById(p.getId()).orElseThrow();
-        assertThat(again.getStudentId()).isEqualTo(academyId).startsWith("LSA");
+        assertThat(again.getStudentId()).isEqualTo(academyId).startsWith("LSA/");
         assertThat(again.isAcademyEbookOnly()).isTrue();
     }
 }

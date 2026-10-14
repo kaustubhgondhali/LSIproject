@@ -1921,9 +1921,28 @@
     function loadWhatsAppSettings() {
         var m = LSI_WhatsAppChat.mode();
         document.querySelectorAll('input[name="waOpenMode"]').forEach(function (r) { r.checked = r.value === m; });
+        api("/admin/whatsapp/website-number").then(function (r) {
+            if (r.success && r.data) showWebsiteNumber(r.data.number);
+        });
+    }
+
+    /** "919987049070" -> "+91 99870 49070". */
+    function showWebsiteNumber(n) {
+        var pretty = /^91\d{10}$/.test(n || "") ? "+91 " + n.substring(2, 7) + " " + n.substring(7) : "+" + n;
+        el("waWebsiteNumberNow").innerText = pretty;
+        el("waWebsiteNumber").value = /^91\d{10}$/.test(n || "") ? n.substring(2) : n;
     }
 
     function initWhatsAppView() {
+        el("waWebsiteNumberForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            var input = el("waWebsiteNumber").value.trim(), err = el("waWebsiteNumberError");
+            err.classList.add("d-none");
+            if (!LSI_WhatsAppChat.number(input)) { err.innerText = "Enter a valid WhatsApp number (10 digits, or with the country code)."; err.classList.remove("d-none"); return; }
+            api("/admin/whatsapp/website-number", { method: "PUT", body: { number: input } }).then(function (r) {
+                if (handle(r, "Website WhatsApp number saved.")) showWebsiteNumber(r.data.number);
+            });
+        });
         document.querySelectorAll('input[name="waOpenMode"]').forEach(function (r) {
             r.addEventListener("change", function () {
                 if (!this.checked) return;
