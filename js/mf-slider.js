@@ -1,6 +1,7 @@
 /**
  * Loads active Mutual Fund homepage slider images from the public API. Existing
- * local slides in home.html remain available when the API cannot be reached.
+ * local slides in home.html remain available when the API is unavailable or has
+ * no active slides.
  */
 (function (window, document) {
     "use strict";
@@ -69,7 +70,9 @@
             if (!result || result.success !== true || !Array.isArray(result.data)) {
                 throw new Error("The homepage slider API returned an invalid response.");
             }
-            renderSlides(result.data);
+            if (result.data.length > 0) {
+                renderSlides(result.data);
+            }
         })
         .catch(function (error) {
             console.warn("Could not load Mutual Fund homepage slider images; using local slides.", error);
