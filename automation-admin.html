@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Automation Admin | Lord Sai Share Market Classes</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/automation.css?v=20261014-fullguide" rel="stylesheet">
+</head>
+<body class="au-app">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="js/api-config.js"></script>
+    <script src="js/auth.js?v=20261001-single"></script>
+    <script>LSI_Auth.requireAuth(['automation_admin', 'admin'], 'student-login.html?portal=automation');</script>
+
+    <header class="au-header">
+        <button class="au-menu-btn" id="menuBtn" aria-label="Menu"><i class="fas fa-bars"></i></button>
+        <a href="#dashboard" class="au-brand" data-view="dashboard">
+            <img src="img/lord-sai-logo.png" alt="Lord Sai">
+            <div><div class="t1">LORD SAI SHARE MARKET ACADEMY</div><div class="t2">Learn &nbsp;•&nbsp; Invest &nbsp;•&nbsp; Grow Together</div></div>
+        </a>
+        <div class="au-search">
+            <i class="fas fa-search"></i>
+            <input type="search" id="globalSearch" placeholder="Search student by name / student ID / mobile..." autocomplete="off">
+            <div class="au-search-results" id="globalSearchResults"></div>
+        </div>
+        <div class="au-bell" id="bellBtn" title="Items needing attention"><i class="far fa-bell"></i><span class="n d-none" id="bellCount">0</span></div>
+        <div class="au-notif" id="notifPanel"></div>
+        <div class="au-user"><div class="av"><i class="fas fa-user-circle"></i></div><div><div class="name" id="adminName">Automation Admin</div><div class="role">Automation Admin</div></div></div>
+    </header>
+
+    <div class="au-backdrop" id="backdrop"></div>
+    <aside class="au-sidebar" id="sidebar">
+        <nav class="au-nav">
+            <a href="#dashboard" data-view="dashboard" class="active"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="#students" data-view="students"><i class="fas fa-user"></i> Students</a>
+            <a href="#payments" data-view="payments"><i class="fas fa-money-check-alt"></i> Fees &amp; Payments</a>
+            <a href="#pending-fees" data-view="pending-fees"><i class="fas fa-hourglass-half"></i> Pending Fees</a>
+            <a href="#receipts" data-view="receipts"><i class="fas fa-file-invoice"></i> Receipts</a>
+            <a href="#attendance" data-view="attendance"><i class="fas fa-calendar-check"></i> Attendance</a>
+            <a href="#masters" data-view="masters"><i class="fas fa-layer-group"></i> Batches &amp; Courses</a>
+            <a href="#course-price" data-view="course-price"><i class="fas fa-tags"></i> Course Price</a>
+            <a href="#reports" data-view="reports"><i class="fas fa-chart-bar"></i> Reports</a>
+            <div class="au-nav-label">Automation</div>
+            <a href="#communication" data-view="communication"><i class="fas fa-paper-plane"></i> Email &amp; WhatsApp</a>
+            <a href="#comm-history" data-view="comm-history"><i class="fas fa-history"></i> Message History</a>
+            <a href="#settings" data-view="settings"><i class="fas fa-cog"></i> Settings</a>
+            <a href="#website-instructions" data-view="website-instructions"><i class="fas fa-book-reader"></i> Website Instructions</a>
+            <div class="spacer"></div>
+            <a href="#" class="danger" onclick="LSI_Auth.logout('student-login.html?portal=automation'); return false;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </aside>
+
+    <main class="au-main">
+
+        <!-- ===================== DASHBOARD ===================== -->
+        <section class="au-view active" id="view-dashboard">
+            <div class="au-cards" id="statCards"></div>
+            <div class="au-quick">
+                <button data-quick="add-student"><i class="fas fa-user-plus"></i>Add Student</button>
+                <button data-quick="record-payment"><i class="fas fa-plus-circle"></i>Record Payment</button>
+                <button data-quick="generate-receipt"><i class="fas fa-file-invoice"></i>Generate Receipt</button>
+                <button data-quick="mark-attendance"><i class="fas fa-calendar-check"></i>Mark Attendance</button>
+                <button data-quick="search-student"><i class="fas fa-search"></i>Search Student</button>
+                <button data-quick="export-report"><i class="fas fa-file-export"></i>Export Report</button>
+            </div>
+            <div class="au-two">
+                <div class="au-card">
+                    <div class="au-card-head">
+                        <h5>Student List</h5>
+                        <div class="au-actions">
+                            <select class="form-select form-select-sm" id="dashBatch" style="width:auto"><option value="">All Batches</option></select>
+                            <select class="form-select form-select-sm" id="dashPayStatus" style="width:auto"><option value="">All Payment Status</option><option value="PAID">Paid</option><option value="PARTIAL">Partial</option><option value="PENDING">Pending</option></select>
+                            <button class="au-btn primary sm" data-quick="add-student"><i class="fas fa-plus"></i> Add Student</button>
+                            <button class="au-btn success sm" data-quick="record-payment"><i class="fas fa-plus"></i> Record Payment</button>
+<span class="au-export" data-export="students"><button class="au-btn ghost sm" data-fmt="print" title="Print"><i class="fas fa-print"></i> Print</button><button class="au-btn ghost sm" data-fmt="pdf" title="Download PDF"><i class="fas fa-file-pdf"></i> PDF</button><button class="au-btn ghost sm" data-fmt="xlsx" title="Download Excel"><i class="fas fa-file-excel"></i> Excel</button></span>
+                        </div>
+                    </div>
+                    <div class="au-table-wrap"><table class="au-table">
+                        <thead><tr><th>Sr.</th><th>Student ID</th><th>Student Name</th><th>Batch</th><th class="num">Total Fee</th><th class="num">Paid</th><th class="num">Balance</th><th>Status</th><th>Attendance</th><th>Action</th></tr></thead>
+                        <tbody id="dashStudentsBody"></tbody></table></div>
+                    <div class="au-pager" id="dashPager"></div>
+                </div>
+                <div>
+                    <div class="au-card">
+                        <div class="au-card-head"><h5>Payment Receipt</h5><button class="au-btn primary sm" data-quick="generate-receipt"><i class="fas fa-file-invoice"></i> Generate</button></div>
+                        <div class="p-3" id="dashReceipt"><div class="au-empty">Record a payment to see its receipt here.</div></div>
+                    </div>
+                    <div class="au-card mt-3">
+                        <div class="au-card-head"><h5 style="font-size:16px">Needs Attention</h5></div>
+                        <div id="dashAttention" class="p-2"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== STUDENTS ===================== -->
+        <section class="au-view" id="view-students">
+            <div class="au-card">
+                <div class="au-card-head">
+                    <div><h5>Students</h5><small class="text-muted" id="studentsCount"></small></div>
+                    <div class="au-actions">
+                        <button class="au-btn primary" data-quick="add-student"><i class="fas fa-plus"></i> Add Student</button>
+<span class="au-export" data-export="students"><button class="au-btn ghost sm" data-fmt="print" title="Print"><i class="fas fa-print"></i> Print</button><button class="au-btn ghost sm" data-fmt="pdf" title="Download PDF"><i class="fas fa-file-pdf"></i> PDF</button><button class="au-btn ghost sm" data-fmt="xlsx" title="Download Excel"><i class="fas fa-file-excel"></i> Excel</button></span>
+                    </div>
+                </div>
+                <div class="p-3 au-filters">
+                    <div style="flex:1 1 220px"><label>Search</label><input type="search" id="stuQ" placeholder="Name, Student ID, mobile, email, batch"></div>
+                    <div><label>Batch</label><select id="stuBatch"><option value="">All</option></select></div>
+                    <div><label>Course</label><select id="stuCourse"><option value="">All</option></select></div>
+                    <div><label>Payment</label><select id="stuPay"><option value="">All</option><option value="PAID">Paid</option><option value="PARTIAL">Partial</option><option value="PENDING">Pending</option></select></div>
+                    <div><label>Admission Year</label><select id="stuYear"><option value="">All</option></select></div>
+                    <div><label>Status</label><select id="stuStatus"><option value="ACTIVE">Active</option><option value="ARCHIVED">Archived</option><option value="ALL">All</option></select></div>
+                </div>
+                <div class="au-table-wrap"><table class="au-table">
+                    <thead><tr><th>Student ID</th><th>Name</th><th>Batch</th><th>Course</th><th>Admission</th><th>Mobile</th><th class="num">Fee</th><th class="num">Paid</th><th class="num">Balance</th><th>Status</th><th>Attendance</th><th>Action</th></tr></thead>
+                    <tbody id="studentsBody"></tbody></table></div>
+                <div class="au-pager" id="studentsPager"></div>
+            </div>
+        </section>
+
+        <!-- ===================== STUDENT PROFILE ===================== -->
+        <section class="au-view" id="view-student">
+            <div id="studentProfile"></div>
+        </section>
+
+        <!-- ===================== FEES & PAYMENTS ===================== -->
+        <section class="au-view" id="view-payments">
+            <div class="au-two-eq">
+                <div class="au-card">
+                    <div class="au-card-head"><h5>Record Payment</h5><span class="text-muted small">Select a student — everything else fills in</span></div>
+                    <form class="p-3 au-form" id="payForm" autocomplete="off">
+                        <div class="fld" style="position:relative"><label>Student (search by ID / name / mobile)</label>
+                            <input type="text" id="payStudentQ" placeholder="Type to search…" required>
+                            <input type="hidden" id="payStudentId">
+                            <div class="au-search-results" id="payStudentResults" style="top:66px"></div>
+                        </div>
+                        <div id="payStudentCard" class="d-none mb-3"></div>
+                        <div id="payDiscountBox" class="d-none mb-3"></div>
+                        <div class="row-2">
+                            <div class="fld"><label>Installment</label><select id="payInstallment" required></select><div class="hint" id="payInstallmentHint"></div></div>
+                            <div class="fld"><label>Amount (₹)</label><input type="number" id="payAmount" min="1" step="0.01" required><div class="hint" id="payAmountHint"></div></div>
+                        </div>
+                        <div class="row-2">
+                            <div class="fld"><label>Payment Date</label><input type="date" id="payDate" required></div>
+                            <div class="fld"><label>Payment Mode</label><select id="payMode" required></select></div>
+                        </div>
+                        <div class="row-2">
+                            <div class="fld"><label>Transaction / Reference No. <span class="fw-normal">(optional)</span></label><input type="text" id="payRef" maxlength="100"></div>
+                            <div class="fld"><label>Notes <span class="fw-normal">(optional)</span></label><input type="text" id="payNotes" maxlength="500"></div>
+                        </div>
+                        <div class="au-error d-none" id="payError"></div>
+                        <div class="au-actions"><button type="submit" class="au-btn success" id="paySubmit"><i class="fas fa-save"></i> Save Payment &amp; Generate Receipt</button>
+                            <button type="button" class="au-btn ghost" id="payReset">Clear</button></div>
+                    </form>
+                </div>
+                <div class="au-card">
+                    <div class="au-card-head"><h5>Payments</h5>
+                        <div class="au-actions">
+                            <select class="form-select form-select-sm" id="payListBatch" style="width:auto"><option value="">All Batches</option></select>
+                            <select class="form-select form-select-sm" id="payListMode" style="width:auto"><option value="">All Modes</option></select>
+                            <input type="date" class="form-control form-control-sm" id="payListFrom" style="width:auto" title="From">
+                            <input type="date" class="form-control form-control-sm" id="payListTo" style="width:auto" title="To">
+                            <button class="au-btn ghost sm" id="payListRefresh"><i class="fas fa-sync-alt"></i></button>
+                            <span class="au-export" data-export="payment-history"><button class="au-btn ghost sm" data-fmt="print" title="Print"><i class="fas fa-print"></i> Print</button><button class="au-btn ghost sm" data-fmt="pdf" title="Download PDF"><i class="fas fa-file-pdf"></i> PDF</button><button class="au-btn ghost sm" data-fmt="xlsx" title="Download Excel"><i class="fas fa-file-excel"></i> Excel</button></span>
+                        </div>
+                    </div>
+                    <div class="au-table-wrap"><table class="au-table">
+                        <thead><tr><th>Date</th><th>Payment No</th><th>Student</th><th>Inst.</th><th class="num">Amount</th><th>Mode</th><th>Receipt</th><th></th></tr></thead>
+                        <tbody id="paymentsBody"></tbody></table></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== RECEIPTS ===================== -->
+        <!-- ===================== PENDING FEES ===================== -->
+        <section class="au-view" id="view-pending-fees">
+            <div class="row g-3 mb-3" id="pfStats"></div>
+            <div class="au-card">
+                <div class="au-card-head">
+                    <div><h5>Pending Fees</h5><small class="text-muted">Students who still have fees to pay (after any discount), with their contact details. Highest balance first.</small></div>
+                    <div class="au-actions"><span class="au-export" data-export="pending-fees"><button class="au-btn ghost sm" data-fmt="print" title="Print"><i class="fas fa-print"></i> Print</button><button class="au-btn ghost sm" data-fmt="pdf" title="Download PDF"><i class="fas fa-file-pdf"></i> PDF</button><button class="au-btn ghost sm" data-fmt="xlsx" title="Download Excel"><i class="fas fa-file-excel"></i> Excel</button></span><button class="au-btn ghost sm" id="pfRefresh" title="Refresh"><i class="fas fa-sync-alt"></i></button></div>
+                </div>
+                <div class="p-3 au-filters">
+                    <div style="flex:1 1 220px"><label>Search</label><input type="search" id="pfQ" placeholder="Name, Student ID, mobile, email"></div>
+                    <div><label>Batch</label><select id="pfBatch"><option value="">All</option></select></div>
+                    <div><label>Course</label><select id="pfCourse"><option value="">All</option></select></div>
+                    <div><label>Paid so far</label><select id="pfStatus"><option value="">Everyone with a balance</option><option value="PENDING">Nothing paid yet</option><option value="PARTIAL">Part paid</option></select></div>
+                </div>
+                <div class="au-table-wrap"><table class="au-table">
+                    <thead><tr><th>Student</th><th>Contact</th><th class="num">Fee to pay</th><th class="num">Paid</th><th class="num">Balance</th><th>Last payment / reminder</th><th>Send reminder</th></tr></thead>
+                    <tbody id="pfBody"></tbody></table></div>
+            </div>
+        </section>
+
+        <section class="au-view" id="view-receipts">
+            <div class="au-two">
+                <div class="au-card">
+                    <div class="au-card-head"><h5>Receipts</h5>
+                        <div class="au-actions">
+                            <input type="search" class="form-control form-control-sm" id="rcQ" placeholder="Receipt no / student" style="width:190px">
+                            <input type="date" class="form-control form-control-sm" id="rcFrom" style="width:auto"><input type="date" class="form-control form-control-sm" id="rcTo" style="width:auto">
+                            <button class="au-btn ghost sm" id="rcRefresh"><i class="fas fa-sync-alt"></i></button>
+                            <span class="au-export" data-export="receipts"><button class="au-btn ghost sm" data-fmt="print" title="Print"><i class="fas fa-print"></i> Print</button><button class="au-btn ghost sm" data-fmt="pdf" title="Download PDF"><i class="fas fa-file-pdf"></i> PDF</button><button class="au-btn ghost sm" data-fmt="xlsx" title="Download Excel"><i class="fas fa-file-excel"></i> Excel</button></span>
+                        </div>
+                    </div>
+                    <div class="au-table-wrap"><table class="au-table">
+                        <thead><tr><th>Receipt No</th><th>Date</th><th>Student</th><th class="num">Paid</th><th class="num">Balance</th><th>Mode</th><th>Emailed</th><th></th></tr></thead>
+                        <tbody id="receiptsBody"></tbody></table></div>
+                    <div class="au-pager" id="receiptsPager"></div>
+                </div>
+                <div class="au-card">
+                    <div class="au-card-head"><h5>Receipt Preview</h5>
+                        <div class="au-actions">
+                            <button class="au-btn ghost sm" id="rcPrint" disabled><i class="fas fa-print"></i> Print</button>
+                            <button class="au-btn ghost sm" id="rcPdf" disabled><i class="fas fa-file-pdf"></i> Download PDF</button>
+                            <button class="au-btn primary sm" id="rcEmail" disabled><i class="fas fa-envelope"></i> Email</button>
+                        </div>
+                    </div>
+                    <div class="p-3" id="receiptPreview"><div class="au-empty">Select a receipt to preview it.</div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== ATTENDANCE ===================== -->
+        <section class="au-view" id="view-attendance">
+            <div class="au-two">
+                <div>
+                    <div class="au-card mb-3">
+                        <div class="au-card-head"><h5>Attendance Session</h5><span class="text-muted small">Batch + date loads every student automatically</span></div>
+                        <form class="p-3 au-form" id="sessionForm">
+                            <div class="row-2">
+                                <div class="fld"><label>Batch</label><select id="attBatch" required></select></div>
+                                <div class="fld"><label>Session Date</label><input type="date" id="attDate" required></div>
+                            </div>
+                            <div class="row-2">
+                                <div class="fld"><label>Session Type</label><select id="attType"></select></div>
+                                <div class="fld"><label>Instructor <span class="fw-normal">(optional)</span></label><input type="text" id="attInstructor" maxlength="100" placeholder="e.g. VAIBHAV S. PAWAR"></div>
+                            </div>
+                            <div class="au-actions"><button type="submit" class="au-btn primary"><i class="fas fa-folder-open"></i> Open Attendance Sheet</button></div>
+                        </form>
+                    </div>
+                    <div class="au-card d-none" id="sheetCard">
+                        <div class="au-card-head">
+                            <div><h5 id="sheetTitle">Sheet</h5><small class="text-muted" id="sheetSub"></small></div>
+                            <div class="au-actions">
+                                <button class="au-btn success sm" id="allPresent"><i class="fas fa-check-double"></i> Mark All Present</button>
+                                <button class="au-btn danger sm" id="allAbsent"><i class="fas fa-times"></i> Mark All Absent</button>
+                                <button class="au-btn ghost sm" id="clearAtt"><i class="fas fa-eraser"></i> Clear</button>
+                                <button class="au-btn primary sm" id="saveAtt"><i class="fas fa-save"></i> Save Attendance</button>
+                            </div>
+                        </div>
+                        <div id="sheetRows"></div>
+                        <div class="p-3 text-muted small" id="sheetSummary"></div>
+                    </div>
+                </div>
+                <div class="au-card">
+                    <div class="au-card-head"><h5>Recent Sessions</h5><div class="au-actions"><select class="form-select form-select-sm" id="sessBatchFilter" style="width:auto"><option value="">All Batches</option></select><span class="au-export" data-export="attendance-sessions"><button class="au-btn ghost sm" data-fmt="print" title="Print"><i class="fas fa-print"></i> Print</button><button class="au-btn ghost sm" data-fmt="pdf" title="Download PDF"><i class="fas fa-file-pdf"></i> PDF</button><button class="au-btn ghost sm" data-fmt="xlsx" title="Download Excel"><i class="fas fa-file-excel"></i> Excel</button></span></div></div>
+                    <div class="au-table-wrap"><table class="au-table">
+                        <thead><tr><th>Date</th><th>Batch</th><th>Type</th><th class="num">P</th><th class="num">A</th><th></th></tr></thead>
+                        <tbody id="sessionsBody"></tbody></table></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== MASTERS ===================== -->
+        <section class="au-view" id="view-masters">
+            <div class="au-two-eq">
+                <div class="au-card">
+                    <div class="au-card-head"><h5>Batches</h5><div class="au-actions"><span class="au-export" data-export="batches"><button class="au-btn ghost sm" data-fmt="print" title="Print"><i class="fas fa-print"></i> Print</button><button class="au-btn ghost sm" data-fmt="pdf" title="Download PDF"><i class="fas fa-file-pdf"></i> PDF</button><button class="au-btn ghost sm" data-fmt="xlsx" title="Download Excel"><i class="fas fa-file-excel"></i> Excel</button></span><button class="au-btn primary sm" id="addBatchBtn"><i class="fas fa-plus"></i> Add Batch</button></div></div>
+                    <div class="au-table-wrap"><table class="au-table"><thead><tr><th>Name</th><th>Schedule</th><th>Start</th><th class="num">Students</th><th>Status</th><th></th></tr></thead><tbody id="batchesBody"></tbody></table></div>
+                </div>
+                <div class="au-card">
+                    <div class="au-card-head"><h5>Courses</h5><div class="au-actions"><span class="au-export" data-export="courses-master"><button class="au-btn ghost sm" data-fmt="print" title="Print"><i class="fas fa-print"></i> Print</button><button class="au-btn ghost sm" data-fmt="pdf" title="Download PDF"><i class="fas fa-file-pdf"></i> PDF</button><button class="au-btn ghost sm" data-fmt="xlsx" title="Download Excel"><i class="fas fa-file-excel"></i> Excel</button></span><button class="au-btn primary sm" id="addCourseBtn"><i class="fas fa-plus"></i> Add Course</button></div></div>
+                    <div class="au-table-wrap"><table class="au-table"><thead><tr><th>Name</th><th class="num">Default Fee</th><th>Duration</th><th class="num">Students</th><th>Status</th><th></th></tr></thead><tbody id="coursesBody"></tbody></table></div>
+                </div>
+                <div class="au-card">
+                    <div class="au-card-head"><h5>Payment Modes</h5><div class="au-actions"><span class="au-export" data-export="payment-modes"><button class="au-btn ghost sm" data-fmt="print" title="Print"><i class="fas fa-print"></i> Print</button><button class="au-btn ghost sm" data-fmt="pdf" title="Download PDF"><i class="fas fa-file-pdf"></i> PDF</button><button class="au-btn ghost sm" data-fmt="xlsx" title="Download Excel"><i class="fas fa-file-excel"></i> Excel</button></span><button class="au-btn primary sm" data-master="PAYMENT_MODE"><i class="fas fa-plus"></i> Add</button></div></div>
+                    <div class="au-table-wrap"><table class="au-table"><thead><tr><th>Code</th><th>Label</th><th>Status</th><th></th></tr></thead><tbody id="modesBody"></tbody></table></div>
+                </div>
+                <div class="au-card">
+                    <div class="au-card-head"><h5>Session Types</h5><div class="au-actions"><span class="au-export" data-export="session-types"><button class="au-btn ghost sm" data-fmt="print" title="Print"><i class="fas fa-print"></i> Print</button><button class="au-btn ghost sm" data-fmt="pdf" title="Download PDF"><i class="fas fa-file-pdf"></i> PDF</button><button class="au-btn ghost sm" data-fmt="xlsx" title="Download Excel"><i class="fas fa-file-excel"></i> Excel</button></span><button class="au-btn primary sm" data-master="SESSION_TYPE"><i class="fas fa-plus"></i> Add</button></div></div>
+                    <div class="au-table-wrap"><table class="au-table"><thead><tr><th>Code</th><th>Label</th><th>Status</th><th></th></tr></thead><tbody id="typesBody"></tbody></table></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== REPORTS ===================== -->
+        <!-- ===================== COURSE PRICE ===================== -->
+        <section class="au-view" id="view-course-price">
+            <div class="au-card">
+                <div class="au-card-head"><div><h5>Course Price</h5><small class="text-muted">The academy's own course prices, for the Automation Admin only. Website course prices are separate and never change here.</small></div></div>
+                <div class="p-3">
+                    <div class="alert alert-light border small mb-3"><i class="fas fa-info-circle me-1 text-primary"></i> A new price is used for <strong>new admissions</strong>. Students already admitted keep the fee they were admitted with &mdash; to lower one student's fee, open the student and use <strong>Discount</strong>.</div>
+                    <div class="au-table-wrap"><table class="au-table"><thead><tr><th>Course</th><th class="num">Price</th><th>Duration</th><th class="num">Students</th><th>Status</th><th></th></tr></thead><tbody id="cpBody"></tbody></table></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="au-view" id="view-reports">
+            <div class="au-card">
+                <div class="au-card-head"><h5>Reports</h5>
+                    <div class="au-actions">
+                        <button class="au-btn ghost sm" id="repCsv"><i class="fas fa-file-csv"></i> CSV</button>
+                        <button class="au-btn ghost sm" id="repPrint"><i class="fas fa-print"></i> Print</button>
+                        <button class="au-btn ghost sm" id="repPdf"><i class="fas fa-file-pdf"></i> PDF</button>
+                        <button class="au-btn ghost sm" id="repXls"><i class="fas fa-file-excel"></i> Excel</button>
+                    </div>
+                </div>
+                <div class="p-3 au-filters">
+                    <div><label>Report</label><select id="repType">
+                        <option value="students">Student Report</option><option value="batch-wise">Batch-wise Student Report</option>
+                        <option value="fee-collection">Fee Collection Report</option><option value="outstanding">Outstanding Balance Report</option>
+                        <option value="payment-history">Payment History</option><option value="receipts">Receipt Report</option>
+                        <option value="attendance">Attendance Report</option><option value="low-attendance">Low Attendance Report</option></select></div>
+                    <div><label>Batch</label><select id="repBatch"><option value="">All</option></select></div>
+                    <div><label>Course</label><select id="repCourse"><option value="">All</option></select></div>
+                    <div><label>Mode</label><select id="repMode"><option value="">All</option></select></div>
+                    <div><label>Quick range</label><select id="repRange"><option value="">Any time</option><option value="today">Today</option><option value="week">This week</option><option value="month">This month</option><option value="custom">Custom</option></select></div>
+                    <div><label>From</label><input type="date" id="repFrom"></div>
+                    <div><label>To</label><input type="date" id="repTo"></div>
+                    <div><label>Threshold %</label><input type="number" id="repThreshold" value="75" min="1" max="100" style="width:90px"></div>
+                    <div><label>&nbsp;</label><button class="au-btn primary" id="repRun"><i class="fas fa-play"></i> Run</button></div>
+                </div>
+                <div id="reportPrintArea">
+                    <div class="px-3 pb-2" id="reportTitle"></div>
+                    <div class="au-table-wrap"><table class="au-table" id="reportTable"><thead></thead><tbody></tbody></table></div>
+                    <div class="p-3 small" id="reportTotals"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== COMMUNICATION ===================== -->
+        <section class="au-view" id="view-communication">
+            <div class="au-card mb-3" id="commStatus"><div class="p-3 text-muted small">Checking email / WhatsApp configuration…</div></div>
+            <div class="au-card mb-3" id="rsCard">
+                <div class="au-card-head">
+                    <div><h5>Payment Receipt — Email + WhatsApp</h5><small class="text-muted">Find the student and select the payment receipt. One click emails the receipt PDF, copies a picture of the signed receipt and opens the student's WhatsApp chat — you press Ctrl + V to paste the picture, then Send.</small></div>
+                </div>
+                <div class="p-3">
+                    <div class="au-form" style="max-width:560px">
+                        <div class="fld" style="position:relative"><label>Student (search by ID / name / mobile)</label>
+                            <input type="text" id="rsStudentQ" placeholder="Type to search…" autocomplete="off">
+                            <div class="au-search-results" id="rsStudentResults" style="top:66px"></div>
+                        </div>
+                    </div>
+                    <div id="rsBody"></div>
+                </div>
+            </div>
+            <div class="au-card">
+                <div class="au-card-head">
+                    <div><h5>Email &amp; WhatsApp Automation</h5><small class="text-muted" id="commStudentsCount"></small></div>
+                    <div class="au-actions">
+                        <button class="au-btn ghost sm" id="commSelectAll"><i class="fas fa-check-square"></i> Select all (filtered)</button>
+                        <button class="au-btn ghost sm" id="commClearSel"><i class="fas fa-times"></i> Clear</button>
+                        <button class="au-btn primary sm" id="commSendSelected"><i class="fas fa-paper-plane"></i> Send to selected (<span id="commSelCount">0</span>)</button>
+                        <button class="au-btn success sm" id="commSendFiltered"><i class="fas fa-filter"></i> Send to all filtered</button>
+                    </div>
+                </div>
+                <div class="p-3 au-filters">
+                    <div style="flex:1 1 200px"><label>Search</label><input type="search" id="cfQ" placeholder="Name, Student ID, email, mobile, batch"></div>
+                    <div><label>Batch</label><select id="cfBatch"><option value="">All</option></select></div>
+                    <div><label>Course</label><select id="cfCourse"><option value="">All</option></select></div>
+                    <div><label>Status</label><select id="cfStatus"><option value="">Active</option><option value="ARCHIVED">Archived</option><option value="ALL">All</option></select></div>
+                </div>
+                <div class="au-table-wrap"><table class="au-table">
+                    <thead><tr><th style="width:32px"><input type="checkbox" id="commCheckAll" title="Select this page"></th><th>Student ID</th><th>Name</th><th>Mobile</th><th>Email</th><th>Batch</th><th>Course</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody id="commStudentsBody"></tbody></table></div>
+                <div class="au-pager" id="commStudentsPager"></div>
+            </div>
+        </section>
+
+        <!-- ===================== MESSAGE HISTORY ===================== -->
+        <section class="au-view" id="view-comm-history">
+            <div class="au-card">
+                <div class="au-card-head">
+                    <div><h5>Message History</h5><small class="text-muted" id="chCount"></small></div>
+                    <div class="au-actions"><span class="au-export" data-export="communications"><button class="au-btn ghost sm" data-fmt="print" title="Print"><i class="fas fa-print"></i> Print</button><button class="au-btn ghost sm" data-fmt="pdf" title="Download PDF"><i class="fas fa-file-pdf"></i> PDF</button><button class="au-btn ghost sm" data-fmt="xlsx" title="Download Excel"><i class="fas fa-file-excel"></i> Excel</button></span><button class="au-btn ghost sm" id="chRefresh"><i class="fas fa-sync-alt"></i></button></div>
+                </div>
+                <div class="p-3 au-filters">
+                    <div style="flex:1 1 200px"><label>Search</label><input type="search" id="chQ" placeholder="Recipient, subject, Student ID, message id"></div>
+                    <div><label>Channel</label><select id="chChannel"><option value="">All</option><option value="EMAIL">Email</option><option value="WHATSAPP">WhatsApp</option></select></div>
+                    <div><label>Status</label><select id="chStatus"><option value="">All</option><option value="SENT">Sent</option><option value="OPENED">Opened in WhatsApp</option><option value="READY">Ready to open</option><option value="FAILED">Failed</option><option value="PENDING">Pending</option></select></div>
+                    <div><label>From</label><input type="date" id="chFrom"></div>
+                    <div><label>To</label><input type="date" id="chTo"></div>
+                </div>
+                <div class="au-table-wrap"><table class="au-table">
+                    <thead><tr><th>Date</th><th>Student</th><th>Student ID</th><th>Channel</th><th>Subject</th><th>Type</th><th>Status</th><th>Provider</th><th>Message ID</th><th>Error</th><th>Sent by</th><th></th></tr></thead>
+                    <tbody id="chBody"></tbody></table></div>
+                <div class="au-pager" id="chPager"></div>
+            </div>
+        </section>
+
+        <!-- ===================== SETTINGS ===================== -->
+        <section class="au-view" id="view-settings">
+            <div class="au-two-eq">
+                <div class="au-card pad">
+                    <h5 class="fw-bold">Automation Admin Settings</h5>
+                    <p class="text-muted small">Change the User ID you sign in with. The account, role and permissions stay the same; Main Admin credentials are not affected.</p>
+                    <form id="automationUserIdForm" class="au-form" autocomplete="off">
+                        <div class="fld"><label>Current User ID</label><input id="automationCurrentUserId" readonly></div>
+                        <div class="fld"><label>New User ID</label><input id="automationNewUserId" required minlength="4" maxlength="20" pattern="[A-Za-z0-9][A-Za-z0-9._-]{3,19}" title="4-20 characters: letters, numbers, dot, underscore or hyphen" autocomplete="off"><small class="text-muted">4&ndash;20 characters: letters, numbers, dot, underscore or hyphen. Use it (or the account email) at the next login.</small></div>
+                        <div class="fld"><label>Current Password</label><input type="password" id="automationUserIdPassword" required autocomplete="current-password"></div>
+                        <button type="submit" class="au-btn primary" id="automationUserIdSubmit">Change User ID</button>
+                    </form>
+                </div>
+                <div class="au-card pad">
+                    <h5 class="fw-bold">Change Password</h5>
+                    <p class="text-muted small">Changing the password logs this account out everywhere; sign in again with the new password.</p>
+                    <form id="automationPasswordForm" class="au-form" autocomplete="off">
+                        <div class="fld"><label>Current Password</label><input type="password" id="automationCurrentPassword" required autocomplete="current-password"></div>
+                        <div class="fld"><label>New Password</label><input type="password" id="automationNewPassword" required minlength="8" maxlength="72" autocomplete="new-password"><small class="text-muted">8&ndash;72 characters with at least one letter and one number.</small></div>
+                        <div class="fld"><label>Confirm New Password</label><input type="password" id="automationConfirmPassword" required minlength="8" maxlength="72" autocomplete="new-password"></div>
+                        <button type="submit" class="au-btn primary" id="automationPasswordSubmit">Change Password</button>
+                    </form>
+                </div>
+                <div class="au-card pad">
+                    <h5 class="fw-bold">Student ID Series</h5>
+                    <p class="text-muted small">Student IDs are always <code>LSA/YYYY/NNNN</code>: <strong>LSA</strong> is fixed, <strong>YYYY</strong> is the current calendar year (updates automatically each year), and only the owner can change the next four-digit serial. Existing Student IDs are never altered, and a number already in use can never be reissued.</p>
+                    <div class="au-kv mb-3" id="studentIdSeriesInfo" style="grid-template-columns:1fr 1fr">
+                        <div><span>Current Next Student ID</span><strong id="sidCurrentNext">—</strong></div>
+                        <div><span>Highest Existing ID (this year)</span><strong id="sidHighestExisting">—</strong></div>
+                    </div>
+                    <form id="studentIdSeriesForm" class="au-form" autocomplete="off">
+                        <div class="fld"><label>New Next Number</label><input type="number" id="sidNewNumber" min="1" step="1" required>
+                            <small class="text-muted">Must be greater than the highest existing Student ID number for the current year, so no ID can ever be reused.</small></div>
+                        <button type="submit" class="au-btn primary" id="studentIdSeriesSubmit">Update Series</button>
+                    </form>
+                </div>
+                <div class="au-card pad">
+                    <h5 class="fw-bold">Session</h5>
+                    <p class="text-muted small">Signed in as <strong id="automationSessionUser">Automation Admin</strong>. Logging out ends this session on the server and returns you to the Automation Admin login. It does not affect the Main Admin.</p>
+                    <button type="button" class="au-btn danger" id="automationLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== WEBSITE INSTRUCTIONS ===================== -->
+        <section class="au-view" id="view-website-instructions">
+            <div class="au-card pad">
+                <h5 class="fw-bold mb-2">Website Instructions</h5>
+                <div class="lsi-guide">
+                    <p class="guide-intro">Automation Admin — every action you can do is listed below (not only the 12 menu tabs). Type what you want in the search box (example: <em>“I want to give discount”</em> or <em>“reset ebook password”</em>) and follow the numbered steps.</p>
+                    <div class="guide-search-wrap">
+                        <i class="fas fa-search"></i>
+                        <input type="search" class="guide-search" placeholder='Type what you want… e.g. "I want to add student", "send fee reminder", "block ebook"' autocomplete="off">
+                    </div>
+                    <p class="guide-search-meta"></p>
+                    <div class="guide-search-empty d-none">No matching topic. Try: add student, discount, record payment, receipt, attendance, ebook password, fee reminder, archive, delete, report.</div>
+
+                    <div class="guide-block" data-keywords="1 dashboard home overview quick buttons stats needs attention">
+                        <h3><span class="guide-num">1</span> Use the Dashboard</h3>
+                        <p><strong>Where:</strong> Left menu → Dashboard</p>
+                        <ol>
+                            <li>Open <strong>Dashboard</strong>.</li>
+                            <li>Read summary cards (students, fees, attention items).</li>
+                            <li>Use quick buttons: Add Student, Record Payment, Generate Receipt, Mark Attendance, Search Student, Export Report.</li>
+                            <li>Filter the student list by batch or payment status.</li>
+                            <li>Click a student to open their profile, or use View / Pay / Edit on a row.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="2 search student header global find name mobile id">
+                        <h3><span class="guide-num">2</span> Search any student (top bar)</h3>
+                        <p><strong>Where:</strong> Search box in the top header</p>
+                        <ol>
+                            <li>Click the header search box.</li>
+                            <li>Type Student ID, name, mobile or email.</li>
+                            <li>Click the matching result to open that student’s profile.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="3 add student create new admission enroll register aadhaar form lsa">
+                        <h3><span class="guide-num">3</span> Add a new student (admission)</h3>
+                        <p><strong>Where:</strong> Students → Add Student (or Dashboard quick button)</p>
+                        <ol>
+                            <li>Click <strong>Add Student</strong>.</li>
+                            <li>Fill required fields: Full name, Date, Address, Contact No., E-mail ID, Aadhaar, Course, Batch.</li>
+                            <li>Fill other admission details now or later (education, employment, trading experience, etc.).</li>
+                            <li>Check Student ID preview: <code>LSA/YYYY/NNNN</code> (LSA fixed, year = current year).</li>
+                            <li>Click Save. The Student ID is assigned automatically.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="4 change next serial owner student id series four digit number">
+                        <h3><span class="guide-num">4</span> Change next Student ID serial (owner only)</h3>
+                        <p><strong>Where:</strong> Add Student form → Change next serial (owner) · or Settings → Student ID Series</p>
+                        <ol>
+                            <li>Open Add Student (or Settings).</li>
+                            <li>Click <strong>Change next serial (owner)</strong>.</li>
+                            <li>See prefix <code>LSA/current-year/</code> (not editable).</li>
+                            <li>Enter the next four-digit number (must be higher than any serial already used this year).</li>
+                            <li>Click Set serial / Update Series.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="5 find filter students list batch course payment year status archived">
+                        <h3><span class="guide-num">5</span> Find and filter students</h3>
+                        <p><strong>Where:</strong> Students</p>
+                        <ol>
+                            <li>Open <strong>Students</strong>.</li>
+                            <li>Type in Search (name, ID, mobile, email, batch).</li>
+                            <li>Optionally filter Batch, Course, Payment status, Admission Year, Status (Active / Archived / All).</li>
+                            <li>Use pager at the bottom if there are many rows.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="6 export students print pdf excel download list">
+                        <h3><span class="guide-num">6</span> Export / print the students list</h3>
+                        <p><strong>Where:</strong> Students or Dashboard student table → Print / PDF / Excel</p>
+                        <ol>
+                            <li>Apply the filters you want first (export uses what is on screen).</li>
+                            <li>Click <strong>Print</strong>, <strong>PDF</strong> or <strong>Excel</strong>.</li>
+                            <li>Save or print the file.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="7 view student profile overview tabs admission fees">
+                        <h3><span class="guide-num">7</span> Open a student profile</h3>
+                        <p><strong>Where:</strong> Students → View · or search result</p>
+                        <ol>
+                            <li>Find the student and click <strong>View</strong> (or the name).</li>
+                            <li>Use tabs: Overview, Admission, Fees, Ebook Login, Payments, Receipts, Attendance, Course, Documents, Activity.</li>
+                            <li>Use top buttons: Edit, Discount, Record Payment, Latest Receipt, Mark Attendance, Archive, Delete.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="8 edit student update details mobile email aadhaar address batch course">
+                        <h3><span class="guide-num">8</span> Edit student details</h3>
+                        <p><strong>Where:</strong> Student profile → Edit · or Students list → Edit</p>
+                        <ol>
+                            <li>Open the student.</li>
+                            <li>Click <strong>Edit</strong>.</li>
+                            <li>Change the fields you need (Student ID stays locked).</li>
+                            <li>Save.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="9 give discount change remove percent installment fee reduce sibling">
+                        <h3><span class="guide-num">9</span> Give, change or remove a discount</h3>
+                        <p><strong>Where:</strong> Student profile → Discount · or Fees tab → Give discount</p>
+                        <ol>
+                            <li>Open the student profile.</li>
+                            <li>Click <strong>Discount</strong> (or Fees tab → Give discount).</li>
+                            <li>Choose which installment the discount applies at.</li>
+                            <li>Enter amount in ₹ or as %, and a reason for office records.</li>
+                            <li>Save. Fee after discount updates; later receipts show it.</li>
+                            <li>To change/remove: use Change / Remove on that discount line.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="10 record payment fees installment cash upi save generate receipt">
+                        <h3><span class="guide-num">10</span> Record a fee payment</h3>
+                        <p><strong>Where:</strong> Fees &amp; Payments · student profile → Record Payment · Dashboard quick button</p>
+                        <ol>
+                            <li>Open <strong>Fees &amp; Payments</strong> (or click Record Payment on the student).</li>
+                            <li>Search and select the student.</li>
+                            <li>Confirm fee / discount summary shown.</li>
+                            <li>Choose installment, amount, date, payment mode.</li>
+                            <li>Optional: transaction reference and notes.</li>
+                            <li>Click <strong>Save Payment &amp; Generate Receipt</strong>.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="11 edit payment correct amount mode date change payment">
+                        <h3><span class="guide-num">11</span> Edit an existing payment</h3>
+                        <p><strong>Where:</strong> Fees &amp; Payments list · or student → Payments tab</p>
+                        <ol>
+                            <li>Find the payment row.</li>
+                            <li>Click Edit.</li>
+                            <li>Correct amount, mode, date, reference or notes.</li>
+                            <li>Save.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="12 view fees installments balance paid student fees tab">
+                        <h3><span class="guide-num">12</span> Check fees &amp; installments for one student</h3>
+                        <p><strong>Where:</strong> Student profile → Fees tab</p>
+                        <ol>
+                            <li>Open the student.</li>
+                            <li>Open the <strong>Fees</strong> tab.</li>
+                            <li>See course fee, discount, paid, balance and each installment status.</li>
+                            <li>Use Record next installment if still due.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="13 ebook login create first installment password visible portal">
+                        <h3><span class="guide-num">13</span> Create / view Ebook Login</h3>
+                        <p><strong>Where:</strong> Student profile → Ebook Login tab</p>
+                        <ol>
+                            <li>Record at least the first installment (ebook login is made after first payment).</li>
+                            <li>Open the student → <strong>Ebook Login</strong>.</li>
+                            <li>If status is READY, click <strong>Create ebook login</strong>.</li>
+                            <li>If NEEDS EMAIL, Edit the student and add an email first.</li>
+                            <li>When active, see User ID and password (until the student changes it).</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="14 ebook share copy whatsapp email print login details send">
+                        <h3><span class="guide-num">14</span> Share ebook login details</h3>
+                        <p><strong>Where:</strong> Student → Ebook Login</p>
+                        <ol>
+                            <li>Open <strong>Ebook Login</strong>.</li>
+                            <li>Click <strong>Copy login details</strong> to paste somewhere.</li>
+                            <li>Or <strong>Send on WhatsApp</strong> (needs mobile) — press Send in WhatsApp.</li>
+                            <li>Or <strong>Email login details</strong> (when password is on file).</li>
+                            <li>Or <strong>Print</strong> a paper copy for the student.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="15 ebook reset password forgot change office password">
+                        <h3><span class="guide-num">15</span> Reset ebook password</h3>
+                        <p><strong>Where:</strong> Student → Ebook Login → Reset password</p>
+                        <ol>
+                            <li>Open Ebook Login.</li>
+                            <li>Click <strong>Reset password</strong>.</li>
+                            <li>Confirm. A new password is shown to the office.</li>
+                            <li>Share it with the student (WhatsApp / Email / Copy).</li>
+                            <li>Click Refresh if the student later changes password themselves — the new password appears here.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="16 ebook reset device binding new phone login device">
+                        <h3><span class="guide-num">16</span> Reset ebook device binding</h3>
+                        <p><strong>Where:</strong> Student → Ebook Login → Reset device</p>
+                        <ol>
+                            <li>Open Ebook Login.</li>
+                            <li>Click <strong>Reset device</strong> if the student changed phone / browser and cannot sign in.</li>
+                            <li>Ask them to log in again on the new device.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="17 ebook block unblock stop access ban">
+                        <h3><span class="guide-num">17</span> Block or unblock ebook access</h3>
+                        <p><strong>Where:</strong> Student → Ebook Login → Block / Unblock ebook</p>
+                        <ol>
+                            <li>Open Ebook Login.</li>
+                            <li>Click <strong>Block ebook</strong> to stop access (student sees a blocked message).</li>
+                            <li>Click <strong>Unblock ebook</strong> to restore access.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="18 archive restore student inactive hide">
+                        <h3><span class="guide-num">18</span> Archive or restore a student</h3>
+                        <p><strong>Where:</strong> Student profile → Archive / Restore</p>
+                        <ol>
+                            <li>Open the student.</li>
+                            <li>Click <strong>Archive</strong> to hide from Active lists (records stay).</li>
+                            <li>To bring back: set Status filter to Archived, open student, click <strong>Restore</strong>.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="19 delete student permanently remove all records confirm">
+                        <h3><span class="guide-num">19</span> Delete a student permanently</h3>
+                        <p><strong>Where:</strong> Student profile → Delete</p>
+                        <ol>
+                            <li>Open the student.</li>
+                            <li>Click <strong>Delete</strong>.</li>
+                            <li>Read the warning (payments, receipts, attendance, messages will be removed).</li>
+                            <li>Type the Student ID exactly to confirm.</li>
+                            <li>Confirm delete. This cannot be undone.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="20 pending fees balance due outstanding find filter">
+                        <h3><span class="guide-num">20</span> Find students with pending fees</h3>
+                        <p><strong>Where:</strong> Pending Fees</p>
+                        <ol>
+                            <li>Open <strong>Pending Fees</strong>.</li>
+                            <li>Read the balance summary cards.</li>
+                            <li>Search or filter by batch, course, paid-so-far status.</li>
+                            <li>Highest balances appear first.</li>
+                            <li>Open the student or record payment from there.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="21 fee reminder whatsapp email send pending dues reminder">
+                        <h3><span class="guide-num">21</span> Send a fee reminder</h3>
+                        <p><strong>Where:</strong> Pending Fees → WhatsApp / Email on a row</p>
+                        <ol>
+                            <li>Open Pending Fees.</li>
+                            <li>Find the student.</li>
+                            <li>Click <strong>WhatsApp</strong> — chat opens with reminder text; press Send there.</li>
+                            <li>Or click <strong>Email</strong> and confirm to send the reminder email now.</li>
+                            <li>Check Message History if you need proof it was sent.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="22 export pending fees print pdf excel">
+                        <h3><span class="guide-num">22</span> Export pending fees list</h3>
+                        <p><strong>Where:</strong> Pending Fees → Print / PDF / Excel</p>
+                        <ol>
+                            <li>Apply filters.</li>
+                            <li>Click Print, PDF or Excel.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="23 open receipt preview list find receipt number">
+                        <h3><span class="guide-num">23</span> Open and preview a receipt</h3>
+                        <p><strong>Where:</strong> Receipts · student → Receipts · Latest Receipt button</p>
+                        <ol>
+                            <li>Open <strong>Receipts</strong> (or student Receipts tab).</li>
+                            <li>Search by receipt no / student; optional date range.</li>
+                            <li>Click Open / select the row.</li>
+                            <li>Preview appears on the right.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="24 print download pdf email receipt">
+                        <h3><span class="guide-num">24</span> Print, PDF or email a receipt</h3>
+                        <p><strong>Where:</strong> Receipts → preview actions</p>
+                        <ol>
+                            <li>Select a receipt so preview loads.</li>
+                            <li>Click <strong>Print</strong>, <strong>Download PDF</strong>, or <strong>Email</strong>.</li>
+                            <li>Email sends the receipt PDF to the student’s email on file.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="25 share payment receipt whatsapp picture email pdf paste ctrl">
+                        <h3><span class="guide-num">25</span> Share payment receipt (Email + WhatsApp picture)</h3>
+                        <p><strong>Where:</strong> Email &amp; WhatsApp → Payment Receipt card · or Communication row → Receipt</p>
+                        <ol>
+                            <li>Open <strong>Email &amp; WhatsApp</strong>.</li>
+                            <li>In Payment Receipt, search and select the student.</li>
+                            <li>Select the payment receipt.</li>
+                            <li>One click emails the PDF and opens WhatsApp with a picture ready.</li>
+                            <li>In WhatsApp press <strong>Ctrl + V</strong> to paste the picture, then Send.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="26 mark attendance session sheet present absent late batch date">
+                        <h3><span class="guide-num">26</span> Mark attendance for a class</h3>
+                        <p><strong>Where:</strong> Attendance · or student → Mark Attendance</p>
+                        <ol>
+                            <li>Open <strong>Attendance</strong>.</li>
+                            <li>Select Batch, Session Date, Session Type; optional Instructor.</li>
+                            <li>Click <strong>Open Attendance Sheet</strong>.</li>
+                            <li>Mark each student Present / Absent / Late (or Excused if shown).</li>
+                            <li>Optional: Mark All Present / Mark All Absent / Clear.</li>
+                            <li>Click <strong>Save Attendance</strong>.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="27 reopen recent attendance session edit history">
+                        <h3><span class="guide-num">27</span> Reopen a recent attendance session</h3>
+                        <p><strong>Where:</strong> Attendance → Recent Sessions</p>
+                        <ol>
+                            <li>On Attendance, look at Recent Sessions (filter by batch if needed).</li>
+                            <li>Click Open on the session.</li>
+                            <li>Adjust marks and Save again.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="28 export attendance sessions print pdf excel">
+                        <h3><span class="guide-num">28</span> Export attendance sessions</h3>
+                        <p><strong>Where:</strong> Attendance → Recent Sessions → Print / PDF / Excel</p>
+                        <ol>
+                            <li>Filter batch if needed.</li>
+                            <li>Click Print, PDF or Excel.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="29 add edit batch schedule masters">
+                        <h3><span class="guide-num">29</span> Add or edit a batch</h3>
+                        <p><strong>Where:</strong> Batches &amp; Courses → Batches</p>
+                        <ol>
+                            <li>Open <strong>Batches &amp; Courses</strong>.</li>
+                            <li>Click <strong>Add Batch</strong> (or Edit on a row).</li>
+                            <li>Enter name, schedule, start date, active status.</li>
+                            <li>Save. Assign students to this batch during admission / edit.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="30 add edit academy course default fee duration masters">
+                        <h3><span class="guide-num">30</span> Add or edit an academy course</h3>
+                        <p><strong>Where:</strong> Batches &amp; Courses → Courses</p>
+                        <ol>
+                            <li>Open Batches &amp; Courses.</li>
+                            <li>Click <strong>Add Course</strong> (or Edit).</li>
+                            <li>Enter name, default fee, duration, status.</li>
+                            <li>Save. Set / update price details under Course Price if needed.</li>
+                        </ol>
+                        <div class="guide-tip">These are classroom academy courses — not the website LMS courses in Master Admin.</div>
+                    </div>
+
+                    <div class="guide-block" data-keywords="31 add payment mode cash upi master">
+                        <h3><span class="guide-num">31</span> Add a payment mode</h3>
+                        <p><strong>Where:</strong> Batches &amp; Courses → Payment Modes → Add</p>
+                        <ol>
+                            <li>Click <strong>Add</strong> under Payment Modes.</li>
+                            <li>Enter code and label (e.g. UPI, CASH).</li>
+                            <li>Save. It appears in Record Payment.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="32 add session type class workshop master attendance">
+                        <h3><span class="guide-num">32</span> Add a session type</h3>
+                        <p><strong>Where:</strong> Batches &amp; Courses → Session Types → Add</p>
+                        <ol>
+                            <li>Click <strong>Add</strong> under Session Types.</li>
+                            <li>Enter code and label (e.g. CLASS).</li>
+                            <li>Save. It appears when marking attendance.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="33 course price set fee installment slots new admissions">
+                        <h3><span class="guide-num">33</span> Set course price (for new admissions)</h3>
+                        <p><strong>Where:</strong> Course Price</p>
+                        <ol>
+                            <li>Open <strong>Course Price</strong>.</li>
+                            <li>Find the course → Edit / set price.</li>
+                            <li>Enter total fee (and installment plan if the form shows slots).</li>
+                            <li>Save.</li>
+                            <li>Remember: already-admitted students keep their old fee — use Discount for one student.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="34 run reports student batch fee collection outstanding payment history attendance low">
+                        <h3><span class="guide-num">34</span> Run a report</h3>
+                        <p><strong>Where:</strong> Reports</p>
+                        <ol>
+                            <li>Open <strong>Reports</strong>.</li>
+                            <li>Choose report type: Student, Batch-wise, Fee Collection, Outstanding, Payment History, Receipts, Attendance, Low Attendance.</li>
+                            <li>Set filters: batch, course, mode, date range / quick range.</li>
+                            <li>For Low Attendance, set Threshold %.</li>
+                            <li>Click <strong>Run</strong>.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="35 export report csv print pdf excel download">
+                        <h3><span class="guide-num">35</span> Export a report</h3>
+                        <p><strong>Where:</strong> Reports → CSV / Print / PDF / Excel</p>
+                        <ol>
+                            <li>Run the report first.</li>
+                            <li>Click CSV, Print, PDF or Excel.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="36 bulk email whatsapp send message notice selected filtered students">
+                        <h3><span class="guide-num">36</span> Send bulk Email / WhatsApp messages</h3>
+                        <p><strong>Where:</strong> Email &amp; WhatsApp → Automation table</p>
+                        <ol>
+                            <li>Open <strong>Email &amp; WhatsApp</strong>.</li>
+                            <li>Filter students (search, batch, course, status).</li>
+                            <li>Tick students, or Select all (filtered), or use Send to all filtered.</li>
+                            <li>Choose Email and/or WhatsApp, write subject/message, attach if needed.</li>
+                            <li>Preview, confirm, send.</li>
+                            <li>For WhatsApp: each chat opens with text ready — you press Send.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="37 send one student email whatsapp from communication row">
+                        <h3><span class="guide-num">37</span> Message one student from Communication</h3>
+                        <p><strong>Where:</strong> Email &amp; WhatsApp table → Email / WhatsApp buttons</p>
+                        <ol>
+                            <li>Find the student in the communication list.</li>
+                            <li>Click <strong>Email</strong> or <strong>WhatsApp</strong> on that row.</li>
+                            <li>Write and send (WhatsApp: press Send in the chat window).</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="38 message history find failed retry status export">
+                        <h3><span class="guide-num">38</span> Check Message History / retry failed</h3>
+                        <p><strong>Where:</strong> Message History</p>
+                        <ol>
+                            <li>Open <strong>Message History</strong>.</li>
+                            <li>Filter by channel, status, dates; search recipient / subject / Student ID.</li>
+                            <li>Open a row for details / error.</li>
+                            <li>Retry if a failed action offers retry.</li>
+                            <li>Export with Print / PDF / Excel if needed.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="39 settings change user id login username automation admin">
+                        <h3><span class="guide-num">39</span> Change Automation Admin User ID</h3>
+                        <p><strong>Where:</strong> Settings</p>
+                        <ol>
+                            <li>Open <strong>Settings</strong>.</li>
+                            <li>Enter current User ID, new User ID, current password.</li>
+                            <li>Submit. Use the new User ID next login.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="40 settings change password security logout">
+                        <h3><span class="guide-num">40</span> Change Automation Admin password</h3>
+                        <p><strong>Where:</strong> Settings → Change Password</p>
+                        <ol>
+                            <li>Enter current password, new password, confirm.</li>
+                            <li>Submit — this account logs out everywhere.</li>
+                            <li>Sign in again. Main Admin is not affected.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="41 settings student id series serial year lsa update">
+                        <h3><span class="guide-num">41</span> Update Student ID series in Settings</h3>
+                        <p><strong>Where:</strong> Settings → Student ID Series</p>
+                        <ol>
+                            <li>See Current Next Student ID and Highest Existing ID.</li>
+                            <li>Enter New Next Number (greater than highest existing this year).</li>
+                            <li>Click Update Series.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="42 logout sign out session end">
+                        <h3><span class="guide-num">42</span> Logout</h3>
+                        <p><strong>Where:</strong> Left menu Logout · or Settings → Logout</p>
+                        <ol>
+                            <li>Click <strong>Logout</strong>.</li>
+                            <li>You return to the Automation Admin login page.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="43 export payments history print pdf excel filter dates">
+                        <h3><span class="guide-num">43</span> Export payment history</h3>
+                        <p><strong>Where:</strong> Fees &amp; Payments → Payments list → Print / PDF / Excel</p>
+                        <ol>
+                            <li>Filter by batch, mode, from/to dates.</li>
+                            <li>Refresh if needed.</li>
+                            <li>Click Print, PDF or Excel.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="44 export receipts list print pdf excel">
+                        <h3><span class="guide-num">44</span> Export receipts list</h3>
+                        <p><strong>Where:</strong> Receipts → Print / PDF / Excel</p>
+                        <ol>
+                            <li>Filter/search receipts.</li>
+                            <li>Click Print, PDF or Excel.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="45 student attendance history profile tab percent">
+                        <h3><span class="guide-num">45</span> See one student’s attendance history</h3>
+                        <p><strong>Where:</strong> Student profile → Attendance tab</p>
+                        <ol>
+                            <li>Open the student.</li>
+                            <li>Open the <strong>Attendance</strong> tab.</li>
+                            <li>Review past sessions and percentage.</li>
+                        </ol>
+                    </div>
+
+                    <div class="guide-block" data-keywords="46 student activity log timeline profile">
+                        <h3><span class="guide-num">46</span> See student activity timeline</h3>
+                        <p><strong>Where:</strong> Student profile → Activity tab</p>
+                        <ol>
+                            <li>Open the student.</li>
+                            <li>Open <strong>Activity</strong>.</li>
+                            <li>Read payments, admission and other office events for that student.</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="receiptPrintArea" class="d-none"></div>
+
+    <div class="modal fade" id="formModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" id="formModalDialog">
+            <div class="modal-content border-0 shadow-lg" style="border-radius:14px;">
+                <div class="modal-header text-white" style="background:var(--au-navy);border-radius:14px 14px 0 0;">
+                    <h5 class="modal-title fw-bold text-white" id="formModalTitle">Form</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formModalForm" class="au-form" autocomplete="off">
+                    <div class="modal-body p-4" id="formModalBody"></div>
+                    <div class="modal-footer border-0 pt-0 flex-column align-items-stretch">
+                        <div class="au-error d-none" id="formModalError"></div>
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="au-btn ghost" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="au-btn primary" id="formModalSubmit">Save</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="au-toast-area" id="toastArea"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/whatsapp-chat.js?v=20261009-picture"></script>
+    <script src="js/website-instructions.js?v=20261014-allpanels"></script>
+    <script src="js/automation-admin.js?v=20261014-guide"></script>
+</body>
+</html>

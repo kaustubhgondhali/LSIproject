@@ -1,0 +1,160 @@
+/* LORD SAI — Hindi / Marathi phrases for stories.html. Format: see js/i18n/common.js */
+(function (w) {
+    var P = w.LSI_Phrases = w.LSI_Phrases || {};
+    var add = function (o) { for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) P[k] = o[k]; };
+
+    add({
+        "LSI Stories & Community Journeys | Lord Sai Investment & Share Market Academy": [
+            "LSI कहानियां और सामुदायिक यात्राएं | लॉर्ड साई इन्वेस्टमेंट एवं शेयर मार्केट एकेडमी",
+            "LSI यशोगाथा आणि सामुदायिक प्रवास | लॉर्ड साई इन्व्हेस्टमेंट आणि शेअर मार्केट अकॅडमी"],
+        "Mutual Fund Distribution (ARN-{#}) | LSI Stories & Community Journeys | Lord Sai Investment & Share Market Academy": [
+            "म्यूचुअल फंड वितरण (ARN-{#}) | LSI कहानियां और सामुदायिक यात्राएं | लॉर्ड साई इन्वेस्टमेंट एवं शेयर मार्केट एकेडमी",
+            "म्युच्युअल फंड वितरण (ARN-{#}) | LSI यशोगाथा आणि सामुदायिक प्रवास | लॉर्ड साई इन्व्हेस्टमेंट आणि शेअर मार्केट अकॅडमी"],
+        "Student Transformations": ["छात्रों में बदलाव", "विद्यार्थ्यांमधील परिवर्तन"],
+        "Student Stories & Learning Journeys": ["छात्रों की कहानियां और सीखने की यात्रा", "विद्यार्थ्यांच्या कथा आणि शिकण्याचा प्रवास"],
+        "Real Students. Real Discipline. Real Progress.": ["असली छात्र। असली अनुशासन। असली प्रगति।", "खरे विद्यार्थी. खरी शिस्त. खरी प्रगती."],
+        "Explore genuine classroom batch stories, student video testimonials, and practical trading skill milestones from Lord Sai Academy learners.": [
+            "लॉर्ड साई एकेडमी के छात्रों की वास्तविक क्लासरूम बैच कहानियां, वीडियो अनुभव और व्यावहारिक ट्रेडिंग कौशल की उपलब्धियां देखें।",
+            "लॉर्ड साई अकॅडमीच्या विद्यार्थ्यांच्या खऱ्या क्लासरूम बॅच कथा, व्हिडिओ अभिप्राय आणि प्रात्यक्षिक ट्रेडिंग कौशल्यातील टप्पे पाहा."],
+        "Disciplined Compounding": ["अनुशासित चक्रवृद्धि", "शिस्तबद्ध चक्रवाढ"],
+        "Disciplined SIPs. Compounding Growth. Goal Milestones.": ["अनुशासित SIP। चक्रवृद्धि विकास। लक्ष्य की उपलब्धियां।", "शिस्तबद्ध SIP. चक्रवाढ वाढ. उद्दिष्टपूर्तीचे टप्पे."],
+        "Real case studies of families and professionals achieving child education, marriage, and retirement goals through systematic mutual fund investments.": [
+            "व्यवस्थित म्यूचुअल फंड निवेश के जरिए बच्चों की शिक्षा, विवाह और सेवानिवृत्ति के लक्ष्य हासिल करने वाले परिवारों और पेशेवरों की वास्तविक केस स्टडी।",
+            "पद्धतशीर म्युच्युअल फंड गुंतवणुकीतून मुलांचे शिक्षण, विवाह आणि सेवानिवृत्तीची उद्दिष्टे साध्य करणाऱ्या कुटुंबांच्या व व्यावसायिकांच्या खऱ्या केस स्टडी."],
+        "Real Milestones": ["वास्तविक उपलब्धियां", "खरे टप्पे"],
+        "Investor Wealth Journeys & Milestones": ["निवेशकों की संपत्ति यात्रा और उपलब्धियां", "गुंतवणूकदारांचे संपत्ती प्रवास आणि टप्पे"],
+        "Disciplined compounding creates life-changing financial independence for families in Uran & Navi Mumbai.": [
+            "अनुशासित चक्रवृद्धि उरण और नवी मुंबई के परिवारों के लिए जीवन बदल देने वाली वित्तीय स्वतंत्रता लाती है।",
+            "शिस्तबद्ध चक्रवाढ उरण आणि नवी मुंबईतील कुटुंबांना आयुष्य बदलणारे आर्थिक स्वातंत्र्य देते."],
+        "From parents funding higher education without expensive loans to working professionals building early retirement pensions, read how systematic SIP investing transforms real-world goals.": [
+            "महंगे कर्ज के बिना बच्चों की उच्च शिक्षा का खर्च उठाने वाले माता-पिता से लेकर जल्दी सेवानिवृत्ति की पेंशन बनाने वाले पेशेवरों तक, पढ़ें कि व्यवस्थित SIP निवेश वास्तविक लक्ष्यों को कैसे पूरा करता है।",
+            "महागड्या कर्जाशिवाय उच्च शिक्षणाचा खर्च करणाऱ्या पालकांपासून लवकर निवृत्तीसाठी पेन्शन उभारणाऱ्या नोकरदारांपर्यंत, पद्धतशीर SIP गुंतवणूक खरी उद्दिष्टे कशी साध्य करते ते वाचा."],
+        "Start Your Wealth Journey": ["अपनी संपत्ति यात्रा शुरू करें", "तुमचा संपत्ती प्रवास सुरू करा"],
+        "Real Growth": ["वास्तविक प्रगति", "खरी प्रगती"],
+        "Success Stories": ["सफलता की कहानियां", "यशोगाथा"],
+        "Real students, teachers and parents → Real learning experiences → Real video reviews.": [
+            "असली छात्र, शिक्षक और अभिभावक → असली सीखने के अनुभव → असली वीडियो समीक्षाएं।",
+            "खरे विद्यार्थी, शिक्षक आणि पालक → खरे शिकण्याचे अनुभव → खरे व्हिडिओ अभिप्राय."],
+        "All": ["सभी", "सर्व"],
+        "Teachers": ["शिक्षक", "शिक्षक"],
+        "Parents": ["अभिभावक", "पालक"],
+        "Cohort Spirit": ["बैच की भावना", "बॅचचा उत्साह"],
+        "Classroom Batch Stories": ["क्लासरूम बैच की कहानियां", "क्लासरूम बॅचच्या कथा"],
+        "Photographs from actual classroom batches, seminar rooms, trading systems, peer discussions, and events at Lord Sai Academy.": [
+            "लॉर्ड साई एकेडमी के वास्तविक क्लासरूम बैच, सेमिनार रूम, ट्रेडिंग सिस्टम, आपसी चर्चा और कार्यक्रमों की तस्वीरें।",
+            "लॉर्ड साई अकॅडमीतील प्रत्यक्ष क्लासरूम बॅच, सेमिनार रूम, ट्रेडिंग सिस्टम, चर्चासत्रे आणि कार्यक्रमांची छायाचित्रे."],
+        "Classroom": ["क्लासरूम", "क्लासरूम"],
+        "Seminar Room": ["सेमिनार रूम", "सेमिनार रूम"],
+        "Hallway": ["गलियारा", "कॉरिडॉर"],
+        "System": ["सिस्टम", "सिस्टम"],
+        "Activities": ["गतिविधियां", "उपक्रम"],
+        "Events": ["कार्यक्रम", "कार्यक्रम"],
+        "Outreach & Education": ["जनसंपर्क और शिक्षा", "जनसंपर्क आणि शिक्षण"],
+        "Events & Financial Literacy Seminars": ["कार्यक्रम और वित्तीय साक्षरता सेमिनार", "कार्यक्रम आणि आर्थिक साक्षरता सेमिनार"],
+        "Spreading market awareness and ethical investing principles across the local community.": [
+            "स्थानीय समुदाय में बाजार जागरूकता और नैतिक निवेश सिद्धांतों का प्रसार।",
+            "स्थानिक समाजात बाजाराबद्दल जागरूकता आणि नैतिक गुंतवणुकीच्या तत्त्वांचा प्रसार."],
+        "Community Workshop": ["सामुदायिक कार्यशाला", "सामुदायिक कार्यशाळा"],
+        "Stock Market Awareness for Beginners": ["शुरुआती लोगों के लिए शेयर बाजार जागरूकता", "नवशिक्यांसाठी शेअर बाजार जागरूकता"],
+        "Free weekend orientation seminars conducted at our Uran center explaining Demat operations, avoiding cyber-fraud tip scams, and understanding basic market indices.": [
+            "हमारे उरण सेंटर में आयोजित मुफ्त वीकेंड परिचय सेमिनार, जिनमें डीमैट संचालन, साइबर-फ्रॉड टिप घोटालों से बचाव और बाजार के बुनियादी सूचकांकों को समझाया जाता है।",
+            "आमच्या उरण सेंटरमध्ये होणारे मोफत वीकेंड परिचय सेमिनार, ज्यात डीमॅट व्यवहार, सायबर-फसवणुकीच्या टिप घोटाळ्यांपासून बचाव आणि बाजाराचे मूलभूत निर्देशांक समजावले जातात."],
+        "Uran, Maharashtra": ["उरण, महाराष्ट्र", "उरण, महाराष्ट्र"],
+        "Wealth Seminar": ["संपत्ति सेमिनार", "संपत्ती सेमिनार"],
+        "The Power of Systematic SIP Compounding": ["व्यवस्थित SIP चक्रवृद्धि की ताकत", "पद्धतशीर SIP चक्रवाढीची ताकद"],
+        "Specialized financial literacy sessions for local business owners and families focusing on long-term mutual fund compounding and inflation-hedged retirement planning.": [
+            "स्थानीय व्यवसायियों और परिवारों के लिए विशेष वित्तीय साक्षरता सत्र, जिनमें दीर्घकालिक म्यूचुअल फंड चक्रवृद्धि और महंगाई से सुरक्षित सेवानिवृत्ति नियोजन पर जोर दिया जाता है।",
+            "स्थानिक व्यावसायिक आणि कुटुंबांसाठी विशेष आर्थिक साक्षरता सत्रे, ज्यात दीर्घकालीन म्युच्युअल फंड चक्रवाढ आणि महागाईपासून सुरक्षित सेवानिवृत्ती नियोजनावर भर दिला जातो."],
+        "Navi Mumbai & Raigad Region": ["नवी मुंबई और रायगढ़ क्षेत्र", "नवी मुंबई आणि रायगड परिसर"],
+        "Be Part of the Community": ["समुदाय का हिस्सा बनें", "समुदायाचा भाग व्हा"],
+        "Write Your Own Success Story With LSI": ["LSI के साथ अपनी सफलता की कहानी लिखें", "LSI सोबत तुमची स्वतःची यशोगाथा लिहा"],
+        "Join the next classroom batch at our Uran academy.": ["हमारी उरण एकेडमी के अगले क्लासरूम बैच से जुड़ें।", "आमच्या उरण अकॅडमीतील पुढील क्लासरूम बॅचमध्ये सहभागी व्हा."],
+        "Student Learning Journey": ["छात्र की सीखने की यात्रा", "विद्यार्थ्याचा शिकण्याचा प्रवास"],
+        "This story's video has not been added yet. Please check back soon.": ["इस कहानी का वीडियो अभी जोड़ा नहीं गया है। कृपया जल्द ही फिर देखें।", "या कथेचा व्हिडिओ अद्याप जोडलेला नाही. कृपया लवकरच पुन्हा पाहा."],
+
+        /* Static sample video card (shown until the backend returns stories) */
+        "Rahul Sharma": ["राहुल शर्मा", "राहुल शर्मा"],
+        "From Pune, Maharashtra": ["पुणे, महाराष्ट्र से", "पुणे, महाराष्ट्र येथून"],
+
+        /* Mutual Fund investor stories (stories.html?mode=mutual-fund) */
+        "Investor Experiences": ["निवेशकों के अनुभव", "गुंतवणूकदारांचे अनुभव"],
+        "Real-world examples of families, professionals, and young investors achieving life milestones through systematic investing.": ["व्यवस्थित निवेश से जीवन के लक्ष्य हासिल करने वाले परिवारों, पेशेवरों और युवाओं के वास्तविक उदाहरण।", "पद्धतशीर गुंतवणुकीतून आयुष्यातील उद्दिष्टे साध्य करणाऱ्या कुटुंबांची, व्यावसायिकांची आणि तरुणांची प्रत्यक्ष उदाहरणे."],
+        "Whether it is funding a child's dream education, creating an inflation-proof retirement pension, or building an emergency corpus, disciplined compounding turns financial aspirations into reality.": [
+            "चाहे बच्चे की सपनों की पढ़ाई का खर्च उठाना हो, महंगाई से सुरक्षित सेवानिवृत्ति पेंशन बनानी हो या आपातकालीन कॉर्पस तैयार करना हो, अनुशासित चक्रवृद्धि वित्तीय आकांक्षाओं को हकीकत में बदल देती है।",
+            "मुलांच्या स्वप्नातील शिक्षणाचा खर्च असो, महागाईपासून सुरक्षित सेवानिवृत्ती पेन्शन असो किंवा आपत्कालीन कॉर्पस उभारणे असो, शिस्तबद्ध चक्रवाढ आर्थिक आकांक्षा प्रत्यक्षात आणते."],
+        "CASE STUDY: CHILD EDUCATION FUND": ["केस स्टडी: बच्चों की शिक्षा निधि", "केस स्टडी: मुलांच्या शिक्षणासाठी निधी"],
+        "Building a Higher Education Corpus through a ₹{#} SIP": ["₹{#} के SIP से उच्च शिक्षा का कॉर्पस बनाना", "₹{#} च्या SIP मधून उच्च शिक्षणासाठी कॉर्पस उभारणे"],
+        "A parent from Uran initiated a monthly SIP of ₹{#} when their child was {#} years old. Over a disciplined {#}-year horizon, rupee cost averaging helped build a resilient fund that funded professional college education comfortably.": [
+            "उरण के एक अभिभावक ने अपने बच्चे के {#2} वर्ष का होने पर ₹{#1} का मासिक SIP शुरू किया। {#3} वर्षों की अनुशासित अवधि में रुपी कॉस्ट एवरेजिंग ने एक मजबूत फंड बनाने में मदद की, जिससे प्रोफेशनल कॉलेज की पढ़ाई का खर्च आराम से पूरा हुआ।",
+            "उरणमधील एका पालकांनी मूल {#2} वर्षांचे असताना ₹{#1} ची मासिक SIP सुरू केली. {#3} वर्षांच्या शिस्तबद्ध कालावधीत रुपी कॉस्ट ॲव्हरेजिंगमुळे भक्कम निधी उभा राहिला, ज्यातून व्यावसायिक महाविद्यालयीन शिक्षणाचा खर्च सहज भागला."],
+        "Key Lesson: \"Starting early and staying invested through market volatility ensures peace of mind.\"": [
+            "मुख्य सबक: \"जल्दी शुरुआत करना और बाजार के उतार-चढ़ाव में निवेशित बने रहना मन की शांति देता है।\"",
+            "मुख्य धडा: \"लवकर सुरुवात करणे आणि बाजारातील चढ-उतारांतही गुंतवणूक टिकवणे मनःशांती देते.\""],
+        "CASE STUDY: RETIREMENT CASHFLOW": ["केस स्टडी: सेवानिवृत्ति नकदी प्रवाह", "केस स्टडी: सेवानिवृत्ती रोख प्रवाह"],
+        "Creating a Regular Monthly Pension via SWP": ["SWP से नियमित मासिक पेंशन बनाना", "SWP द्वारे नियमित मासिक पेन्शन तयार करणे"],
+        "A retired individual structured their accumulated savings into a balanced hybrid mutual fund portfolio, withdrawing a fixed monthly cashflow via Systematic Withdrawal Plan (SWP) with higher tax efficiency than traditional fixed deposits.": [
+            "एक सेवानिवृत्त व्यक्ति ने अपनी जमा बचत को संतुलित हाइब्रिड म्यूचुअल फंड पोर्टफोलियो में लगाया और सिस्टमैटिक विथड्रॉल प्लान (SWP) के जरिए पारंपरिक फिक्स्ड डिपॉजिट से अधिक कर-कुशलता के साथ निश्चित मासिक राशि निकाली।",
+            "एका निवृत्त व्यक्तीने आपली जमा बचत संतुलित हायब्रिड म्युच्युअल फंड पोर्टफोलिओत गुंतवली आणि सिस्टिमॅटिक विथड्रॉल प्लॅनद्वारे (SWP) पारंपरिक मुदत ठेवींपेक्षा अधिक कर-कार्यक्षमतेने निश्चित मासिक रक्कम घेतली."],
+        "Key Lesson: \"SWP provides regular cashflows while remaining capital continues to compound.\"": [
+            "मुख्य सबक: \"SWP नियमित नकदी प्रवाह देता है, जबकि शेष पूंजी में चक्रवृद्धि जारी रहती है।\"",
+            "मुख्य धडा: \"SWP नियमित रोख प्रवाह देते, तर उर्वरित भांडवलाची चक्रवाढ सुरू राहते.\""],
+        "Be the first to share your experience.": ["अपना अनुभव साझा करने वाले पहले व्यक्ति बनें।", "तुमचा अनुभव सांगणारे पहिले व्हा."],
+        "Add Your Review": ["अपनी समीक्षा जोड़ें", "तुमचा आढावा द्या"],
+        "Share your Mutual Fund investment experience — published after approval by our team.": [
+            "अपना म्यूचुअल फंड निवेश अनुभव साझा करें — हमारी टीम की स्वीकृति के बाद प्रकाशित किया जाएगा।",
+            "तुमचा म्युच्युअल फंड गुंतवणुकीचा अनुभव सांगा — आमच्या टीमच्या मंजुरीनंतर प्रकाशित केला जाईल."],
+        "Email *": ["ईमेल *", "ईमेल *"],
+        "Never shown publicly. Used only to confirm your review.": ["कभी सार्वजनिक रूप से नहीं दिखाया जाएगा। केवल आपकी समीक्षा की पुष्टि के लिए उपयोग होगा।", "कधीही सार्वजनिकरीत्या दाखवला जाणार नाही. फक्त तुमच्या आढाव्याच्या पुष्टीसाठी वापरला जाईल."],
+        "Service / Investment Goal <0>(optional)</0>": ["सेवा / निवेश लक्ष्य <0>(वैकल्पिक)</0>", "सेवा / गुंतवणूक उद्दिष्ट <0>(ऐच्छिक)</0>"],
+        "e.g. Mutual Funds & SIP, Retirement Planning": ["जैसे म्यूचुअल फंड और SIP, सेवानिवृत्ति नियोजन", "उदा. म्युच्युअल फंड आणि SIP, सेवानिवृत्ती नियोजन"],
+        "Rating *": ["रेटिंग *", "रेटिंग *"],
+        "Select a rating": ["रेटिंग चुनें", "रेटिंग निवडा"],
+        "Poor": ["खराब", "वाईट"],
+        "Fair": ["ठीक-ठाक", "बरा"],
+        "Good": ["अच्छा", "चांगला"],
+        "Very good": ["बहुत अच्छा", "खूप चांगला"],
+        "Excellent": ["उत्कृष्ट", "उत्कृष्ट"],
+        "Your Review *": ["आपकी समीक्षा *", "तुमचा आढावा *"],
+        "Profile Photo <0>(optional, JPG/PNG/WebP up to {#} MB)</0>": ["प्रोफाइल फोटो <0>(वैकल्पिक, JPG/PNG/WebP, अधिकतम {#} MB)</0>", "प्रोफाइल फोटो <0>(ऐच्छिक, JPG/PNG/WebP, कमाल {#} MB)</0>"],
+        "Submit Review": ["समीक्षा भेजें", "आढावा पाठवा"],
+        "Submitting…": ["भेजा जा रहा है…", "पाठवत आहे…"],
+        "Thank you for sharing your experience!": ["अपना अनुभव साझा करने के लिए धन्यवाद!", "तुमचा अनुभव सांगितल्याबद्दल धन्यवाद!"],
+        "Your review has been submitted successfully": ["आपकी समीक्षा सफलतापूर्वक भेज दी गई है", "तुमचा आढावा यशस्वीरीत्या पाठवला गेला आहे"],
+        "and is awaiting approval by our team.": ["और हमारी टीम की स्वीकृति की प्रतीक्षा में है।", "आणि त्याला आमच्या टीमच्या मंजुरीची प्रतीक्षा आहे."],
+        "Please select a star rating.": ["कृपया स्टार रेटिंग चुनें।", "कृपया स्टार रेटिंग निवडा."],
+        "Please enter your full name.": ["कृपया अपना पूरा नाम दर्ज करें।", "कृपया तुमचे पूर्ण नाव लिहा."],
+        "Please enter a valid email address.": ["कृपया मान्य ईमेल पता दर्ज करें।", "कृपया वैध ईमेल पत्ता लिहा."],
+        "Your review must be between {#} and {#} characters.": ["आपकी समीक्षा {#} से {#} वर्णों के बीच होनी चाहिए।", "तुमचा आढावा {#} ते {#} वर्णांच्या दरम्यान असावा."],
+        "Please choose a JPG, PNG or WebP image.": ["कृपया JPG, PNG या WebP इमेज चुनें।", "कृपया JPG, PNG किंवा WebP इमेज निवडा."],
+        "Photo must be smaller than {#} MB.": ["फोटो {#} MB से छोटी होनी चाहिए।", "फोटो {#} MB पेक्षा लहान असावा."],
+        "Something went wrong. Please try again.": ["कुछ गलत हो गया। कृपया फिर से प्रयास करें।", "काहीतरी चुकले. कृपया पुन्हा प्रयत्न करा."],
+        "We could not reach the server. Please check your connection and try again.": [
+            "सर्वर से संपर्क नहीं हो सका। कृपया अपना कनेक्शन जांचें और फिर से प्रयास करें।",
+            "सर्व्हरशी संपर्क होऊ शकला नाही. कृपया तुमचे कनेक्शन तपासा आणि पुन्हा प्रयत्न करा."],
+        "Investor Stories & Experiences | Lord Sai Investment": ["निवेशकों की कहानियां और अनुभव | लॉर्ड साई इन्वेस्टमेंट", "गुंतवणूकदारांच्या कथा आणि अनुभव | लॉर्ड साई इन्व्हेस्टमेंट"],
+        "Mutual Fund Distribution (ARN-{#}) | Investor Stories & Experiences | Lord Sai Investment": ["म्यूचुअल फंड वितरण (ARN-{#}) | निवेशकों की कहानियां और अनुभव | लॉर्ड साई इन्वेस्टमेंट", "म्युच्युअल फंड वितरण (ARN-{#}) | गुंतवणूकदारांच्या कथा आणि अनुभव | लॉर्ड साई इन्व्हेस्टमेंट"],
+        "Investor Stories & Experiences": ["निवेशकों की कहानियां और अनुभव", "गुंतवणूकदारांच्या कथा आणि अनुभव"],
+        "Real experiences and feedback from our investors and clients.": ["हमारे निवेशकों और क्लाइंट्स के वास्तविक अनुभव और प्रतिक्रिया।", "आमच्या गुंतवणूकदार आणि क्लायंट्सचे खरे अनुभव आणि अभिप्राय."],
+        "Video reviews, client testimonials and experiences shared by people who invest in mutual funds with VAIBHAV PAWAR (AMFI Registered MFD — ARN: {#}).": ["VAIBHAV PAWAR (AMFI पंजीकृत MFD — ARN: {#}) के साथ म्यूचुअल फंड में निवेश करने वाले लोगों द्वारा साझा किए गए वीडियो रिव्यू, क्लाइंट प्रशंसापत्र और अनुभव।", "VAIBHAV PAWAR (AMFI नोंदणीकृत MFD — ARN: {#}) यांच्यासोबत म्युच्युअल फंडात गुंतवणूक करणाऱ्या लोकांनी सांगितलेले व्हिडिओ रिव्ह्यू, क्लायंट अभिप्राय आणि अनुभव."],
+        "Video Reviews": ["वीडियो रिव्यू", "व्हिडिओ रिव्ह्यू"],
+        "Investor Testimonials": ["निवेशकों के प्रशंसापत्र", "गुंतवणूकदारांचे अभिप्राय"],
+        "Investor Video Reviews": ["निवेशकों के वीडियो रिव्यू", "गुंतवणूकदारांचे व्हिडिओ रिव्ह्यू"],
+        "Investor Video Review": ["निवेशक वीडियो रिव्यू", "गुंतवणूकदार व्हिडिओ रिव्ह्यू"],
+        "Watch our mutual fund investors and clients share their experience of investing with us.": ["देखें कि हमारे म्यूचुअल फंड निवेशक और क्लाइंट हमारे साथ निवेश करने का अपना अनुभव कैसे साझा करते हैं।", "आमचे म्युच्युअल फंड गुंतवणूकदार आणि क्लायंट आमच्यासोबत गुंतवणूक करण्याचा त्यांचा अनुभव सांगताना पाहा."],
+        "Loading investor video reviews…": ["निवेशकों के वीडियो रिव्यू लोड हो रहे हैं…", "गुंतवणूकदारांचे व्हिडिओ रिव्ह्यू लोड होत आहेत…"],
+        "Mutual Fund Investor": ["म्यूचुअल फंड निवेशक", "म्युच्युअल फंड गुंतवणूकदार"],
+        "Investor video reviews are coming soon": ["निवेशकों के वीडियो रिव्यू जल्द आ रहे हैं", "गुंतवणूकदारांचे व्हिडिओ रिव्ह्यू लवकरच येत आहेत"],
+        "Video reviews from our mutual fund investors and clients will be published here.": ["हमारे म्यूचुअल फंड निवेशकों और क्लाइंट्स के वीडियो रिव्यू यहां प्रकाशित किए जाएंगे।", "आमच्या म्युच्युअल फंड गुंतवणूकदार आणि क्लायंट्सचे व्हिडिओ रिव्ह्यू येथे प्रकाशित केले जातील."],
+        "Client Testimonials": ["क्लाइंट प्रशंसापत्र", "क्लायंट अभिप्राय"],
+        "What Our Investors Say": ["हमारे निवेशक क्या कहते हैं", "आमचे गुंतवणूकदार काय म्हणतात"],
+        "Feedback from our mutual fund investors and clients. Every review is checked by our team before it is published.": ["हमारे म्यूचुअल फंड निवेशकों और क्लाइंट्स की प्रतिक्रिया। हर समीक्षा प्रकाशित होने से पहले हमारी टीम द्वारा जांची जाती है।", "आमच्या म्युच्युअल फंड गुंतवणूकदार आणि क्लायंट्सचा अभिप्राय. प्रत्येक आढावा प्रकाशित होण्यापूर्वी आमची टीम तपासते."],
+        "Share Your Experience": ["अपना अनुभव साझा करें", "तुमचा अनुभव सांगा"],
+        "Invested with us? Your review is published after approval by our team.": ["हमारे साथ निवेश किया है? आपकी समीक्षा हमारी टीम की स्वीकृति के बाद प्रकाशित की जाती है।", "आमच्यासोबत गुंतवणूक केली आहे? तुमचा आढावा आमच्या टीमच्या मंजुरीनंतर प्रकाशित केला जातो."],
+        "Real Investor Experiences": ["निवेशकों के वास्तविक अनुभव", "गुंतवणूकदारांचे खरे अनुभव"],
+        "Your Experience Matters": ["आपका अनुभव मायने रखता है", "तुमचा अनुभव महत्त्वाचा आहे"],
+        "Start Your Own Investor Journey": ["अपनी निवेश यात्रा शुरू करें", "तुमचा गुंतवणूक प्रवास सुरू करा"],
+        "Talk to us about SIP, SWP and goal-based mutual fund investing, or share your experience as an investor.": ["SIP, SWP और लक्ष्य-आधारित म्यूचुअल फंड निवेश के बारे में हमसे बात करें, या एक निवेशक के रूप में अपना अनुभव साझा करें।", "SIP, SWP आणि उद्दिष्टाधारित म्युच्युअल फंड गुंतवणुकीबद्दल आमच्याशी बोला, किंवा गुंतवणूकदार म्हणून तुमचा अनुभव सांगा."],
+        "Tell us about your investment experience ({#}–{#} characters)": ["अपने निवेश के अनुभव के बारे में बताएं ({#}–{#} वर्ण)", "तुमच्या गुंतवणुकीच्या अनुभवाबद्दल सांगा ({#}–{#} वर्ण)"],
+        "By submitting you agree that your name, rating, service and review may be shown on this website once approved.": ["सबमिट करके आप सहमति देते हैं कि स्वीकृति के बाद आपका नाम, रेटिंग, सेवा और समीक्षा इस वेबसाइट पर दिखाई जा सकती है।", "सबमिट करून तुम्ही मान्य करता की मंजुरीनंतर तुमचे नाव, रेटिंग, सेवा आणि आढावा या वेबसाइटवर दाखवला जाऊ शकतो."]
+    });
+})(window);

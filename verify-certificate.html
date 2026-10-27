@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Certificate Verification | Lord Sai Investment &amp; Share Market Academy</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { font-family: "Inter", sans-serif; background: #F5F7FA; color: #0F172A; min-height: 100vh; }
+        .verify-wrap { max-width: 640px; margin: 0 auto; padding: 36px 16px 48px; }
+        .verify-logo { display: block; width: 260px; max-width: 80%; margin: 0 auto 22px; }
+        .verify-card { background: #fff; border: 1px solid #E5E9F0; border-radius: 16px; box-shadow: 0 10px 30px rgba(15, 23, 42, .06); padding: 28px; }
+        .verify-card h1 { font-size: 20px; font-weight: 800; margin: 0 0 4px; color: #7A0A1E; letter-spacing: .3px; }
+        .verify-sub { color: #64748B; font-size: 13.5px; margin-bottom: 20px; }
+        .verify-result { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 12px; margin-bottom: 18px; }
+        .verify-result.ok { background: #DCFCE7; color: #15803D; }
+        .verify-result.bad { background: #FEE2E2; color: #B91C1C; }
+        .verify-result i { font-size: 26px; }
+        .verify-result strong { display: block; font-size: 16px; }
+        .verify-table th { color: #64748B; font-weight: 500; width: 38%; font-size: 13px; }
+        .verify-table td { font-weight: 600; font-size: 14px; }
+        .verify-foot { text-align: center; color: #94A3B8; font-size: 12px; margin-top: 18px; }
+        .verify-foot a { color: #0B638F; }
+    </style>
+    <script src="js/api-config.js"></script>
+    <script src="js/auth.js?v=20261001-single"></script>
+</head>
+<body>
+    <div class="verify-wrap">
+        <img src="img/lord-sai-logo.png" alt="Lord Sai Investment &amp; Share Market Academy" class="verify-logo">
+        <div class="verify-card">
+            <h1><i class="fas fa-award me-2"></i>Certificate Verification</h1>
+            <div class="verify-sub">Checks a Course Completion Certificate issued by Lord Sai Investment &amp; Share Market Academy, Uran Navi Mumbai.</div>
+            <div id="verifyBody"><div class="text-muted"><span class="spinner-border spinner-border-sm me-2"></span>Checking certificate…</div></div>
+            <form id="verifyForm" class="mt-3 d-none" autocomplete="off">
+                <label class="form-label small fw-semibold" for="verifyCode">Verification code (from the certificate's QR link)</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="verifyCode" maxlength="40" placeholder="e.g. K7M2Q9XA4TRB" required>
+                    <button type="submit" class="btn btn-primary">Verify</button>
+                </div>
+            </form>
+        </div>
+        <div class="verify-foot">For any question about a certificate, contact the academy · <a href="home.html">Visit the website</a></div>
+    </div>
+    <script>
+        (function () {
+            "use strict";
+            function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+            var body = document.getElementById("verifyBody"), form = document.getElementById("verifyForm");
+            function verify(code) {
+                body.innerHTML = '<div class="text-muted"><span class="spinner-border spinner-border-sm me-2"></span>Checking certificate…</div>';
+                LSI_Auth.api("/public/certificates/verify/" + encodeURIComponent(code), { skipAuthRedirect: true }).then(function (res) {
+                    var v = res.success && res.data;
+                    if (!res.success && res.status === 0) {
+                        body.innerHTML = '<div class="verify-result bad"><i class="fas fa-wifi"></i><div><strong>Could not check right now</strong>' + esc(res.message) + '</div></div>';
+                        return;
+                    }
+                    if (!v || !v.valid) {
+                        body.innerHTML = '<div class="verify-result bad"><i class="fas fa-times-circle"></i><div><strong>Certificate not found</strong>This link does not match any certificate issued by the academy. Please check the link or contact the academy.</div></div>';
+                        form.classList.remove("d-none");
+                        return;
+                    }
+                    body.innerHTML = '<div class="verify-result ok"><i class="fas fa-check-circle"></i><div><strong>Valid Certificate</strong>This Course Completion Certificate was issued by Lord Sai Investment &amp; Share Market Academy.</div></div>' +
+                        '<table class="table verify-table mb-0"><tbody>' +
+                        '<tr><th>Certificate No.</th><td class="font-monospace">' + esc(v.certificateNumber) + '</td></tr>' +
+                        '<tr><th>Student Name</th><td>' + esc(v.studentName) + '</td></tr>' +
+                        '<tr><th>Course</th><td>' + esc(v.courseName) + '</td></tr>' +
+                        (v.coursePeriod ? '<tr><th>Course Period</th><td>' + esc(v.coursePeriod) + '</td></tr>' : '') +
+                        '<tr><th>Issued On</th><td>' + esc(v.issued) + '</td></tr>' +
+                        '</tbody></table>';
+                });
+            }
+            var code = new URLSearchParams(location.search).get("c");
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+                var c = document.getElementById("verifyCode").value.trim().toUpperCase();
+                if (c) { history.replaceState(null, "", "?c=" + encodeURIComponent(c)); verify(c); }
+            });
+            if (code) verify(code.trim().toUpperCase());
+            else { body.innerHTML = '<div class="text-muted small">Scan the QR code on the certificate, or enter its verification code below.</div>'; form.classList.remove("d-none"); }
+        })();
+    </script>
+</body>
+</html>

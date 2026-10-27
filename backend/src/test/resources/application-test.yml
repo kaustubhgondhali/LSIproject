@@ -1,0 +1,61 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:lsi_test;MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      # Schema comes from the same Flyway migrations used in production;
+      # validate proves entities and SQL agree.
+      ddl-auto: validate
+    database-platform: org.hibernate.dialect.H2Dialect
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+lsi:
+  rate-limit:
+    enabled: false
+  public-base-url: http://localhost:5500
+  cors:
+    allowed-origins: http://localhost:5500
+  jwt:
+    secret: test-only-secret-key-that-is-long-enough-for-hs256-signing
+    access-token-minutes: 120
+    refresh-token-days: 7
+    issuer: lordsai-lsi
+  storage:
+    base-path: ./target/test-uploads
+    max-video-size-mb: 512
+    max-document-size-mb: 25
+  support:
+    email: test@lordsai.local
+    phone: "+91 00000 00000"
+  mail:
+    enabled: false
+    from: test@lordsai.local
+  # Fake OAuth client so the Google code paths are exercised. These are test fixtures, not
+  # credentials: no real Google client id or secret belongs in the repository.
+  google:
+    client-id: test-google-client-id.apps.googleusercontent.com
+    client-secret: test-google-client-secret
+    redirect-uri: http://localhost:8080/api/public/email/google/callback
+  # Bulk communication runs inline in tests so assertions are deterministic.
+  communication:
+    async: false
+    batch-size: 2
+    batch-pause-ms: 0
+  whatsapp:
+    provider: NONE
+    api-url: https://graph.facebook.com
+    api-version: v20.0
+    access-token: ""
+    phone-number-id: ""
+    business-account-id: ""
+
+razorpay:
+  key-id: ""
+  key-secret: ""
+  webhook-secret: ""
+  currency: INR
